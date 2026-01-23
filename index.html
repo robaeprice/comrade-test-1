@@ -13,7 +13,7 @@
 <body style="margin: 0; padding: 0;">
     <div id="root"></div>
     <script type="text/babel">
-        import React, { useState, useCallback, useEffect, useMemo } from 'react';
+        const { useState, useCallback, useEffect, useMemo } = React;
 
 // ==================== UTILITY FUNCTIONS ====================
 
@@ -2345,6 +2345,8 @@ const Comrade = () => {
 // Render the app
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<Comrade />);
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<Comrade />);
     </script>
 </body>
 </html>
