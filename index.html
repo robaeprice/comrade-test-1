@@ -15,6 +15,7 @@
     <script type="text/babel">
         const { useState, useCallback, useEffect, useMemo } = React;
 
+
 // ==================== UTILITY FUNCTIONS ====================
 
 // Helper function to apply weighting to wealth values
@@ -301,12 +302,10 @@ const Layout = ({ children, onNavigate, showCopyToast }) => {
               <span className="mx-3">/</span>
               <span className="cursor-pointer hover:underline font-bold" onClick={() => onNavigate('about')}>ABOUT</span>
               <span className="mx-3">/</span>
-              <span className="cursor-pointer hover:underline font-bold" onClick={() => onNavigate('contact')}>CONTACT</span>
-              <span className="mx-3">/</span>
               <span className="cursor-pointer hover:underline font-bold" onClick={() => onNavigate('legal')}>LEGAL</span>
             </div>
             <div className="text-center text-xs text-gray-700 pb-12">
-              An app from TKTKTK Labs,<br/>a co-operative in Brooklyn, New York.
+              <a href="mailto:hello@comrade.money" className="hover:underline">HELLO@COMRADE.MONEY</a>
             </div>
           </div>
         </div>
@@ -471,19 +470,18 @@ const Comrade = () => {
       ]
     },
     vote: {
-      decision: 'Which vendor for office supplies?',
+      decision: 'What should the company\'s remote work policy be?',
       options: [
-        {id: 1, text: 'GreenPaper Co'},
-        {id: 2, text: 'OfficeMax'},
-        {id: 3, text: 'Staples'},
-        {id: 4, text: 'Local supplier'}
+        {id: 1, text: 'Fully remote'},
+        {id: 2, text: 'Hybrid'},
+        {id: 3, text: '100% in-office'}
       ],
       participants: [
-        {id: 5, name: 'Pat', wealth: '38000', vote: 'Local supplier'},
-        {id: 6, name: 'Chris', wealth: '165000', vote: 'Staples'},
-        {id: 7, name: 'Jamie', wealth: '52000', vote: 'Local supplier'},
-        {id: 8, name: 'Blake', wealth: '45000', vote: 'GreenPaper Co'},
-        {id: 9, name: 'Dana', wealth: '88000', vote: 'OfficeMax'}
+        {id: 5, name: 'Simon', wealth: '250000', vote: '100% in-office'},
+        {id: 6, name: 'Gerry', wealth: '120000', vote: 'Hybrid'},
+        {id: 7, name: 'Sarah', wealth: '65000', vote: 'Fully remote'},
+        {id: 8, name: 'Simone', wealth: '110000', vote: 'Fully remote'},
+        {id: 9, name: 'Thomas', wealth: '85000', vote: 'Hybrid'}
       ]
     },
     rent: {
@@ -833,7 +831,7 @@ const Comrade = () => {
   const [showVoteSettings, setShowVoteSettings] = useState(false);
   const [showRentSettings, setShowRentSettings] = useState(false);
 
-  const quotes = useMemo(() => ['FROM EACH ACCORDING TO ABILITY, TO EACH ACCORDING TO NEED', 'THANKS FOR SHARING', 'SHARE AND SHARE ALIKE', 'MANY HANDS MAKE LIGHT WORK', 'ALL FOR ONE AND ONE FOR ALL', 'A RISING TIDE LIFTS ALL BOATS', 'FAIR\'S FAIR', 'LIBERTÉ, ÉGALITÉ, FRATERNITÉ', 'WE\'RE ALL IN THIS TOGETHER', 'WHAT GOES AROUND COMES AROUND', 'NO ONE LEFT BEHIND', 'YOU GET WHAT YOU GIVE', 'WHICH SIDE ARE YOU ON?', 'SHARE THE LOAD', 'BREAD AND ROSES', 'ALL TOGETHER NOW', 'THE COMMON TREASURY', 'WHEN ADAM DELVED AND EVE SPAN, WHO WAS THEN THE GENTLEMAN?', 'E PLURIBUS UNUM', 'WHO BUILT THEBES OF THE SEVEN GATES?', 'SO THE LAST SHALL BE FIRST, AND THE FIRST LAST', 'THE WISDOM OF THE CROWD', 'AND ALL THAT BELIEVED WERE TOGETHER, AND HAD ALL THINGS IN COMMON', 'SALUS POPULI SUPREMA LEX', 'WHAT\'S MINE IS YOURS, AND WHAT IS YOURS IS MINE', 'GIVE US THIS DAY OUR DAILY BREAD', 'NO MAN IS AN ISLAND', 'VIVE LA COMMUNE!', 'FOR WHAT SHALL IT PROFIT A MAN, IF HE SHALL GAIN THE WORLD, AND LOSE HIS OWN SOUL?', 'REND DOWN THE HEDGES', 'AM I MY BROTHER\'S KEEPER?', 'IT TAKES A VILLAGE', 'ONE HAND WASHES THE OTHER'], []);
+  const quotes = useMemo(() => ['FROM EACH ACCORDING TO ABILITY, TO EACH ACCORDING TO NEED', 'THANKS FOR SHARING', 'SHARE AND SHARE ALIKE', 'MANY HANDS MAKE LIGHT WORK', 'ALL FOR ONE AND ONE FOR ALL', 'A RISING TIDE LIFTS ALL BOATS', 'FAIR\'S FAIR', 'LIBERTÉ, ÉGALITÉ, FRATERNITÉ', 'WE\'RE ALL IN THIS TOGETHER', 'WHAT GOES AROUND COMES AROUND', 'NO ONE LEFT BEHIND', 'YOU GET WHAT YOU GIVE', 'WHICH SIDE ARE YOU ON?', 'SHARE THE LOAD', 'BREAD AND ROSES', 'ALL TOGETHER NOW', 'THE COMMON TREASURY', 'WHEN ADAM DELVED AND EVE SPAN, WHO WAS THEN THE GENTLEMAN?', 'E PLURIBUS UNUM', 'WHO BUILT THEBES OF THE SEVEN GATES?', 'SO THE LAST SHALL BE FIRST, AND THE FIRST LAST', 'THE WISDOM OF THE CROWD', 'AND ALL THAT BELIEVED WERE TOGETHER, AND HAD ALL THINGS IN COMMON', 'SALUS POPULI SUPREMA LEX', 'WHAT\'S MINE IS YOURS, AND WHAT IS YOURS IS MINE', 'GIVE US THIS DAY OUR DAILY BREAD', 'NO MAN IS AN ISLAND', 'VIVE LA COMMUNE', 'FOR WHAT SHALL IT PROFIT A MAN, IF HE SHALL GAIN THE WORLD, AND LOSE HIS OWN SOUL?', 'REND DOWN THE HEDGES', 'AM I MY BROTHER\'S KEEPER?', 'IT TAKES A VILLAGE', 'ONE HAND WASHES THE OTHER'], []);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -1201,6 +1199,12 @@ const Comrade = () => {
           </div>
         </div>
 
+        <div className="flex items-center gap-4 my-6">
+          <div className="flex-1 border-t border-black"></div>
+          <span className="text-xs font-bold">{'$ € £'}</span>
+          <div className="flex-1 border-t border-black"></div>
+        </div>
+
         {/* Email sign-up box */}
         <div className="mb-4">
           {renderEmailSignup()}
@@ -1236,7 +1240,7 @@ const Comrade = () => {
             </div>
             <div>
               <h3 className="font-bold mb-2 text-sm uppercase tracking-wider">WHO BUILT THIS?</h3>
-              <p className="leading-relaxed text-xs">Comrade is an app from TKTKTK Labs, a co-operative in Brooklyn, New York. <span className="underline cursor-pointer hover:text-gray-600" onClick={() => navigateTo('contact')}>Get in touch.</span></p>
+              <p className="leading-relaxed text-xs">Comrade is a startup based in Brooklyn, New York. Get in touch at <a href="mailto:hello@comrade.money" className="underline hover:text-gray-600">hello@comrade.money</a>.</p>
               <div className="border-t border-dashed border-gray-400 mt-4"></div>
             </div>
             <div>
@@ -1249,17 +1253,6 @@ const Comrade = () => {
               <p className="leading-relaxed text-xs">What do you think?</p>
             </div>
           </div>
-        </div>
-      </Layout>
-    );
-  }
-
-  if (page === 'contact') {
-    return (
-      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
-        <div className="bg-white p-8 border-2 border-dashed border-gray-400">
-          <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider border-b-4 border-black pb-2">CONTACT</h2>
-          <p className="leading-relaxed text-xs text-black">Got questions? Technical issues? Want to throw money at this rocket-ship startup? Contact Rob Price at <a href="mailto:robaeprice@gmail.com" className="underline hover:text-gray-600">robaeprice@gmail.com</a></p>
         </div>
       </Layout>
     );
@@ -1293,6 +1286,12 @@ const Comrade = () => {
           onLoadExample: () => loadExample('share'),
           clearType: 'share'
         })}
+
+        <div className="flex items-center gap-4 my-6">
+          <div className="flex-1 border-t border-black"></div>
+          <span className="text-xs font-bold">{'$ € £'}</span>
+          <div className="flex-1 border-t border-black"></div>
+        </div>
 
         {/* Box 2: People and Bills */}
         <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
@@ -1554,9 +1553,15 @@ const Comrade = () => {
           )}
         </div>
 
+        <div className="flex items-center gap-4 my-6">
+          <div className="flex-1 border-t border-black"></div>
+          <span className="text-xs font-bold">{'$ € £'}</span>
+          <div className="flex-1 border-t border-black"></div>
+        </div>
+
         {renderResultsFooter(
           hasData,
-          `Bill-splitting Results\n\nTotal: ${formatCurrency(total)}\nWeighting: ${getWeightingLabel(shareWeighting)}\n\nBreakdown:\n${peopleData.map(p => `${p.name}: Paid ${formatCurrency(p.paid)}, Fair share ${formatCurrencySmart(p.fairShare)}`).join('\n')}\n\nSettlements:\n${transactions.length === 0 ? 'All settled!' : transactions.map(t => `${t.from} pays ${t.to} ${formatCurrencySmart(t.amount)}`).join('\n')}`,
+          `Comrade | Bill-splitting results\n\nTotal: ${formatCurrency(total)}\n\nBreakdown:\n${peopleData.map(p => `${p.name}: Paid ${formatCurrency(p.paid)}, fair share ${formatCurrencySmart(p.fairShare)}`).join('\n')}\n\nSettlements:\n${transactions.length === 0 ? 'All settled!' : transactions.map(t => `${t.from} pays ${t.to} ${formatCurrencySmart(t.amount)}`).join('\n')}\n\nCalculated using www.comrade.money. The fairer way to split costs with friends.`,
           'share-entry'
         )}
       </Layout>
@@ -1572,6 +1577,12 @@ const Comrade = () => {
           onLoadExample: () => loadExample('sale'),
           clearType: 'sale'
         })}
+
+        <div className="flex items-center gap-4 my-6">
+          <div className="flex-1 border-t border-black"></div>
+          <span className="text-xs font-bold">{'$ € £'}</span>
+          <div className="flex-1 border-t border-black"></div>
+        </div>
 
         {/* Box 2: Product Info and Potential Buyers */}
         <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
@@ -1766,9 +1777,15 @@ const Comrade = () => {
           )}
         </div>
 
+        <div className="flex items-center gap-4 my-6">
+          <div className="flex-1 border-t border-black"></div>
+          <span className="text-xs font-bold">{'$ € £'}</span>
+          <div className="flex-1 border-t border-black"></div>
+        </div>
+
         {renderResultsFooter(
           hasData,
-          `Selling Results\n\nProduct: ${productName || 'Unnamed product'}\nQuantity: ${numAvailable}\nWeighting: ${getWeightingLabel(saleWeighting)}\n\nSelected buyer${winners.length > 1 ? 's' : ''}:\n${winners.map(w => `${w.name} - ${formatCurrency(w.offer)}`).join('\n')}\n\nAll buyers ranked by need:\n${rankedBuyers.map((b, i) => `${i + 1}. ${b.name} - Offer: ${formatCurrency(b.offer)}, Need score: ${b.needScore < 0.01 ? b.needScore.toExponential(4) : b.needScore.toFixed(4)}%`).join('\n')}`,
+          `Comrade | Selling results\n\nProduct: ${productName || 'Unnamed product'}\nQuantity: ${numAvailable}\n\nSelected buyer${winners.length > 1 ? 's' : ''}:\n${winners.map(w => `${w.name} - ${formatCurrency(w.offer)}`).join('\n')}\n\nAll buyers ranked by need:\n${rankedBuyers.map((b, i) => `${i + 1}. ${b.name} - Offer: ${formatCurrency(b.offer)}, need score: ${b.needScore < 0.01 ? b.needScore.toExponential(4) : b.needScore.toFixed(4)}%`).join('\n')}\n\nCalculated using www.comrade.money. The fairer way to sell things.`,
           'sale-entry'
         )}
       </Layout>
@@ -1784,6 +1801,12 @@ const Comrade = () => {
           onLoadExample: () => loadExample('vote'),
           clearType: 'vote'
         })}
+
+        <div className="flex items-center gap-4 my-6">
+          <div className="flex-1 border-t border-black"></div>
+          <span className="text-xs font-bold">{'$ € £'}</span>
+          <div className="flex-1 border-t border-black"></div>
+        </div>
 
         {/* Box 2: Decision, Options, and Participants */}
         <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
@@ -2078,9 +2101,15 @@ const Comrade = () => {
           )}
         </div>
 
+        <div className="flex items-center gap-4 my-6">
+          <div className="flex-1 border-t border-black"></div>
+          <span className="text-xs font-bold">{'$ € £'}</span>
+          <div className="flex-1 border-t border-black"></div>
+        </div>
+
         {renderResultsFooter(
           hasData,
-          `Voting Results\n\nDecision: ${voteDecision}\nWeighting: ${getWeightingLabel(voteWeighting)}\n\nWinner: ${winner ? `${winner.option} (${winner.percentage.toFixed(1)}%)` : 'None'}\n\nBreakdown:\n${voteBreakdown.map((b, i) => `${i + 1}. ${b.option}: ${b.percentage.toFixed(1)}% (${b.voters.length} voter${b.voters.length !== 1 ? 's' : ''})`).join('\n')}`,
+          `Comrade | Voting results\n\nDecision: ${voteDecision}\n\nWinner: ${winner ? `${winner.option} (${winner.percentage.toFixed(1)}%)` : 'None'}\n\nBreakdown:\n${voteBreakdown.map((b, i) => `${i + 1}. ${b.option}: ${b.percentage.toFixed(1)}% (${b.voters.length} voter${b.voters.length !== 1 ? 's' : ''})`).join('\n')}\n\nCalculated using www.comrade.money. The fairer way to decide things.`,
           'vote-entry'
         )}
       </Layout>
@@ -2096,6 +2125,12 @@ const Comrade = () => {
           onLoadExample: () => loadExample('rent'),
           clearType: 'rent'
         })}
+
+        <div className="flex items-center gap-4 my-6">
+          <div className="flex-1 border-t border-black"></div>
+          <span className="text-xs font-bold">{'$ € £'}</span>
+          <div className="flex-1 border-t border-black"></div>
+        </div>
 
         {/* Box 2: Total Costs and Roommates */}
         <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
@@ -2330,9 +2365,15 @@ const Comrade = () => {
           )}
         </div>
 
+        <div className="flex items-center gap-4 my-6">
+          <div className="flex-1 border-t border-black"></div>
+          <span className="text-xs font-bold">{'$ € £'}</span>
+          <div className="flex-1 border-t border-black"></div>
+        </div>
+
         {renderResultsFooter(
           hasData,
-          `Rent Splitting Results\n\nTotal: ${formatCurrency(total)}/month\nRent: ${formatCurrency(rentAmount)}\nUtilities: ${formatCurrency(utilitiesAmount)}\nWeighting: ${getWeightingLabel(rentWeighting)}\n\nBreakdown:\n${rentData.map(p => `${p.name}: ${formatCurrencySmart(p.fairRent)} (${p.rentPct.toFixed(1)}%) - ${formatNumber(p.roomSize.toFixed(0))} ${sizeUnit}`).join('\n')}`,
+          `Comrade | Rent-splitting results\n\nTotal: ${formatCurrency(total)}/month\nRent: ${formatCurrency(rentAmount)}\nUtilities: ${formatCurrency(utilitiesAmount)}\n\nBreakdown:\n${rentData.map(p => `${p.name}: ${formatCurrencySmart(p.fairRent)} (${p.rentPct.toFixed(1)}%) - ${formatNumber(p.roomSize.toFixed(0))} ${sizeUnit}`).join('\n')}\n\nCalculated using www.comrade.money. The fairer way to split costs with friends.`,
           'rent-entry'
         )}
       </Layout>
@@ -2341,6 +2382,7 @@ const Comrade = () => {
   
   return null;
 };
+
 
 // Render the app
         const root = ReactDOM.createRoot(document.getElementById('root'));
