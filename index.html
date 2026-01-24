@@ -16,6 +16,7 @@
         const { useState, useCallback, useEffect, useMemo } = React;
 
 
+
 // ==================== UTILITY FUNCTIONS ====================
 
 // Helper function to apply weighting to wealth values
@@ -231,7 +232,7 @@ const ResponsiveDataTable = ({ data, columns, mobileCardConfig }) => {
 
 const Layout = ({ children, onNavigate, showCopyToast }) => {
   return (
-    <div style={{fontFamily: 'Courier New, monospace', background: 'linear-gradient(135deg, rgba(220,20,60,0.85) 0%, rgba(255,140,0,0.85) 100%), url("data:image/svg+xml,%3Csvg width=\'75\' height=\'90\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Ctext x=\'10\' y=\'20\' font-family=\'Courier New,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E$%3C/text%3E%3Ctext x=\'35\' y=\'20\' font-family=\'Courier New,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E€%3C/text%3E%3Ctext x=\'60\' y=\'20\' font-family=\'Courier New,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E£%3C/text%3E%3Ctext x=\'3\' y=\'50\' font-family=\'Courier New,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E€%3C/text%3E%3Ctext x=\'28\' y=\'50\' font-family=\'Courier New,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E£%3C/text%3E%3Ctext x=\'53\' y=\'50\' font-family=\'Courier New,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E$%3C/text%3E%3Ctext x=\'17\' y=\'80\' font-family=\'Courier New,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E£%3C/text%3E%3Ctext x=\'42\' y=\'80\' font-family=\'Courier New,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E$%3C/text%3E%3Ctext x=\'67\' y=\'80\' font-family=\'Courier New,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E€%3C/text%3E%3C/svg%3E") #dc143c', minHeight: '100vh'}}>
+    <div style={{fontFamily: 'Courier New, monospace', background: 'linear-gradient(135deg, rgba(255,215,0,0.85) 0%, rgba(255,140,0,0.85) 100%), url("data:image/svg+xml,%3Csvg width=\'75\' height=\'90\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Ctext x=\'10\' y=\'20\' font-family=\'Courier New,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E$%3C/text%3E%3Ctext x=\'35\' y=\'20\' font-family=\'Courier New,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E€%3C/text%3E%3Ctext x=\'60\' y=\'20\' font-family=\'Courier New,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E£%3C/text%3E%3Ctext x=\'3\' y=\'50\' font-family=\'Courier New,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E€%3C/text%3E%3Ctext x=\'28\' y=\'50\' font-family=\'Courier New,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E£%3C/text%3E%3Ctext x=\'53\' y=\'50\' font-family=\'Courier New,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E$%3C/text%3E%3Ctext x=\'17\' y=\'80\' font-family=\'Courier New,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E£%3C/text%3E%3Ctext x=\'42\' y=\'80\' font-family=\'Courier New,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E$%3C/text%3E%3Ctext x=\'67\' y=\'80\' font-family=\'Courier New,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E€%3C/text%3E%3C/svg%3E") #dc143c', minHeight: '100vh'}}>
       <style>{`
         * {
           font-family: 'Courier New, monospace !important;
@@ -1163,6 +1164,10 @@ const Comrade = () => {
             <button onClick={() => navigateTo('share-entry')} className="w-full bg-black text-white font-bold py-4 px-6 border-2 border-black hover:bg-gray-800 transition-all text-xl">GET STARTED</button>
           </div>
         </div>
+
+          <div className="flex-1 border-t border-black"></div>
+              <span className="text-xs font-bold">{'$ € £'}</span>
+              <div className="flex-1 border-t border-black"></div>
         
         <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
           <div className="max-w-md mx-auto">
@@ -2380,9 +2385,84 @@ const Comrade = () => {
     );
   }
   
+  if (page === 'background-test') {
+    const backgrounds = [
+      { name: 'Current (Red-Orange)', gradient: 'linear-gradient(135deg, rgba(220,20,60,0.85) 0%, rgba(255,140,0,0.85) 100%)' },
+      { name: 'Deep Purple-Pink', gradient: 'linear-gradient(135deg, rgba(138,43,226,0.85) 0%, rgba(255,20,147,0.85) 100%)' },
+      { name: 'Ocean Blue', gradient: 'linear-gradient(135deg, rgba(0,119,182,0.85) 0%, rgba(0,180,216,0.85) 100%)' },
+      { name: 'Forest Green', gradient: 'linear-gradient(135deg, rgba(34,139,34,0.85) 0%, rgba(144,238,144,0.85) 100%)' },
+      { name: 'Sunset Orange-Pink', gradient: 'linear-gradient(135deg, rgba(255,94,77,0.85) 0%, rgba(255,154,158,0.85) 100%)' },
+      { name: 'Royal Purple', gradient: 'linear-gradient(135deg, rgba(75,0,130,0.85) 0%, rgba(138,43,226,0.85) 100%)' },
+      { name: 'Midnight Blue', gradient: 'linear-gradient(135deg, rgba(25,25,112,0.85) 0%, rgba(65,105,225,0.85) 100%)' },
+      { name: 'Pastel Peach-Pink', gradient: 'linear-gradient(135deg, rgba(255,218,185,0.85) 0%, rgba(255,182,193,0.85) 100%)' },
+      { name: 'Pastel Mint-Blue', gradient: 'linear-gradient(135deg, rgba(189,252,201,0.85) 0%, rgba(167,216,238,0.85) 100%)' },
+      { name: 'Pastel Lavender-Pink', gradient: 'linear-gradient(135deg, rgba(230,230,250,0.85) 0%, rgba(255,192,203,0.85) 100%)' },
+      { name: 'Pastel Yellow-Peach', gradient: 'linear-gradient(135deg, rgba(255,253,208,0.85) 0%, rgba(255,218,185,0.85) 100%)' },
+      { name: 'Pastel Sky Blue', gradient: 'linear-gradient(135deg, rgba(176,224,230,0.85) 0%, rgba(173,216,230,0.85) 100%)' },
+      { name: 'Pastel Rose-Coral', gradient: 'linear-gradient(135deg, rgba(255,182,193,0.85) 0%, rgba(255,127,80,0.85) 100%)' },
+      { name: 'Emerald-Teal', gradient: 'linear-gradient(135deg, rgba(46,125,50,0.85) 0%, rgba(0,150,136,0.85) 100%)' },
+      { name: 'Crimson-Burgundy', gradient: 'linear-gradient(135deg, rgba(220,20,60,0.85) 0%, rgba(128,0,32,0.85) 100%)' },
+      { name: 'Golden Hour', gradient: 'linear-gradient(135deg, rgba(255,215,0,0.85) 0%, rgba(255,140,0,0.85) 100%)' },
+      { name: 'Berry Purple', gradient: 'linear-gradient(135deg, rgba(147,51,234,0.85) 0%, rgba(219,39,119,0.85) 100%)' },
+      { name: 'Pastel Lilac-Mint', gradient: 'linear-gradient(135deg, rgba(200,162,200,0.85) 0%, rgba(152,251,152,0.85) 100%)' },
+      { name: 'Charcoal-Slate', gradient: 'linear-gradient(135deg, rgba(54,69,79,0.85) 0%, rgba(96,125,139,0.85) 100%)' },
+      { name: 'Coral Reef', gradient: 'linear-gradient(135deg, rgba(255,127,80,0.85) 0%, rgba(255,99,71,0.85) 100%)' },
+      { name: 'Light Blue-Pink', gradient: 'linear-gradient(135deg, rgba(173,216,230,0.85) 0%, rgba(255,182,193,0.85) 100%)' },
+      { name: 'Pastel Blue-Lavender', gradient: 'linear-gradient(135deg, rgba(176,224,230,0.85) 0%, rgba(230,230,250,0.85) 100%)' },
+      { name: 'Pastel Mint-Peach', gradient: 'linear-gradient(135deg, rgba(189,252,201,0.85) 0%, rgba(255,218,185,0.85) 100%)' },
+      { name: 'Pastel Pink-Yellow', gradient: 'linear-gradient(135deg, rgba(255,192,203,0.85) 0%, rgba(255,253,208,0.85) 100%)' },
+      { name: 'Pastel Lavender-Coral', gradient: 'linear-gradient(135deg, rgba(230,230,250,0.85) 0%, rgba(255,127,80,0.85) 100%)' },
+      { name: 'Lime-Emerald', gradient: 'linear-gradient(135deg, rgba(50,205,50,0.85) 0%, rgba(0,128,0,0.85) 100%)' },
+      { name: 'Sage-Forest', gradient: 'linear-gradient(135deg, rgba(128,158,128,0.85) 0%, rgba(34,139,34,0.85) 100%)' },
+      { name: 'Spring Green-Teal', gradient: 'linear-gradient(135deg, rgba(0,255,127,0.85) 0%, rgba(0,128,128,0.85) 100%)' },
+      { name: 'Mint-Jade', gradient: 'linear-gradient(135deg, rgba(152,251,152,0.85) 0%, rgba(0,168,107,0.85) 100%)' },
+      { name: 'Scarlet-Crimson', gradient: 'linear-gradient(135deg, rgba(255,36,0,0.85) 0%, rgba(220,20,60,0.85) 100%)' },
+      { name: 'Rose-Wine', gradient: 'linear-gradient(135deg, rgba(255,0,127,0.85) 0%, rgba(128,0,32,0.85) 100%)' },
+      { name: 'Cherry-Maroon', gradient: 'linear-gradient(135deg, rgba(222,49,99,0.85) 0%, rgba(128,0,0,0.85) 100%)' },
+      { name: 'Ruby-Garnet', gradient: 'linear-gradient(135deg, rgba(224,17,95,0.85) 0%, rgba(115,0,0,0.85) 100%)' },
+      { name: 'Aqua-Blush', gradient: 'linear-gradient(135deg, rgba(168,237,234,0.85) 0%, rgba(254,214,227,0.85) 100%)' }
+    ];
+
+    const currencyPattern = `url("data:image/svg+xml,%3Csvg width='75' height='90' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='10' y='20' font-family='Courier New,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E$%3C/text%3E%3Ctext x='35' y='20' font-family='Courier New,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E€%3C/text%3E%3Ctext x='60' y='20' font-family='Courier New,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E£%3C/text%3E%3Ctext x='3' y='50' font-family='Courier New,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E€%3C/text%3E%3Ctext x='28' y='50' font-family='Courier New,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E£%3C/text%3E%3Ctext x='53' y='50' font-family='Courier New,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E$%3C/text%3E%3Ctext x='17' y='80' font-family='Courier New,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E£%3C/text%3E%3Ctext x='42' y='80' font-family='Courier New,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E$%3C/text%3E%3Ctext x='67' y='80' font-family='Courier New,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E€%3C/text%3E%3C/svg%3E")`;
+
+    return (
+      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
+        <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
+          <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider border-b-4 border-black pb-2">BACKGROUND TEST</h2>
+          <p className="text-xs mb-6 text-black">Click any option to see it as the app background. All backgrounds maintain the currency symbol pattern.</p>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {backgrounds.map((bg, idx) => (
+              <div
+                key={idx}
+                className="cursor-pointer border-2 border-black hover:border-4 transition-all"
+                onClick={() => {
+                  const layoutDiv = document.querySelector('[style*="linear-gradient"]');
+                  if (layoutDiv) {
+                    layoutDiv.style.background = `${bg.gradient}, ${currencyPattern} #dc143c`;
+                  }
+                }}
+              >
+                <div 
+                  style={{ 
+                    background: `${bg.gradient}, ${currencyPattern} #dc143c`,
+                    height: '100px'
+                  }}
+                  className="border-b-2 border-black"
+                ></div>
+                <div className="p-3 bg-white">
+                  <p className="font-bold text-xs text-black">{bg.name}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
   return null;
 };
-
 
 // Render the app
         const root = ReactDOM.createRoot(document.getElementById('root'));
