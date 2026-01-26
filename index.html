@@ -16,7 +16,6 @@
         const { useState, useCallback, useEffect, useMemo } = React;
 
 
-
 // ==================== UTILITY FUNCTIONS ====================
 
 // Helper function to apply weighting to wealth values
@@ -232,14 +231,65 @@ const ResponsiveDataTable = ({ data, columns, mobileCardConfig }) => {
 
 const Layout = ({ children, onNavigate, showCopyToast }) => {
   return (
-    <div style={{fontFamily: 'Courier New, monospace', background: 'linear-gradient(135deg, rgba(255,215,0,0.85) 0%, rgba(255,140,0,0.85) 100%), url("data:image/svg+xml,%3Csvg width=\'75\' height=\'90\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Ctext x=\'10\' y=\'20\' font-family=\'Courier New,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E$%3C/text%3E%3Ctext x=\'35\' y=\'20\' font-family=\'Courier New,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E€%3C/text%3E%3Ctext x=\'60\' y=\'20\' font-family=\'Courier New,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E£%3C/text%3E%3Ctext x=\'3\' y=\'50\' font-family=\'Courier New,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E€%3C/text%3E%3Ctext x=\'28\' y=\'50\' font-family=\'Courier New,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E£%3C/text%3E%3Ctext x=\'53\' y=\'50\' font-family=\'Courier New,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E$%3C/text%3E%3Ctext x=\'17\' y=\'80\' font-family=\'Courier New,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E£%3C/text%3E%3Ctext x=\'42\' y=\'80\' font-family=\'Courier New,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E$%3C/text%3E%3Ctext x=\'67\' y=\'80\' font-family=\'Courier New,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E€%3C/text%3E%3C/svg%3E") #dc143c', minHeight: '100vh'}}>
+    <div style={{fontFamily: 'Sixtyfour, monospace', background: 'linear-gradient(135deg, rgba(255,215,0,0.85) 0%, rgba(255,140,0,0.85) 100%), url("data:image/svg+xml,%3Csvg width=\'75\' height=\'90\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Ctext x=\'10\' y=\'20\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E$%3C/text%3E%3Ctext x=\'35\' y=\'20\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E€%3C/text%3E%3Ctext x=\'60\' y=\'20\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E£%3C/text%3E%3Ctext x=\'3\' y=\'50\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E€%3C/text%3E%3Ctext x=\'28\' y=\'50\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E£%3C/text%3E%3Ctext x=\'53\' y=\'50\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E$%3C/text%3E%3Ctext x=\'17\' y=\'80\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E£%3C/text%3E%3Ctext x=\'42\' y=\'80\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E$%3C/text%3E%3Ctext x=\'67\' y=\'80\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E€%3C/text%3E%3C/svg%3E") #dc143c', minHeight: '100vh'}}>
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Sixtyfour:wght@400&display=swap');
+        
         * {
-          font-family: 'Courier New, monospace !important;
+          font-family: 'Sixtyfour', monospace !important;
         }
         html, body {
           overflow-y: auto !important;
           height: auto !important;
+        }
+        /* Ensure text stays within containers */
+        * {
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+          word-break: break-word;
+        }
+        /* Prevent overflow in containers */
+        .receipt-container, .bg-white, [class*="border"] {
+          overflow: hidden;
+        }
+        /* Responsive font sizing for headings */
+        h1 {
+          font-size: clamp(1.5rem, 5vw, 2.5rem);
+        }
+        h2 {
+          font-size: clamp(1.25rem, 4vw, 1.5rem);
+        }
+        h3 {
+          font-size: clamp(1rem, 3vw, 1.25rem);
+        }
+        /* Button styling */
+        button {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        /* Receipt container with dashed borders */
+        .receipt-container {
+          position: relative;
+          background: #F3F4F6;
+          border-left: 4px solid #000;
+          border-right: 4px solid #000;
+          border-top: 4px dashed #000;
+          border-bottom: 4px dashed #000;
+          box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+          min-height: calc(100vh - 40px);
+        }
+        .bg-white {
+          background-color: #F3F4F6 !important;
+        }
+        .bg-gray-50 {
+          background-color: #E5E7EB !important;
+        }
+        /* Currency symbol pattern - hide overflow smoothly */
+        .currency-pattern {
+          overflow: hidden;
+          white-space: nowrap;
+          text-align: center;
         }
         @keyframes fadeIn {
           from {
@@ -267,10 +317,19 @@ const Layout = ({ children, onNavigate, showCopyToast }) => {
         }
         .receipt-container {
           position: relative;
-          background: white;
-          border: 4px solid #000;
+          background: #F3F4F6;
+          border-left: 4px solid #000;
+          border-right: 4px solid #000;
+          border-top: 4px dashed #000;
+          border-bottom: 4px dashed #000;
           box-shadow: 0 10px 40px rgba(0,0,0,0.3);
           min-height: calc(100vh - 40px);
+        }
+        .bg-white {
+          background-color: #F3F4F6 !important;
+        }
+        .bg-gray-50 {
+          background-color: #E5E7EB !important;
         }
       `}</style>
       <div className="max-w-xl mx-auto px-2 sm:px-0 py-5">
@@ -279,12 +338,12 @@ const Layout = ({ children, onNavigate, showCopyToast }) => {
             <div className="border-t-2 border-dashed border-gray-400 mt-2 mb-4"></div>
             <div className="bg-white mb-4 pb-6 border-b-4 border-black">
               <div className="cursor-pointer text-center" onClick={() => onNavigate('home')}>
-                <div className="text-xs font-bold text-black mb-2 uppercase tracking-wider">
-                  {'$ € £ $ € £ $ € £ $ € £ $ € £ $ € £'}
+                <div className="currency-pattern text-xs font-bold text-black mb-2 uppercase tracking-wider">
+                  {'$ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £'}
                 </div>
                 <h1 className="font-black text-black tracking-wider text-4xl">COMRADE</h1>
-                <div className="text-xs font-bold text-black mt-2 uppercase tracking-wider">
-                  {'$ € £ $ € £ $ € £ $ € £ $ € £ $ € £'}
+                <div className="currency-pattern text-xs font-bold text-black mt-2 uppercase tracking-wider">
+                  {'$ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £'}
                 </div>
               </div>
             </div>
@@ -505,7 +564,7 @@ const Comrade = () => {
   }), []);
 
   const renderNavButtons = useCallback((buttons) => (
-    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+    <div className="flex flex-col gap-3 justify-center">
       {buttons.map(({ label, onClick, variant = 'primary', key }) => (
         <button 
           key={key || label}
@@ -534,11 +593,11 @@ const Comrade = () => {
   ), [BUTTON_STYLES]);
 
   const renderResultsNavigation = (copyText, entryPage) => (
-    renderNavButtons([
-      { label: 'COPY RESULTS', onClick: () => copyToClipboard(copyText), variant: 'primary' },
-      { label: 'EDIT DETAILS', onClick: () => navigateTo(entryPage), variant: 'primary' },
-      { label: 'RETURN HOME', onClick: () => navigateTo('home'), variant: 'secondary' }
-    ])
+    <div className="flex flex-col gap-3">
+      <button onClick={() => copyToClipboard(copyText)} className={BUTTON_STYLES.primary}>COPY RESULTS</button>
+      <button onClick={() => navigateTo(entryPage)} className={BUTTON_STYLES.primary}>EDIT DETAILS</button>
+      <button onClick={() => navigateTo('home')} className={BUTTON_STYLES.secondary}>RETURN HOME</button>
+    </div>
   );
 
   const renderResultsFooter = (hasData, copyText, entryPage) => hasData && (
@@ -562,7 +621,7 @@ const Comrade = () => {
       <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider border-b-4 border-black pb-2">{title}</h2>
       <p className={`mb-4 text-black leading-relaxed ${CLS.textXsBlack}`}>{description}</p>
       <p className={`${CLS.textXsBlack} text-center mb-6 text-gray-600 border-t border-b ${CLS.borderDashedGray} py-2`}>THIS APP DOES NOT SAVE ANY FINANCIAL INFORMATION</p>
-      <div className="flex flex-wrap justify-center gap-3">
+      <div className="flex flex-col gap-3 justify-center">
         {renderNavButtons([
           { label: 'LOAD EXAMPLE', onClick: onLoadExample, variant: 'secondary' },
           { label: 'CLEAR ALL', onClick: () => handleClearAll(clearType), variant: 'danger' }
@@ -574,10 +633,12 @@ const Comrade = () => {
   const renderNoDataState = (entryPage) => (
     <>
       <NoDataWarning />
-      {renderNavButtons([
-        { label: 'EDIT DETAILS', onClick: () => navigateTo(entryPage), variant: 'primary' },
-        { label: 'RETURN HOME', onClick: () => navigateTo('home'), variant: 'secondary' }
-      ])}
+      <div className="flex flex-col gap-3">
+        {renderNavButtons([
+          { label: 'EDIT DETAILS', onClick: () => navigateTo(entryPage), variant: 'primary' },
+          { label: 'RETURN HOME', onClick: () => navigateTo('home'), variant: 'secondary' }
+        ])}
+      </div>
     </>
   );
 
@@ -601,7 +662,7 @@ const Comrade = () => {
               type="email"
               value={signupEmail}
               onChange={(e) => setSignupEmail(e.target.value)}
-              placeholder="YOUR EMAIL ADDRESS"
+              placeholder="YOUR EMAIL"
               required
               className="flex-1"
             />
@@ -760,7 +821,7 @@ const Comrade = () => {
 
   const renderEntryButtons = (onLoadExample, onClearAll, resultsPage) => (
     <div className="text-center space-y-3">
-      <div className="flex flex-wrap justify-center gap-3">
+      <div className="flex flex-col gap-3 justify-center">
         {renderNavButtons([
           { label: 'LOAD EXAMPLE', onClick: onLoadExample, variant: 'secondary' },
           { label: 'CLEAR ALL', onClick: onClearAll, variant: 'danger' }
@@ -1164,7 +1225,6 @@ const Comrade = () => {
             <button onClick={() => navigateTo('share-entry')} className="w-full bg-black text-white font-bold py-4 px-6 border-2 border-black hover:bg-gray-800 transition-all text-xl">GET STARTED</button>
           </div>
         </div>
-
         
         <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
           <div className="max-w-md mx-auto">
@@ -1193,11 +1253,11 @@ const Comrade = () => {
           <div className="space-y-4 text-black">
             <p className="leading-relaxed text-xs">Make fairer decisions with wealth data.</p>
             
-            <p className="leading-relaxed text-xs">Comrade is an app for handling shared expenses — holidays, household purchases, work dinners, or anything else. It aggregates and simplifies bills, to make it easy to figure out who owes who what. And it divides them fairly, by taking into account people's wealth — whether that's salary or net worth —  to decide the split.</p>
+            <p className="leading-relaxed text-xs">Comrade is an app for managing shared expenses — holidays, household purchases, work dinners, or anything else. It aggregates and simplifies bills, to make it easy to figure out who owes who what. And it divides them fairly, by taking into account people's wealth — whether that's salary or net worth —  to decide the split.</p>
             
             <p className="leading-relaxed text-xs">So next time your friends, family, or coworkers have group bills, handle them a better way with Comrade.</p>
             
-            <p className="leading-relaxed text-xs">Comrade also offers other features. We have a tool to help decide rent splits in apartments more fairly, and another to assist when selling an item to ensure the buyer is the person who values it most highly. And we have an experimental tool for voting on decisions.</p>
+            <p className="leading-relaxed text-xs">Comrade also offers other features. There is a tool to help decide rent splits in apartments more fairly, and another to assist when selling an item to ensure the buyer is the person who values it most highly. And there's an experimental tool for voting on decisions.</p>
           </div>
         </div>
 
@@ -1268,7 +1328,7 @@ const Comrade = () => {
           <div className="text-black space-y-4">
             <p className="leading-relaxed text-xs">Comrade does not collect, store, or transmit any financial information or personal data entered into the application. All calculations are performed locally in your browser.</p>
             <div className="border-t border-dashed border-gray-400"></div>
-            <p className="leading-relaxed text-xs">This application is provided for informational purposes only. Users are solely responsible for their own actions. The creators of Comrade, including TKTKTK Labs, are not liable for any outcomes, disputes, consequences, or bad decisions resulting from the use of this Comrade and its calculations. Sorry!</p>
+            <p className="leading-relaxed text-xs">This application is provided for informational purposes only. Users are solely responsible for their own actions. The creators of Comrade are not liable for any outcomes, disputes, consequences, or bad decisions resulting from the use of this Comrade and its calculations. Sorry!</p>
             <div className="border-t border-dashed border-gray-400"></div>
             <p className="leading-relaxed text-xs">By entering your email address, you consent to Comrade and its team contacting you about updates to the app, news, other projects they may be working on, and other cool stuff. Comrade will not sell your personal information to third parties.</p>
             <div className="border-t border-dashed border-gray-400"></div>
@@ -1563,7 +1623,7 @@ const Comrade = () => {
 
         {renderResultsFooter(
           hasData,
-          `Comrade | Bill-splitting results\n\nTotal: ${formatCurrency(total)}\n\nBreakdown:\n${peopleData.map(p => `${p.name}: Paid ${formatCurrency(p.paid)}, fair share ${formatCurrencySmart(p.fairShare)}`).join('\n')}\n\nSettlements:\n${transactions.length === 0 ? 'All settled!' : transactions.map(t => `${t.from} pays ${t.to} ${formatCurrencySmart(t.amount)}`).join('\n')}\n\nCalculated using www.comrade.money. The fairer way to split costs with friends.`,
+          `Comrade | Bill-splitting results\n\nTotal: ${formatCurrency(total)}\n\nBreakdown:\n${peopleData.map(p => `${p.name}: Paid ${formatCurrency(p.paid)}, fair share ${formatCurrencySmart(p.fairShare)}`).join('\n')}\n\nSettlements:\n${transactions.length === 0 ? 'All settled!' : transactions.map(t => `${t.from} pays ${t.to} ${formatCurrencySmart(t.amount)}`).join('\n')}\n\nCalculated using www.comrade.money — the fairer way to split costs with friends.`,
           'share-entry'
         )}
       </Layout>
@@ -1787,7 +1847,7 @@ const Comrade = () => {
 
         {renderResultsFooter(
           hasData,
-          `Comrade | Selling results\n\nProduct: ${productName || 'Unnamed product'}\nQuantity: ${numAvailable}\n\nSelected buyer${winners.length > 1 ? 's' : ''}:\n${winners.map(w => `${w.name} - ${formatCurrency(w.offer)}`).join('\n')}\n\nAll buyers ranked by need:\n${rankedBuyers.map((b, i) => `${i + 1}. ${b.name} - Offer: ${formatCurrency(b.offer)}, need score: ${b.needScore < 0.01 ? b.needScore.toExponential(4) : b.needScore.toFixed(4)}%`).join('\n')}\n\nCalculated using www.comrade.money. The fairer way to sell things.`,
+          `Comrade | Selling results\n\nProduct: ${productName || 'Unnamed product'}\nQuantity: ${numAvailable}\n\nSelected buyer${winners.length > 1 ? 's' : ''}:\n${winners.map(w => `${w.name} - ${formatCurrency(w.offer)}`).join('\n')}\n\nAll buyers ranked by need:\n${rankedBuyers.map((b, i) => `${i + 1}. ${b.name} - Offer: ${formatCurrency(b.offer)}, need score: ${b.needScore < 0.01 ? b.needScore.toExponential(4) : b.needScore.toFixed(4)}%`).join('\n')}\n\nCalculated using www.comrade.money — the fairer way to sell things.`,
           'sale-entry'
         )}
       </Layout>
@@ -2111,7 +2171,7 @@ const Comrade = () => {
 
         {renderResultsFooter(
           hasData,
-          `Comrade | Voting results\n\nDecision: ${voteDecision}\n\nWinner: ${winner ? `${winner.option} (${winner.percentage.toFixed(1)}%)` : 'None'}\n\nBreakdown:\n${voteBreakdown.map((b, i) => `${i + 1}. ${b.option}: ${b.percentage.toFixed(1)}% (${b.voters.length} voter${b.voters.length !== 1 ? 's' : ''})`).join('\n')}\n\nCalculated using www.comrade.money. The fairer way to decide things.`,
+          `Comrade | Voting results\n\nDecision: ${voteDecision}\n\nWinner: ${winner ? `${winner.option} (${winner.percentage.toFixed(1)}%)` : 'None'}\n\nBreakdown:\n${voteBreakdown.map((b, i) => `${i + 1}. ${b.option}: ${b.percentage.toFixed(1)}% (${b.voters.length} voter${b.voters.length !== 1 ? 's' : ''})`).join('\n')}\n\nCalculated using www.comrade.money — the fairer way to decide things.`,
           'vote-entry'
         )}
       </Layout>
@@ -2375,9 +2435,550 @@ const Comrade = () => {
 
         {renderResultsFooter(
           hasData,
-          `Comrade | Rent-splitting results\n\nTotal: ${formatCurrency(total)}/month\nRent: ${formatCurrency(rentAmount)}\nUtilities: ${formatCurrency(utilitiesAmount)}\n\nBreakdown:\n${rentData.map(p => `${p.name}: ${formatCurrencySmart(p.fairRent)} (${p.rentPct.toFixed(1)}%) - ${formatNumber(p.roomSize.toFixed(0))} ${sizeUnit}`).join('\n')}\n\nCalculated using www.comrade.money. The fairer way to split costs with friends.`,
+          `Comrade | Rent-splitting results\n\nTotal: ${formatCurrency(total)}/month\nRent: ${formatCurrency(rentAmount)}\nUtilities: ${formatCurrency(utilitiesAmount)}\n\nBreakdown:\n${rentData.map(p => `${p.name}: ${formatCurrencySmart(p.fairRent)} (${p.rentPct.toFixed(1)}%) - ${formatNumber(p.roomSize.toFixed(0))} ${sizeUnit}`).join('\n')}\n\nCalculated using www.comrade.money — the fairer way to split costs with friends.`,
           'rent-entry'
         )}
+      </Layout>
+    );
+  }
+  
+  if (page === 'border-preview') {
+    const borderStyles = [
+      {
+        name: 'CURRENT (DASHED)',
+        description: 'Simple dashed lines - clean receipt look',
+        topBorder: '4px dashed #000',
+        bottomBorder: '4px dashed #000'
+      },
+      {
+        name: 'ZIGZAG TEAR',
+        description: 'Jagged perforated edge',
+        topPattern: 'linear-gradient(135deg, #000 5px, transparent 5px) 0 0, linear-gradient(225deg, #000 5px, transparent 5px) 0 0',
+        topSize: '8px 8px',
+        bottomPattern: 'linear-gradient(135deg, transparent 5px, #000 5px) 0 100%, linear-gradient(225deg, transparent 5px, #000 5px) 0 100%',
+        bottomSize: '8px 8px'
+      },
+      {
+        name: 'WAVY EDGE',
+        description: 'Smooth torn paper effect',
+        topPattern: 'radial-gradient(circle at 50% 0%, transparent 6px, #000 6px, #000 8px, transparent 8px)',
+        topSize: '16px 8px',
+        bottomPattern: 'radial-gradient(circle at 50% 100%, transparent 6px, #000 6px, #000 8px, transparent 8px)',
+        bottomSize: '16px 8px'
+      },
+      {
+        name: 'ROUGH TEAR',
+        description: 'Irregular ripped edge',
+        topPattern: 'linear-gradient(135deg, #000 3px, transparent 3px) 0 0, linear-gradient(225deg, #000 3px, transparent 3px) 6px 0, linear-gradient(135deg, #000 4px, transparent 4px) 12px 0',
+        topSize: '18px 6px',
+        bottomPattern: 'linear-gradient(135deg, transparent 3px, #000 3px) 0 100%, linear-gradient(225deg, transparent 3px, #000 3px) 6px 100%, linear-gradient(135deg, transparent 4px, #000 4px) 12px 100%',
+        bottomSize: '18px 6px'
+      },
+      {
+        name: 'FINE PERFORATION',
+        description: 'Small regular perforations',
+        topPattern: 'repeating-linear-gradient(90deg, #000 0px, #000 8px, transparent 8px, transparent 12px)',
+        topSize: '100% 4px',
+        bottomPattern: 'repeating-linear-gradient(90deg, #000 0px, #000 8px, transparent 8px, transparent 12px)',
+        bottomSize: '100% 4px'
+      },
+      {
+        name: 'DOTTED EDGE',
+        description: 'Circular perforations',
+        topPattern: 'radial-gradient(circle at center, #000 2px, transparent 2px)',
+        topSize: '10px 4px',
+        bottomPattern: 'radial-gradient(circle at center, #000 2px, transparent 2px)',
+        bottomSize: '10px 4px'
+      }
+    ];
+
+    return (
+      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
+        <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
+          <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider border-b-4 border-black pb-2">BORDER PREVIEW</h2>
+          <p className="text-xs mb-6 text-black">Preview different top and bottom border styles that mimic torn or perforated paper edges. These replace the current dashed lines to enhance the receipt aesthetic.</p>
+        </div>
+
+        {borderStyles.map((style, idx) => {
+          const hasPattern = style.topPattern || style.bottomPattern;
+          
+          return (
+            <div key={idx} className="mb-6">
+              <div className="bg-white p-4 border-2 border-dashed border-gray-400 mb-2">
+                <h3 className="text-lg font-black text-black mb-1">{style.name}</h3>
+                <p className="text-xs text-gray-600">{style.description}</p>
+              </div>
+              
+              <div style={{
+                backgroundColor: '#F3F4F6',
+                borderLeft: '4px solid #000',
+                borderRight: '4px solid #000',
+                borderTop: style.topBorder || 'none',
+                borderBottom: style.bottomBorder || 'none',
+                position: 'relative'
+              }}>
+                {style.topPattern && (
+                  <div style={{
+                    height: '8px',
+                    background: style.topPattern,
+                    backgroundSize: style.topSize,
+                    backgroundRepeat: 'repeat-x',
+                    backgroundPosition: '0 0'
+                  }}></div>
+                )}
+                
+                <div className="p-6">
+                  <div className="border-b-2 border-dashed border-gray-400 pb-4 mb-4">
+                    <h1 className="font-black text-black tracking-wider text-3xl">COMRADE</h1>
+                  </div>
+                  
+                  <h2 className="text-xl font-black mb-3 text-black uppercase">BILL-SPLITTING RESULTS</h2>
+                  
+                  <div className="bg-black text-white p-4 mb-4">
+                    <p className="text-lg font-bold">YOUR SETTLEMENT</p>
+                    <p className="text-2xl font-black">$123.45</p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div className="bg-gray-50 p-3 border border-gray-300">
+                      <p className="text-xs font-bold text-black mb-1">ALEX</p>
+                      <p className="text-xs text-black">Paid: $180.00</p>
+                    </div>
+                    <div className="bg-gray-50 p-3 border border-gray-300">
+                      <p className="text-xs font-bold text-black mb-1">JORDAN</p>
+                      <p className="text-xs text-black">Paid: $200.00</p>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4 pt-4 border-t-2 border-dashed border-gray-400">
+                    <button className="bg-black text-white px-6 py-2 font-bold border-2 border-black">COPY RESULTS</button>
+                  </div>
+                </div>
+                
+                {style.bottomPattern && (
+                  <div style={{
+                    height: '8px',
+                    background: style.bottomPattern,
+                    backgroundSize: style.bottomSize,
+                    backgroundRepeat: 'repeat-x',
+                    backgroundPosition: '0 100%'
+                  }}></div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+
+        <div className="bg-white p-8 border-2 border-dashed border-gray-400">
+          <button onClick={() => navigateTo('home')} className="w-full bg-gray-200 text-black px-6 py-3 font-bold border-2 border-gray-400 hover:bg-gray-300 transition-all">
+            BACK TO HOME
+          </button>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (page === 'color-preview') {
+    const colorways = [
+      {
+        name: 'CLASSIC RECEIPT',
+        description: 'Pure black on white - high contrast',
+        cardBg: '#FFFFFF',
+        textPrimary: '#000000',
+        textSecondary: '#4B5563',
+        border: '#000000',
+        borderDashed: '#9CA3AF',
+        buttonBg: '#000000',
+        buttonText: '#FFFFFF',
+        pattern: 'none'
+      },
+      {
+        name: 'SOFT CHARCOAL',
+        description: 'Dark grey text on white',
+        cardBg: '#FFFFFF',
+        textPrimary: '#1F2937',
+        textSecondary: '#6B7280',
+        border: '#374151',
+        borderDashed: '#9CA3AF',
+        buttonBg: '#1F2937',
+        buttonText: '#FFFFFF',
+        pattern: 'none'
+      },
+      {
+        name: 'WARM RECEIPT',
+        description: 'Black on cream paper',
+        cardBg: '#FAF8F3',
+        textPrimary: '#000000',
+        textSecondary: '#4B5563',
+        border: '#000000',
+        borderDashed: '#D1D5DB',
+        buttonBg: '#000000',
+        buttonText: '#FFFFFF',
+        pattern: 'none'
+      },
+      {
+        name: 'AGED PAPER',
+        description: 'Charcoal on vintage cream',
+        cardBg: '#F5F1E8',
+        textPrimary: '#1F2937',
+        textSecondary: '#6B7280',
+        border: '#374151',
+        borderDashed: '#D1D5DB',
+        buttonBg: '#1F2937',
+        buttonText: '#FFFFFF',
+        pattern: 'none'
+      },
+      {
+        name: 'SOFT GREY',
+        description: 'Black on light grey background',
+        cardBg: '#F3F4F6',
+        textPrimary: '#000000',
+        textSecondary: '#4B5563',
+        border: '#000000',
+        borderDashed: '#9CA3AF',
+        buttonBg: '#000000',
+        buttonText: '#FFFFFF',
+        pattern: 'none'
+      },
+      {
+        name: 'MUTED TONES',
+        description: 'Dark grey on pale grey',
+        cardBg: '#F9FAFB',
+        textPrimary: '#1F2937',
+        textSecondary: '#6B7280',
+        border: '#374151',
+        borderDashed: '#D1D5DB',
+        buttonBg: '#1F2937',
+        buttonText: '#FFFFFF',
+        pattern: 'none'
+      },
+      {
+        name: 'THERMAL TEXTURE',
+        description: 'Classic with subtle paper grain',
+        cardBg: '#FFFFFF',
+        textPrimary: '#000000',
+        textSecondary: '#4B5563',
+        border: '#000000',
+        borderDashed: '#9CA3AF',
+        buttonBg: '#000000',
+        buttonText: '#FFFFFF',
+        pattern: 'repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(0,0,0,0.01) 1px, rgba(0,0,0,0.01) 2px)'
+      },
+      {
+        name: 'DOT MATRIX',
+        description: 'Vintage printer aesthetic',
+        cardBg: '#FFFFFF',
+        textPrimary: '#000000',
+        textSecondary: '#4B5563',
+        border: '#000000',
+        borderDashed: '#9CA3AF',
+        buttonBg: '#000000',
+        buttonText: '#FFFFFF',
+        pattern: 'radial-gradient(circle at 2px 2px, rgba(0,0,0,0.04) 1px, transparent 1px)',
+        patternSize: '4px 4px'
+      },
+      {
+        name: 'FADED RECEIPT',
+        description: 'Cream paper with texture',
+        cardBg: '#FAF8F3',
+        textPrimary: '#1F2937',
+        textSecondary: '#6B7280',
+        border: '#374151',
+        borderDashed: '#D1D5DB',
+        buttonBg: '#1F2937',
+        buttonText: '#FFFFFF',
+        pattern: 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(100,100,100,0.015) 2px, rgba(100,100,100,0.015) 4px)'
+      },
+      {
+        name: 'GRID LINES',
+        description: 'Subtle ledger lines',
+        cardBg: '#FFFFFF',
+        textPrimary: '#000000',
+        textSecondary: '#4B5563',
+        border: '#000000',
+        borderDashed: '#9CA3AF',
+        buttonBg: '#000000',
+        buttonText: '#FFFFFF',
+        pattern: 'repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(0,0,0,0.03) 39px, rgba(0,0,0,0.03) 40px)'
+      },
+      {
+        name: 'CROSSHATCH',
+        description: 'Fine crosshatch pattern',
+        cardBg: '#FAF8F3',
+        textPrimary: '#000000',
+        textSecondary: '#4B5563',
+        border: '#000000',
+        borderDashed: '#9CA3AF',
+        buttonBg: '#000000',
+        buttonText: '#FFFFFF',
+        pattern: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.02) 10px, rgba(0,0,0,0.02) 11px), repeating-linear-gradient(-45deg, transparent, transparent 10px, rgba(0,0,0,0.02) 10px, rgba(0,0,0,0.02) 11px)'
+      },
+      {
+        name: 'SPECKLED',
+        description: 'Tiny speckled texture',
+        cardBg: '#FFFFFF',
+        textPrimary: '#1F2937',
+        textSecondary: '#6B7280',
+        border: '#374151',
+        borderDashed: '#D1D5DB',
+        buttonBg: '#1F2937',
+        buttonText: '#FFFFFF',
+        pattern: 'radial-gradient(circle at 25% 25%, rgba(0,0,0,0.02) 1%, transparent 1%), radial-gradient(circle at 75% 75%, rgba(0,0,0,0.015) 1%, transparent 1%), radial-gradient(circle at 50% 100%, rgba(0,0,0,0.02) 1%, transparent 1%)',
+        patternSize: '8px 8px'
+      }
+    ];
+
+    return (
+      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
+        <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
+          <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider border-b-4 border-black pb-2">COLOR PREVIEW</h2>
+          <p className="text-xs mb-6 text-black">Preview different color schemes for the app. Each maintains the thermal receipt aesthetic with various combinations of text colors, backgrounds, and subtle textures.</p>
+        </div>
+
+        {colorways.map((scheme, idx) => {
+          const bgStyle = scheme.pattern !== 'none' 
+            ? { 
+                backgroundColor: scheme.cardBg, 
+                backgroundImage: scheme.pattern,
+                backgroundSize: scheme.patternSize || 'auto'
+              }
+            : { backgroundColor: scheme.cardBg };
+
+          return (
+            <div key={idx} className="p-8 border-2 border-dashed mb-6" style={{ ...bgStyle, borderColor: scheme.borderDashed }}>
+              <div className="pb-4 mb-6" style={{ borderBottom: `4px solid ${scheme.border}` }}>
+                <h3 className="text-3xl font-black mb-2" style={{ color: scheme.textPrimary }}>{scheme.name}</h3>
+                <p className="text-xs" style={{ color: scheme.textSecondary, fontFamily: 'Sixtyfour, monospace' }}>{scheme.description}</p>
+              </div>
+
+              {/* App Title Example */}
+              <div className="mb-6 pb-6" style={{ borderBottom: `2px dashed ${scheme.borderDashed}` }}>
+                <p className="text-xs mb-2" style={{ color: scheme.textSecondary }}>APP TITLE:</p>
+                <h1 className="font-black tracking-wider text-4xl" style={{ color: scheme.textPrimary }}>COMRADE</h1>
+              </div>
+
+              {/* Headlines */}
+              <div className="mb-6 pb-6" style={{ borderBottom: `2px dashed ${scheme.borderDashed}` }}>
+                <p className="text-xs mb-2" style={{ color: scheme.textSecondary }}>HEADLINES:</p>
+                <h2 className="text-2xl font-black mb-3 uppercase tracking-wider" style={{ color: scheme.textPrimary }}>BILL-SPLITTING RESULTS</h2>
+                <h3 className="text-lg font-bold uppercase tracking-wider" style={{ color: scheme.textPrimary }}>YOUR SETTLEMENT</h3>
+              </div>
+
+              {/* Buttons */}
+              <div className="mb-6 pb-6" style={{ borderBottom: `2px dashed ${scheme.borderDashed}` }}>
+                <p className="text-xs mb-3" style={{ color: scheme.textSecondary }}>BUTTONS:</p>
+                <div className="space-y-3">
+                  <button 
+                    className="px-6 py-2 font-bold border-2"
+                    style={{ 
+                      backgroundColor: scheme.buttonBg, 
+                      color: scheme.buttonText,
+                      borderColor: scheme.border
+                    }}
+                  >
+                    + ADD PERSON
+                  </button>
+                  <button 
+                    className="px-6 py-2 font-bold border-2 ml-3"
+                    style={{ 
+                      backgroundColor: scheme.cardBg, 
+                      color: scheme.textPrimary,
+                      borderColor: scheme.border
+                    }}
+                  >
+                    CALCULATE
+                  </button>
+                </div>
+              </div>
+
+              {/* Body Text */}
+              <div className="mb-6 pb-6" style={{ borderBottom: `2px dashed ${scheme.borderDashed}` }}>
+                <p className="text-xs mb-2" style={{ color: scheme.textSecondary }}>BODY TEXT:</p>
+                <p className="text-xs leading-relaxed mb-3" style={{ color: scheme.textPrimary }}>
+                  From meals to vacations, taxis to tickets, handle your shared expenses with friends more fairly. Comrade combines and simplifies group bills.
+                </p>
+              </div>
+
+              {/* Data Card */}
+              <div className="mb-6 pb-6" style={{ borderBottom: `2px dashed ${scheme.borderDashed}` }}>
+                <p className="text-xs mb-3" style={{ color: scheme.textSecondary }}>DATA DISPLAY:</p>
+                <div className="p-4 border" style={{ backgroundColor: scheme.cardBg, borderColor: scheme.borderDashed }}>
+                  <p className="text-xs font-bold uppercase mb-2" style={{ color: scheme.textPrimary }}>Alex</p>
+                  <div className="space-y-1 text-xs">
+                    <div className="flex justify-between">
+                      <span className="font-bold" style={{ color: scheme.textPrimary }}>WEALTH:</span>
+                      <span className="font-semibold" style={{ color: scheme.textPrimary }}>$32,000.00</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-bold" style={{ color: scheme.textPrimary }}>PAID:</span>
+                      <span className="font-semibold" style={{ color: scheme.textPrimary }}>$180.00</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Numbers */}
+              <div className="mb-6">
+                <p className="text-xs mb-3" style={{ color: scheme.textSecondary }}>CURRENCY:</p>
+                <p className="text-3xl font-black" style={{ color: scheme.textPrimary }}>$1,234.56</p>
+              </div>
+
+              {/* Apply Button */}
+              <div className="text-center pt-4" style={{ borderTop: `2px solid ${scheme.border}` }}>
+                <button 
+                  onClick={() => {
+                    // Store color scheme in a data attribute or state management
+                    // For now, we'll show a toast
+                    copyToClipboard(`Applied: ${scheme.name}`);
+                    // In a real implementation, you'd update global CSS variables
+                  }}
+                  className="px-8 py-3 font-black border-2 hover:opacity-80 transition-all uppercase"
+                  style={{
+                    backgroundColor: scheme.buttonBg,
+                    color: scheme.buttonText,
+                    borderColor: scheme.border
+                  }}
+                >
+                  USE THIS SCHEME
+                </button>
+              </div>
+            </div>
+          );
+        })}
+
+        <div className="bg-white p-8 border-2 border-dashed border-gray-400">
+          <button onClick={() => navigateTo('home')} className="w-full bg-gray-200 text-black px-6 py-3 font-bold border-2 border-gray-400 hover:bg-gray-300 transition-all">
+            BACK TO HOME
+          </button>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (page === 'font-preview') {
+    const fonts = [
+      { name: 'Courier New', import: null, isSystem: true },
+      { name: 'Courier Prime', import: 'https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap' },
+      { name: 'Jersey 20', import: 'https://fonts.googleapis.com/css2?family=Jersey+20&display=swap' },
+      { name: 'VT323', import: 'https://fonts.googleapis.com/css2?family=VT323&display=swap' },
+      { name: 'Inconsolata', import: 'https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;700&display=swap' },
+      { name: 'IBM Plex Mono', import: 'https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&display=swap' },
+      { name: 'Roboto Mono', import: 'https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap' },
+      { name: 'Space Mono', import: 'https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap' },
+      { name: 'Cutive Mono', import: 'https://fonts.googleapis.com/css2?family=Cutive+Mono&display=swap' },
+      { name: 'Anonymous Pro', import: 'https://fonts.googleapis.com/css2?family=Anonymous+Pro:wght@400;700&display=swap' },
+      { name: 'Overpass Mono', import: 'https://fonts.googleapis.com/css2?family=Overpass+Mono:wght@400;700&display=swap' }
+    ];
+
+    return (
+      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
+        <style>{fonts.filter(f => f.import).map(font => `@import url('${font.import}');`).join('\n')}</style>
+        
+        <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
+          <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider border-b-4 border-black pb-2">FONT PREVIEW</h2>
+          <p className="text-xs mb-6 text-black">Preview different monospace and receipt-style fonts. Each preview shows how the font looks across various UI elements.</p>
+        </div>
+
+        {fonts.map((font, idx) => (
+          <div key={idx} className="bg-white p-8 border-2 border-dashed border-gray-400 mb-6">
+            <div className="border-b-4 border-black pb-4 mb-6">
+              <h3 className="text-3xl font-black text-black mb-2" style={{ fontFamily: `'${font.name}', monospace !important` }}>{font.name.toUpperCase()}</h3>
+              <p className="text-xs text-gray-600">{font.isSystem ? 'System font' : 'Google Font'}</p>
+            </div>
+
+            {/* App Title Example */}
+            <div className="mb-6 pb-6 border-b-2 border-dashed border-gray-400">
+              <p className="text-xs text-gray-600 mb-2">APP TITLE:</p>
+              <h1 className="font-black text-black tracking-wider text-4xl" style={{ fontFamily: `'${font.name}', monospace !important` }}>COMRADE</h1>
+            </div>
+
+            {/* Page Headlines */}
+            <div className="mb-6 pb-6 border-b-2 border-dashed border-gray-400">
+              <p className="text-xs text-gray-600 mb-2">PAGE HEADLINES:</p>
+              <h2 className="text-2xl font-black mb-3 text-black uppercase tracking-wider" style={{ fontFamily: `'${font.name}', monospace !important` }}>BILL-SPLITTING RESULTS</h2>
+              <h3 className="text-lg font-bold mb-2 text-black uppercase tracking-wider" style={{ fontFamily: `'${font.name}', monospace !important` }}>YOUR SETTLEMENT</h3>
+            </div>
+
+            {/* Buttons */}
+            <div className="mb-6 pb-6 border-b-2 border-dashed border-gray-400">
+              <p className="text-xs text-gray-600 mb-3">BUTTONS:</p>
+              <div className="space-y-3">
+                <button className="bg-black text-white px-6 py-2 font-bold border-2 border-black" style={{ fontFamily: `'${font.name}', monospace !important` }}>+ ADD PERSON</button>
+                <button className="bg-white text-black px-6 py-2 font-bold border-2 border-black" style={{ fontFamily: `'${font.name}', monospace !important` }}>CALCULATE</button>
+                <button className="bg-gray-200 text-black px-6 py-2 font-bold border-2 border-gray-400" style={{ fontFamily: `'${font.name}', monospace !important` }}>LOAD EXAMPLE</button>
+              </div>
+            </div>
+
+            {/* Regular Copy */}
+            <div className="mb-6 pb-6 border-b-2 border-dashed border-gray-400">
+              <p className="text-xs text-gray-600 mb-2">BODY TEXT (SMALL):</p>
+              <p className="text-xs text-black leading-relaxed mb-3" style={{ fontFamily: `'${font.name}', monospace !important` }}>
+                From meals to vacations, taxis to tickets, handle your shared expenses with friends more fairly. Comrade combines and simplifies group bills, while using information about group members' finances to decide how much everyone should pay.
+              </p>
+              <p className="text-xs text-black" style={{ fontFamily: `'${font.name}', monospace !important` }}>Add all the people interested in buying, along with their financial information.</p>
+            </div>
+
+            {/* Data Display */}
+            <div className="mb-6 pb-6 border-b-2 border-dashed border-gray-400">
+              <p className="text-xs text-gray-600 mb-3">DATA DISPLAY:</p>
+              <div className="bg-gray-50 p-4 border border-gray-300" style={{ fontFamily: `'${font.name}', monospace !important` }}>
+                <p className="text-xs text-black font-bold uppercase mb-2">Alex</p>
+                <div className="space-y-1 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-black font-bold">WEALTH:</span>
+                    <span className="font-semibold text-black">$32,000.00</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-black font-bold">PAID:</span>
+                    <span className="font-semibold text-black">$180.00 (4.8%)</span>
+                  </div>
+                  <div className="flex justify-between border-t border-dashed border-gray-400 pt-1">
+                    <span className="text-black font-bold">BALANCE:</span>
+                    <span className="font-black text-black">+$45.23</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Numbers & Currency */}
+            <div className="mb-6" style={{ fontFamily: `'${font.name}', monospace !important` }}>
+              <p className="text-xs text-gray-600 mb-3">NUMBERS & CURRENCY:</p>
+              <div className="space-y-2">
+                <p className="text-3xl font-black text-black">$1,234.56</p>
+                <p className="text-xl font-semibold text-black">€987.65</p>
+                <p className="text-lg font-bold text-black">£432.10</p>
+                <p className="text-xs font-bold text-black">TOTAL: $3,600/MONTH</p>
+              </div>
+            </div>
+
+            {/* Apply Button */}
+            <div className="text-center pt-4 border-t-2 border-black">
+              <button 
+                onClick={() => {
+                  // Update the global style to use this font
+                  const styleTag = document.querySelector('style');
+                  if (styleTag && styleTag.textContent) {
+                    styleTag.textContent = styleTag.textContent.replace(
+                      /font-family: '[^']+', monospace !important;/g,
+                      `font-family: '${font.name}', monospace !important;`
+                    );
+                  }
+                  navigateTo('home');
+                }}
+                className="bg-black text-white px-8 py-3 font-black border-2 border-black hover:bg-gray-800 transition-all uppercase"
+                style={{ fontFamily: `'${font.name}', monospace !important` }}
+              >
+                USE THIS FONT
+              </button>
+            </div>
+          </div>
+        ))}
+
+        <div className="bg-white p-8 border-2 border-dashed border-gray-400">
+          <button onClick={() => navigateTo('home')} className="w-full bg-gray-200 text-black px-6 py-3 font-bold border-2 border-gray-400 hover:bg-gray-300 transition-all">
+            BACK TO HOME
+          </button>
+        </div>
       </Layout>
     );
   }
@@ -2460,6 +3061,7 @@ const Comrade = () => {
 
   return null;
 };
+
 
 // Render the app
         const root = ReactDOM.createRoot(document.getElementById('root'));
