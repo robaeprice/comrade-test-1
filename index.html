@@ -502,14 +502,14 @@ const Comrade = () => {
             const percentage = totalWealth > 0 ? (p.wealth / totalWealth) * 100 : 100 / sortedData.length;
             
             return (
-              <div key={idx} className={`flex items-center gap-3 ${CLS.textXsBlack}`}>
+              <div key={idx} className={`flex flex-wrap items-center gap-x-3 gap-y-1 ${CLS.textXsBlack}`}>
                 <div 
                   className="w-4 h-4 border border-gray-400 flex-shrink-0"
                   style={{ backgroundColor: colors[idx % colors.length] }}
                 ></div>
-                <span className={`${CLS.textBlackFontBold} flex-1`}>{p.name}</span>
-                <span className="text-black">{currencySymbol}{formatNumberFn(p.wealth.toFixed(2))}</span>
-                <span className={CLS.textBlackFontBold}>({percentage.toFixed(1)}%)</span>
+                <span className={`${CLS.textBlackFontBold}`}>{p.name}</span>
+                <span className="text-black whitespace-nowrap">{currencySymbol}{formatNumberFn(p.wealth.toFixed(2))}</span>
+                <span className={`${CLS.textBlackFontBold} whitespace-nowrap`}>({percentage.toFixed(1)}%)</span>
               </div>
             );
           })}
@@ -552,7 +552,7 @@ const Comrade = () => {
         {id: 3, text: '100% in-office'}
       ],
       participants: [
-        {id: 5, name: 'Simon', wealth: '250000', vote: '100% in-office'},
+        {id: 5, name: 'Oscar', wealth: '250000', vote: '100% in-office'},
         {id: 6, name: 'Gerry', wealth: '120000', vote: 'Hybrid'},
         {id: 7, name: 'Sarah', wealth: '65000', vote: 'Fully remote'},
         {id: 8, name: 'Simone', wealth: '110000', vote: 'Fully remote'},
@@ -632,17 +632,17 @@ const Comrade = () => {
   );
 
   const renderEntryIntro = ({ title, description, onLoadExample, clearType }) => (
-    <div className={CLS.bgWhiteBorder2Dashed + " mb-4"}>
+    <>
       <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider border-b-4 border-black pb-2">{title}</h2>
       <p className={`mb-4 text-black leading-relaxed ${CLS.textXsBlack}`}>{description}</p>
       <p className={`${CLS.textXsBlack} text-center mb-6 text-gray-600 border-t border-b ${CLS.borderDashedGray} py-2`}>THIS APP DOES NOT SAVE ANY FINANCIAL INFORMATION</p>
-      <div className="flex flex-col gap-3 justify-center">
+      <div className="flex flex-col gap-3 justify-center mb-4">
         {renderNavButtons([
           { label: 'LOAD EXAMPLE', onClick: onLoadExample, variant: 'secondary' },
           { label: 'CLEAR ALL', onClick: () => handleClearAll(clearType), variant: 'danger' }
         ])}
       </div>
-    </div>
+    </>
   );
 
   const renderNoDataState = (entryPage) => (
@@ -1230,12 +1230,10 @@ const Comrade = () => {
   if (page === 'home') {
     return (
       <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
-                  <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
-          <p className="text-center text-sm mb-4 text-black leading-relaxed font-bold">THE FAIRER WAY TO SPLIT COSTS WITH FRIENDS.</p>
-          <p className="text-center text-sm mb-4 text-black leading-relaxed">COMRADE USES WEALTH DATA TO HANDLE SHARED BILLS. ENTER YOUR GROUP'S EXPENSES, AND SALARIES OR NET WORTH, AND WE'LL SHOW YOU WHO OWES WHAT.</p>
-          <div className="space-y-4 max-w-md mx-auto">
-            <button onClick={() => navigateTo('share-entry')} className="w-full bg-black text-white font-bold py-4 px-6 border-2 border-black hover:bg-gray-800 transition-all text-xl">GET STARTED</button>
-          </div>
+        <p className="text-center text-sm mb-4 text-black leading-relaxed font-bold">THE FAIRER WAY TO SPLIT COSTS WITH FRIENDS.</p>
+        <p className="text-center text-sm mb-4 text-black leading-relaxed">COMRADE USES WEALTH DATA TO HANDLE SHARED BILLS. ENTER YOUR GROUP'S EXPENSES, AND SALARIES OR NET WORTH, AND WE'LL SHOW YOU WHO OWES WHAT.</p>
+        <div className="space-y-4 max-w-md mx-auto mb-4">
+          <button onClick={() => navigateTo('share-entry')} className="w-full bg-black text-white font-bold py-4 px-6 border-2 border-black hover:bg-gray-800 transition-all text-xl">GET STARTED</button>
         </div>
         
         <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
@@ -1259,18 +1257,16 @@ const Comrade = () => {
     return (
       <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
         {/* About section */}
-        <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
-          <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider border-b-4 border-black pb-2">ABOUT</h2>
+        <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider border-b-4 border-black pb-2">ABOUT</h2>
+        
+        <div className="space-y-4 text-black mb-4">
+          <p className="leading-relaxed text-xs">Make fairer decisions with wealth data.</p>
           
-          <div className="space-y-4 text-black">
-            <p className="leading-relaxed text-xs">Make fairer decisions with wealth data.</p>
-            
-            <p className="leading-relaxed text-xs">Comrade is an app for managing shared expenses — holidays, household purchases, work dinners, or anything else. It aggregates and simplifies bills, to make it easy to figure out who owes who what. And it divides them fairly, by taking into account people's wealth — whether that's salary or net worth —  to decide the split.</p>
-            
-            <p className="leading-relaxed text-xs">So next time your friends, family, or coworkers have group bills, handle them a better way with Comrade.</p>
-            
-            <p className="leading-relaxed text-xs">Comrade also offers other features. There is a tool to help decide rent splits in apartments more fairly, and another to assist when selling an item to ensure the buyer is the person who values it most highly. And there's an experimental tool for voting on decisions.</p>
-          </div>
+          <p className="leading-relaxed text-xs">Comrade is an app for managing shared expenses — holidays, household purchases, work dinners, or anything else. It aggregates and simplifies bills, to make it easy to figure out who owes who what. And it divides them fairly, by taking into account people's wealth — whether that's salary or net worth —  to decide the split.</p>
+          
+          <p className="leading-relaxed text-xs">So next time your friends, family, or coworkers have group bills, handle them a better way with Comrade.</p>
+          
+          <p className="leading-relaxed text-xs">Comrade also offers other features. There is a tool to help decide rent splits in apartments more fairly, and another to assist when selling an item to ensure the buyer is the person who values it most highly. And there's an experimental tool for voting on decisions.</p>
         </div>
 
         <div className="flex items-center gap-4 my-6">
@@ -1340,7 +1336,7 @@ const Comrade = () => {
           <div className="text-black space-y-4">
             <p className="leading-relaxed text-xs">Comrade does not collect, store, or transmit any financial information or personal data entered into the application. All calculations are performed locally in your browser.</p>
             <div className="border-t border-dashed border-gray-400"></div>
-            <p className="leading-relaxed text-xs">This application is provided for informational purposes only. Users are solely responsible for their own actions. The creators of Comrade are not liable for any outcomes, disputes, consequences, or bad decisions resulting from the use of this Comrade and its calculations. Sorry!</p>
+            <p className="leading-relaxed text-xs">This application is provided for informational purposes only. Users are solely responsible for their own actions. The creators of Comrade are not liable for any outcomes, disputes, consequences, or bad decisions resulting from the use of Comrade and its calculations. Sorry!</p>
             <div className="border-t border-dashed border-gray-400"></div>
             <p className="leading-relaxed text-xs">By entering your email address, you consent to Comrade and its team contacting you about updates to the app, news, other projects they may be working on, and other cool stuff. Comrade will not sell your personal information to third parties.</p>
             <div className="border-t border-dashed border-gray-400"></div>
@@ -1490,43 +1486,42 @@ const Comrade = () => {
 
     return (
       <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
-        <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
-          <h2 className="text-2xl font-black mb-6 text-black uppercase tracking-wider border-b-4 border-black pb-2">BILL-SPLITTING RESULTS</h2>
-          
-          {!hasData && renderNoDataState('share-entry')}
+        <h2 className="text-2xl font-black mb-6 text-black uppercase tracking-wider border-b-4 border-black pb-2">BILL-SPLITTING RESULTS</h2>
+        
+        {!hasData && renderNoDataState('share-entry')}
 
-          {hasData && (
-            <>
-              <div className="bg-black text-white p-8 mb-4 border-4 border-black">
-                <h3 className="text-2xl font-black mb-4 uppercase tracking-wider border-b-2 border-white pb-2">YOUR SETTLEMENT</h3>
-                {transactions.length === 0 ? (
-                  <p className="text-lg font-bold">ALL SETTLED! EVERYONE'S SQUARE.</p>
-                ) : (
-                  <div className="space-y-3">
-                    {transactions.map((t, i) => (
-                      <div key={i} className="text-sm leading-relaxed border-b border-dashed border-white pb-2">
-                        <span className="font-semibold">{t.from.toUpperCase()}</span>
-                        <span> PAYS </span>
-                        <span className="font-semibold">{t.to.toUpperCase()}</span>
-                        <br/>
-                        <span className="font-black text-2xl">{formatCurrencySmart(t.amount)}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                <p className="text-xs mt-4 border-t-2 border-dashed border-white pt-2">
-                  {transactions.length} TRANSACTION{transactions.length !== 1 ? 'S' : ''} TO SETTLE {formatCurrency(total)}
-                </p>
-              </div>
+        {hasData && (
+          <>
+            <div className="bg-black text-white p-8 mb-4 border-4 border-black">
+              <h3 className="text-xl font-black mb-4 uppercase tracking-wider border-b-2 border-white pb-2">YOUR SETTLEMENT</h3>
+              {transactions.length === 0 ? (
+                <p className="text-lg font-bold">ALL SETTLED! EVERYONE'S SQUARE.</p>
+              ) : (
+                <div className="space-y-3">
+                  {transactions.map((t, i) => (
+                    <div key={i} className="text-sm leading-relaxed border-b border-dashed border-white pb-2">
+                      <span className="font-semibold">{t.from.toUpperCase()}</span>
+                      <span> PAYS </span>
+                      <span className="font-semibold">{t.to.toUpperCase()}</span>
+                      <br/>
+                      <span className="font-black text-2xl">{formatCurrencySmart(t.amount)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <p className="text-xs mt-4 border-t-2 border-dashed border-white pt-2">
+                {transactions.length} TRANSACTION{transactions.length !== 1 ? 'S' : ''} TO SETTLE {formatCurrency(total)}
+              </p>
+            </div>
 
-              {renderStatsRow([
-                { label: 'TOTAL BILLS', value: shareBills.length },
-                { label: 'TOTAL AMOUNT', value: formatCurrency(total) },
-                { label: 'PEOPLE', value: sharePeople.length },
-                { label: 'WEIGHTING', value: getWeightingLabel(shareWeighting) }
-              ])}
+            {renderStatsRow([
+              { label: 'TOTAL BILLS', value: shareBills.length },
+              { label: 'TOTAL AMOUNT', value: formatCurrency(total) },
+              { label: 'PEOPLE', value: sharePeople.length },
+              { label: 'WEIGHTING', value: getWeightingLabel(shareWeighting) }
+            ])}
 
-              <DetailToggleButton show={showShareDetails} onClick={() => setShowShareDetails(!showShareDetails)} />
+            <DetailToggleButton show={showShareDetails} onClick={() => setShowShareDetails(!showShareDetails)} />
 
               {showShareDetails && (
                 <div className="animate-fadeIn">
@@ -1625,7 +1620,6 @@ const Comrade = () => {
               )}
             </>
           )}
-        </div>
 
         <div className="flex items-center gap-4 my-6">
           <div className="flex-1 border-t border-black"></div>
@@ -1759,39 +1753,38 @@ const Comrade = () => {
 
     return (
       <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
-        <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
-          <h2 className="text-2xl font-black mb-6 text-black uppercase tracking-wider border-b-4 border-black pb-2">SELLING RESULTS</h2>
-          
-          {!hasData && renderNoDataState('sale-entry')}
+        <h2 className="text-2xl font-black mb-6 text-black uppercase tracking-wider border-b-4 border-black pb-2">SELLING RESULTS</h2>
+        
+        {!hasData && renderNoDataState('sale-entry')}
 
-          {hasData && (
-            <>
-              <div className="bg-black text-white p-8 mb-4 border-4 border-black">
-                <h3 className="text-2xl font-black mb-4 uppercase tracking-wider border-b-2 border-white pb-2">SELECTED BUYER{winners.length > 1 ? 'S' : ''}</h3>
-                {isPerfectTie ? (
-                  <p className="text-lg font-bold">PERFECT TIE. EVERYONE HAS EQUAL CLAIM.</p>
-                ) : (
-                  <>
-                    {winners.map((winner, i) => (
-                      <div key={winner.id} className="mb-3 border-b border-dashed border-white pb-3">
-                        <p className="text-3xl font-black mb-2">{winner.name.toUpperCase()}</p>
-                        <p className="text-xl font-semibold">OFFER: {formatCurrency(winner.offer)}</p>
-                        <p className={CLS.textXsBlack}>NEED SCORE: {winner.needScore < 0.01 ? winner.needScore.toExponential(4) : winner.needScore.toFixed(2)}%</p>
-                      </div>
-                    ))}
-                  </>
-                )}
-                <p className="text-xs mt-4 border-t-2 border-dashed border-white pt-2">PRODUCT: {productName.toUpperCase() || 'UNNAMED'}</p>
-              </div>
+        {hasData && (
+          <>
+            <div className="bg-black text-white p-8 mb-4 border-4 border-black">
+              <h3 className="text-xl font-black mb-4 uppercase tracking-wider border-b-2 border-white pb-2">SELECTED BUYER{winners.length > 1 ? 'S' : ''}</h3>
+              {isPerfectTie ? (
+                <p className="text-lg font-bold">PERFECT TIE. EVERYONE HAS EQUAL CLAIM.</p>
+              ) : (
+                <>
+                  {winners.map((winner, i) => (
+                    <div key={winner.id} className="mb-3 border-b border-dashed border-white pb-3">
+                      <p className="text-3xl font-black mb-2">{winner.name.toUpperCase()}</p>
+                      <p className="text-xl font-semibold">OFFER: {formatCurrency(winner.offer)}</p>
+                      <p className={CLS.textXsBlack}>NEED SCORE: {winner.needScore < 0.01 ? winner.needScore.toExponential(4) : winner.needScore.toFixed(2)}%</p>
+                    </div>
+                  ))}
+                </>
+              )}
+              <p className="text-xs mt-4 border-t-2 border-dashed border-white pt-2">PRODUCT: {productName.toUpperCase() || 'UNNAMED'}</p>
+            </div>
 
-              {renderStatsRow([
-                { label: 'PRODUCT', value: productName.toUpperCase() || 'N/A' },
-                { label: 'AVAILABLE', value: numAvailable },
-                { label: 'AVG OFFER', value: formatCurrency(avgOffer) },
-                { label: 'WEIGHTING', value: getWeightingLabel(saleWeighting) }
-              ])}
+            {renderStatsRow([
+              { label: 'PRODUCT', value: productName.toUpperCase() || 'N/A' },
+              { label: 'AVAILABLE', value: numAvailable },
+              { label: 'AVG OFFER', value: formatCurrency(avgOffer) },
+              { label: 'WEIGHTING', value: getWeightingLabel(saleWeighting) }
+            ])}
 
-              <DetailToggleButton show={showSaleDetails} onClick={() => setShowSaleDetails(!showSaleDetails)} />
+            <DetailToggleButton show={showSaleDetails} onClick={() => setShowSaleDetails(!showSaleDetails)} />
 
               {showSaleDetails && (
                 <div className="animate-fadeIn">
@@ -1849,7 +1842,6 @@ const Comrade = () => {
               )}
             </>
           )}
-        </div>
 
         <div className="flex items-center gap-4 my-6">
           <div className="flex-1 border-t border-black"></div>
@@ -1888,9 +1880,11 @@ const Comrade = () => {
             <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">DECISION</h3>
             <p className="text-xs mb-3 text-black">Enter the question the group is voting on.</p>
             <FormInput
+              type="textarea"
               value={voteDecision}
               onChange={(e) => setVoteDecision(e.target.value)}
               placeholder="DECISION TO BE MADE"
+              rows={3}
             />
           </div>
 
@@ -2005,41 +1999,40 @@ const Comrade = () => {
 
     return (
       <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
-        <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
-          <h2 className="text-2xl font-black mb-6 text-black uppercase tracking-wider border-b-4 border-black pb-2">VOTING RESULTS</h2>
-          
-          {!hasData && renderNoDataState('vote-entry')}
+        <h2 className="text-2xl font-black mb-6 text-black uppercase tracking-wider border-b-4 border-black pb-2">VOTING RESULTS</h2>
+        
+        {!hasData && renderNoDataState('vote-entry')}
 
-          {hasData && (
-            <>
-              <div className="bg-black text-white p-8 mb-4 border-4 border-black">
-                <h3 className="text-2xl font-black mb-4 uppercase tracking-wider border-b-2 border-white pb-2">DECISION</h3>
-                <p className="text-lg mb-6 font-semibold">{voteDecision.toUpperCase()}</p>
-                
-                {isTie ? (
-                  <p className="text-xl font-bold">PERFECT TIE. NO CLEAR WINNER.</p>
-                ) : winner ? (
-                  <>
-                    <p className="text-sm mb-2">WINNING OPTION:</p>
-                    <p className="text-3xl font-black mb-2">{winner.option.toUpperCase()}</p>
-                    <p className="text-xl font-semibold">{winner.percentage.toFixed(1)}% OF VOTING POWER</p>
-                  </>
-                ) : (
-                  <p className="text-lg font-bold">NO VOTES CAST</p>
-                )}
-                
-                <p className="text-xs mt-4 border-t-2 border-dashed border-white pt-2">
-                  {voteParticipants.length} PARTICIPANT{voteParticipants.length !== 1 ? 'S' : ''}
-                </p>
-              </div>
+        {hasData && (
+          <>
+            <div className="bg-black text-white p-8 mb-4 border-4 border-black">
+              <h3 className="text-xl font-black mb-4 uppercase tracking-wider border-b-2 border-white pb-2">DECISION</h3>
+              <p className="text-lg mb-6 font-semibold">{voteDecision.toUpperCase()}</p>
+              
+              {isTie ? (
+                <p className="text-xl font-bold">PERFECT TIE. NO CLEAR WINNER.</p>
+              ) : winner ? (
+                <>
+                  <p className="text-sm mb-2">WINNING OPTION:</p>
+                  <p className="text-3xl font-black mb-2">{winner.option.toUpperCase()}</p>
+                  <p className="text-xl font-semibold">{winner.percentage.toFixed(1)}% OF VOTING POWER</p>
+                </>
+              ) : (
+                <p className="text-lg font-bold">NO VOTES CAST</p>
+              )}
+              
+              <p className="text-xs mt-4 border-t-2 border-dashed border-white pt-2">
+                {voteParticipants.length} PARTICIPANT{voteParticipants.length !== 1 ? 'S' : ''}
+              </p>
+            </div>
 
-              {renderStatsRow([
-                { label: 'PARTICIPANTS', value: voteParticipants.length },
-                { label: 'OPTIONS', value: options.length },
-                { label: 'WEIGHTING', value: getWeightingLabel(voteWeighting) }
-              ])}
+            {renderStatsRow([
+              { label: 'PARTICIPANTS', value: voteParticipants.length },
+              { label: 'OPTIONS', value: options.length },
+              { label: 'WEIGHTING', value: getWeightingLabel(voteWeighting) }
+            ])}
 
-              <DetailToggleButton show={showVoteDetails} onClick={() => setShowVoteDetails(!showVoteDetails)} />
+            <DetailToggleButton show={showVoteDetails} onClick={() => setShowVoteDetails(!showVoteDetails)} />
 
               {showVoteDetails && (
                 <div className="animate-fadeIn">
@@ -2173,7 +2166,6 @@ const Comrade = () => {
               )}
             </>
           )}
-        </div>
 
         <div className="flex items-center gap-4 my-6">
           <div className="flex-1 border-t border-black"></div>
@@ -2308,37 +2300,36 @@ const Comrade = () => {
 
     return (
       <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
-        <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
-          <h2 className="text-2xl font-black mb-6 text-black uppercase tracking-wider border-b-4 border-black pb-2">RENT SPLITTING RESULTS</h2>
-          
-          {!hasData && renderNoDataState('rent-entry')}
+        <h2 className="text-2xl font-black mb-6 text-black uppercase tracking-wider border-b-4 border-black pb-2">RENT SPLITTING RESULTS</h2>
+        
+        {!hasData && renderNoDataState('rent-entry')}
 
-          {hasData && (
-            <>
-              <div className="bg-black text-white p-8 mb-4 border-4 border-black">
-                <h3 className="text-2xl font-black mb-4 uppercase tracking-wider border-b-2 border-white pb-2">MONTHLY PAYMENTS</h3>
-                <div className="space-y-3">
-                  {rentData.map((person) => (
-                    <div key={person.id} className="border-b border-dashed border-white pb-2">
-                      <p className="text-lg font-semibold">{person.name.toUpperCase()}</p>
-                      <p className="text-3xl font-black">{formatCurrencySmart(person.fairRent)}</p>
-                      <p className={CLS.textXsBlack}>{person.rentPct.toFixed(1)}% of total</p>
-                    </div>
-                  ))}
-                </div>
-                <p className={`${CLS.textXsBlack} mt-4 border-t-2 border-dashed border-white pt-2`}>
-                  TOTAL: {formatCurrency(total)}/MONTH
-                </p>
+        {hasData && (
+          <>
+            <div className="bg-black text-white p-8 mb-4 border-4 border-black">
+              <h3 className="text-xl font-black mb-4 uppercase tracking-wider border-b-2 border-white pb-2">MONTHLY PAYMENTS</h3>
+              <div className="space-y-3">
+                {rentData.map((person) => (
+                  <div key={person.id} className="border-b border-dashed border-white pb-2">
+                    <p className="text-lg font-semibold">{person.name.toUpperCase()}</p>
+                    <p className="text-3xl font-black">{formatCurrencySmart(person.fairRent)}</p>
+                    <p className={CLS.textXsBlack}>{person.rentPct.toFixed(1)}% of total</p>
+                  </div>
+                ))}
               </div>
+              <p className={`${CLS.textXsBlack} mt-4 border-t-2 border-dashed border-white pt-2`}>
+                TOTAL: {formatCurrency(total)}/MONTH
+              </p>
+            </div>
 
-              {renderStatsRow([
-                { label: 'RENT', value: formatCurrency(rentAmount) },
-                { label: 'UTILITIES', value: formatCurrency(utilitiesAmount) },
-                { label: 'TENANTS', value: rentPeople.length },
-                { label: 'WEIGHTING', value: getWeightingLabel(rentWeighting) }
-              ])}
+            {renderStatsRow([
+              { label: 'RENT', value: formatCurrency(rentAmount) },
+              { label: 'UTILITIES', value: formatCurrency(utilitiesAmount) },
+              { label: 'TENANTS', value: rentPeople.length },
+              { label: 'WEIGHTING', value: getWeightingLabel(rentWeighting) }
+            ])}
 
-              <DetailToggleButton show={showRentDetails} onClick={() => setShowRentDetails(!showRentDetails)} />
+            <DetailToggleButton show={showRentDetails} onClick={() => setShowRentDetails(!showRentDetails)} />
 
               {showRentDetails && (
                 <div className="animate-fadeIn">
@@ -2437,7 +2428,6 @@ const Comrade = () => {
               )}
             </>
           )}
-        </div>
 
         <div className="flex items-center gap-4 my-6">
           <div className="flex-1 border-t border-black"></div>
@@ -3073,6 +3063,7 @@ const Comrade = () => {
 
   return null;
 };
+
 
 
 // Render the app
