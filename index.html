@@ -28,50 +28,150 @@ const applyWeighting = (wealth, weighting) => {
 
 // ==================== END UTILITY FUNCTIONS ====================
 
-const CurrencySelector = ({ currency, setCurrency }) => (
-  <div className="bg-gray-100 p-2 border-2 border-dotted border-black">
-    {['$', '€', '£'].map(c => (
-      <button key={c} onClick={() => setCurrency(c)} className={`px-3 py-1 mx-1 font-bold ${currency === c ? 'bg-black text-white' : 'bg-white text-black border border-gray-400'}`}>{c}</button>
-    ))}
-  </div>
+// ==================== ICON COMPONENTS ====================
+
+const PersonIcon = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 40 40">
+    <circle cx="20" cy="20" r="18" fill="#000"/>
+    <circle cx="20" cy="16" r="5" fill="white"/>
+    <path d="M 10 32 Q 10 24 20 24 Q 30 24 30 32" fill="white"/>
+  </svg>
 );
 
-const WealthTypeSelector = ({ wealthType, setWealthType }) => (
-  <div className="bg-gray-100 p-2 border-2 border-dotted border-black">
-    {['salary', 'networth'].map(w => (
-      <button key={w} onClick={() => setWealthType(w)} className={`px-3 py-1 mx-1 font-bold text-xs ${wealthType === w ? 'bg-black text-white' : 'bg-white text-black border border-gray-400'}`}>{w === 'salary' ? 'SALARY' : 'NET WORTH'}</button>
-    ))}
-  </div>
+const BillIcon = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20">
+    <rect x="2" y="4" width="16" height="12" fill="none" stroke="#000" strokeWidth="2"/>
+    <line x1="2" y1="8" x2="18" y2="8" stroke="#000" strokeWidth="2"/>
+    <line x1="2" y1="12" x2="18" y2="12" stroke="#000" strokeWidth="2"/>
+  </svg>
 );
 
-const MeasurementSelector = ({ sizeUnit, setSizeUnit }) => (
-  <div className="bg-gray-100 p-2 border-2 border-dotted border-black">
-    {['sqft', 'sqm'].map(u => (
-      <button key={u} onClick={() => setSizeUnit(u)} className={`px-3 py-1 mx-1 font-bold text-xs ${sizeUnit === u ? 'bg-black text-white' : 'bg-white text-black border border-gray-400'}`}>{u === 'sqft' ? 'SQ FT' : 'SQ M'}</button>
-    ))}
-  </div>
+const HouseIcon = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24">
+    <path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z" fill="#000"/>
+  </svg>
 );
+
+const TagIcon = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24">
+    <path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z" fill="#000"/>
+  </svg>
+);
+
+const QuestionIcon = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24">
+    <text x="6" y="19" fontFamily="monospace" fontSize="20" fill="#000" fontWeight="bold">?</text>
+  </svg>
+);
+
+const ListIcon = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24">
+    <rect x="4" y="5" width="3" height="3" fill="#000"/>
+    <rect x="4" y="10" width="3" height="3" fill="#000"/>
+    <rect x="4" y="15" width="3" height="3" fill="#000"/>
+    <line x1="9" y1="6.5" x2="20" y2="6.5" stroke="#000" strokeWidth="2"/>
+    <line x1="9" y1="11.5" x2="20" y2="11.5" stroke="#000" strokeWidth="2"/>
+    <line x1="9" y1="16.5" x2="20" y2="16.5" stroke="#000" strokeWidth="2"/>
+  </svg>
+);
+
+const ErrorIcon = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24">
+    <line x1="4" y1="4" x2="20" y2="20" stroke="#000" strokeWidth="3"/>
+    <line x1="20" y1="4" x2="4" y2="20" stroke="#000" strokeWidth="3"/>
+  </svg>
+);
+
+// ==================== END ICON COMPONENTS ====================
 
 const DashedDivider = () => <div className="border-t-2 border-dashed border-gray-400 my-6" />;
 
-const WeightingButtons = ({ value, onChange }) => (
-  <div className="flex justify-center">
-    <div className="bg-gray-100 p-2 border-2 border-dotted border-black inline-block">
-      <div className="flex flex-wrap gap-2">
-        {[
-          {value: 'gentle', label: 'LOW'},
-          {value: 'standard', label: 'MID'},
-          {value: 'strong', label: 'HIGH'},
-          {value: 'none', label: 'OFF'}
-        ].map(w => (
-          <button key={w.value} onClick={() => onChange(w.value)} className={`flex-1 min-w-[100px] p-3 font-bold text-xs border-2 ${value === w.value ? 'bg-black text-white border-black' : w.value === 'none' ? 'bg-gray-200 text-gray-500 border-gray-400' : 'bg-white text-black border-gray-400'}`}>
-            {w.label}
-          </button>
-        ))}
-      </div>
-    </div>
+const CurrencyDivider = () => (
+  <div className="flex items-center gap-4 my-6">
+    <div className="flex-1 border-t border-black"></div>
+    <span className="text-xs font-bold">$ € £</span>
+    <div className="flex-1 border-t border-black"></div>
   </div>
 );
+
+const WeightingButtons = ({ value, onChange }) => {
+  return (
+    <div className="flex justify-center">
+      <div className="bg-gray-100 p-2 border-2 border-dotted border-black inline-block">
+        <div className="flex flex-wrap gap-2">
+          {[
+            {value: 'gentle', label: 'LOW'},
+            {value: 'standard', label: 'MID'},
+            {value: 'strong', label: 'HIGH'},
+            {value: 'none', label: 'OFF'}
+          ].map(w => (
+            <button key={w.value} onClick={() => onChange(w.value)} className={`flex-1 min-w-[100px] p-3 font-bold text-xs border-2 ${value === w.value ? 'bg-black text-white border-black' : w.value === 'none' ? 'bg-gray-200 text-gray-500 border-gray-400' : 'bg-white text-black border-gray-400'}`}>
+              {w.label}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const WealthMetricButtons = ({ value, onChange }) => {
+  return (
+    <div className="flex justify-center">
+      <div className="bg-gray-100 p-2 border-2 border-dotted border-black inline-block">
+        <div className="flex gap-2">
+          {[
+            {value: 'salary', label: 'SALARY'},
+            {value: 'networth', label: 'NET WORTH'}
+          ].map(w => (
+            <button key={w.value} onClick={() => onChange(w.value)} className={`min-w-[140px] p-3 font-bold text-xs border-2 ${value === w.value ? 'bg-black text-white border-black' : 'bg-white text-black border-gray-400'}`}>
+              {w.label}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const MeasurementButtons = ({ value, onChange }) => {
+  return (
+    <div className="flex justify-center">
+      <div className="bg-gray-100 p-2 border-2 border-dotted border-black inline-block">
+        <div className="flex gap-2">
+          {[
+            {value: 'sqft', label: 'SQ FT'},
+            {value: 'sqm', label: 'SQ M'}
+          ].map(m => (
+            <button key={m.value} onClick={() => onChange(m.value)} className={`min-w-[140px] p-3 font-bold text-xs border-2 ${value === m.value ? 'bg-black text-white border-black' : 'bg-white text-black border-gray-400'}`}>
+              {m.label}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const CurrencyButtons = ({ value, onChange }) => {
+  return (
+    <div className="flex justify-center">
+      <div className="bg-gray-100 p-2 border-2 border-dotted border-black inline-block">
+        <div className="flex gap-2">
+          {[
+            {value: 'USD', label: '$'},
+            {value: 'EUR', label: '€'},
+            {value: 'GBP', label: '£'}
+          ].map(c => (
+            <button key={c.value} onClick={() => onChange(c.value)} className={`min-w-[100px] p-3 font-bold text-xl border-2 ${value === c.value ? 'bg-black text-white border-black' : 'bg-white text-black border-gray-400'}`}>
+              {c.label}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const FormInput = ({ type = 'text', value, onChange, placeholder, className = '', style, ...props }) => {
   const baseClasses = "w-full p-2 border-2 border-gray-400 bg-white text-xs uppercase";
@@ -330,16 +430,6 @@ const Layout = ({ children, onNavigate, showCopyToast }) => {
         button:active {
           transform: scale(0.97);
         }
-        .receipt-container {
-          position: relative;
-          background: #F3F4F6;
-          border-left: 4px solid #000;
-          border-right: 4px solid #000;
-          border-top: 4px dashed #000;
-          border-bottom: 4px dashed #000;
-          box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-          min-height: calc(100vh - 40px);
-        }
         .bg-white {
           background-color: #F3F4F6 !important;
         }
@@ -367,11 +457,7 @@ const Layout = ({ children, onNavigate, showCopyToast }) => {
               document.title = "COMRADE";
             `}</style>
             {children}
-            <div className="flex items-center gap-4 my-6">
-              <div className="flex-1 border-t border-black"></div>
-              <span className="text-xs font-bold">{'$ € £'}</span>
-              <div className="flex-1 border-t border-black"></div>
-            </div>
+            <CurrencyDivider />
             <div className="text-center mt-4 mb-4 text-black text-xs">
               <span className="cursor-pointer hover:underline font-bold" onClick={() => onNavigate('home')}>HOME</span>
               <span className="mx-3">/</span>
@@ -440,7 +526,7 @@ const Comrade = () => {
   }, []);
 
   // Reusable pie chart for wealth visualization
-  const renderWealthPieChart = useCallback((data, currencySymbol, formatNumberFn) => {
+  const renderWealthPieChart = useCallback((data, formatNumberFn) => {
     const sortedData = [...data].sort((a, b) => b.wealth - a.wealth);
     const totalWealth = sortedData.reduce((sum, p) => sum + p.wealth, 0);
     const colors = ['#000000', '#1F2937', '#475569', '#64748B', '#94A3B8', '#CBD5E1', '#E2E8F0', '#F1F5F9'];
@@ -508,7 +594,7 @@ const Comrade = () => {
                   style={{ backgroundColor: colors[idx % colors.length] }}
                 ></div>
                 <span className={`${CLS.textBlackFontBold}`}>{p.name}</span>
-                <span className="text-black whitespace-nowrap">{currencySymbol}{formatNumberFn(p.wealth.toFixed(2))}</span>
+                <span className="text-black whitespace-nowrap">${formatNumberFn(p.wealth.toFixed(2))}</span>
                 <span className={`${CLS.textBlackFontBold} whitespace-nowrap`}>({percentage.toFixed(1)}%)</span>
               </div>
             );
@@ -594,7 +680,10 @@ const Comrade = () => {
 
   const NoDataWarning = useCallback(() => (
     <div className="bg-white p-6 border-2 border-solid border-black mb-6">
-      <p className="text-black font-bold">NO DATA ENTERED</p>
+      <div className="flex items-center gap-2 mb-2">
+        <ErrorIcon />
+        <p className="text-black font-bold">NO DATA ENTERED</p>
+      </div>
       <p className="text-black text-xs mt-1">Please go back and enter some information.</p>
     </div>
   ), []);
@@ -642,6 +731,20 @@ const Comrade = () => {
           { label: 'CLEAR ALL', onClick: () => handleClearAll(clearType), variant: 'danger' }
         ])}
       </div>
+    </>
+  );
+
+  const EntryPageWrapper = ({ title, description, type, settingsComponent, children }) => (
+    <>
+      {renderEntryIntro({ 
+        title, 
+        description, 
+        onLoadExample: () => loadExample(type), 
+        clearType: type 
+      })}
+      <CurrencyDivider />
+      {children}
+      {settingsComponent}
     </>
   );
 
@@ -693,7 +796,7 @@ const Comrade = () => {
     </div>
   );
 
-  const renderSettingsPanel = (weighting, setWeighting, showSettings, setShowSettings, resultsPage) => (
+  const renderSettingsPanel = (weighting, setWeighting, showSettings, setShowSettings, resultsPage, currency, setCurrency, wealthMetric, setWealthMetric, measurement, setMeasurement) => (
     <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
       {!showSettings ? (
         <div className="text-center">
@@ -710,43 +813,31 @@ const Comrade = () => {
           </div>
           
           <DashedDivider />
-          
-          {/* Measurements section (rent page only) */}
-          {resultsPage === 'rent-results' && (
-            <>
-              <div className="mb-6">
-                <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">MEASUREMENTS</h3>
-                <p className="text-xs mb-3 text-black">Pick what unit room size should be measured in.</p>
-                <div className="flex justify-center">
-                  <div className="inline-block">
-                    <MeasurementSelector sizeUnit={sizeUnit} setSizeUnit={setSizeUnit} />
-                  </div>
-                </div>
-              </div>
-              <DashedDivider />
-            </>
-          )}
-          
+
           <div className="mb-6">
             <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">CURRENCY</h3>
             <p className="text-xs mb-3 text-black">Choose your preferred currency.</p>
-            <div className="flex justify-center">
-              <div className="inline-block">
-                <CurrencySelector currency={currency} setCurrency={setCurrency} />
-              </div>
-            </div>
+            <CurrencyButtons value={currency} onChange={setCurrency} />
           </div>
 
           <DashedDivider />
 
+          {measurement !== undefined && setMeasurement !== undefined && (
+            <>
+              <div className="mb-6">
+                <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">MEASUREMENTS</h3>
+                <p className="text-xs mb-3 text-black">Pick what unit room size should be measured in.</p>
+                <MeasurementButtons value={measurement} onChange={setMeasurement} />
+              </div>
+
+              <DashedDivider />
+            </>
+          )}
+
           <div className="mb-6">
             <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">WEALTH</h3>
             <p className="text-xs mb-3 text-black">Select your preferred financial metric of wealth.</p>
-            <div className="flex justify-center">
-              <div className="inline-block">
-                <WealthTypeSelector wealthType={wealthType} setWealthType={setWealthType} />
-              </div>
-            </div>
+            <WealthMetricButtons value={wealthMetric} onChange={setWealthMetric} />
           </div>
 
           <DashedDivider />
@@ -858,8 +949,6 @@ const Comrade = () => {
   );
 
   const [page, setPage] = useState('home');
-  const [currency, setCurrency] = useState('$');
-  const [wealthType, setWealthType] = useState('salary');
   const [sharePeople, setSharePeople] = useState([]);
   const [shareBills, setShareBills] = useState([]);
   const [currentPersonName, setCurrentPersonName] = useState('');
@@ -868,6 +957,8 @@ const Comrade = () => {
   const [currentBillAmount, setCurrentBillAmount] = useState('');
   const [currentBillPaidBy, setCurrentBillPaidBy] = useState('');
   const [shareWeighting, setShareWeighting] = useState('standard');
+  const [shareCurrency, setShareCurrency] = useState('USD');
+  const [shareWealthMetric, setShareWealthMetric] = useState('salary');
   const [productName, setProductName] = useState('');
   const [numberAvailable, setNumberAvailable] = useState('');
   const [saleBuyers, setSaleBuyers] = useState([]);
@@ -875,6 +966,8 @@ const Comrade = () => {
   const [currentBuyerWealth, setCurrentBuyerWealth] = useState('');
   const [currentBuyerOffer, setCurrentBuyerOffer] = useState('');
   const [saleWeighting, setSaleWeighting] = useState('standard');
+  const [saleCurrency, setSaleCurrency] = useState('USD');
+  const [saleWealthMetric, setSaleWealthMetric] = useState('salary');
   const [voteDecision, setVoteDecision] = useState('');
   const [voteOptions, setVoteOptions] = useState([]);
   const [currentOptionText, setCurrentOptionText] = useState('');
@@ -883,6 +976,8 @@ const Comrade = () => {
   const [currentParticipantWealth, setCurrentParticipantWealth] = useState('');
   const [currentParticipantVote, setCurrentParticipantVote] = useState('');
   const [voteWeighting, setVoteWeighting] = useState('standard');
+  const [voteCurrency, setVoteCurrency] = useState('USD');
+  const [voteWealthMetric, setVoteWealthMetric] = useState('salary');
   const [totalRent, setTotalRent] = useState('');
   const [totalUtilities, setTotalUtilities] = useState('');
   const [rentPeople, setRentPeople] = useState([]);
@@ -890,7 +985,9 @@ const Comrade = () => {
   const [currentRoommateRoomSize, setCurrentRoommateRoomSize] = useState('');
   const [currentRoommateWealth, setCurrentRoommateWealth] = useState('');
   const [rentWeighting, setRentWeighting] = useState('standard');
-  const [sizeUnit, setSizeUnit] = useState('sqft');
+  const [rentCurrency, setRentCurrency] = useState('USD');
+  const [rentWealthMetric, setRentWealthMetric] = useState('salary');
+  const [rentMeasurement, setRentMeasurement] = useState('sqft');
   const [showCopyToast, setShowCopyToast] = useState(false);
   const [showShareDetails, setShowShareDetails] = useState(false);
   const [showVoteDetails, setShowVoteDetails] = useState(false);
@@ -905,7 +1002,7 @@ const Comrade = () => {
   const [showVoteSettings, setShowVoteSettings] = useState(false);
   const [showRentSettings, setShowRentSettings] = useState(false);
 
-  const quotes = useMemo(() => ['FROM EACH ACCORDING TO ABILITY, TO EACH ACCORDING TO NEED', 'THANKS FOR SHARING', 'SHARE AND SHARE ALIKE', 'MANY HANDS MAKE LIGHT WORK', 'ALL FOR ONE AND ONE FOR ALL', 'A RISING TIDE LIFTS ALL BOATS', 'FAIR\'S FAIR', 'LIBERTÉ, ÉGALITÉ, FRATERNITÉ', 'WE\'RE ALL IN THIS TOGETHER', 'WHAT GOES AROUND COMES AROUND', 'NO ONE LEFT BEHIND', 'YOU GET WHAT YOU GIVE', 'WHICH SIDE ARE YOU ON?', 'SHARE THE LOAD', 'BREAD AND ROSES', 'ALL TOGETHER NOW', 'THE COMMON TREASURY', 'WHEN ADAM DELVED AND EVE SPAN, WHO WAS THEN THE GENTLEMAN?', 'E PLURIBUS UNUM', 'WHO BUILT THEBES OF THE SEVEN GATES?', 'SO THE LAST SHALL BE FIRST, AND THE FIRST LAST', 'THE WISDOM OF THE CROWD', 'AND ALL THAT BELIEVED WERE TOGETHER, AND HAD ALL THINGS IN COMMON', 'SALUS POPULI SUPREMA LEX', 'WHAT\'S MINE IS YOURS, AND WHAT IS YOURS IS MINE', 'GIVE US THIS DAY OUR DAILY BREAD', 'NO MAN IS AN ISLAND', 'VIVE LA COMMUNE', 'FOR WHAT SHALL IT PROFIT A MAN, IF HE SHALL GAIN THE WORLD, AND LOSE HIS OWN SOUL?', 'REND DOWN THE HEDGES', 'AM I MY BROTHER\'S KEEPER?', 'IT TAKES A VILLAGE', 'ONE HAND WASHES THE OTHER', 'I DON\'T WANT YOUR MILLIONS, MISTER'], []);
+  const quotes = useMemo(() => ['JEDER NACH SEINEN FÄHIGKEITEN, JEDEM NACH SEINEN BEDÜRFNISSEN', 'THANKS FOR SHARING', 'SHARE AND SHARE ALIKE', 'MANY HANDS MAKE LIGHT WORK', 'ALL FOR ONE AND ONE FOR ALL', 'A RISING TIDE LIFTS ALL BOATS', 'FAIR\'S FAIR', 'LIBERTÉ, ÉGALITÉ, FRATERNITÉ', 'WE\'RE ALL IN THIS TOGETHER', 'WHAT GOES AROUND COMES AROUND', 'NO ONE LEFT BEHIND', 'YOU GET WHAT YOU GIVE', 'WHICH SIDE ARE YOU ON?', 'SHARE THE LOAD', 'BREAD AND ROSES', 'ALL TOGETHER NOW', 'A COMMON TREASURY OF RELIEF FOR ALL, BOTH BEASTS AND MEN', 'WHEN ADAM DELVED AND EVE SPAN, WHO WAS THEN THE GENTLEMAN?', 'E PLURIBUS UNUM', 'WHO BUILT THEBES OF THE SEVEN GATES?', 'SO THE LAST SHALL BE FIRST, AND THE FIRST LAST', 'THE WISDOM OF THE CROWD', 'AND ALL THAT BELIEVED WERE TOGETHER, AND HAD ALL THINGS IN COMMON', 'SALUS POPULI SUPREMA LEX', 'WHAT\'S MINE IS YOURS, AND WHAT IS YOURS IS MINE', 'GIVE US THIS DAY OUR DAILY BREAD', 'NO MAN IS AN ISLAND', 'VIVE LA COMMUNE', 'FOR WHAT SHALL IT PROFIT A MAN, IF HE SHALL GAIN THE WORLD, AND LOSE HIS OWN SOUL?', 'REND DOWN THE HEDGES', 'AM I MY BROTHER\'S KEEPER?', 'IT TAKES A VILLAGE', 'ONE HAND WASHES THE OTHER', 'I DON\'T WANT YOUR MILLIONS, MISTER'], []);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -942,19 +1039,32 @@ const Comrade = () => {
     return formatNumber(num.toFixed(2));
   }, [formatNumber]);
 
+  const getCurrencySymbol = useCallback((currency) => {
+    const symbols = { USD: '$', EUR: '€', GBP: '£' };
+    return symbols[currency] || '$';
+  }, []);
+
   // Currency formatting helpers
-  const formatCurrency = useCallback((value, decimals = 2) => 
-    `${currency}${formatNumber((parseFloat(value) || 0).toFixed(decimals))}`, 
-    [currency, formatNumber]
+  const formatCurrency = useCallback((value, decimals = 2, currency = 'USD') => 
+    `${getCurrencySymbol(currency)}${formatNumber((parseFloat(value) || 0).toFixed(decimals))}`, 
+    [formatNumber, getCurrencySymbol]
   );
-  const formatCurrencySmart = useCallback((value) => 
-    `${currency}${formatSmartNumber(value)}`, 
-    [currency, formatSmartNumber]
+  const formatCurrencySmart = useCallback((value, currency = 'USD') => 
+    `${getCurrencySymbol(currency)}${formatSmartNumber(value)}`, 
+    [formatSmartNumber, getCurrencySymbol]
   );
 
   const getWeightingLabel = useCallback((weighting) => {
     const labels = { none: 'OFF', gentle: 'LOW', standard: 'MID', strong: 'HIGH' };
     return labels[weighting] || 'MID';
+  }, []);
+
+  const getWealthMetricLabel = useCallback((metric) => {
+    return metric === 'networth' ? 'NET WORTH' : 'SALARY';
+  }, []);
+
+  const getMeasurementLabel = useCallback((measurement) => {
+    return measurement === 'sqm' ? 'SQ M' : 'SQ FT';
   }, []);
 
   const copyToClipboard = useCallback((text) => {
@@ -1227,14 +1337,478 @@ const Comrade = () => {
     return { rentAmount, utilitiesAmount, total, totalRoomSize, rentData, avgRent, totalRoomValue };
   }, [rentPeople, totalRent, totalUtilities, rentWeighting, page]);
 
+  if (page === 'entry-mockups') {
+    return (
+      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
+        <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-6">
+          <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider border-b-4 border-black pb-2">DATA ENTRY MOCKUPS</h2>
+          <p className="text-xs mb-4 text-black">Alternative layouts for the bill-splitting data entry page. All maintain the receipt aesthetic while exploring different organizational approaches.</p>
+          <button onClick={() => navigateTo('share-entry')} className="bg-gray-200 text-black px-6 py-2 font-bold border-2 border-gray-400 hover:bg-gray-300 transition-all">← BACK TO ENTRY</button>
+        </div>
+
+        <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-6">
+          <p className="text-center text-black mb-4">All layout options have been removed.</p>
+          <button onClick={() => navigateTo('share-entry')} className="w-full bg-gray-200 text-black px-6 py-2 font-bold border-2 border-gray-400 hover:bg-gray-300 transition-all">← BACK TO ENTRY</button>
+        </div>
+
+        {/* OPTION 1: TWO-COLUMN LAYOUT */}
+        <div className="mb-8">
+          <div className="bg-black text-white p-4 mb-3">
+            <h3 className="text-lg font-black mb-1">OPTION 3: SIDE-BY-SIDE COLUMNS</h3>
+            <p className="text-xs">Desktop-optimized with people and bills as equal columns</p>
+          </div>
+          
+          <div className="bg-white p-6 border-2 border-dashed border-gray-400">
+            <h2 className="text-xl font-black mb-3 text-black uppercase tracking-wider">BILL-SPLITTING</h2>
+            <p className="text-xs mb-6 text-black">Handle shared expenses more fairly using wealth data.</p>
+            
+            <div className="grid md:grid-cols-2 gap-4">
+              {/* People Column */}
+              <div className="border-l-4 border-black pl-4">
+                <h3 className="text-sm font-black text-black uppercase mb-3 pb-2 border-b border-dashed border-gray-400">PEOPLE</h3>
+                
+                <div className="space-y-2 mb-3">
+                  <div className="bg-gray-50 p-2 border border-gray-300">
+                    <div className="flex justify-between text-xs">
+                      <span className="font-bold text-black">ALEX</span>
+                      <span className="text-gray-600">$32,000</span>
+                    </div>
+                  </div>
+                  <div className="bg-gray-50 p-2 border border-gray-300">
+                    <div className="flex justify-between text-xs">
+                      <span className="font-bold text-black">JORDAN</span>
+                      <span className="text-gray-600">$180,000</span>
+                    </div>
+                  </div>
+                  <div className="bg-gray-50 p-2 border border-gray-300">
+                    <div className="flex justify-between text-xs">
+                      <span className="font-bold text-black">SAM</span>
+                      <span className="text-gray-600">$45,000</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <input type="text" placeholder="NAME" className="w-full p-2 border border-gray-400 bg-white text-xs" />
+                  <input type="number" placeholder="$ SALARY" className="w-full p-2 border border-gray-400 bg-white text-xs" />
+                  <button className="w-full px-4 py-2 bg-black text-white font-bold text-xs">+ ADD PERSON</button>
+                </div>
+              </div>
+              
+              {/* Bills Column */}
+              <div className="border-l-4 border-black pl-4">
+                <h3 className="text-sm font-black text-black uppercase mb-3 pb-2 border-b border-dashed border-gray-400">BILLS</h3>
+                
+                <div className="space-y-2 mb-3">
+                  <div className="bg-gray-50 p-2 border border-gray-300">
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="font-bold text-black">SKI PASSES</span>
+                      <span className="text-gray-600">$1,200</span>
+                    </div>
+                    <p className="text-xs text-gray-600">Paid by JORDAN</p>
+                  </div>
+                  <div className="bg-gray-50 p-2 border border-gray-300">
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="font-bold text-black">CABIN RENTAL</span>
+                      <span className="text-gray-600">$2,400</span>
+                    </div>
+                    <p className="text-xs text-gray-600">Paid by MORGAN</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <input type="text" placeholder="DESCRIPTION" className="w-full p-2 border border-gray-400 bg-white text-xs" />
+                  <input type="number" placeholder="$ AMOUNT" className="w-full p-2 border border-gray-400 bg-white text-xs" />
+                  <select className="w-full p-2 border border-gray-400 bg-white text-xs">
+                    <option>WHO PAID?</option>
+                  </select>
+                  <button className="w-full px-4 py-2 bg-black text-white font-bold text-xs">+ ADD BILL</button>
+                </div>
+              </div>
+            </div>
+            
+            <div className="border-t-2 border-black mt-6 pt-4">
+              <button className="w-full bg-black text-white py-3 font-black text-lg border-2 border-black">CALCULATE</button>
+            </div>
+          </div>
+        </div>
+
+        {/* OPTION 4: ALTERNATING GREY SECTIONS */}
+        <div className="mb-8">
+          <div className="bg-black text-white p-4 mb-3">
+            <h3 className="text-lg font-black mb-1">OPTION 6: ALTERNATING GREY SECTIONS</h3>
+            <p className="text-xs">Clear visual separation with alternating backgrounds</p>
+          </div>
+          
+          <div className="bg-white p-6 border-2 border-dashed border-gray-400">
+            <h2 className="text-xl font-black mb-3 text-black uppercase tracking-wider">BILL-SPLITTING</h2>
+            <p className="text-xs mb-6 text-black">Handle shared expenses more fairly using wealth data.</p>
+            
+            {/* People Section */}
+            <div className="bg-white border-l-4 border-black pl-4 pr-4 py-4 mb-4">
+              <div className="flex items-center gap-2 mb-3">
+                <svg width="20" height="20" viewBox="0 0 40 40">
+                  <circle cx="20" cy="20" r="18" fill="#000"/>
+                  <circle cx="20" cy="16" r="5" fill="white"/>
+                  <path d="M 10 32 Q 10 24 20 24 Q 30 24 30 32" fill="white"/>
+                </svg>
+                <h3 className="text-sm font-black text-black uppercase">PEOPLE</h3>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-2 mb-3">
+                <div className="bg-gray-100 p-2 border border-gray-300 text-center">
+                  <p className="text-xs font-bold text-black">ALEX</p>
+                  <p className="text-xs text-gray-600">$32K</p>
+                </div>
+                <div className="bg-gray-100 p-2 border border-gray-300 text-center">
+                  <p className="text-xs font-bold text-black">JORDAN</p>
+                  <p className="text-xs text-gray-600">$180K</p>
+                </div>
+                <div className="bg-gray-100 p-2 border border-gray-300 text-center">
+                  <p className="text-xs font-bold text-black">SAM</p>
+                  <p className="text-xs text-gray-600">$45K</p>
+                </div>
+              </div>
+              
+              <div className="flex gap-2">
+                <input type="text" placeholder="NAME" className="flex-1 p-2 border border-gray-400 bg-white text-xs" />
+                <input type="number" placeholder="$" className="w-24 p-2 border border-gray-400 bg-white text-xs" />
+                <button className="px-3 py-2 bg-black text-white font-bold text-xs">+</button>
+              </div>
+            </div>
+            
+            {/* Bills Section */}
+            <div className="bg-gray-50 border-l-4 border-black pl-4 pr-4 py-4 mb-4">
+              <div className="flex items-center gap-2 mb-3">
+                <svg width="20" height="20" viewBox="0 0 20 20">
+                  <rect x="2" y="4" width="16" height="12" fill="none" stroke="#000" strokeWidth="2"/>
+                  <line x1="2" y1="8" x2="18" y2="8" stroke="#000" strokeWidth="2"/>
+                  <line x1="2" y1="12" x2="18" y2="12" stroke="#000" strokeWidth="2"/>
+                </svg>
+                <h3 className="text-sm font-black text-black uppercase">BILLS</h3>
+              </div>
+              
+              <div className="space-y-2 mb-3">
+                <div className="bg-white p-2 border border-gray-300 text-xs">
+                  <div className="flex justify-between mb-1">
+                    <span className="font-bold text-black">SKI PASSES</span>
+                    <span className="text-gray-600">$1,200</span>
+                  </div>
+                  <span className="text-gray-600">JORDAN</span>
+                </div>
+                <div className="bg-white p-2 border border-gray-300 text-xs">
+                  <div className="flex justify-between mb-1">
+                    <span className="font-bold text-black">CABIN</span>
+                    <span className="text-gray-600">$2,400</span>
+                  </div>
+                  <span className="text-gray-600">MORGAN</span>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <input type="text" placeholder="DESCRIPTION" className="w-full p-2 border border-gray-400 bg-white text-xs" />
+                <div className="flex gap-2">
+                  <input type="number" placeholder="$ AMOUNT" className="flex-1 p-2 border border-gray-400 bg-white text-xs" />
+                  <select className="flex-1 p-2 border border-gray-400 bg-white text-xs">
+                    <option>PAID BY?</option>
+                  </select>
+                </div>
+                <button className="w-full px-4 py-2 bg-black text-white font-bold text-xs">+ ADD BILL</button>
+              </div>
+            </div>
+            
+            <button className="w-full bg-black text-white py-3 font-black text-lg border-2 border-black">CALCULATE</button>
+          </div>
+        </div>
+
+        {/* OPTION 7: COMPACT CARD STYLE */}
+        <div className="mb-8">
+          <div className="bg-black text-white p-4 mb-3">
+            <h3 className="text-lg font-black mb-1">OPTION 7: COMPACT CARD STYLE</h3>
+            <p className="text-xs">Dense information display with icon badges</p>
+          </div>
+          
+          <div className="bg-white p-6 border-2 border-dashed border-gray-400">
+            <h2 className="text-xl font-black mb-3 text-black uppercase tracking-wider">BILL-SPLITTING</h2>
+            <p className="text-xs mb-6 text-black">Handle shared expenses more fairly using wealth data.</p>
+            
+            {/* People Card */}
+            <div className="border-2 border-black mb-4">
+              <div className="bg-black text-white p-3 flex items-center gap-2">
+                <svg width="20" height="20" viewBox="0 0 40 40">
+                  <circle cx="20" cy="20" r="18" fill="#FFF"/>
+                  <circle cx="20" cy="16" r="5" fill="black"/>
+                  <path d="M 10 32 Q 10 24 20 24 Q 30 24 30 32" fill="black"/>
+                </svg>
+                <span className="text-sm font-black uppercase">PEOPLE · 3</span>
+              </div>
+              <div className="p-3">
+                <div className="flex flex-wrap gap-2 mb-3">
+                  <div className="bg-gray-100 px-3 py-2 border border-gray-400 text-xs">
+                    <span className="font-bold text-black">ALEX</span>
+                    <span className="text-gray-600 ml-2">$32K</span>
+                  </div>
+                  <div className="bg-gray-100 px-3 py-2 border border-gray-400 text-xs">
+                    <span className="font-bold text-black">JORDAN</span>
+                    <span className="text-gray-600 ml-2">$180K</span>
+                  </div>
+                  <div className="bg-gray-100 px-3 py-2 border border-gray-400 text-xs">
+                    <span className="font-bold text-black">SAM</span>
+                    <span className="text-gray-600 ml-2">$45K</span>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <input type="text" placeholder="NAME" className="flex-1 p-2 border border-gray-400 bg-white text-xs" />
+                  <input type="number" placeholder="$" className="w-20 p-2 border border-gray-400 bg-white text-xs" />
+                  <button className="px-3 py-2 bg-black text-white font-bold text-xs">+</button>
+                </div>
+              </div>
+            </div>
+            
+            {/* Bills Card */}
+            <div className="border-2 border-black mb-4">
+              <div className="bg-black text-white p-3 flex items-center gap-2">
+                <svg width="20" height="20" viewBox="0 0 20 20">
+                  <rect x="2" y="4" width="16" height="12" fill="none" stroke="#FFF" strokeWidth="2"/>
+                  <line x1="2" y1="8" x2="18" y2="8" stroke="#FFF" strokeWidth="2"/>
+                  <line x1="2" y1="12" x2="18" y2="12" stroke="#FFF" strokeWidth="2"/>
+                </svg>
+                <span className="text-sm font-black uppercase">BILLS · $5,035</span>
+              </div>
+              <div className="p-3">
+                <div className="space-y-2 mb-3">
+                  <div className="flex justify-between items-center text-xs bg-gray-50 p-2 border border-gray-300">
+                    <span className="font-bold text-black">SKI PASSES</span>
+                    <div className="text-right">
+                      <div className="text-gray-600">$1,200</div>
+                      <div className="text-gray-500 text-xs">JORDAN</div>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center text-xs bg-gray-50 p-2 border border-gray-300">
+                    <span className="font-bold text-black">CABIN</span>
+                    <div className="text-right">
+                      <div className="text-gray-600">$2,400</div>
+                      <div className="text-gray-500 text-xs">MORGAN</div>
+                    </div>
+                  </div>
+                </div>
+                <input type="text" placeholder="DESCRIPTION" className="w-full p-2 border border-gray-400 bg-white text-xs mb-2" />
+                <div className="flex gap-2 mb-2">
+                  <input type="number" placeholder="$ AMOUNT" className="flex-1 p-2 border border-gray-400 bg-white text-xs" />
+                  <select className="flex-1 p-2 border border-gray-400 bg-white text-xs">
+                    <option>WHO PAID?</option>
+                  </select>
+                </div>
+                <button className="w-full px-4 py-2 bg-black text-white font-bold text-xs">+ ADD BILL</button>
+              </div>
+            </div>
+            
+            <button className="w-full bg-black text-white py-3 font-black text-lg border-2 border-black">CALCULATE</button>
+          </div>
+        </div>
+
+        {/* OPTION 8: COLLAPSIBLE SECTIONS */}
+        <div className="mb-8">
+          <div className="bg-black text-white p-4 mb-3">
+            <h3 className="text-lg font-black mb-1">OPTION 8: COLLAPSIBLE SECTIONS</h3>
+            <p className="text-xs">Expandable panels with summary headers (shown expanded)</p>
+          </div>
+          
+          <div className="bg-white p-6 border-2 border-dashed border-gray-400">
+            <h2 className="text-xl font-black mb-3 text-black uppercase tracking-wider">BILL-SPLITTING</h2>
+            <p className="text-xs mb-6 text-black">Handle shared expenses more fairly using wealth data.</p>
+            
+            {/* People Section */}
+            <div className="border-2 border-gray-400 mb-4">
+              <div className="bg-gray-100 p-3 flex items-center justify-between cursor-pointer">
+                <div className="flex items-center gap-2">
+                  <svg width="18" height="18" viewBox="0 0 40 40">
+                    <circle cx="20" cy="20" r="18" fill="#000"/>
+                    <circle cx="20" cy="16" r="5" fill="white"/>
+                    <path d="M 10 32 Q 10 24 20 24 Q 30 24 30 32" fill="white"/>
+                  </svg>
+                  <span className="text-sm font-black text-black uppercase">PEOPLE</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-bold text-gray-600">3 ADDED</span>
+                  <span className="text-xl font-bold text-black">▼</span>
+                </div>
+              </div>
+              <div className="p-3 bg-white">
+                <div className="space-y-1 mb-3">
+                  <div className="text-xs p-2 bg-gray-50 border-l-2 border-black">
+                    <span className="font-bold text-black">ALEX</span>
+                    <span className="text-gray-600 ml-2">$32,000</span>
+                  </div>
+                  <div className="text-xs p-2 bg-gray-50 border-l-2 border-black">
+                    <span className="font-bold text-black">JORDAN</span>
+                    <span className="text-gray-600 ml-2">$180,000</span>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <input type="text" placeholder="NAME" className="flex-1 p-2 border border-gray-400 bg-white text-xs" />
+                  <input type="number" placeholder="$" className="w-24 p-2 border border-gray-400 bg-white text-xs" />
+                  <button className="px-3 py-2 bg-black text-white font-bold text-xs">+</button>
+                </div>
+              </div>
+            </div>
+            
+            {/* Bills Section */}
+            <div className="border-2 border-gray-400 mb-4">
+              <div className="bg-gray-100 p-3 flex items-center justify-between cursor-pointer">
+                <div className="flex items-center gap-2">
+                  <svg width="18" height="18" viewBox="0 0 20 20">
+                    <rect x="2" y="4" width="16" height="12" fill="none" stroke="#000" strokeWidth="2"/>
+                    <line x1="2" y1="8" x2="18" y2="8" stroke="#000" strokeWidth="2"/>
+                    <line x1="2" y1="12" x2="18" y2="12" stroke="#000" strokeWidth="2"/>
+                  </svg>
+                  <span className="text-sm font-black text-black uppercase">BILLS</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-bold text-gray-600">$5,035</span>
+                  <span className="text-xl font-bold text-black">▼</span>
+                </div>
+              </div>
+              <div className="p-3 bg-white">
+                <div className="space-y-1 mb-3">
+                  <div className="text-xs p-2 bg-gray-50 border-l-2 border-black">
+                    <div className="flex justify-between mb-1">
+                      <span className="font-bold text-black">SKI PASSES</span>
+                      <span className="text-gray-600">$1,200</span>
+                    </div>
+                    <span className="text-gray-500">JORDAN</span>
+                  </div>
+                  <div className="text-xs p-2 bg-gray-50 border-l-2 border-black">
+                    <div className="flex justify-between mb-1">
+                      <span className="font-bold text-black">CABIN</span>
+                      <span className="text-gray-600">$2,400</span>
+                    </div>
+                    <span className="text-gray-500">MORGAN</span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <input type="text" placeholder="DESCRIPTION" className="w-full p-2 border border-gray-400 bg-white text-xs" />
+                  <div className="flex gap-2">
+                    <input type="number" placeholder="$ AMOUNT" className="flex-1 p-2 border border-gray-400 bg-white text-xs" />
+                    <select className="flex-1 p-2 border border-gray-400 bg-white text-xs">
+                      <option>PAID BY?</option>
+                    </select>
+                  </div>
+                  <button className="w-full px-4 py-2 bg-black text-white font-bold text-xs">+ ADD BILL</button>
+                </div>
+              </div>
+            </div>
+            
+            <button className="w-full bg-black text-white py-3 font-black text-lg border-2 border-black">CALCULATE</button>
+          </div>
+        </div>
+
+      </Layout>
+    );
+  }
+
   if (page === 'home') {
     return (
       <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
         <p className="text-center text-sm mb-4 text-black leading-relaxed font-bold">THE FAIRER WAY TO SPLIT COSTS WITH FRIENDS.</p>
-        <p className="text-center text-sm mb-4 text-black leading-relaxed">COMRADE USES WEALTH DATA TO HANDLE SHARED BILLS. ENTER YOUR GROUP'S EXPENSES, AND SALARIES OR NET WORTH, AND WE'LL SHOW YOU WHO OWES WHAT.</p>
+        <p className="text-center text-sm mb-4 text-black leading-relaxed">COMRADE COMBINES AND SIMPLIFIES GROUP BILLS — THEN DIVIDES THEM BASED ON WEALTH.</p>
         <div className="space-y-4 max-w-md mx-auto mb-4">
           <button onClick={() => navigateTo('share-entry')} className="w-full bg-black text-white font-bold py-4 px-6 border-2 border-black hover:bg-gray-800 transition-all text-xl">GET STARTED</button>
         </div>
+        
+        <CurrencyDivider />
+        
+        {/* How It Works Section */}
+        <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
+          <h2 className="text-xl font-black mb-6 text-black uppercase tracking-wider text-center">HOW IT WORKS</h2>
+          
+          <div className="space-y-6">
+            <div className="flex gap-4 items-start">
+              <div className="bg-black text-white font-black text-4xl w-16 h-16 flex items-center justify-center border-2 border-black flex-shrink-0">1</div>
+              <div>
+                <h3 className="font-bold text-black uppercase mb-1">ADD YOUR GROUP</h3>
+                <p className="text-xs text-black">Enter everyone's names, and incomes or net worth</p>
+              </div>
+            </div>
+            
+            <div className="flex justify-center gap-2 py-2">
+              <svg width="40" height="40" viewBox="0 0 40 40">
+                <circle cx="20" cy="20" r="18" fill="#D1D5DB"/>
+                <circle cx="20" cy="16" r="6" fill="white"/>
+                <path d="M 10 32 Q 10 24 20 24 Q 30 24 30 32" fill="white"/>
+              </svg>
+              <svg width="40" height="40" viewBox="0 0 40 40">
+                <circle cx="20" cy="20" r="18" fill="#9CA3AF"/>
+                <circle cx="20" cy="16" r="6" fill="white"/>
+                <path d="M 10 32 Q 10 24 20 24 Q 30 24 30 32" fill="white"/>
+              </svg>
+              <svg width="40" height="40" viewBox="0 0 40 40">
+                <circle cx="20" cy="20" r="18" fill="#6B7280"/>
+                <circle cx="20" cy="16" r="6" fill="white"/>
+                <path d="M 10 32 Q 10 24 20 24 Q 30 24 30 32" fill="white"/>
+              </svg>
+            </div>
+            
+            <div className="flex gap-4 items-start">
+              <div className="bg-black text-white font-black text-4xl w-16 h-16 flex items-center justify-center border-2 border-black flex-shrink-0">2</div>
+              <div>
+                <h3 className="font-bold text-black uppercase mb-1">ENTER YOUR BILLS</h3>
+                <p className="text-xs text-black">List what was spent, and who paid</p>
+              </div>
+            </div>
+            
+            <div className="flex justify-center py-2 px-16">
+              <div className="space-y-2 w-full">
+                <div className="flex justify-between items-center text-xs font-bold text-gray-500 border-b-2 border-dashed border-gray-400 pb-1">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full" style={{backgroundColor: '#D1D5DB'}}></div>
+                    <span>DINNER</span>
+                  </div>
+                  <span>$95</span>
+                </div>
+                <div className="flex justify-between items-center text-xs font-bold text-gray-500 border-b-2 border-dashed border-gray-400 pb-1">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full" style={{backgroundColor: '#9CA3AF'}}></div>
+                    <span>GAS</span>
+                  </div>
+                  <span>$45</span>
+                </div>
+                <div className="flex justify-between items-center text-xs font-bold text-gray-500 border-b-2 border-dashed border-gray-400 pb-1">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full" style={{backgroundColor: '#6B7280'}}></div>
+                    <span>HOTEL</span>
+                  </div>
+                  <span>$300</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex gap-4 items-start">
+              <div className="bg-black text-white font-black text-4xl w-16 h-16 flex items-center justify-center border-2 border-black flex-shrink-0">3</div>
+              <div>
+                <h3 className="font-bold text-black uppercase mb-1">GET FAIR RESULTS</h3>
+                <p className="text-xs text-black">See who owes what, based on ability to pay</p>
+              </div>
+            </div>
+            
+            <div className="flex justify-center py-2">
+              <svg width="80" height="80" viewBox="0 0 80 80">
+                <path d="M 40 5 A 35 35 0 0 1 52.5 71.2 L 40 40 Z" fill="#D1D5DB" stroke="white" strokeWidth="2"/>
+                <path d="M 40 40 L 52.5 71.2 A 35 35 0 0 1 8.8 52.5 L 40 40 Z" fill="#9CA3AF" stroke="white" strokeWidth="2"/>
+                <path d="M 40 40 L 8.8 52.5 A 35 35 0 0 1 40 5 L 40 40 Z" fill="#6B7280" stroke="white" strokeWidth="2"/>
+              </svg>
+            </div>
+          </div>
+          
+          <div className="mt-6">
+            <div className="flex flex-wrap justify-center gap-3">
+              <button onClick={() => navigateTo('share-entry')} className="bg-black text-white font-bold py-4 px-8 border-2 border-black hover:bg-gray-800 transition-all text-lg" style={{wordBreak: 'keep-all', hyphens: 'none'}}>TRY IT NOW</button>
+              <button onClick={() => navigateTo('about')} className="bg-white text-black font-bold py-4 px-8 border-2 border-black hover:bg-gray-100 transition-all text-lg" style={{wordBreak: 'keep-all', hyphens: 'none'}}>LEARN MORE</button>
+            </div>
+          </div>
+        </div>
+        
+        <CurrencyDivider />
         
         <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
           <div className="max-w-md mx-auto">
@@ -1259,21 +1833,57 @@ const Comrade = () => {
         {/* About section */}
         <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider border-b-4 border-black pb-2">ABOUT</h2>
         
+        {/* Illustration */}
+        <div className="mb-6">
+          <div className="bg-white p-4">
+            <svg width="100%" height="60" viewBox="0 0 600 60" preserveAspectRatio="xMidYMid meet">
+              <g transform="translate(50, 30)">
+                <text x="0" y="12" fontFamily="Sixtyfour, monospace" fontSize="32" fill="#000" fontWeight="bold" textAnchor="middle">$</text>
+              </g>
+              
+              <g transform="translate(150, 30)">
+                <rect x="-30" y="8" width="12" height="15" fill="#000"/>
+                <rect x="-15" y="-3" width="12" height="26" fill="#666"/>
+                <rect x="0" y="5" width="12" height="18" fill="#999"/>
+                <rect x="15" y="-8" width="12" height="31" fill="#000"/>
+                <line x1="-30" y1="23" x2="27" y2="23" stroke="#000" strokeWidth="2"/>
+              </g>
+              
+              <g transform="translate(250, 30)">
+                <text x="0" y="12" fontFamily="Sixtyfour, monospace" fontSize="32" fill="#000" fontWeight="bold" textAnchor="middle">€</text>
+              </g>
+              
+              <g transform="translate(350, 30)">
+                <circle cx="0" cy="0" r="18" fill="#666"/>
+                <circle cx="0" cy="-4" r="5" fill="white"/>
+                <path d="M -10 12 Q -10 4 0 4 Q 10 4 10 12" fill="white"/>
+              </g>
+              
+              <g transform="translate(450, 30)">
+                <text x="0" y="12" fontFamily="Sixtyfour, monospace" fontSize="32" fill="#000" fontWeight="bold" textAnchor="middle">£</text>
+              </g>
+              
+              <g transform="translate(550, 30)">
+                <path d="M 0 0 L 0 -22 A 22 22 0 0 1 15.6 15.6 Z" fill="#000"/>
+                <path d="M 0 0 L 15.6 15.6 A 22 22 0 0 1 -11 19 Z" fill="#666"/>
+                <path d="M 0 0 L -11 19 A 22 22 0 0 1 -21.1 -5.7 Z" fill="#999"/>
+                <path d="M 0 0 L -21.1 -5.7 A 22 22 0 0 1 0 -22 Z" fill="#CCC"/>
+              </g>
+            </svg>
+          </div>
+        </div>
+        
         <div className="space-y-4 text-black mb-4">
-          <p className="leading-relaxed text-xs">Make fairer decisions with wealth data.</p>
+          <p className="leading-relaxed text-xs">If a banker, a nurse and a student go out for dinner, how should they split the bill?</p>
           
-          <p className="leading-relaxed text-xs">Comrade is an app for managing shared expenses — holidays, household purchases, work dinners, or anything else. It aggregates and simplifies bills, to make it easy to figure out who owes who what. And it divides them fairly, by taking into account people's wealth — whether that's salary or net worth —  to decide the split.</p>
+          <p className="leading-relaxed text-xs">Comrade is an app for managing group expenses — holidays, household purchases, work dinners, or anything else. It simplifies shared bills and divides them fairly, by taking into account people's wealth (either salary or net worth) to decide the split. Those who have more, pay more.</p>
           
-          <p className="leading-relaxed text-xs">So next time your friends, family, or coworkers have group bills, handle them a better way with Comrade.</p>
+          <p className="leading-relaxed text-xs">Wealth isn't evenly distributed. Costs shouldn't be either. So next time your friends, family, or coworkers need to split the check, use Comrade for a fairer way to settle up.</p>
           
-          <p className="leading-relaxed text-xs">Comrade also offers other features. There is a tool to help decide rent splits in apartments more fairly, and another to assist when selling an item to ensure the buyer is the person who values it most highly. And there's an experimental tool for voting on decisions.</p>
+          <p className="leading-relaxed text-xs">Beyond <span className="underline cursor-pointer hover:text-gray-600" onClick={() => navigateTo('share-entry')}>bill-splitting</span>, Comrade offers a number of other features. There is a tool to help decide <span className="underline cursor-pointer hover:text-gray-600" onClick={() => navigateTo('rent-entry')}>rent splits</span> in apartments more fairly, another to assist when <span className="underline cursor-pointer hover:text-gray-600" onClick={() => navigateTo('sale-entry')}>selling</span> an item to ensure the buyer is the person who values it most highly, and an experimental tool for <span className="underline cursor-pointer hover:text-gray-600" onClick={() => navigateTo('vote-entry')}>voting</span> on decisions.</p>
         </div>
 
-        <div className="flex items-center gap-4 my-6">
-          <div className="flex-1 border-t border-black"></div>
-          <span className="text-xs font-bold">{'$ € £'}</span>
-          <div className="flex-1 border-t border-black"></div>
-        </div>
+        <CurrencyDivider />
 
         {/* Email sign-up box */}
         <div className="mb-4">
@@ -1299,7 +1909,7 @@ const Comrade = () => {
             </div>
             <div>
               <h3 className="font-bold mb-2 text-sm uppercase tracking-wider">WHAT DO YOU DO WITH MY FINANCIAL INFORMATION?</h3>
-              <p className="leading-relaxed text-xs">Nothing</p>
+              <p className="leading-relaxed text-xs">Nothing.</p>
               <div className="border-t border-dashed border-gray-400 mt-4"></div>
             </div>
             <div>
@@ -1310,7 +1920,7 @@ const Comrade = () => {
             </div>
             <div>
               <h3 className="font-bold mb-2 text-sm uppercase tracking-wider">WHO BUILT THIS?</h3>
-              <p className="leading-relaxed text-xs">Comrade is a startup based in Brooklyn, New York. Get in touch at <a href="mailto:hello@comrade.money" className="underline hover:text-gray-600">hello@comrade.money</a>.</p>
+              <p className="leading-relaxed text-xs">Comrade is a startup based in Brooklyn, New York. Get in touch at <a href="mailto:hello@comrade.money" className="underline hover:text-gray-600">hello@comrade.money</a></p>
               <div className="border-t border-dashed border-gray-400 mt-4"></div>
             </div>
             <div>
@@ -1350,23 +1960,23 @@ const Comrade = () => {
   if (page === 'share-entry') {
     return (
       <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
-        {renderEntryIntro({
-          title: 'BILL-SPLITTING',
-          description: 'From meals to vacations, taxis to tickets, handle your shared expenses with friends more fairly. Comrade combines and simplifies group bills, while using information about group members\' finances to decide how much everyone should pay.',
-          onLoadExample: () => loadExample('share'),
-          clearType: 'share'
-        })}
-
-        <div className="flex items-center gap-4 my-6">
-          <div className="flex-1 border-t border-black"></div>
-          <span className="text-xs font-bold">{'$ € £'}</span>
-          <div className="flex-1 border-t border-black"></div>
-        </div>
-
-        {/* Box 2: People and Bills */}
-        <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
+        <EntryPageWrapper
+          title="BILL-SPLITTING"
+          description="From meals to vacations, taxis to tickets, handle your shared expenses with friends more fairly. Comrade combines and simplifies group bills, while using information about group members' finances to decide how much everyone should pay."
+          type="share"
+          settingsComponent={renderSettingsPanel(shareWeighting, setShareWeighting, showShareSettings, setShowShareSettings, 'share-results', shareCurrency, setShareCurrency, shareWealthMetric, setShareWealthMetric, undefined, undefined)}
+        >
+          {/* Box 2: People and Bills */}
+          <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
           <div className="mb-6">
-            <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">PEOPLE</h3>
+            <div className="flex items-center gap-2 mb-4">
+              <svg width="20" height="20" viewBox="0 0 40 40">
+                <circle cx="20" cy="20" r="18" fill="#000"/>
+                <circle cx="20" cy="16" r="5" fill="white"/>
+                <path d="M 10 32 Q 10 24 20 24 Q 30 24 30 32" fill="white"/>
+              </svg>
+              <h3 className="text-lg font-bold text-black uppercase tracking-wider">PEOPLE</h3>
+            </div>
             <p className="text-xs mb-3 text-black">List the people splitting the costs, including their financial resources.</p>
             
             <AddItemCard
@@ -1382,7 +1992,7 @@ const Comrade = () => {
               {
                 value: currentPersonWealth,
                 onChange: (e) => setCurrentPersonWealth(e.target.value),
-                placeholder: `${currency} ${wealthType === 'salary' ? 'SALARY' : 'NET WORTH'}`,
+                placeholder: `${getCurrencySymbol(shareCurrency)} ${getWealthMetricLabel(shareWealthMetric).toUpperCase()}`,
                 type: 'number',
                 min: '0',
                 step: '0.01',
@@ -1406,7 +2016,7 @@ const Comrade = () => {
             renderItem={(person) => (
               <>
                 <p className={`${CLS.textXsBlack} ${CLS.fontBoldBlackUpper}`}>{person.name}</p>
-                <p className={CLS.textXsBlack}>{wealthType === 'salary' ? 'Salary' : 'Net worth'}: {formatCurrency(person.wealth)}</p>
+                <p className={CLS.textXsBlack}>{getWealthMetricLabel(shareWealthMetric)}: {formatCurrency(person.wealth, 2, shareCurrency)}</p>
               </>
             )}
             addButtonLabel="+ ADD PERSON"
@@ -1416,7 +2026,10 @@ const Comrade = () => {
           <div className="border-t-2 border-dashed border-gray-400 my-6"></div>
 
           <div>
-            <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">BILLS</h3>
+            <div className="flex items-center gap-2 mb-4">
+              <BillIcon />
+              <h3 className="text-lg font-bold text-black uppercase tracking-wider">BILLS</h3>
+            </div>
             <p className="text-xs mb-3 text-black">Add all the expenses the group is splitting, along with who already paid for what.</p>
             
             <AddItemCard
@@ -1432,7 +2045,7 @@ const Comrade = () => {
               {
                 value: currentBillAmount,
                 onChange: (e) => setCurrentBillAmount(e.target.value),
-                placeholder: `${currency} AMOUNT`,
+                placeholder: `${getCurrencySymbol(shareCurrency)} AMOUNT`,
                 type: 'number',
                 min: '0',
                 step: '0.01',
@@ -1466,7 +2079,7 @@ const Comrade = () => {
             renderItem={(bill) => (
               <>
                 <p className={`${CLS.textXsBlack} ${CLS.fontBoldBlackUpper}`}>{bill.description}</p>
-                <p className={CLS.textXsBlack}>{bill.paidBy || 'Unknown'} paid: {formatCurrency(bill.amount)}</p>
+                <p className={CLS.textXsBlack}>{bill.paidBy || 'Unknown'} paid: {formatCurrency(bill.amount, 2, shareCurrency)}</p>
               </>
             )}
             addButtonLabel="+ ADD BILL"
@@ -1474,8 +2087,7 @@ const Comrade = () => {
           </div>
         </div>
 
-        {/* Box 3: Settings */}
-        {renderSettingsPanel(shareWeighting, setShareWeighting, showShareSettings, setShowShareSettings, 'share-results')}
+        </EntryPageWrapper>
       </Layout>
     );
   }
@@ -1504,19 +2116,19 @@ const Comrade = () => {
                       <span> PAYS </span>
                       <span className="font-semibold">{t.to.toUpperCase()}</span>
                       <br/>
-                      <span className="font-black text-2xl">{formatCurrencySmart(t.amount)}</span>
+                      <span className="font-black text-2xl">{formatCurrencySmart(t.amount, shareCurrency)}</span>
                     </div>
                   ))}
                 </div>
               )}
               <p className="text-xs mt-4 border-t-2 border-dashed border-white pt-2">
-                {transactions.length} TRANSACTION{transactions.length !== 1 ? 'S' : ''} TO SETTLE {formatCurrency(total)}
+                {transactions.length} TRANSACTION{transactions.length !== 1 ? 'S' : ''} TO SETTLE {formatCurrency(total, 2, shareCurrency)}
               </p>
             </div>
 
             {renderStatsRow([
               { label: 'TOTAL BILLS', value: shareBills.length },
-              { label: 'TOTAL AMOUNT', value: formatCurrency(total) },
+              { label: 'TOTAL AMOUNT', value: formatCurrency(total, 2, shareCurrency) },
               { label: 'PEOPLE', value: sharePeople.length },
               { label: 'WEIGHTING', value: getWeightingLabel(shareWeighting) }
             ])}
@@ -1543,19 +2155,19 @@ const Comrade = () => {
                             <div className={`space-y-2 ${CLS.textXsBlack}`}>
                               <div className="flex justify-between">
                                 <span className={CLS.textBlackFontBold}>WEALTH:</span>
-                                <span className="font-semibold text-black">{formatCurrency(p.wealth)}</span>
+                                <span className="font-semibold text-black">{formatCurrency(p.wealth, 2, shareCurrency)}</span>
                               </div>
                               <div className="flex justify-between">
                                 <span className={CLS.textBlackFontBold}>PAID:</span>
-                                <span className="font-semibold text-black">{formatCurrency(p.paid)} ({p.paidPct.toFixed(1)}%)</span>
+                                <span className="font-semibold text-black">{formatCurrency(p.paid, 2, shareCurrency)} ({p.paidPct.toFixed(1)}%)</span>
                               </div>
                               <div className="flex justify-between">
                                 <span className={CLS.textBlackFontBold}>FAIR SHARE:</span>
-                                <span className="font-semibold text-black">{formatCurrencySmart(p.fairShare)} ({p.fairPct.toFixed(1)}%)</span>
+                                <span className="font-semibold text-black">{formatCurrencySmart(p.fairShare, shareCurrency)} ({p.fairPct.toFixed(1)}%)</span>
                               </div>
                               <div className={`flex justify-between pt-2 border-t ${CLS.borderDashedGray}`}>
                                 <span className={CLS.textBlackFontBold}>BALANCE:</span>
-                                <span className={`font-black ${colorClass}`}>{balance > 0.01 ? '+' : ''}{formatCurrencySmart(balance)}</span>
+                                <span className={`font-black ${colorClass}`}>{balance > 0.01 ? '+' : ''}{formatCurrencySmart(balance, shareCurrency)}</span>
                               </div>
                             </div>
                           </div>
@@ -1577,13 +2189,13 @@ const Comrade = () => {
                               <p className={`${CLS.textBlackFontBold} uppercase`}>{bill.description}</p>
                               <p className={`text-black ${CLS.textXsBlack}`}>{bill.paidBy || 'Unknown'}</p>
                             </div>
-                            <span className={`${CLS.textBlackFontBold} ml-4`}>{formatCurrency(bill.amount)}</span>
+                            <span className={`${CLS.textBlackFontBold} ml-4`}>{formatCurrency(bill.amount, 2, shareCurrency)}</span>
                           </div>
                         ))}
                       </div>
                       <div className="flex justify-between items-center pt-3 border-t-2 border-black">
                         <span className="font-black text-black uppercase">TOTAL</span>
-                        <span className="font-black text-black text-lg">{formatCurrency(total)}</span>
+                        <span className="font-black text-black text-lg">{formatCurrency(total, 2, shareCurrency)}</span>
                       </div>
                     </div>
                   </div>
@@ -1592,7 +2204,7 @@ const Comrade = () => {
 
                   <div className="mb-6">
                     <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">WEALTH VISUALIZATION</h3>
-                    {renderWealthPieChart(peopleData, currency, formatNumber)}
+                    {renderWealthPieChart(peopleData, formatNumber)}
                   </div>
 
                   <DashedDivider />
@@ -1605,13 +2217,13 @@ const Comrade = () => {
                         label: 'PAID',
                         getValue: (p) => p.paid,
                         displayValue: (p) => `${p.paidPct.toFixed(0)}%`,
-                        rightLabel: (p) => formatCurrency(p.paid)
+                        rightLabel: (p) => formatCurrency(p.paid, 2, shareCurrency)
                       },
                       {
                         label: 'FAIR',
                         getValue: (p) => p.fairShare,
                         displayValue: (p) => `${p.fairPct.toFixed(0)}%`,
-                        rightLabel: (p) => formatCurrencySmart(p.fairShare)
+                        rightLabel: (p) => formatCurrencySmart(p.fairShare, shareCurrency)
                       }
                     ],
                     (p) => p.name
@@ -1621,15 +2233,9 @@ const Comrade = () => {
             </>
           )}
 
-        <div className="flex items-center gap-4 my-6">
-          <div className="flex-1 border-t border-black"></div>
-          <span className="text-xs font-bold">{'$ € £'}</span>
-          <div className="flex-1 border-t border-black"></div>
-        </div>
-
         {renderResultsFooter(
           hasData,
-          `Comrade | Bill-splitting results\n\nTotal: ${formatCurrency(total)}\n\nBreakdown:\n${peopleData.map(p => `${p.name}: Paid ${formatCurrency(p.paid)}, fair share ${formatCurrencySmart(p.fairShare)}`).join('\n')}\n\nSettlements:\n${transactions.length === 0 ? 'All settled!' : transactions.map(t => `${t.from} pays ${t.to} ${formatCurrencySmart(t.amount)}`).join('\n')}\n\nCalculated using www.comrade.money — the fairer way to split costs with friends.`,
+          `Comrade | Bill-splitting results\n\nTotal: ${formatCurrency(total, 2, shareCurrency)}\n\nBreakdown:\n${peopleData.map(p => `${p.name}: Paid ${formatCurrency(p.paid, 2, shareCurrency)}, fair share ${formatCurrencySmart(p.fairShare, shareCurrency)}`).join('\n')}\n\nSettlements:\n${transactions.length === 0 ? 'All settled!' : transactions.map(t => `${t.from} pays ${t.to} ${formatCurrencySmart(t.amount, shareCurrency)}`).join('\n')}\n\nCalculated using www.comrade.money — the fairer way to split costs with friends.`,
           'share-entry'
         )}
       </Layout>
@@ -1639,23 +2245,21 @@ const Comrade = () => {
   if (page === 'sale-entry') {
     return (
       <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
-        {renderEntryIntro({
-          title: 'SELLING',
-          description: 'If you\'re selling something, make sure it goes to the potential buyer who needs it the most — not just whoever offers to pay the most. Comrade takes into account prospective purchasers\' financial resources to help you understand how much your product is truly worth to them.',
-          onLoadExample: () => loadExample('sale'),
-          clearType: 'sale'
-        })}
-
-        <div className="flex items-center gap-4 my-6">
-          <div className="flex-1 border-t border-black"></div>
-          <span className="text-xs font-bold">{'$ € £'}</span>
-          <div className="flex-1 border-t border-black"></div>
-        </div>
-
-        {/* Box 2: Product Info and Potential Buyers */}
-        <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
+        <EntryPageWrapper
+          title="SELLING"
+          description="If you're selling something, make sure it goes to the potential buyer who needs it the most — not just whoever offers to pay the most. Comrade takes into account prospective purchasers' financial resources to help you understand how much your product is truly worth to them."
+          type="sale"
+          settingsComponent={renderSettingsPanel(saleWeighting, setSaleWeighting, showSaleSettings, setShowSaleSettings, 'sale-results', saleCurrency, setSaleCurrency, saleWealthMetric, setSaleWealthMetric, undefined, undefined)}
+        >
+          {/* Box 2: Product Info and Potential Buyers */}
+          <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
           <div className="mb-6">
-            <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">PRODUCT DETAILS</h3>
+            <div className="flex items-center gap-2 mb-4">
+              <svg width="20" height="20" viewBox="0 0 24 24">
+                <path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z" fill="#000"/>
+              </svg>
+              <h3 className="text-lg font-bold text-black uppercase tracking-wider">PRODUCT DETAILS</h3>
+            </div>
             <p className="text-xs mb-3 text-black">List what you're selling, and how many items are available.</p>
             <FormInput
               value={productName}
@@ -1677,7 +2281,10 @@ const Comrade = () => {
           <div className="border-t-2 border-dashed border-gray-400 my-6"></div>
 
           <div>
-            <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">POTENTIAL BUYERS</h3>
+            <div className="flex items-center gap-2 mb-4">
+              <PersonIcon />
+              <h3 className="text-lg font-bold text-black uppercase tracking-wider">POTENTIAL BUYERS</h3>
+            </div>
             <p className="text-xs mb-3 text-black">Add all the people interested in buying, along with their financial information.</p>
             
             <AddItemCard
@@ -1693,7 +2300,7 @@ const Comrade = () => {
               {
                 value: currentBuyerWealth,
                 onChange: (e) => setCurrentBuyerWealth(e.target.value),
-                placeholder: `${currency} ${wealthType === 'salary' ? 'SALARY' : 'NET WORTH'}`,
+                placeholder: `${getCurrencySymbol(saleCurrency)} ${getWealthMetricLabel(saleWealthMetric).toUpperCase()}`,
                 type: 'number',
                 min: '0',
                 step: '0.01',
@@ -1703,7 +2310,7 @@ const Comrade = () => {
               {
                 value: currentBuyerOffer,
                 onChange: (e) => setCurrentBuyerOffer(e.target.value),
-                placeholder: `${currency} OFFER`,
+                placeholder: `${getCurrencySymbol(saleCurrency)} OFFER`,
                 type: 'number',
                 min: '0',
                 step: '0.01',
@@ -1729,8 +2336,8 @@ const Comrade = () => {
             renderItem={(buyer) => (
               <>
                 <p className={`${CLS.textXsBlack} ${CLS.fontBoldBlackUpper}`}>{buyer.name}</p>
-                <p className={CLS.textXsBlack}>{wealthType === 'salary' ? 'Salary' : 'Net worth'}: {formatCurrency(buyer.wealth)}</p>
-                <p className={CLS.textXsBlack}>Offer: {formatCurrency(buyer.offer)}</p>
+                <p className={CLS.textXsBlack}>{getWealthMetricLabel(saleWealthMetric)}: {formatCurrency(buyer.wealth, 2, saleCurrency)}</p>
+                <p className={CLS.textXsBlack}>Offer: {formatCurrency(buyer.offer, 2, saleCurrency)}</p>
               </>
             )}
             addButtonLabel="+ ADD BUYER"
@@ -1738,8 +2345,7 @@ const Comrade = () => {
           </div>
         </div>
 
-        {/* Box 3: Settings */}
-        {renderSettingsPanel(saleWeighting, setSaleWeighting, showSaleSettings, setShowSaleSettings, 'sale-results')}
+        </EntryPageWrapper>
       </Layout>
     );
   }
@@ -1768,7 +2374,7 @@ const Comrade = () => {
                   {winners.map((winner, i) => (
                     <div key={winner.id} className="mb-3 border-b border-dashed border-white pb-3">
                       <p className="text-3xl font-black mb-2">{winner.name.toUpperCase()}</p>
-                      <p className="text-xl font-semibold">OFFER: {formatCurrency(winner.offer)}</p>
+                      <p className="text-xl font-semibold">OFFER: {formatCurrency(winner.offer, 2, saleCurrency)}</p>
                       <p className={CLS.textXsBlack}>NEED SCORE: {winner.needScore < 0.01 ? winner.needScore.toExponential(4) : winner.needScore.toFixed(2)}%</p>
                     </div>
                   ))}
@@ -1780,7 +2386,7 @@ const Comrade = () => {
             {renderStatsRow([
               { label: 'PRODUCT', value: productName.toUpperCase() || 'N/A' },
               { label: 'AVAILABLE', value: numAvailable },
-              { label: 'AVG OFFER', value: formatCurrency(avgOffer) },
+              { label: 'AVG OFFER', value: formatCurrency(avgOffer, 2, saleCurrency) },
               { label: 'WEIGHTING', value: getWeightingLabel(saleWeighting) }
             ])}
 
@@ -1807,11 +2413,11 @@ const Comrade = () => {
                             <div className={`space-y-2 ${CLS.textXsBlack}`}>
                               <div className="flex justify-between">
                                 <span className={CLS.textBlackFontBold}>WEALTH:</span>
-                                <span className="font-semibold text-black">{formatCurrency(buyer.wealth)}</span>
+                                <span className="font-semibold text-black">{formatCurrency(buyer.wealth, 2, saleCurrency)}</span>
                               </div>
                               <div className="flex justify-between">
                                 <span className={CLS.textBlackFontBold}>OFFER:</span>
-                                <span className="font-semibold text-black">{formatCurrency(buyer.offer)}</span>
+                                <span className="font-semibold text-black">{formatCurrency(buyer.offer, 2, saleCurrency)}</span>
                               </div>
                               <div className={`flex justify-between pt-2 border-t ${CLS.borderDashedGray}`}>
                                 <span className={CLS.textBlackFontBold}>NEED SCORE:</span>
@@ -1843,15 +2449,9 @@ const Comrade = () => {
             </>
           )}
 
-        <div className="flex items-center gap-4 my-6">
-          <div className="flex-1 border-t border-black"></div>
-          <span className="text-xs font-bold">{'$ € £'}</span>
-          <div className="flex-1 border-t border-black"></div>
-        </div>
-
         {renderResultsFooter(
           hasData,
-          `Comrade | Selling results\n\nProduct: ${productName || 'Unnamed product'}\nQuantity: ${numAvailable}\n\nSelected buyer${winners.length > 1 ? 's' : ''}:\n${winners.map(w => `${w.name} - ${formatCurrency(w.offer)}`).join('\n')}\n\nAll buyers ranked by need:\n${rankedBuyers.map((b, i) => `${i + 1}. ${b.name} - Offer: ${formatCurrency(b.offer)}, need score: ${b.needScore < 0.01 ? b.needScore.toExponential(4) : b.needScore.toFixed(4)}%`).join('\n')}\n\nCalculated using www.comrade.money — the fairer way to sell things.`,
+          `Comrade | Selling results\n\nProduct: ${productName || 'Unnamed product'}\nQuantity: ${numAvailable}\n\nSelected buyer${winners.length > 1 ? 's' : ''}:\n${winners.map(w => `${w.name} - ${formatCurrency(w.offer, 2, saleCurrency)}`).join('\n')}\n\nAll buyers ranked by need:\n${rankedBuyers.map((b, i) => `${i + 1}. ${b.name} - Offer: ${formatCurrency(b.offer, 2, saleCurrency)}, need score: ${b.needScore < 0.01 ? b.needScore.toExponential(4) : b.needScore.toFixed(4)}%`).join('\n')}\n\nCalculated using www.comrade.money — the fairer way to sell things.`,
           'sale-entry'
         )}
       </Layout>
@@ -1861,23 +2461,21 @@ const Comrade = () => {
   if (page === 'vote-entry') {
     return (
       <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
-        {renderEntryIntro({
-          title: 'VOTING',
-          description: 'Make group decisions more equitably. If your friends, classmates, or coworkers are grappling with a dispute, give more voting power to those with less wealth.',
-          onLoadExample: () => loadExample('vote'),
-          clearType: 'vote'
-        })}
-
-        <div className="flex items-center gap-4 my-6">
-          <div className="flex-1 border-t border-black"></div>
-          <span className="text-xs font-bold">{'$ € £'}</span>
-          <div className="flex-1 border-t border-black"></div>
-        </div>
-
-        {/* Box 2: Decision, Options, and Participants */}
-        <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
+        <EntryPageWrapper
+          title="VOTING"
+          description="Make group decisions more equitably. If your friends, classmates, or coworkers are grappling with a dispute, give more voting power to those with less wealth."
+          type="vote"
+          settingsComponent={renderSettingsPanel(voteWeighting, setVoteWeighting, showVoteSettings, setShowVoteSettings, 'vote-results', voteCurrency, setVoteCurrency, voteWealthMetric, setVoteWealthMetric, undefined, undefined)}
+        >
+          {/* Box 2: Decision, Options, and Participants */}
+          <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
           <div className="mb-6">
-            <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">DECISION</h3>
+            <div className="flex items-center gap-2 mb-4">
+              <svg width="20" height="20" viewBox="0 0 24 24">
+                <text x="6" y="19" font-family="monospace" font-size="20" fill="#000" font-weight="bold">?</text>
+              </svg>
+              <h3 className="text-lg font-bold text-black uppercase tracking-wider">DECISION</h3>
+            </div>
             <p className="text-xs mb-3 text-black">Enter the question the group is voting on.</p>
             <FormInput
               type="textarea"
@@ -1891,7 +2489,10 @@ const Comrade = () => {
           <div className="border-t-2 border-dashed border-gray-400 my-6"></div>
 
           <div className="mb-6">
-            <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">OPTIONS</h3>
+            <div className="flex items-center gap-2 mb-4">
+              <ListIcon />
+              <h3 className="text-lg font-bold text-black uppercase tracking-wider">OPTIONS</h3>
+            </div>
             <p className="text-xs mb-3 text-black">Add all the possible choices people can vote for.</p>
             
             <AddItemCard
@@ -1926,7 +2527,10 @@ const Comrade = () => {
           <div className="border-t-2 border-dashed border-gray-400 my-6"></div>
 
           <div>
-            <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">PEOPLE</h3>
+            <div className="flex items-center gap-2 mb-4">
+              <PersonIcon />
+              <h3 className="text-lg font-bold text-black uppercase tracking-wider">PEOPLE</h3>
+            </div>
             <p className="text-xs mb-3 text-black">List the people in the group, their financial resources, and how they chose to vote.</p>
             
             <AddItemCard
@@ -1942,7 +2546,7 @@ const Comrade = () => {
               {
                 value: currentParticipantWealth,
                 onChange: (e) => setCurrentParticipantWealth(e.target.value),
-                placeholder: `${currency} ${wealthType === 'salary' ? 'SALARY' : 'NET WORTH'}`,
+                placeholder: `${getCurrencySymbol(voteCurrency)} ${getWealthMetricLabel(voteWealthMetric).toUpperCase()}`,
                 type: 'number',
                 min: '0',
                 step: '0.01',
@@ -1976,7 +2580,7 @@ const Comrade = () => {
             renderItem={(participant) => (
               <>
                 <p className={`${CLS.textXsBlack} ${CLS.fontBoldBlackUpper}`}>{participant.name}</p>
-                <p className={CLS.textXsBlack}>{wealthType === 'salary' ? 'Salary' : 'Net worth'}: {formatCurrency(participant.wealth)}</p>
+                <p className={CLS.textXsBlack}>{getWealthMetricLabel(voteWealthMetric)}: {formatCurrency(participant.wealth, 2, voteCurrency)}</p>
                 <p className={CLS.textXsBlack}>Vote: {participant.vote || 'Not selected'}</p>
               </>
             )}
@@ -1985,8 +2589,7 @@ const Comrade = () => {
           </div>
         </div>
 
-        {/* Box 3: Settings */}
-        {renderSettingsPanel(voteWeighting, setVoteWeighting, showVoteSettings, setShowVoteSettings, 'vote-results')}
+        </EntryPageWrapper>
       </Layout>
     );
   }
@@ -2075,7 +2678,7 @@ const Comrade = () => {
                           <div className={`space-y-2 ${CLS.textXsBlack}`}>
                             <div className="flex justify-between">
                               <span className={CLS.textBlackFontBold}>WEALTH:</span>
-                              <span className="font-semibold text-black">{formatCurrency(p.wealth)}</span>
+                              <span className="font-semibold text-black">{formatCurrency(p.wealth, 2, voteCurrency)}</span>
                             </div>
                             <div className="flex justify-between">
                               <span className={CLS.textBlackFontBold}>VOTE:</span>
@@ -2160,18 +2763,12 @@ const Comrade = () => {
 
                   <div className="mb-6">
                     <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">WEALTH VISUALIZATION</h3>
-                    {renderWealthPieChart(participantsData, currency, formatNumber)}
+                    {renderWealthPieChart(participantsData, formatNumber)}
                   </div>
                 </div>
               )}
             </>
           )}
-
-        <div className="flex items-center gap-4 my-6">
-          <div className="flex-1 border-t border-black"></div>
-          <span className="text-xs font-bold">{'$ € £'}</span>
-          <div className="flex-1 border-t border-black"></div>
-        </div>
 
         {renderResultsFooter(
           hasData,
@@ -2185,29 +2782,27 @@ const Comrade = () => {
   if (page === 'rent-entry') {
     return (
       <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
-        {renderEntryIntro({
-          title: 'RENT SPLITTING',
-          description: 'Figuring out rent splits with roommates can be a fraught process. Decide it more fairly by accounting for both room size and tenants\' financial resources. Larger rooms and higher earners both pay more.',
-          onLoadExample: () => loadExample('rent'),
-          clearType: 'rent'
-        })}
-
-        <div className="flex items-center gap-4 my-6">
-          <div className="flex-1 border-t border-black"></div>
-          <span className="text-xs font-bold">{'$ € £'}</span>
-          <div className="flex-1 border-t border-black"></div>
-        </div>
-
-        {/* Box 2: Total Costs and Roommates */}
-        <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
+        <EntryPageWrapper
+          title="RENT SPLITTING"
+          description="Figuring out rent splits with roommates can be a fraught process. Decide it more fairly by accounting for both room size and tenants' financial resources. Larger rooms and higher earners both pay more."
+          type="rent"
+          settingsComponent={renderSettingsPanel(rentWeighting, setRentWeighting, showRentSettings, setShowRentSettings, 'rent-results', rentCurrency, setRentCurrency, rentWealthMetric, setRentWealthMetric, rentMeasurement, setRentMeasurement)}
+        >
+          {/* Box 2: Total Costs and Roommates */}
+          <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
           <div className="mb-6">
-            <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">TOTAL RENTAL COSTS</h3>
+            <div className="flex items-center gap-2 mb-4">
+              <svg width="20" height="20" viewBox="0 0 24 24">
+                <path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z" fill="#000"/>
+              </svg>
+              <h3 className="text-lg font-bold text-black uppercase tracking-wider">TOTAL RENTAL COSTS</h3>
+            </div>
             <p className="text-xs mb-3 text-black">List your total monthly rent, and monthly utility costs.</p>
             <FormInput
               type="number"
               value={totalRent}
               onChange={(e) => setTotalRent(e.target.value)}
-              placeholder={`${currency} MONTHLY RENT`}
+              placeholder={`${getCurrencySymbol(rentCurrency)} MONTHLY RENT`}
               min="0"
               step="0.01"
               inputMode="decimal"
@@ -2217,7 +2812,7 @@ const Comrade = () => {
               type="number"
               value={totalUtilities}
               onChange={(e) => setTotalUtilities(e.target.value)}
-              placeholder={`${currency} MONTHLY UTILITIES`}
+              placeholder={`${getCurrencySymbol(rentCurrency)} MONTHLY UTILITIES`}
               min="0"
               step="0.01"
               inputMode="decimal"
@@ -2227,7 +2822,10 @@ const Comrade = () => {
           <div className="border-t-2 border-dashed border-gray-400 my-6"></div>
 
           <div>
-            <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">TENANTS</h3>
+            <div className="flex items-center gap-2 mb-4">
+              <PersonIcon />
+              <h3 className="text-lg font-bold text-black uppercase tracking-wider">TENANTS</h3>
+            </div>
             <p className="text-xs mb-3 text-black">Add the names and details of each person sharing the property.</p>
             
             <AddItemCard
@@ -2243,7 +2841,7 @@ const Comrade = () => {
               {
                 value: currentRoommateRoomSize,
                 onChange: (e) => setCurrentRoommateRoomSize(e.target.value),
-                placeholder: `ROOM SIZE (${sizeUnit.toUpperCase()})`,
+                placeholder: `ROOM SIZE (${getMeasurementLabel(rentMeasurement).toUpperCase()})`,
                 type: 'number',
                 min: '0',
                 step: '0.01',
@@ -2253,7 +2851,7 @@ const Comrade = () => {
               {
                 value: currentRoommateWealth,
                 onChange: (e) => setCurrentRoommateWealth(e.target.value),
-                placeholder: `${currency} ${wealthType === 'salary' ? 'SALARY' : 'NET WORTH'}`,
+                placeholder: `${getCurrencySymbol(rentCurrency)} ${getWealthMetricLabel(rentWealthMetric).toUpperCase()}`,
                 type: 'number',
                 min: '0',
                 step: '0.01',
@@ -2279,8 +2877,8 @@ const Comrade = () => {
             renderItem={(person) => (
               <>
                 <p className={`${CLS.textXsBlack} ${CLS.fontBoldBlackUpper}`}>{person.name}</p>
-                <p className={CLS.textXsBlack}>Room: {formatNumber((parseFloat(person.roomSize) || 0).toFixed(0))} {sizeUnit}</p>
-                <p className={CLS.textXsBlack}>{wealthType === 'salary' ? 'Salary' : 'Net worth'}: {formatCurrency(person.wealth)}</p>
+                <p className={CLS.textXsBlack}>Room: {formatNumber((parseFloat(person.roomSize) || 0).toFixed(0))} {getMeasurementLabel(rentMeasurement).toLowerCase()}</p>
+                <p className={CLS.textXsBlack}>{getWealthMetricLabel(rentWealthMetric)}: {formatCurrency(person.wealth, 2, rentCurrency)}</p>
               </>
             )}
             addButtonLabel="+ ADD ROOMMATE"
@@ -2288,8 +2886,7 @@ const Comrade = () => {
           </div>
         </div>
 
-        {/* Box 3: Settings */}
-        {renderSettingsPanel(rentWeighting, setRentWeighting, showRentSettings, setShowRentSettings, 'rent-results')}
+        </EntryPageWrapper>
       </Layout>
     );
   }
@@ -2312,19 +2909,19 @@ const Comrade = () => {
                 {rentData.map((person) => (
                   <div key={person.id} className="border-b border-dashed border-white pb-2">
                     <p className="text-lg font-semibold">{person.name.toUpperCase()}</p>
-                    <p className="text-3xl font-black">{formatCurrencySmart(person.fairRent)}</p>
+                    <p className="text-3xl font-black">{formatCurrencySmart(person.fairRent, rentCurrency)}</p>
                     <p className={CLS.textXsBlack}>{person.rentPct.toFixed(1)}% of total</p>
                   </div>
                 ))}
               </div>
               <p className={`${CLS.textXsBlack} mt-4 border-t-2 border-dashed border-white pt-2`}>
-                TOTAL: {formatCurrency(total)}/MONTH
+                TOTAL: {formatCurrency(total, 2, rentCurrency)}/MONTH
               </p>
             </div>
 
             {renderStatsRow([
-              { label: 'RENT', value: formatCurrency(rentAmount) },
-              { label: 'UTILITIES', value: formatCurrency(utilitiesAmount) },
+              { label: 'RENT', value: formatCurrency(rentAmount, 2, rentCurrency) },
+              { label: 'UTILITIES', value: formatCurrency(utilitiesAmount, 2, rentCurrency) },
               { label: 'TENANTS', value: rentPeople.length },
               { label: 'WEIGHTING', value: getWeightingLabel(rentWeighting) }
             ])}
@@ -2347,15 +2944,15 @@ const Comrade = () => {
                           <div className={`space-y-2 ${CLS.textXsBlack}`}>
                             <div className="flex justify-between">
                               <span className={CLS.textBlackFontBold}>ROOM SIZE:</span>
-                              <span className="font-semibold text-black">{formatNumber(p.roomSize.toFixed(0))} {sizeUnit}</span>
+                              <span className="font-semibold text-black">{formatNumber(p.roomSize.toFixed(0))} {getMeasurementLabel(rentMeasurement).toLowerCase()}</span>
                             </div>
                             <div className="flex justify-between">
                               <span className={CLS.textBlackFontBold}>WEALTH:</span>
-                              <span className="font-semibold text-black">{formatCurrency(p.wealth)}</span>
+                              <span className="font-semibold text-black">{formatCurrency(p.wealth, 2, rentCurrency)}</span>
                             </div>
                             <div className={`flex justify-between pt-2 border-t ${CLS.borderDashedGray}`}>
                               <span className={CLS.textBlackFontBold}>MONTHLY RENT:</span>
-                              <span className="font-black text-black">{formatCurrencySmart(p.fairRent)}</span>
+                              <span className="font-black text-black">{formatCurrencySmart(p.fairRent, rentCurrency)}</span>
                             </div>
                             <div className="flex justify-between">
                               <span className={CLS.textBlackFontBold}>% OF TOTAL:</span>
@@ -2394,7 +2991,7 @@ const Comrade = () => {
                                     {rentWidth > 15 && <span className={`${CLS.textXsBlack} font-bold text-white`}>{p.rentPct.toFixed(0)}%</span>}
                                   </div>
                                 </div>
-                                <span className={`${CLS.textXsBlack} ${CLS.textBlackFontBold} w-24 text-right`}>{formatCurrencySmart(p.fairRent)}</span>
+                                <span className={`${CLS.textXsBlack} ${CLS.textBlackFontBold} w-24 text-right`}>{formatCurrencySmart(p.fairRent, rentCurrency)}</span>
                               </div>
                               <div className="flex items-center gap-2">
                                 <span className={`${CLS.textXsBlack} w-20 ${CLS.textBlackFontBold}`}>ROOM:</span>
@@ -2409,7 +3006,7 @@ const Comrade = () => {
                                     {roomWidth > 15 && <span className={`${CLS.textXsBlack} font-bold text-white`}>{p.roomPct.toFixed(0)}%</span>}
                                   </div>
                                 </div>
-                                <span className={`${CLS.textXsBlack} ${CLS.textBlackFontBold} w-24 text-right`}>{formatNumber(p.roomSize.toFixed(0))} {sizeUnit}</span>
+                                                                  <span className={`${CLS.textXsBlack} ${CLS.textBlackFontBold} w-24 text-right`}>{formatNumber(p.roomSize.toFixed(0))} {getMeasurementLabel(rentMeasurement).toLowerCase()}</span>
                               </div>
                             </div>
                           </div>
@@ -2422,647 +3019,27 @@ const Comrade = () => {
 
                   <div className="mb-6">
                     <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">WEALTH VISUALIZATION</h3>
-                    {renderWealthPieChart(rentData, currency, formatNumber)}
+                    {renderWealthPieChart(rentData, formatNumber)}
                   </div>
                 </div>
               )}
             </>
           )}
 
-        <div className="flex items-center gap-4 my-6">
-          <div className="flex-1 border-t border-black"></div>
-          <span className="text-xs font-bold">{'$ € £'}</span>
-          <div className="flex-1 border-t border-black"></div>
-        </div>
-
         {renderResultsFooter(
           hasData,
-          `Comrade | Rent-splitting results\n\nTotal: ${formatCurrency(total)}/month\nRent: ${formatCurrency(rentAmount)}\nUtilities: ${formatCurrency(utilitiesAmount)}\n\nBreakdown:\n${rentData.map(p => `${p.name}: ${formatCurrencySmart(p.fairRent)} (${p.rentPct.toFixed(1)}%) - ${formatNumber(p.roomSize.toFixed(0))} ${sizeUnit}`).join('\n')}\n\nCalculated using www.comrade.money — the fairer way to split costs with friends.`,
+          `Comrade | Rent-splitting results\n\nTotal: ${formatCurrency(total, 2, rentCurrency)}/month\nRent: ${formatCurrency(rentAmount, 2, rentCurrency)}\nUtilities: ${formatCurrency(utilitiesAmount, 2, rentCurrency)}\n\nBreakdown:\n${rentData.map(p => `${p.name}: ${formatCurrencySmart(p.fairRent, rentCurrency)} (${p.rentPct.toFixed(1)}%) - ${formatNumber(p.roomSize.toFixed(0))} ${getMeasurementLabel(rentMeasurement).toLowerCase()}`).join('\n')}\n\nCalculated using www.comrade.money — the fairer way to split costs with friends.`,
           'rent-entry'
         )}
       </Layout>
     );
   }
   
-  if (page === 'border-preview') {
-    const borderStyles = [
-      {
-        name: 'CURRENT (DASHED)',
-        description: 'Simple dashed lines - clean receipt look',
-        topBorder: '4px dashed #000',
-        bottomBorder: '4px dashed #000'
-      },
-      {
-        name: 'ZIGZAG TEAR',
-        description: 'Jagged perforated edge',
-        topPattern: 'linear-gradient(135deg, #000 5px, transparent 5px) 0 0, linear-gradient(225deg, #000 5px, transparent 5px) 0 0',
-        topSize: '8px 8px',
-        bottomPattern: 'linear-gradient(135deg, transparent 5px, #000 5px) 0 100%, linear-gradient(225deg, transparent 5px, #000 5px) 0 100%',
-        bottomSize: '8px 8px'
-      },
-      {
-        name: 'WAVY EDGE',
-        description: 'Smooth torn paper effect',
-        topPattern: 'radial-gradient(circle at 50% 0%, transparent 6px, #000 6px, #000 8px, transparent 8px)',
-        topSize: '16px 8px',
-        bottomPattern: 'radial-gradient(circle at 50% 100%, transparent 6px, #000 6px, #000 8px, transparent 8px)',
-        bottomSize: '16px 8px'
-      },
-      {
-        name: 'ROUGH TEAR',
-        description: 'Irregular ripped edge',
-        topPattern: 'linear-gradient(135deg, #000 3px, transparent 3px) 0 0, linear-gradient(225deg, #000 3px, transparent 3px) 6px 0, linear-gradient(135deg, #000 4px, transparent 4px) 12px 0',
-        topSize: '18px 6px',
-        bottomPattern: 'linear-gradient(135deg, transparent 3px, #000 3px) 0 100%, linear-gradient(225deg, transparent 3px, #000 3px) 6px 100%, linear-gradient(135deg, transparent 4px, #000 4px) 12px 100%',
-        bottomSize: '18px 6px'
-      },
-      {
-        name: 'FINE PERFORATION',
-        description: 'Small regular perforations',
-        topPattern: 'repeating-linear-gradient(90deg, #000 0px, #000 8px, transparent 8px, transparent 12px)',
-        topSize: '100% 4px',
-        bottomPattern: 'repeating-linear-gradient(90deg, #000 0px, #000 8px, transparent 8px, transparent 12px)',
-        bottomSize: '100% 4px'
-      },
-      {
-        name: 'DOTTED EDGE',
-        description: 'Circular perforations',
-        topPattern: 'radial-gradient(circle at center, #000 2px, transparent 2px)',
-        topSize: '10px 4px',
-        bottomPattern: 'radial-gradient(circle at center, #000 2px, transparent 2px)',
-        bottomSize: '10px 4px'
-      }
-    ];
-
-    return (
-      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
-        <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
-          <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider border-b-4 border-black pb-2">BORDER PREVIEW</h2>
-          <p className="text-xs mb-6 text-black">Preview different top and bottom border styles that mimic torn or perforated paper edges. These replace the current dashed lines to enhance the receipt aesthetic.</p>
-        </div>
-
-        {borderStyles.map((style, idx) => {
-          const hasPattern = style.topPattern || style.bottomPattern;
-          
-          return (
-            <div key={idx} className="mb-6">
-              <div className="bg-white p-4 border-2 border-dashed border-gray-400 mb-2">
-                <h3 className="text-lg font-black text-black mb-1">{style.name}</h3>
-                <p className="text-xs text-gray-600">{style.description}</p>
-              </div>
-              
-              <div style={{
-                backgroundColor: '#F3F4F6',
-                borderLeft: '4px solid #000',
-                borderRight: '4px solid #000',
-                borderTop: style.topBorder || 'none',
-                borderBottom: style.bottomBorder || 'none',
-                position: 'relative'
-              }}>
-                {style.topPattern && (
-                  <div style={{
-                    height: '8px',
-                    background: style.topPattern,
-                    backgroundSize: style.topSize,
-                    backgroundRepeat: 'repeat-x',
-                    backgroundPosition: '0 0'
-                  }}></div>
-                )}
-                
-                <div className="p-6">
-                  <div className="border-b-2 border-dashed border-gray-400 pb-4 mb-4">
-                    <h1 className="font-black text-black tracking-wider text-3xl">COMRADE</h1>
-                  </div>
-                  
-                  <h2 className="text-xl font-black mb-3 text-black uppercase">BILL-SPLITTING RESULTS</h2>
-                  
-                  <div className="bg-black text-white p-4 mb-4">
-                    <p className="text-lg font-bold">YOUR SETTLEMENT</p>
-                    <p className="text-2xl font-black">$123.45</p>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <div className="bg-gray-50 p-3 border border-gray-300">
-                      <p className="text-xs font-bold text-black mb-1">ALEX</p>
-                      <p className="text-xs text-black">Paid: $180.00</p>
-                    </div>
-                    <div className="bg-gray-50 p-3 border border-gray-300">
-                      <p className="text-xs font-bold text-black mb-1">JORDAN</p>
-                      <p className="text-xs text-black">Paid: $200.00</p>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-4 pt-4 border-t-2 border-dashed border-gray-400">
-                    <button className="bg-black text-white px-6 py-2 font-bold border-2 border-black">COPY RESULTS</button>
-                  </div>
-                </div>
-                
-                {style.bottomPattern && (
-                  <div style={{
-                    height: '8px',
-                    background: style.bottomPattern,
-                    backgroundSize: style.bottomSize,
-                    backgroundRepeat: 'repeat-x',
-                    backgroundPosition: '0 100%'
-                  }}></div>
-                )}
-              </div>
-            </div>
-          );
-        })}
-
-        <div className="bg-white p-8 border-2 border-dashed border-gray-400">
-          <button onClick={() => navigateTo('home')} className="w-full bg-gray-200 text-black px-6 py-3 font-bold border-2 border-gray-400 hover:bg-gray-300 transition-all">
-            BACK TO HOME
-          </button>
-        </div>
-      </Layout>
-    );
-  }
-
-  if (page === 'color-preview') {
-    const colorways = [
-      {
-        name: 'CLASSIC RECEIPT',
-        description: 'Pure black on white - high contrast',
-        cardBg: '#FFFFFF',
-        textPrimary: '#000000',
-        textSecondary: '#4B5563',
-        border: '#000000',
-        borderDashed: '#9CA3AF',
-        buttonBg: '#000000',
-        buttonText: '#FFFFFF',
-        pattern: 'none'
-      },
-      {
-        name: 'SOFT CHARCOAL',
-        description: 'Dark grey text on white',
-        cardBg: '#FFFFFF',
-        textPrimary: '#1F2937',
-        textSecondary: '#6B7280',
-        border: '#374151',
-        borderDashed: '#9CA3AF',
-        buttonBg: '#1F2937',
-        buttonText: '#FFFFFF',
-        pattern: 'none'
-      },
-      {
-        name: 'WARM RECEIPT',
-        description: 'Black on cream paper',
-        cardBg: '#FAF8F3',
-        textPrimary: '#000000',
-        textSecondary: '#4B5563',
-        border: '#000000',
-        borderDashed: '#D1D5DB',
-        buttonBg: '#000000',
-        buttonText: '#FFFFFF',
-        pattern: 'none'
-      },
-      {
-        name: 'AGED PAPER',
-        description: 'Charcoal on vintage cream',
-        cardBg: '#F5F1E8',
-        textPrimary: '#1F2937',
-        textSecondary: '#6B7280',
-        border: '#374151',
-        borderDashed: '#D1D5DB',
-        buttonBg: '#1F2937',
-        buttonText: '#FFFFFF',
-        pattern: 'none'
-      },
-      {
-        name: 'SOFT GREY',
-        description: 'Black on light grey background',
-        cardBg: '#F3F4F6',
-        textPrimary: '#000000',
-        textSecondary: '#4B5563',
-        border: '#000000',
-        borderDashed: '#9CA3AF',
-        buttonBg: '#000000',
-        buttonText: '#FFFFFF',
-        pattern: 'none'
-      },
-      {
-        name: 'MUTED TONES',
-        description: 'Dark grey on pale grey',
-        cardBg: '#F9FAFB',
-        textPrimary: '#1F2937',
-        textSecondary: '#6B7280',
-        border: '#374151',
-        borderDashed: '#D1D5DB',
-        buttonBg: '#1F2937',
-        buttonText: '#FFFFFF',
-        pattern: 'none'
-      },
-      {
-        name: 'THERMAL TEXTURE',
-        description: 'Classic with subtle paper grain',
-        cardBg: '#FFFFFF',
-        textPrimary: '#000000',
-        textSecondary: '#4B5563',
-        border: '#000000',
-        borderDashed: '#9CA3AF',
-        buttonBg: '#000000',
-        buttonText: '#FFFFFF',
-        pattern: 'repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(0,0,0,0.01) 1px, rgba(0,0,0,0.01) 2px)'
-      },
-      {
-        name: 'DOT MATRIX',
-        description: 'Vintage printer aesthetic',
-        cardBg: '#FFFFFF',
-        textPrimary: '#000000',
-        textSecondary: '#4B5563',
-        border: '#000000',
-        borderDashed: '#9CA3AF',
-        buttonBg: '#000000',
-        buttonText: '#FFFFFF',
-        pattern: 'radial-gradient(circle at 2px 2px, rgba(0,0,0,0.04) 1px, transparent 1px)',
-        patternSize: '4px 4px'
-      },
-      {
-        name: 'FADED RECEIPT',
-        description: 'Cream paper with texture',
-        cardBg: '#FAF8F3',
-        textPrimary: '#1F2937',
-        textSecondary: '#6B7280',
-        border: '#374151',
-        borderDashed: '#D1D5DB',
-        buttonBg: '#1F2937',
-        buttonText: '#FFFFFF',
-        pattern: 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(100,100,100,0.015) 2px, rgba(100,100,100,0.015) 4px)'
-      },
-      {
-        name: 'GRID LINES',
-        description: 'Subtle ledger lines',
-        cardBg: '#FFFFFF',
-        textPrimary: '#000000',
-        textSecondary: '#4B5563',
-        border: '#000000',
-        borderDashed: '#9CA3AF',
-        buttonBg: '#000000',
-        buttonText: '#FFFFFF',
-        pattern: 'repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(0,0,0,0.03) 39px, rgba(0,0,0,0.03) 40px)'
-      },
-      {
-        name: 'CROSSHATCH',
-        description: 'Fine crosshatch pattern',
-        cardBg: '#FAF8F3',
-        textPrimary: '#000000',
-        textSecondary: '#4B5563',
-        border: '#000000',
-        borderDashed: '#9CA3AF',
-        buttonBg: '#000000',
-        buttonText: '#FFFFFF',
-        pattern: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.02) 10px, rgba(0,0,0,0.02) 11px), repeating-linear-gradient(-45deg, transparent, transparent 10px, rgba(0,0,0,0.02) 10px, rgba(0,0,0,0.02) 11px)'
-      },
-      {
-        name: 'SPECKLED',
-        description: 'Tiny speckled texture',
-        cardBg: '#FFFFFF',
-        textPrimary: '#1F2937',
-        textSecondary: '#6B7280',
-        border: '#374151',
-        borderDashed: '#D1D5DB',
-        buttonBg: '#1F2937',
-        buttonText: '#FFFFFF',
-        pattern: 'radial-gradient(circle at 25% 25%, rgba(0,0,0,0.02) 1%, transparent 1%), radial-gradient(circle at 75% 75%, rgba(0,0,0,0.015) 1%, transparent 1%), radial-gradient(circle at 50% 100%, rgba(0,0,0,0.02) 1%, transparent 1%)',
-        patternSize: '8px 8px'
-      }
-    ];
-
-    return (
-      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
-        <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
-          <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider border-b-4 border-black pb-2">COLOR PREVIEW</h2>
-          <p className="text-xs mb-6 text-black">Preview different color schemes for the app. Each maintains the thermal receipt aesthetic with various combinations of text colors, backgrounds, and subtle textures.</p>
-        </div>
-
-        {colorways.map((scheme, idx) => {
-          const bgStyle = scheme.pattern !== 'none' 
-            ? { 
-                backgroundColor: scheme.cardBg, 
-                backgroundImage: scheme.pattern,
-                backgroundSize: scheme.patternSize || 'auto'
-              }
-            : { backgroundColor: scheme.cardBg };
-
-          return (
-            <div key={idx} className="p-8 border-2 border-dashed mb-6" style={{ ...bgStyle, borderColor: scheme.borderDashed }}>
-              <div className="pb-4 mb-6" style={{ borderBottom: `4px solid ${scheme.border}` }}>
-                <h3 className="text-3xl font-black mb-2" style={{ color: scheme.textPrimary }}>{scheme.name}</h3>
-                <p className="text-xs" style={{ color: scheme.textSecondary, fontFamily: 'Sixtyfour, monospace' }}>{scheme.description}</p>
-              </div>
-
-              {/* App Title Example */}
-              <div className="mb-6 pb-6" style={{ borderBottom: `2px dashed ${scheme.borderDashed}` }}>
-                <p className="text-xs mb-2" style={{ color: scheme.textSecondary }}>APP TITLE:</p>
-                <h1 className="font-black tracking-wider text-4xl" style={{ color: scheme.textPrimary }}>COMRADE</h1>
-              </div>
-
-              {/* Headlines */}
-              <div className="mb-6 pb-6" style={{ borderBottom: `2px dashed ${scheme.borderDashed}` }}>
-                <p className="text-xs mb-2" style={{ color: scheme.textSecondary }}>HEADLINES:</p>
-                <h2 className="text-2xl font-black mb-3 uppercase tracking-wider" style={{ color: scheme.textPrimary }}>BILL-SPLITTING RESULTS</h2>
-                <h3 className="text-lg font-bold uppercase tracking-wider" style={{ color: scheme.textPrimary }}>YOUR SETTLEMENT</h3>
-              </div>
-
-              {/* Buttons */}
-              <div className="mb-6 pb-6" style={{ borderBottom: `2px dashed ${scheme.borderDashed}` }}>
-                <p className="text-xs mb-3" style={{ color: scheme.textSecondary }}>BUTTONS:</p>
-                <div className="space-y-3">
-                  <button 
-                    className="px-6 py-2 font-bold border-2"
-                    style={{ 
-                      backgroundColor: scheme.buttonBg, 
-                      color: scheme.buttonText,
-                      borderColor: scheme.border
-                    }}
-                  >
-                    + ADD PERSON
-                  </button>
-                  <button 
-                    className="px-6 py-2 font-bold border-2 ml-3"
-                    style={{ 
-                      backgroundColor: scheme.cardBg, 
-                      color: scheme.textPrimary,
-                      borderColor: scheme.border
-                    }}
-                  >
-                    CALCULATE
-                  </button>
-                </div>
-              </div>
-
-              {/* Body Text */}
-              <div className="mb-6 pb-6" style={{ borderBottom: `2px dashed ${scheme.borderDashed}` }}>
-                <p className="text-xs mb-2" style={{ color: scheme.textSecondary }}>BODY TEXT:</p>
-                <p className="text-xs leading-relaxed mb-3" style={{ color: scheme.textPrimary }}>
-                  From meals to vacations, taxis to tickets, handle your shared expenses with friends more fairly. Comrade combines and simplifies group bills.
-                </p>
-              </div>
-
-              {/* Data Card */}
-              <div className="mb-6 pb-6" style={{ borderBottom: `2px dashed ${scheme.borderDashed}` }}>
-                <p className="text-xs mb-3" style={{ color: scheme.textSecondary }}>DATA DISPLAY:</p>
-                <div className="p-4 border" style={{ backgroundColor: scheme.cardBg, borderColor: scheme.borderDashed }}>
-                  <p className="text-xs font-bold uppercase mb-2" style={{ color: scheme.textPrimary }}>Alex</p>
-                  <div className="space-y-1 text-xs">
-                    <div className="flex justify-between">
-                      <span className="font-bold" style={{ color: scheme.textPrimary }}>WEALTH:</span>
-                      <span className="font-semibold" style={{ color: scheme.textPrimary }}>$32,000.00</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-bold" style={{ color: scheme.textPrimary }}>PAID:</span>
-                      <span className="font-semibold" style={{ color: scheme.textPrimary }}>$180.00</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Numbers */}
-              <div className="mb-6">
-                <p className="text-xs mb-3" style={{ color: scheme.textSecondary }}>CURRENCY:</p>
-                <p className="text-3xl font-black" style={{ color: scheme.textPrimary }}>$1,234.56</p>
-              </div>
-
-              {/* Apply Button */}
-              <div className="text-center pt-4" style={{ borderTop: `2px solid ${scheme.border}` }}>
-                <button 
-                  onClick={() => {
-                    // Store color scheme in a data attribute or state management
-                    // For now, we'll show a toast
-                    copyToClipboard(`Applied: ${scheme.name}`);
-                    // In a real implementation, you'd update global CSS variables
-                  }}
-                  className="px-8 py-3 font-black border-2 hover:opacity-80 transition-all uppercase"
-                  style={{
-                    backgroundColor: scheme.buttonBg,
-                    color: scheme.buttonText,
-                    borderColor: scheme.border
-                  }}
-                >
-                  USE THIS SCHEME
-                </button>
-              </div>
-            </div>
-          );
-        })}
-
-        <div className="bg-white p-8 border-2 border-dashed border-gray-400">
-          <button onClick={() => navigateTo('home')} className="w-full bg-gray-200 text-black px-6 py-3 font-bold border-2 border-gray-400 hover:bg-gray-300 transition-all">
-            BACK TO HOME
-          </button>
-        </div>
-      </Layout>
-    );
-  }
-
-  if (page === 'font-preview') {
-    const fonts = [
-      { name: 'Courier New', import: null, isSystem: true },
-      { name: 'Courier Prime', import: 'https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap' },
-      { name: 'Jersey 20', import: 'https://fonts.googleapis.com/css2?family=Jersey+20&display=swap' },
-      { name: 'VT323', import: 'https://fonts.googleapis.com/css2?family=VT323&display=swap' },
-      { name: 'Inconsolata', import: 'https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;700&display=swap' },
-      { name: 'IBM Plex Mono', import: 'https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&display=swap' },
-      { name: 'Roboto Mono', import: 'https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap' },
-      { name: 'Space Mono', import: 'https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap' },
-      { name: 'Cutive Mono', import: 'https://fonts.googleapis.com/css2?family=Cutive+Mono&display=swap' },
-      { name: 'Anonymous Pro', import: 'https://fonts.googleapis.com/css2?family=Anonymous+Pro:wght@400;700&display=swap' },
-      { name: 'Overpass Mono', import: 'https://fonts.googleapis.com/css2?family=Overpass+Mono:wght@400;700&display=swap' }
-    ];
-
-    return (
-      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
-        <style>{fonts.filter(f => f.import).map(font => `@import url('${font.import}');`).join('\n')}</style>
-        
-        <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
-          <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider border-b-4 border-black pb-2">FONT PREVIEW</h2>
-          <p className="text-xs mb-6 text-black">Preview different monospace and receipt-style fonts. Each preview shows how the font looks across various UI elements.</p>
-        </div>
-
-        {fonts.map((font, idx) => (
-          <div key={idx} className="bg-white p-8 border-2 border-dashed border-gray-400 mb-6">
-            <div className="border-b-4 border-black pb-4 mb-6">
-              <h3 className="text-3xl font-black text-black mb-2" style={{ fontFamily: `'${font.name}', monospace !important` }}>{font.name.toUpperCase()}</h3>
-              <p className="text-xs text-gray-600">{font.isSystem ? 'System font' : 'Google Font'}</p>
-            </div>
-
-            {/* App Title Example */}
-            <div className="mb-6 pb-6 border-b-2 border-dashed border-gray-400">
-              <p className="text-xs text-gray-600 mb-2">APP TITLE:</p>
-              <h1 className="font-black text-black tracking-wider text-4xl" style={{ fontFamily: `'${font.name}', monospace !important` }}>COMRADE</h1>
-            </div>
-
-            {/* Page Headlines */}
-            <div className="mb-6 pb-6 border-b-2 border-dashed border-gray-400">
-              <p className="text-xs text-gray-600 mb-2">PAGE HEADLINES:</p>
-              <h2 className="text-2xl font-black mb-3 text-black uppercase tracking-wider" style={{ fontFamily: `'${font.name}', monospace !important` }}>BILL-SPLITTING RESULTS</h2>
-              <h3 className="text-lg font-bold mb-2 text-black uppercase tracking-wider" style={{ fontFamily: `'${font.name}', monospace !important` }}>YOUR SETTLEMENT</h3>
-            </div>
-
-            {/* Buttons */}
-            <div className="mb-6 pb-6 border-b-2 border-dashed border-gray-400">
-              <p className="text-xs text-gray-600 mb-3">BUTTONS:</p>
-              <div className="space-y-3">
-                <button className="bg-black text-white px-6 py-2 font-bold border-2 border-black" style={{ fontFamily: `'${font.name}', monospace !important` }}>+ ADD PERSON</button>
-                <button className="bg-white text-black px-6 py-2 font-bold border-2 border-black" style={{ fontFamily: `'${font.name}', monospace !important` }}>CALCULATE</button>
-                <button className="bg-gray-200 text-black px-6 py-2 font-bold border-2 border-gray-400" style={{ fontFamily: `'${font.name}', monospace !important` }}>LOAD EXAMPLE</button>
-              </div>
-            </div>
-
-            {/* Regular Copy */}
-            <div className="mb-6 pb-6 border-b-2 border-dashed border-gray-400">
-              <p className="text-xs text-gray-600 mb-2">BODY TEXT (SMALL):</p>
-              <p className="text-xs text-black leading-relaxed mb-3" style={{ fontFamily: `'${font.name}', monospace !important` }}>
-                From meals to vacations, taxis to tickets, handle your shared expenses with friends more fairly. Comrade combines and simplifies group bills, while using information about group members' finances to decide how much everyone should pay.
-              </p>
-              <p className="text-xs text-black" style={{ fontFamily: `'${font.name}', monospace !important` }}>Add all the people interested in buying, along with their financial information.</p>
-            </div>
-
-            {/* Data Display */}
-            <div className="mb-6 pb-6 border-b-2 border-dashed border-gray-400">
-              <p className="text-xs text-gray-600 mb-3">DATA DISPLAY:</p>
-              <div className="bg-gray-50 p-4 border border-gray-300" style={{ fontFamily: `'${font.name}', monospace !important` }}>
-                <p className="text-xs text-black font-bold uppercase mb-2">Alex</p>
-                <div className="space-y-1 text-xs">
-                  <div className="flex justify-between">
-                    <span className="text-black font-bold">WEALTH:</span>
-                    <span className="font-semibold text-black">$32,000.00</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-black font-bold">PAID:</span>
-                    <span className="font-semibold text-black">$180.00 (4.8%)</span>
-                  </div>
-                  <div className="flex justify-between border-t border-dashed border-gray-400 pt-1">
-                    <span className="text-black font-bold">BALANCE:</span>
-                    <span className="font-black text-black">+$45.23</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Numbers & Currency */}
-            <div className="mb-6" style={{ fontFamily: `'${font.name}', monospace !important` }}>
-              <p className="text-xs text-gray-600 mb-3">NUMBERS & CURRENCY:</p>
-              <div className="space-y-2">
-                <p className="text-3xl font-black text-black">$1,234.56</p>
-                <p className="text-xl font-semibold text-black">€987.65</p>
-                <p className="text-lg font-bold text-black">£432.10</p>
-                <p className="text-xs font-bold text-black">TOTAL: $3,600/MONTH</p>
-              </div>
-            </div>
-
-            {/* Apply Button */}
-            <div className="text-center pt-4 border-t-2 border-black">
-              <button 
-                onClick={() => {
-                  // Update the global style to use this font
-                  const styleTag = document.querySelector('style');
-                  if (styleTag && styleTag.textContent) {
-                    styleTag.textContent = styleTag.textContent.replace(
-                      /font-family: '[^']+', monospace !important;/g,
-                      `font-family: '${font.name}', monospace !important;`
-                    );
-                  }
-                  navigateTo('home');
-                }}
-                className="bg-black text-white px-8 py-3 font-black border-2 border-black hover:bg-gray-800 transition-all uppercase"
-                style={{ fontFamily: `'${font.name}', monospace !important` }}
-              >
-                USE THIS FONT
-              </button>
-            </div>
-          </div>
-        ))}
-
-        <div className="bg-white p-8 border-2 border-dashed border-gray-400">
-          <button onClick={() => navigateTo('home')} className="w-full bg-gray-200 text-black px-6 py-3 font-bold border-2 border-gray-400 hover:bg-gray-300 transition-all">
-            BACK TO HOME
-          </button>
-        </div>
-      </Layout>
-    );
-  }
   
-  if (page === 'background-test') {
-    const backgrounds = [
-      { name: 'Current (Red-Orange)', gradient: 'linear-gradient(135deg, rgba(220,20,60,0.85) 0%, rgba(255,140,0,0.85) 100%)' },
-      { name: 'Deep Purple-Pink', gradient: 'linear-gradient(135deg, rgba(138,43,226,0.85) 0%, rgba(255,20,147,0.85) 100%)' },
-      { name: 'Ocean Blue', gradient: 'linear-gradient(135deg, rgba(0,119,182,0.85) 0%, rgba(0,180,216,0.85) 100%)' },
-      { name: 'Forest Green', gradient: 'linear-gradient(135deg, rgba(34,139,34,0.85) 0%, rgba(144,238,144,0.85) 100%)' },
-      { name: 'Sunset Orange-Pink', gradient: 'linear-gradient(135deg, rgba(255,94,77,0.85) 0%, rgba(255,154,158,0.85) 100%)' },
-      { name: 'Royal Purple', gradient: 'linear-gradient(135deg, rgba(75,0,130,0.85) 0%, rgba(138,43,226,0.85) 100%)' },
-      { name: 'Midnight Blue', gradient: 'linear-gradient(135deg, rgba(25,25,112,0.85) 0%, rgba(65,105,225,0.85) 100%)' },
-      { name: 'Pastel Peach-Pink', gradient: 'linear-gradient(135deg, rgba(255,218,185,0.85) 0%, rgba(255,182,193,0.85) 100%)' },
-      { name: 'Pastel Mint-Blue', gradient: 'linear-gradient(135deg, rgba(189,252,201,0.85) 0%, rgba(167,216,238,0.85) 100%)' },
-      { name: 'Pastel Lavender-Pink', gradient: 'linear-gradient(135deg, rgba(230,230,250,0.85) 0%, rgba(255,192,203,0.85) 100%)' },
-      { name: 'Pastel Yellow-Peach', gradient: 'linear-gradient(135deg, rgba(255,253,208,0.85) 0%, rgba(255,218,185,0.85) 100%)' },
-      { name: 'Pastel Sky Blue', gradient: 'linear-gradient(135deg, rgba(176,224,230,0.85) 0%, rgba(173,216,230,0.85) 100%)' },
-      { name: 'Pastel Rose-Coral', gradient: 'linear-gradient(135deg, rgba(255,182,193,0.85) 0%, rgba(255,127,80,0.85) 100%)' },
-      { name: 'Emerald-Teal', gradient: 'linear-gradient(135deg, rgba(46,125,50,0.85) 0%, rgba(0,150,136,0.85) 100%)' },
-      { name: 'Crimson-Burgundy', gradient: 'linear-gradient(135deg, rgba(220,20,60,0.85) 0%, rgba(128,0,32,0.85) 100%)' },
-      { name: 'Golden Hour', gradient: 'linear-gradient(135deg, rgba(255,215,0,0.85) 0%, rgba(255,140,0,0.85) 100%)' },
-      { name: 'Berry Purple', gradient: 'linear-gradient(135deg, rgba(147,51,234,0.85) 0%, rgba(219,39,119,0.85) 100%)' },
-      { name: 'Pastel Lilac-Mint', gradient: 'linear-gradient(135deg, rgba(200,162,200,0.85) 0%, rgba(152,251,152,0.85) 100%)' },
-      { name: 'Charcoal-Slate', gradient: 'linear-gradient(135deg, rgba(54,69,79,0.85) 0%, rgba(96,125,139,0.85) 100%)' },
-      { name: 'Coral Reef', gradient: 'linear-gradient(135deg, rgba(255,127,80,0.85) 0%, rgba(255,99,71,0.85) 100%)' },
-      { name: 'Light Blue-Pink', gradient: 'linear-gradient(135deg, rgba(173,216,230,0.85) 0%, rgba(255,182,193,0.85) 100%)' },
-      { name: 'Pastel Blue-Lavender', gradient: 'linear-gradient(135deg, rgba(176,224,230,0.85) 0%, rgba(230,230,250,0.85) 100%)' },
-      { name: 'Pastel Mint-Peach', gradient: 'linear-gradient(135deg, rgba(189,252,201,0.85) 0%, rgba(255,218,185,0.85) 100%)' },
-      { name: 'Pastel Pink-Yellow', gradient: 'linear-gradient(135deg, rgba(255,192,203,0.85) 0%, rgba(255,253,208,0.85) 100%)' },
-      { name: 'Pastel Lavender-Coral', gradient: 'linear-gradient(135deg, rgba(230,230,250,0.85) 0%, rgba(255,127,80,0.85) 100%)' },
-      { name: 'Lime-Emerald', gradient: 'linear-gradient(135deg, rgba(50,205,50,0.85) 0%, rgba(0,128,0,0.85) 100%)' },
-      { name: 'Sage-Forest', gradient: 'linear-gradient(135deg, rgba(128,158,128,0.85) 0%, rgba(34,139,34,0.85) 100%)' },
-      { name: 'Spring Green-Teal', gradient: 'linear-gradient(135deg, rgba(0,255,127,0.85) 0%, rgba(0,128,128,0.85) 100%)' },
-      { name: 'Mint-Jade', gradient: 'linear-gradient(135deg, rgba(152,251,152,0.85) 0%, rgba(0,168,107,0.85) 100%)' },
-      { name: 'Scarlet-Crimson', gradient: 'linear-gradient(135deg, rgba(255,36,0,0.85) 0%, rgba(220,20,60,0.85) 100%)' },
-      { name: 'Rose-Wine', gradient: 'linear-gradient(135deg, rgba(255,0,127,0.85) 0%, rgba(128,0,32,0.85) 100%)' },
-      { name: 'Cherry-Maroon', gradient: 'linear-gradient(135deg, rgba(222,49,99,0.85) 0%, rgba(128,0,0,0.85) 100%)' },
-      { name: 'Ruby-Garnet', gradient: 'linear-gradient(135deg, rgba(224,17,95,0.85) 0%, rgba(115,0,0,0.85) 100%)' },
-      { name: 'Aqua-Blush', gradient: 'linear-gradient(135deg, rgba(168,237,234,0.85) 0%, rgba(254,214,227,0.85) 100%)' }
-    ];
-
-    const currencyPattern = `url("data:image/svg+xml,%3Csvg width='75' height='90' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='10' y='20' font-family='Courier New,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E$%3C/text%3E%3Ctext x='35' y='20' font-family='Courier New,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E€%3C/text%3E%3Ctext x='60' y='20' font-family='Courier New,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E£%3C/text%3E%3Ctext x='3' y='50' font-family='Courier New,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E€%3C/text%3E%3Ctext x='28' y='50' font-family='Courier New,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E£%3C/text%3E%3Ctext x='53' y='50' font-family='Courier New,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E$%3C/text%3E%3Ctext x='17' y='80' font-family='Courier New,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E£%3C/text%3E%3Ctext x='42' y='80' font-family='Courier New,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E$%3C/text%3E%3Ctext x='67' y='80' font-family='Courier New,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E€%3C/text%3E%3C/svg%3E")`;
-
-    return (
-      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
-        <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
-          <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider border-b-4 border-black pb-2">BACKGROUND TEST</h2>
-          <p className="text-xs mb-6 text-black">Click any option to see it as the app background. All backgrounds maintain the currency symbol pattern.</p>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {backgrounds.map((bg, idx) => (
-              <div
-                key={idx}
-                className="cursor-pointer border-2 border-black hover:border-4 transition-all"
-                onClick={() => {
-                  const layoutDiv = document.querySelector('[style*="linear-gradient"]');
-                  if (layoutDiv) {
-                    layoutDiv.style.background = `${bg.gradient}, ${currencyPattern} #dc143c`;
-                  }
-                }}
-              >
-                <div 
-                  style={{ 
-                    background: `${bg.gradient}, ${currencyPattern} #dc143c`,
-                    height: '100px'
-                  }}
-                  className="border-b-2 border-black"
-                ></div>
-                <div className="p-3 bg-white">
-                  <p className="font-bold text-xs text-black">{bg.name}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </Layout>
-    );
-  }
 
   return null;
 };
+
 
 
 
