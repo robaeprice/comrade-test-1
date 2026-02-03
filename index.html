@@ -17,6 +17,7 @@
 
 
 
+
 // ==================== UTILITY FUNCTIONS ====================
 
 // Helper function to apply weighting to wealth values
@@ -666,12 +667,12 @@ const Comrade = () => {
   }), []);
 
   const renderNavButtons = useCallback((buttons) => (
-    <div className="flex flex-col gap-3 justify-center">
+    <div className="flex flex-col gap-3 justify-center max-w-xs mx-auto">
       {buttons.map(({ label, onClick, variant = 'primary', key }) => (
         <button 
           key={key || label}
           onClick={onClick}
-          className={BUTTON_STYLES[variant]}
+          className={`${BUTTON_STYLES[variant]} w-full`}
         >
           {label}
         </button>
@@ -690,7 +691,7 @@ const Comrade = () => {
   ), []);
 
   const DetailToggleButton = useCallback(({ show, onClick }) => (
-    <div className="text-center">
+    <div className="text-center mb-6">
       <button onClick={onClick} className={BUTTON_STYLES.toggle}>
         {show ? '▲ HIDE BREAKDOWN' : '▼ SHOW BREAKDOWN'}
       </button>
@@ -698,10 +699,10 @@ const Comrade = () => {
   ), [BUTTON_STYLES]);
 
   const renderResultsNavigation = (copyText, entryPage) => (
-    <div className="flex flex-col gap-3">
-      <button onClick={() => copyToClipboard(copyText)} className={BUTTON_STYLES.primary}>COPY RESULTS</button>
-      <button onClick={() => navigateTo(entryPage)} className={BUTTON_STYLES.primary}>EDIT DETAILS</button>
-      <button onClick={() => navigateTo('home')} className={BUTTON_STYLES.secondary}>RETURN HOME</button>
+    <div className="flex flex-col gap-3 max-w-xs mx-auto">
+      <button onClick={() => copyToClipboard(copyText)} className={`${BUTTON_STYLES.primary} w-full`}>COPY RESULTS</button>
+      <button onClick={() => navigateTo(entryPage)} className={`${BUTTON_STYLES.primary} w-full`}>EDIT DETAILS</button>
+      <button onClick={() => navigateTo('home')} className={`${BUTTON_STYLES.secondary} w-full`}>RETURN HOME</button>
     </div>
   );
 
@@ -752,12 +753,10 @@ const Comrade = () => {
   const renderNoDataState = (entryPage) => (
     <>
       <NoDataWarning />
-      <div className="flex flex-col gap-3">
-        {renderNavButtons([
-          { label: 'EDIT DETAILS', onClick: () => navigateTo(entryPage), variant: 'primary' },
-          { label: 'RETURN HOME', onClick: () => navigateTo('home'), variant: 'secondary' }
-        ])}
-      </div>
+      {renderNavButtons([
+        { label: 'EDIT DETAILS', onClick: () => navigateTo(entryPage), variant: 'primary' },
+        { label: 'RETURN HOME', onClick: () => navigateTo('home'), variant: 'secondary' }
+      ])}
     </>
   );
 
@@ -801,14 +800,14 @@ const Comrade = () => {
     <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
       {!showSettings ? (
         <div className="text-center">
-          <button onClick={() => setShowSettings(true)} className={BUTTON_STYLES.toggle}>
+          <button onClick={() => setShowSettings(true)} className={`${BUTTON_STYLES.toggle} w-full max-w-xs mx-auto`}>
             ▼ SHOW SETTINGS
           </button>
         </div>
       ) : (
         <div className="animate-fadeIn">
           <div className="text-center mb-6">
-            <button onClick={() => setShowSettings(false)} className={BUTTON_STYLES.toggle}>
+            <button onClick={() => setShowSettings(false)} className={`${BUTTON_STYLES.toggle} w-full max-w-xs mx-auto`}>
               ▲ HIDE SETTINGS
             </button>
           </div>
@@ -854,7 +853,7 @@ const Comrade = () => {
       )}
       
       <div className="text-center mt-4">
-        <button onClick={() => navigateTo(resultsPage)} className={`${BUTTON_STYLES.large} calculate-btn`}>CALCULATE</button>
+        <button onClick={() => navigateTo(resultsPage)} className={`${BUTTON_STYLES.large} calculate-btn w-full max-w-xs mx-auto`}>CALCULATE</button>
       </div>
     </div>
   );
@@ -1802,9 +1801,9 @@ const Comrade = () => {
           </div>
           
           <div className="mt-6">
-            <div className="flex flex-wrap justify-center gap-3">
-              <button onClick={() => navigateTo('share-entry')} className="bg-black text-white font-bold py-4 px-8 border-2 border-black hover:bg-gray-800 transition-all text-lg" style={{wordBreak: 'keep-all', hyphens: 'none'}}>TRY IT NOW</button>
-              <button onClick={() => navigateTo('about')} className="bg-white text-black font-bold py-4 px-8 border-2 border-black hover:bg-gray-100 transition-all text-lg" style={{wordBreak: 'keep-all', hyphens: 'none'}}>LEARN MORE</button>
+            <div className="flex flex-col gap-3 max-w-xs mx-auto">
+              <button onClick={() => navigateTo('share-entry')} className="w-full bg-black text-white font-bold py-4 px-8 border-2 border-black hover:bg-gray-800 transition-all text-lg" style={{wordBreak: 'keep-all', hyphens: 'none'}}>TRY IT NOW</button>
+              <button onClick={() => navigateTo('about')} className="w-full bg-white text-black font-bold py-4 px-8 border-2 border-black hover:bg-gray-100 transition-all text-lg" style={{wordBreak: 'keep-all', hyphens: 'none'}}>LEARN MORE</button>
             </div>
           </div>
         </div>
