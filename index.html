@@ -18,8 +18,6 @@
 
 
 
-
-
 // ==================== UTILITY FUNCTIONS ====================
 
 // Helper function to apply weighting to wealth values
@@ -1892,6 +1890,74 @@ const Comrade = () => {
                     ],
                     (p) => p.name
                   )}
+
+                  <DashedDivider />
+
+                  <div className="mb-6">
+                    <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">THE MATH</h3>
+                    <div className={CLS.bgWhiteP6Border2}>
+                      <div className="space-y-3 text-xs text-black">
+                        {shareWeighting !== 'none' ? (
+                          <>
+                            <div>
+                              <p className="font-bold mb-2">1. ADJUSTED WEALTH ({getWeightingLabel(shareWeighting).toUpperCase()}):</p>
+                              {peopleData.map(p => (
+                                <div key={p.id} className="flex justify-between mb-1">
+                                  <span>{p.name}:</span>
+                                  <span className="font-mono">
+                                    {shareWeighting === 'gentle' && `√${formatNumber(p.wealth.toFixed(0))} = ${formatNumber(p.adjustedWealth.toFixed(2))}`}
+                                    {shareWeighting === 'standard' && `${formatNumber(p.wealth.toFixed(2))}`}
+                                    {shareWeighting === 'strong' && `${formatNumber(p.wealth.toFixed(0))}² = ${formatSmartNumber(p.adjustedWealth)}`}
+                                  </span>
+                                </div>
+                              ))}
+                              <div className="flex justify-between mt-2 pt-2 border-t border-dashed border-gray-400 font-bold">
+                                <span>TOTAL:</span>
+                                <span className="font-mono">{formatSmartNumber(peopleData.reduce((sum, p) => sum + p.adjustedWealth, 0))}</span>
+                              </div>
+                            </div>
+
+                            <div className="border-t-2 border-dashed border-gray-400 my-3"></div>
+
+                            <div>
+                              <p className="font-bold mb-2">2. FAIR SHARE %:</p>
+                              {peopleData.map(p => {
+                                const totalAdjusted = peopleData.reduce((sum, p) => sum + p.adjustedWealth, 0);
+                                return (
+                                  <div key={p.id} className="flex justify-between mb-1">
+                                    <span>{p.name}:</span>
+                                    <span className="font-mono">{formatSmartNumber(p.adjustedWealth)} ÷ {formatSmartNumber(totalAdjusted)} = {p.fairPct.toFixed(1)}%</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+
+                            <div className="border-t-2 border-dashed border-gray-400 my-3"></div>
+
+                            <div>
+                              <p className="font-bold mb-2">3. AMOUNT OWED:</p>
+                              {peopleData.map(p => (
+                                <div key={p.id} className="flex justify-between mb-1">
+                                  <span>{p.name}:</span>
+                                  <span className="font-mono">{p.fairPct.toFixed(1)}% × {formatCurrency(total, 2, shareCurrency)} = {formatCurrencySmart(p.fairShare, shareCurrency)}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </>
+                        ) : (
+                          <div>
+                            <p className="font-bold mb-2">EQUAL SPLIT (NO WEIGHTING):</p>
+                            {peopleData.map(p => (
+                              <div key={p.id} className="flex justify-between mb-1">
+                                <span>{p.name}:</span>
+                                <span className="font-mono">{formatCurrency(total, 2, shareCurrency)} ÷ {peopleData.length} = {formatCurrencySmart(p.fairShare, shareCurrency)}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
             </>
@@ -2108,6 +2174,55 @@ const Comrade = () => {
                     ],
                     (b) => b.name
                   )}
+
+                  <div className="border-t-2 border-dashed border-gray-400 my-6"></div>
+
+                  <div className="mb-6">
+                    <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">THE MATH</h3>
+                    <div className={CLS.bgWhiteP6Border2}>
+                      <div className="space-y-3 text-xs text-black">
+                        {saleWeighting !== 'none' ? (
+                          <>
+                            <div>
+                              <p className="font-bold mb-2">1. ADJUSTED WEALTH ({getWeightingLabel(saleWeighting).toUpperCase()}):</p>
+                              {rankedBuyers.map(b => (
+                                <div key={b.id} className="flex justify-between mb-1">
+                                  <span>{b.name}:</span>
+                                  <span className="font-mono">
+                                    {saleWeighting === 'gentle' && `√${formatNumber(b.wealth.toFixed(0))} = ${formatNumber(b.adjustedWealth.toFixed(2))}`}
+                                    {saleWeighting === 'standard' && `${formatNumber(b.wealth.toFixed(2))}`}
+                                    {saleWeighting === 'strong' && `${formatNumber(b.wealth.toFixed(0))}² = ${formatSmartNumber(b.adjustedWealth)}`}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+
+                            <div className="border-t-2 border-dashed border-gray-400 my-3"></div>
+
+                            <div>
+                              <p className="font-bold mb-2">2. NEED SCORE (OFFER ÷ ADJUSTED WEALTH × 100):</p>
+                              {rankedBuyers.map(b => (
+                                <div key={b.id} className="flex justify-between mb-1">
+                                  <span>{b.name}:</span>
+                                  <span className="font-mono">{formatCurrency(b.offer, 2, saleCurrency)} ÷ {formatSmartNumber(b.adjustedWealth)} × 100 = {b.needScore < 0.01 ? b.needScore.toExponential(2) : b.needScore.toFixed(2)}%</span>
+                                </div>
+                              ))}
+                            </div>
+                          </>
+                        ) : (
+                          <div>
+                            <p className="font-bold mb-2">NO WEIGHTING - RANKED BY OFFER AMOUNT:</p>
+                            {rankedBuyers.map((b, idx) => (
+                              <div key={b.id} className="flex justify-between mb-1">
+                                <span>#{idx + 1} {b.name}:</span>
+                                <span className="font-mono">{formatCurrency(b.offer, 2, saleCurrency)}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
             </>
@@ -2429,6 +2544,76 @@ const Comrade = () => {
                     <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">WEALTH VISUALIZATION</h3>
                     {renderWealthPieChart(participantsData, formatNumber)}
                   </div>
+
+                  <div className="border-t-2 border-dashed border-gray-400 my-6"></div>
+
+                  <div className="mb-6">
+                    <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">THE MATH</h3>
+                    <div className={CLS.bgWhiteP6Border2}>
+                      <div className="space-y-3 text-xs text-black">
+                        {voteWeighting !== 'none' ? (
+                          <>
+                            <div>
+                              <p className="font-bold mb-2">1. ADJUSTED WEALTH ({getWeightingLabel(voteWeighting).toUpperCase()}):</p>
+                              {participantsData.map(p => (
+                                <div key={p.id} className="flex justify-between mb-1">
+                                  <span>{p.name}:</span>
+                                  <span className="font-mono">
+                                    {voteWeighting === 'gentle' && `√${formatNumber(p.wealth.toFixed(0))} = ${formatNumber(p.adjustedWealth.toFixed(2))}`}
+                                    {voteWeighting === 'standard' && `${formatNumber(p.wealth.toFixed(2))}`}
+                                    {voteWeighting === 'strong' && `${formatNumber(p.wealth.toFixed(0))}² = ${formatSmartNumber(p.adjustedWealth)}`}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+
+                            <div className="border-t-2 border-dashed border-gray-400 my-3"></div>
+
+                            <div>
+                              <p className="font-bold mb-2">2. AVERAGE WEALTH:</p>
+                              <div className="flex justify-between mb-1">
+                                <span>TOTAL:</span>
+                                <span className="font-mono">{formatSmartNumber(participantsData.reduce((sum, p) => sum + p.wealth, 0))}</span>
+                              </div>
+                              <div className="flex justify-between mb-1">
+                                <span>AVERAGE:</span>
+                                <span className="font-mono">{formatSmartNumber(participantsData.reduce((sum, p) => sum + p.wealth, 0) / participantsData.length)}</span>
+                              </div>
+                            </div>
+
+                            <div className="border-t-2 border-dashed border-gray-400 my-3"></div>
+
+                            <div>
+                              <p className="font-bold mb-2">3. VOTING POWER (AVG ÷ ADJUSTED):</p>
+                              {participantsData.map(p => {
+                                const avgWealth = participantsData.reduce((sum, p) => sum + p.wealth, 0) / participantsData.length;
+                                return (
+                                  <div key={p.id} className="flex justify-between mb-1">
+                                    <span>{p.name}:</span>
+                                    <span className="font-mono">{formatSmartNumber(avgWealth)} ÷ {formatSmartNumber(p.adjustedWealth)} = {p.votingPower.toFixed(2)}</span>
+                                  </div>
+                                );
+                              })}
+                              <div className="flex justify-between mt-2 pt-2 border-t border-dashed border-gray-400 font-bold">
+                                <span>TOTAL POWER:</span>
+                                <span className="font-mono">{totalVotingPower.toFixed(2)}</span>
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          <div>
+                            <p className="font-bold mb-2">EQUAL VOTING POWER (NO WEIGHTING):</p>
+                            {participantsData.map(p => (
+                              <div key={p.id} className="flex justify-between mb-1">
+                                <span>{p.name}:</span>
+                                <span className="font-mono">1 vote</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
             </>
@@ -2684,6 +2869,97 @@ const Comrade = () => {
                   <div className="mb-6">
                     <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">WEALTH VISUALIZATION</h3>
                     {renderWealthPieChart(rentData, formatNumber)}
+                  </div>
+
+                  <div className="border-t-2 border-dashed border-gray-400 my-6"></div>
+
+                  <div className="mb-6">
+                    <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">THE MATH</h3>
+                    <div className={CLS.bgWhiteP6Border2}>
+                      <div className="space-y-3 text-xs text-black">
+                        {rentWeighting !== 'none' ? (
+                          <>
+                            <div>
+                              <p className="font-bold mb-2">1. ROOM SIZE %:</p>
+                              {rentData.map(p => (
+                                <div key={p.id} className="flex justify-between mb-1">
+                                  <span>{p.name}:</span>
+                                  <span className="font-mono">{formatNumber(p.roomSize.toFixed(0))} ÷ {formatNumber(totalRoomSize.toFixed(0))} = {p.roomPct.toFixed(1)}%</span>
+                                </div>
+                              ))}
+                            </div>
+
+                            <div className="border-t-2 border-dashed border-gray-400 my-3"></div>
+
+                            <div>
+                              <p className="font-bold mb-2">2. ADJUSTED WEALTH ({getWeightingLabel(rentWeighting).toUpperCase()}):</p>
+                              {rentData.map(p => (
+                                <div key={p.id} className="flex justify-between mb-1">
+                                  <span>{p.name}:</span>
+                                  <span className="font-mono">
+                                    {rentWeighting === 'gentle' && `√${formatNumber(p.wealth.toFixed(0))} = ${formatNumber(p.adjustedWealth.toFixed(2))}`}
+                                    {rentWeighting === 'standard' && `${formatNumber(p.wealth.toFixed(2))}`}
+                                    {rentWeighting === 'strong' && `${formatNumber(p.wealth.toFixed(0))}² = ${formatSmartNumber(p.adjustedWealth)}`}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+
+                            <div className="border-t-2 border-dashed border-gray-400 my-3"></div>
+
+                            <div>
+                              <p className="font-bold mb-2">3. ROOM VALUE (ROOM % × ADJUSTED WEALTH):</p>
+                              {rentData.map(p => (
+                                <div key={p.id} className="flex justify-between mb-1">
+                                  <span>{p.name}:</span>
+                                  <span className="font-mono">{p.roomPct.toFixed(1)}% × {formatSmartNumber(p.adjustedWealth)} = {formatSmartNumber(p.roomValue)}</span>
+                                </div>
+                              ))}
+                              <div className="flex justify-between mt-2 pt-2 border-t border-dashed border-gray-400 font-bold">
+                                <span>TOTAL VALUE:</span>
+                                <span className="font-mono">{formatSmartNumber(totalRoomValue)}</span>
+                              </div>
+                            </div>
+
+                            <div className="border-t-2 border-dashed border-gray-400 my-3"></div>
+
+                            <div>
+                              <p className="font-bold mb-2">4. RENT OWED (VALUE % × TOTAL):</p>
+                              {rentData.map(p => (
+                                <div key={p.id} className="flex justify-between mb-1">
+                                  <span>{p.name}:</span>
+                                  <span className="font-mono">{p.rentPct.toFixed(1)}% × {formatCurrency(total, 2, rentCurrency)} = {formatCurrencySmart(p.fairRent, rentCurrency)}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div>
+                              <p className="font-bold mb-2">1. ROOM SIZE % (NO WEALTH WEIGHTING):</p>
+                              {rentData.map(p => (
+                                <div key={p.id} className="flex justify-between mb-1">
+                                  <span>{p.name}:</span>
+                                  <span className="font-mono">{formatNumber(p.roomSize.toFixed(0))} ÷ {formatNumber(totalRoomSize.toFixed(0))} = {p.roomPct.toFixed(1)}%</span>
+                                </div>
+                              ))}
+                            </div>
+
+                            <div className="border-t-2 border-dashed border-gray-400 my-3"></div>
+
+                            <div>
+                              <p className="font-bold mb-2">2. RENT OWED (ROOM % × TOTAL):</p>
+                              {rentData.map(p => (
+                                <div key={p.id} className="flex justify-between mb-1">
+                                  <span>{p.name}:</span>
+                                  <span className="font-mono">{p.roomPct.toFixed(1)}% × {formatCurrency(total, 2, rentCurrency)} = {formatCurrencySmart(p.fairRent, rentCurrency)}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
