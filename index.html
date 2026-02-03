@@ -18,6 +18,7 @@
 
 
 
+
 // ==================== UTILITY FUNCTIONS ====================
 
 // Helper function to apply weighting to wealth values
@@ -90,9 +91,9 @@ const DashedDivider = () => <div className="border-t-2 border-dashed border-gray
 
 const CurrencyDivider = () => (
   <div className="flex items-center gap-4 my-6">
-    <div className="flex-1 border-t border-black"></div>
+    <div className="flex-1 border-t-4 border-black"></div>
     <span className="text-xs font-bold">$ € £</span>
-    <div className="flex-1 border-t border-black"></div>
+    <div className="flex-1 border-t-4 border-black"></div>
   </div>
 );
 
@@ -118,15 +119,21 @@ const WeightingButtons = ({ value, onChange }) => {
 };
 
 const WealthMetricButtons = ({ value, onChange }) => {
+  const options = [
+    { value: 'salary', label: 'SALARY' },
+    { value: 'networth', label: 'NET WORTH' }
+  ];
+  
   return (
     <div className="flex justify-center">
       <div className="bg-gray-100 p-2 border-2 border-dotted border-black inline-block">
         <div className="flex gap-2">
-          {[
-            {value: 'salary', label: 'SALARY'},
-            {value: 'networth', label: 'NET WORTH'}
-          ].map(w => (
-            <button key={w.value} onClick={() => onChange(w.value)} className={`min-w-[140px] p-3 font-bold text-xs border-2 ${value === w.value ? 'bg-black text-white border-black' : 'bg-white text-black border-gray-400'}`}>
+          {options.map(w => (
+            <button 
+              key={w.value} 
+              onClick={() => onChange(w.value)} 
+              className={`px-4 py-3 font-bold text-xs border-2 ${value === w.value ? 'bg-black text-white border-black' : 'bg-white text-black border-gray-400'}`}
+            >
               {w.label}
             </button>
           ))}
@@ -137,15 +144,21 @@ const WealthMetricButtons = ({ value, onChange }) => {
 };
 
 const MeasurementButtons = ({ value, onChange }) => {
+  const options = [
+    { value: 'sqft', label: 'SQ FT' },
+    { value: 'sqm', label: 'SQ M' }
+  ];
+  
   return (
     <div className="flex justify-center">
       <div className="bg-gray-100 p-2 border-2 border-dotted border-black inline-block">
         <div className="flex gap-2">
-          {[
-            {value: 'sqft', label: 'SQ FT'},
-            {value: 'sqm', label: 'SQ M'}
-          ].map(m => (
-            <button key={m.value} onClick={() => onChange(m.value)} className={`min-w-[140px] p-3 font-bold text-xs border-2 ${value === m.value ? 'bg-black text-white border-black' : 'bg-white text-black border-gray-400'}`}>
+          {options.map(m => (
+            <button 
+              key={m.value} 
+              onClick={() => onChange(m.value)} 
+              className={`px-4 py-3 font-bold text-xs border-2 ${value === m.value ? 'bg-black text-white border-black' : 'bg-white text-black border-gray-400'}`}
+            >
               {m.label}
             </button>
           ))}
@@ -156,16 +169,22 @@ const MeasurementButtons = ({ value, onChange }) => {
 };
 
 const CurrencyButtons = ({ value, onChange }) => {
+  const options = [
+    { value: 'USD', label: '$' },
+    { value: 'EUR', label: '€' },
+    { value: 'GBP', label: '£' }
+  ];
+  
   return (
     <div className="flex justify-center">
       <div className="bg-gray-100 p-2 border-2 border-dotted border-black inline-block">
         <div className="flex gap-2">
-          {[
-            {value: 'USD', label: '$'},
-            {value: 'EUR', label: '€'},
-            {value: 'GBP', label: '£'}
-          ].map(c => (
-            <button key={c.value} onClick={() => onChange(c.value)} className={`min-w-[100px] p-3 font-bold text-xl border-2 ${value === c.value ? 'bg-black text-white border-black' : 'bg-white text-black border-gray-400'}`}>
+          {options.map(c => (
+            <button 
+              key={c.value} 
+              onClick={() => onChange(c.value)} 
+              className={`min-w-[100px] p-3 font-bold text-xs border-2 ${value === c.value ? 'bg-black text-white border-black' : 'bg-white text-black border-gray-400'}`}
+            >
               {c.label}
             </button>
           ))}
@@ -994,7 +1013,7 @@ const Comrade = () => {
   const [showSaleDetails, setShowSaleDetails] = useState(false);
   const [showRentDetails, setShowRentDetails] = useState(false);
   const [randomQuote, setRandomQuote] = useState('');
-  const [lastQuoteIndex, setLastQuoteIndex] = useState(-1);
+  const [lastQuoteIndices, setLastQuoteIndices] = useState([]);
   const [signupEmail, setSignupEmail] = useState('');
   const [signupStatus, setSignupStatus] = useState(''); // '', 'success', 'error'
   const [showShareSettings, setShowShareSettings] = useState(false);
@@ -1002,7 +1021,7 @@ const Comrade = () => {
   const [showVoteSettings, setShowVoteSettings] = useState(false);
   const [showRentSettings, setShowRentSettings] = useState(false);
 
-  const quotes = useMemo(() => ['JEDER NACH SEINEN FÄHIGKEITEN, JEDEM NACH SEINEN BEDÜRFNISSEN', 'THANKS FOR SHARING', 'SHARE AND SHARE ALIKE', 'MANY HANDS MAKE LIGHT WORK', 'ALL FOR ONE AND ONE FOR ALL', 'A RISING TIDE LIFTS ALL BOATS', 'FAIR\'S FAIR', 'LIBERTÉ, ÉGALITÉ, FRATERNITÉ', 'WE\'RE ALL IN THIS TOGETHER', 'WHAT GOES AROUND COMES AROUND', 'NO ONE LEFT BEHIND', 'YOU GET WHAT YOU GIVE', 'WHICH SIDE ARE YOU ON?', 'SHARE THE LOAD', 'BREAD AND ROSES', 'ALL TOGETHER NOW', 'A COMMON TREASURY OF RELIEF FOR ALL, BOTH BEASTS AND MEN', 'WHEN ADAM DELVED AND EVE SPAN, WHO WAS THEN THE GENTLEMAN?', 'E PLURIBUS UNUM', 'WHO BUILT THEBES OF THE SEVEN GATES?', 'SO THE LAST SHALL BE FIRST, AND THE FIRST LAST', 'THE WISDOM OF THE CROWD', 'AND ALL THAT BELIEVED WERE TOGETHER, AND HAD ALL THINGS IN COMMON', 'SALUS POPULI SUPREMA LEX', 'WHAT\'S MINE IS YOURS, AND WHAT IS YOURS IS MINE', 'GIVE US THIS DAY OUR DAILY BREAD', 'NO MAN IS AN ISLAND', 'VIVE LA COMMUNE', 'FOR WHAT SHALL IT PROFIT A MAN, IF HE SHALL GAIN THE WORLD, AND LOSE HIS OWN SOUL?', 'REND DOWN THE HEDGES', 'AM I MY BROTHER\'S KEEPER?', 'IT TAKES A VILLAGE', 'ONE HAND WASHES THE OTHER', 'I DON\'T WANT YOUR MILLIONS, MISTER'], []);
+  const quotes = useMemo(() => ['JEDER NACH SEINEN FÄHIGKEITEN, JEDEM NACH SEINEN BEDÜRFNISSEN', 'THANKS FOR SHARING', 'SHARE AND SHARE ALIKE', 'MANY HANDS MAKE LIGHT WORK', 'ALL FOR ONE AND ONE FOR ALL', 'A RISING TIDE LIFTS ALL BOATS', 'FAIR\'S FAIR', 'LIBERTÉ, ÉGALITÉ, FRATERNITÉ', 'WE\'RE ALL IN THIS TOGETHER', 'WHAT GOES AROUND COMES AROUND', 'NO ONE LEFT BEHIND', 'YOU GET WHAT YOU GIVE', 'WHICH SIDE ARE YOU ON?', 'SHARE THE LOAD', 'BREAD AND ROSES', 'ALL TOGETHER NOW', 'A COMMON TREASURY OF RELIEF FOR ALL, BOTH BEASTS AND MEN', 'WHEN ADAM DELVED AND EVE SPAN, WHO WAS THEN THE GENTLEMAN?', 'E PLURIBUS UNUM', 'WHO BUILT THEBES OF THE SEVEN GATES?', 'SO THE LAST SHALL BE FIRST, AND THE FIRST LAST', 'THE WISDOM OF THE CROWD', 'AND ALL THAT BELIEVED WERE TOGETHER, AND HAD ALL THINGS IN COMMON', 'SALUS POPULI SUPREMA LEX', 'WHAT\'S MINE IS YOURS, AND WHAT IS YOURS IS MINE', 'GIVE US THIS DAY OUR DAILY BREAD', 'NO MAN IS AN ISLAND', 'VIVE LA COMMUNE', 'FOR WHAT SHALL IT PROFIT A MAN, IF HE SHALL GAIN THE WORLD, AND LOSE HIS OWN SOUL?', 'REND DOWN THE HEDGES', 'AM I MY BROTHER\'S KEEPER?', 'IT TAKES A VILLAGE', 'ONE HAND WASHES THE OTHER', 'I DON\'T WANT YOUR MILLIONS, MISTER', 'BE EXCELLENT TO EACH OTHER'], []);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -1013,15 +1032,22 @@ const Comrade = () => {
     
     // Select random quote when navigating to any results page
     if (page === 'share-results' || page === 'sale-results' || page === 'vote-results' || page === 'rent-results') {
-      // Generate random quote directly to avoid dependency issues
-      setLastQuoteIndex(prev => {
+      // Generate random quote, avoiding the last 5 quotes
+      setLastQuoteIndices(prev => {
         let newIndex;
+        let attempts = 0;
+        const maxAttempts = 100; // Prevent infinite loop
+        
         do {
           newIndex = Math.floor(Math.random() * quotes.length);
-        } while (newIndex === prev && quotes.length > 1);
+          attempts++;
+        } while (prev.includes(newIndex) && quotes.length > 5 && attempts < maxAttempts);
         
         setRandomQuote(quotes[newIndex]);
-        return newIndex;
+        
+        // Keep only the last 5 indices
+        const newHistory = [...prev, newIndex];
+        return newHistory.slice(-5);
       });
     }
   }, [page, quotes]);
@@ -1337,376 +1363,6 @@ const Comrade = () => {
     return { rentAmount, utilitiesAmount, total, totalRoomSize, rentData, avgRent, totalRoomValue };
   }, [rentPeople, totalRent, totalUtilities, rentWeighting, page]);
 
-  if (page === 'entry-mockups') {
-    return (
-      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
-        <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-6">
-          <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider border-b-4 border-black pb-2">DATA ENTRY MOCKUPS</h2>
-          <p className="text-xs mb-4 text-black">Alternative layouts for the bill-splitting data entry page. All maintain the receipt aesthetic while exploring different organizational approaches.</p>
-          <button onClick={() => navigateTo('share-entry')} className="bg-gray-200 text-black px-6 py-2 font-bold border-2 border-gray-400 hover:bg-gray-300 transition-all">← BACK TO ENTRY</button>
-        </div>
-
-        <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-6">
-          <p className="text-center text-black mb-4">All layout options have been removed.</p>
-          <button onClick={() => navigateTo('share-entry')} className="w-full bg-gray-200 text-black px-6 py-2 font-bold border-2 border-gray-400 hover:bg-gray-300 transition-all">← BACK TO ENTRY</button>
-        </div>
-
-        {/* OPTION 1: TWO-COLUMN LAYOUT */}
-        <div className="mb-8">
-          <div className="bg-black text-white p-4 mb-3">
-            <h3 className="text-lg font-black mb-1">OPTION 3: SIDE-BY-SIDE COLUMNS</h3>
-            <p className="text-xs">Desktop-optimized with people and bills as equal columns</p>
-          </div>
-          
-          <div className="bg-white p-6 border-2 border-dashed border-gray-400">
-            <h2 className="text-xl font-black mb-3 text-black uppercase tracking-wider">BILL-SPLITTING</h2>
-            <p className="text-xs mb-6 text-black">Handle shared expenses more fairly using wealth data.</p>
-            
-            <div className="grid md:grid-cols-2 gap-4">
-              {/* People Column */}
-              <div className="border-l-4 border-black pl-4">
-                <h3 className="text-sm font-black text-black uppercase mb-3 pb-2 border-b border-dashed border-gray-400">PEOPLE</h3>
-                
-                <div className="space-y-2 mb-3">
-                  <div className="bg-gray-50 p-2 border border-gray-300">
-                    <div className="flex justify-between text-xs">
-                      <span className="font-bold text-black">ALEX</span>
-                      <span className="text-gray-600">$32,000</span>
-                    </div>
-                  </div>
-                  <div className="bg-gray-50 p-2 border border-gray-300">
-                    <div className="flex justify-between text-xs">
-                      <span className="font-bold text-black">JORDAN</span>
-                      <span className="text-gray-600">$180,000</span>
-                    </div>
-                  </div>
-                  <div className="bg-gray-50 p-2 border border-gray-300">
-                    <div className="flex justify-between text-xs">
-                      <span className="font-bold text-black">SAM</span>
-                      <span className="text-gray-600">$45,000</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <input type="text" placeholder="NAME" className="w-full p-2 border border-gray-400 bg-white text-xs" />
-                  <input type="number" placeholder="$ SALARY" className="w-full p-2 border border-gray-400 bg-white text-xs" />
-                  <button className="w-full px-4 py-2 bg-black text-white font-bold text-xs">+ ADD PERSON</button>
-                </div>
-              </div>
-              
-              {/* Bills Column */}
-              <div className="border-l-4 border-black pl-4">
-                <h3 className="text-sm font-black text-black uppercase mb-3 pb-2 border-b border-dashed border-gray-400">BILLS</h3>
-                
-                <div className="space-y-2 mb-3">
-                  <div className="bg-gray-50 p-2 border border-gray-300">
-                    <div className="flex justify-between text-xs mb-1">
-                      <span className="font-bold text-black">SKI PASSES</span>
-                      <span className="text-gray-600">$1,200</span>
-                    </div>
-                    <p className="text-xs text-gray-600">Paid by JORDAN</p>
-                  </div>
-                  <div className="bg-gray-50 p-2 border border-gray-300">
-                    <div className="flex justify-between text-xs mb-1">
-                      <span className="font-bold text-black">CABIN RENTAL</span>
-                      <span className="text-gray-600">$2,400</span>
-                    </div>
-                    <p className="text-xs text-gray-600">Paid by MORGAN</p>
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <input type="text" placeholder="DESCRIPTION" className="w-full p-2 border border-gray-400 bg-white text-xs" />
-                  <input type="number" placeholder="$ AMOUNT" className="w-full p-2 border border-gray-400 bg-white text-xs" />
-                  <select className="w-full p-2 border border-gray-400 bg-white text-xs">
-                    <option>WHO PAID?</option>
-                  </select>
-                  <button className="w-full px-4 py-2 bg-black text-white font-bold text-xs">+ ADD BILL</button>
-                </div>
-              </div>
-            </div>
-            
-            <div className="border-t-2 border-black mt-6 pt-4">
-              <button className="w-full bg-black text-white py-3 font-black text-lg border-2 border-black">CALCULATE</button>
-            </div>
-          </div>
-        </div>
-
-        {/* OPTION 4: ALTERNATING GREY SECTIONS */}
-        <div className="mb-8">
-          <div className="bg-black text-white p-4 mb-3">
-            <h3 className="text-lg font-black mb-1">OPTION 6: ALTERNATING GREY SECTIONS</h3>
-            <p className="text-xs">Clear visual separation with alternating backgrounds</p>
-          </div>
-          
-          <div className="bg-white p-6 border-2 border-dashed border-gray-400">
-            <h2 className="text-xl font-black mb-3 text-black uppercase tracking-wider">BILL-SPLITTING</h2>
-            <p className="text-xs mb-6 text-black">Handle shared expenses more fairly using wealth data.</p>
-            
-            {/* People Section */}
-            <div className="bg-white border-l-4 border-black pl-4 pr-4 py-4 mb-4">
-              <div className="flex items-center gap-2 mb-3">
-                <svg width="20" height="20" viewBox="0 0 40 40">
-                  <circle cx="20" cy="20" r="18" fill="#000"/>
-                  <circle cx="20" cy="16" r="5" fill="white"/>
-                  <path d="M 10 32 Q 10 24 20 24 Q 30 24 30 32" fill="white"/>
-                </svg>
-                <h3 className="text-sm font-black text-black uppercase">PEOPLE</h3>
-              </div>
-              
-              <div className="grid grid-cols-3 gap-2 mb-3">
-                <div className="bg-gray-100 p-2 border border-gray-300 text-center">
-                  <p className="text-xs font-bold text-black">ALEX</p>
-                  <p className="text-xs text-gray-600">$32K</p>
-                </div>
-                <div className="bg-gray-100 p-2 border border-gray-300 text-center">
-                  <p className="text-xs font-bold text-black">JORDAN</p>
-                  <p className="text-xs text-gray-600">$180K</p>
-                </div>
-                <div className="bg-gray-100 p-2 border border-gray-300 text-center">
-                  <p className="text-xs font-bold text-black">SAM</p>
-                  <p className="text-xs text-gray-600">$45K</p>
-                </div>
-              </div>
-              
-              <div className="flex gap-2">
-                <input type="text" placeholder="NAME" className="flex-1 p-2 border border-gray-400 bg-white text-xs" />
-                <input type="number" placeholder="$" className="w-24 p-2 border border-gray-400 bg-white text-xs" />
-                <button className="px-3 py-2 bg-black text-white font-bold text-xs">+</button>
-              </div>
-            </div>
-            
-            {/* Bills Section */}
-            <div className="bg-gray-50 border-l-4 border-black pl-4 pr-4 py-4 mb-4">
-              <div className="flex items-center gap-2 mb-3">
-                <svg width="20" height="20" viewBox="0 0 20 20">
-                  <rect x="2" y="4" width="16" height="12" fill="none" stroke="#000" strokeWidth="2"/>
-                  <line x1="2" y1="8" x2="18" y2="8" stroke="#000" strokeWidth="2"/>
-                  <line x1="2" y1="12" x2="18" y2="12" stroke="#000" strokeWidth="2"/>
-                </svg>
-                <h3 className="text-sm font-black text-black uppercase">BILLS</h3>
-              </div>
-              
-              <div className="space-y-2 mb-3">
-                <div className="bg-white p-2 border border-gray-300 text-xs">
-                  <div className="flex justify-between mb-1">
-                    <span className="font-bold text-black">SKI PASSES</span>
-                    <span className="text-gray-600">$1,200</span>
-                  </div>
-                  <span className="text-gray-600">JORDAN</span>
-                </div>
-                <div className="bg-white p-2 border border-gray-300 text-xs">
-                  <div className="flex justify-between mb-1">
-                    <span className="font-bold text-black">CABIN</span>
-                    <span className="text-gray-600">$2,400</span>
-                  </div>
-                  <span className="text-gray-600">MORGAN</span>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <input type="text" placeholder="DESCRIPTION" className="w-full p-2 border border-gray-400 bg-white text-xs" />
-                <div className="flex gap-2">
-                  <input type="number" placeholder="$ AMOUNT" className="flex-1 p-2 border border-gray-400 bg-white text-xs" />
-                  <select className="flex-1 p-2 border border-gray-400 bg-white text-xs">
-                    <option>PAID BY?</option>
-                  </select>
-                </div>
-                <button className="w-full px-4 py-2 bg-black text-white font-bold text-xs">+ ADD BILL</button>
-              </div>
-            </div>
-            
-            <button className="w-full bg-black text-white py-3 font-black text-lg border-2 border-black">CALCULATE</button>
-          </div>
-        </div>
-
-        {/* OPTION 7: COMPACT CARD STYLE */}
-        <div className="mb-8">
-          <div className="bg-black text-white p-4 mb-3">
-            <h3 className="text-lg font-black mb-1">OPTION 7: COMPACT CARD STYLE</h3>
-            <p className="text-xs">Dense information display with icon badges</p>
-          </div>
-          
-          <div className="bg-white p-6 border-2 border-dashed border-gray-400">
-            <h2 className="text-xl font-black mb-3 text-black uppercase tracking-wider">BILL-SPLITTING</h2>
-            <p className="text-xs mb-6 text-black">Handle shared expenses more fairly using wealth data.</p>
-            
-            {/* People Card */}
-            <div className="border-2 border-black mb-4">
-              <div className="bg-black text-white p-3 flex items-center gap-2">
-                <svg width="20" height="20" viewBox="0 0 40 40">
-                  <circle cx="20" cy="20" r="18" fill="#FFF"/>
-                  <circle cx="20" cy="16" r="5" fill="black"/>
-                  <path d="M 10 32 Q 10 24 20 24 Q 30 24 30 32" fill="black"/>
-                </svg>
-                <span className="text-sm font-black uppercase">PEOPLE · 3</span>
-              </div>
-              <div className="p-3">
-                <div className="flex flex-wrap gap-2 mb-3">
-                  <div className="bg-gray-100 px-3 py-2 border border-gray-400 text-xs">
-                    <span className="font-bold text-black">ALEX</span>
-                    <span className="text-gray-600 ml-2">$32K</span>
-                  </div>
-                  <div className="bg-gray-100 px-3 py-2 border border-gray-400 text-xs">
-                    <span className="font-bold text-black">JORDAN</span>
-                    <span className="text-gray-600 ml-2">$180K</span>
-                  </div>
-                  <div className="bg-gray-100 px-3 py-2 border border-gray-400 text-xs">
-                    <span className="font-bold text-black">SAM</span>
-                    <span className="text-gray-600 ml-2">$45K</span>
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <input type="text" placeholder="NAME" className="flex-1 p-2 border border-gray-400 bg-white text-xs" />
-                  <input type="number" placeholder="$" className="w-20 p-2 border border-gray-400 bg-white text-xs" />
-                  <button className="px-3 py-2 bg-black text-white font-bold text-xs">+</button>
-                </div>
-              </div>
-            </div>
-            
-            {/* Bills Card */}
-            <div className="border-2 border-black mb-4">
-              <div className="bg-black text-white p-3 flex items-center gap-2">
-                <svg width="20" height="20" viewBox="0 0 20 20">
-                  <rect x="2" y="4" width="16" height="12" fill="none" stroke="#FFF" strokeWidth="2"/>
-                  <line x1="2" y1="8" x2="18" y2="8" stroke="#FFF" strokeWidth="2"/>
-                  <line x1="2" y1="12" x2="18" y2="12" stroke="#FFF" strokeWidth="2"/>
-                </svg>
-                <span className="text-sm font-black uppercase">BILLS · $5,035</span>
-              </div>
-              <div className="p-3">
-                <div className="space-y-2 mb-3">
-                  <div className="flex justify-between items-center text-xs bg-gray-50 p-2 border border-gray-300">
-                    <span className="font-bold text-black">SKI PASSES</span>
-                    <div className="text-right">
-                      <div className="text-gray-600">$1,200</div>
-                      <div className="text-gray-500 text-xs">JORDAN</div>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center text-xs bg-gray-50 p-2 border border-gray-300">
-                    <span className="font-bold text-black">CABIN</span>
-                    <div className="text-right">
-                      <div className="text-gray-600">$2,400</div>
-                      <div className="text-gray-500 text-xs">MORGAN</div>
-                    </div>
-                  </div>
-                </div>
-                <input type="text" placeholder="DESCRIPTION" className="w-full p-2 border border-gray-400 bg-white text-xs mb-2" />
-                <div className="flex gap-2 mb-2">
-                  <input type="number" placeholder="$ AMOUNT" className="flex-1 p-2 border border-gray-400 bg-white text-xs" />
-                  <select className="flex-1 p-2 border border-gray-400 bg-white text-xs">
-                    <option>WHO PAID?</option>
-                  </select>
-                </div>
-                <button className="w-full px-4 py-2 bg-black text-white font-bold text-xs">+ ADD BILL</button>
-              </div>
-            </div>
-            
-            <button className="w-full bg-black text-white py-3 font-black text-lg border-2 border-black">CALCULATE</button>
-          </div>
-        </div>
-
-        {/* OPTION 8: COLLAPSIBLE SECTIONS */}
-        <div className="mb-8">
-          <div className="bg-black text-white p-4 mb-3">
-            <h3 className="text-lg font-black mb-1">OPTION 8: COLLAPSIBLE SECTIONS</h3>
-            <p className="text-xs">Expandable panels with summary headers (shown expanded)</p>
-          </div>
-          
-          <div className="bg-white p-6 border-2 border-dashed border-gray-400">
-            <h2 className="text-xl font-black mb-3 text-black uppercase tracking-wider">BILL-SPLITTING</h2>
-            <p className="text-xs mb-6 text-black">Handle shared expenses more fairly using wealth data.</p>
-            
-            {/* People Section */}
-            <div className="border-2 border-gray-400 mb-4">
-              <div className="bg-gray-100 p-3 flex items-center justify-between cursor-pointer">
-                <div className="flex items-center gap-2">
-                  <svg width="18" height="18" viewBox="0 0 40 40">
-                    <circle cx="20" cy="20" r="18" fill="#000"/>
-                    <circle cx="20" cy="16" r="5" fill="white"/>
-                    <path d="M 10 32 Q 10 24 20 24 Q 30 24 30 32" fill="white"/>
-                  </svg>
-                  <span className="text-sm font-black text-black uppercase">PEOPLE</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-xs font-bold text-gray-600">3 ADDED</span>
-                  <span className="text-xl font-bold text-black">▼</span>
-                </div>
-              </div>
-              <div className="p-3 bg-white">
-                <div className="space-y-1 mb-3">
-                  <div className="text-xs p-2 bg-gray-50 border-l-2 border-black">
-                    <span className="font-bold text-black">ALEX</span>
-                    <span className="text-gray-600 ml-2">$32,000</span>
-                  </div>
-                  <div className="text-xs p-2 bg-gray-50 border-l-2 border-black">
-                    <span className="font-bold text-black">JORDAN</span>
-                    <span className="text-gray-600 ml-2">$180,000</span>
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <input type="text" placeholder="NAME" className="flex-1 p-2 border border-gray-400 bg-white text-xs" />
-                  <input type="number" placeholder="$" className="w-24 p-2 border border-gray-400 bg-white text-xs" />
-                  <button className="px-3 py-2 bg-black text-white font-bold text-xs">+</button>
-                </div>
-              </div>
-            </div>
-            
-            {/* Bills Section */}
-            <div className="border-2 border-gray-400 mb-4">
-              <div className="bg-gray-100 p-3 flex items-center justify-between cursor-pointer">
-                <div className="flex items-center gap-2">
-                  <svg width="18" height="18" viewBox="0 0 20 20">
-                    <rect x="2" y="4" width="16" height="12" fill="none" stroke="#000" strokeWidth="2"/>
-                    <line x1="2" y1="8" x2="18" y2="8" stroke="#000" strokeWidth="2"/>
-                    <line x1="2" y1="12" x2="18" y2="12" stroke="#000" strokeWidth="2"/>
-                  </svg>
-                  <span className="text-sm font-black text-black uppercase">BILLS</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-xs font-bold text-gray-600">$5,035</span>
-                  <span className="text-xl font-bold text-black">▼</span>
-                </div>
-              </div>
-              <div className="p-3 bg-white">
-                <div className="space-y-1 mb-3">
-                  <div className="text-xs p-2 bg-gray-50 border-l-2 border-black">
-                    <div className="flex justify-between mb-1">
-                      <span className="font-bold text-black">SKI PASSES</span>
-                      <span className="text-gray-600">$1,200</span>
-                    </div>
-                    <span className="text-gray-500">JORDAN</span>
-                  </div>
-                  <div className="text-xs p-2 bg-gray-50 border-l-2 border-black">
-                    <div className="flex justify-between mb-1">
-                      <span className="font-bold text-black">CABIN</span>
-                      <span className="text-gray-600">$2,400</span>
-                    </div>
-                    <span className="text-gray-500">MORGAN</span>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <input type="text" placeholder="DESCRIPTION" className="w-full p-2 border border-gray-400 bg-white text-xs" />
-                  <div className="flex gap-2">
-                    <input type="number" placeholder="$ AMOUNT" className="flex-1 p-2 border border-gray-400 bg-white text-xs" />
-                    <select className="flex-1 p-2 border border-gray-400 bg-white text-xs">
-                      <option>PAID BY?</option>
-                    </select>
-                  </div>
-                  <button className="w-full px-4 py-2 bg-black text-white font-bold text-xs">+ ADD BILL</button>
-                </div>
-              </div>
-            </div>
-            
-            <button className="w-full bg-black text-white py-3 font-black text-lg border-2 border-black">CALCULATE</button>
-          </div>
-        </div>
-
-      </Layout>
-    );
-  }
-
   if (page === 'home') {
     return (
       <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
@@ -1876,6 +1532,8 @@ const Comrade = () => {
         <div className="space-y-4 text-black mb-4">
           <p className="leading-relaxed text-xs">If a banker, a nurse, and a student go out for dinner, how should they split the bill?</p>
           
+          <p className="leading-relaxed text-xs">Just ask Comrade.</p>
+          
           <p className="leading-relaxed text-xs">Comrade is an app for managing group expenses that takes the awkwardness out of bill-splitting. Whether it's a weekend trip, household purchases, or a work dinner, it simplifies group bills and divides them fairly — by taking into account people's wealth (salaries or net worth) to decide the split. Those who have more, pay more.</p>
           
           <p className="leading-relaxed text-xs">Wealth isn't evenly distributed. Costs shouldn't be either. So next time your friends, family, or coworkers need to split the check, use Comrade for a fairer way to settle up.</p>
@@ -1924,6 +1582,11 @@ const Comrade = () => {
               <div className="border-t border-dashed border-gray-400 mt-4"></div>
             </div>
             <div>
+              <h3 className="font-bold mb-2 text-sm uppercase tracking-wider">IS COMRADE AVAILABLE ON THE APP STORE?</h3>
+              <p className="leading-relaxed text-xs">Not yet! For now, Comrade is fully functional on mobile and desktop via our website, <a href="https://www.comrade.money" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">www.comrade.money</a>. If you'd like to use a standalone app, or have other feedback or feature requests, please get in touch.</p>
+              <div className="border-t border-dashed border-gray-400 mt-4"></div>
+            </div>
+            <div>
               <h3 className="font-bold mb-2 text-sm uppercase tracking-wider">IT'S AWKWARD ASKING MY FRIENDS HOW MUCH MONEY THEY HAVE. WHAT SHOULD I DO?</h3>
               <p className="leading-relaxed text-xs">Do it anyway. <a href="https://www.hbs.edu/ris/Publication%20Files/23-039_f20d86a0-a1cf-4bd6-8066-74ccc6f2c3cf.pdf" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">Studies</a> have found <a href="https://www.nytimes.com/interactive/2020/02/19/magazine/salary-sharing.html" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">breaking</a> the <a href="https://www.businessinsider.com/salary-pay-transparency-jobs-income-taboo-equity-2023-1" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">taboos</a> around sharing information about wealth makes society better.</p>
               <div className="border-t border-dashed border-gray-400 mt-4"></div>
@@ -1944,11 +1607,11 @@ const Comrade = () => {
         <div className="bg-white p-8 border-2 border-dashed border-gray-400">
           <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider border-b-4 border-black pb-2">LEGAL</h2>
           <div className="text-black space-y-4">
-            <p className="leading-relaxed text-xs">Comrade does not collect, store, or transmit any financial information or personal data entered into the application. All calculations are performed locally in your browser.</p>
+            <p className="leading-relaxed text-xs">Comrade does not collect, store, or transmit any financial information entered into the application. All calculations are performed locally in your browser.</p>
             <div className="border-t border-dashed border-gray-400"></div>
-            <p className="leading-relaxed text-xs">This application is provided for informational purposes only. Users are solely responsible for their own actions. The creators of Comrade are not liable for any outcomes, disputes, consequences, or bad decisions resulting from the use of Comrade and its calculations. Sorry!</p>
+            <p className="leading-relaxed text-xs">This application is provided for informational purposes only. Users are solely responsible for their own actions. The creators of Comrade are not liable for any outcomes, disputes, unintended consequences, or bad decisions resulting from the use of Comrade and its calculations. Sorry!</p>
             <div className="border-t border-dashed border-gray-400"></div>
-            <p className="leading-relaxed text-xs">By entering your email address, you consent to Comrade and its team contacting you about updates to the app, news, other projects they may be working on, and other cool stuff. Comrade will not sell your personal information to third parties.</p>
+            <p className="leading-relaxed text-xs">By entering your email address, you consent to Comrade and its team contacting you about updates to the app, news, and other projects they may be working on. Comrade will not sell your personal information to third parties.</p>
             <div className="border-t border-dashed border-gray-400"></div>
             <p className="leading-relaxed text-xs">This application is available under a Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0).</p>
           </div>
@@ -3039,8 +2702,6 @@ const Comrade = () => {
 
   return null;
 };
-
-
 
 
 // Render the app
