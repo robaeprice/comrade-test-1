@@ -18,6 +18,7 @@
 
 
 
+
 // ==================== UTILITY FUNCTIONS ====================
 
 // Helper function to apply weighting to wealth values
@@ -182,7 +183,7 @@ const CurrencyButtons = ({ value, onChange }) => {
             <button 
               key={c.value} 
               onClick={() => onChange(c.value)} 
-              className={`min-w-[100px] p-3 font-bold text-xs border-2 ${value === c.value ? 'bg-black text-white border-black' : 'bg-white text-black border-gray-400'}`}
+              className={`px-6 py-3 font-bold text-xs border-2 ${value === c.value ? 'bg-black text-white border-black' : 'bg-white text-black border-gray-400'}`}
             >
               {c.label}
             </button>
@@ -552,7 +553,7 @@ const Comrade = () => {
     const colors = ['#000000', '#1F2937', '#475569', '#64748B', '#94A3B8', '#CBD5E1', '#E2E8F0', '#F1F5F9'];
     
     return (
-      <div className={CLS.bgWhiteP6Border2}>
+      <>
         <svg viewBox="0 0 200 200" className="w-full max-w-xs mx-auto">
           {(() => {
             let currentAngle = 0;
@@ -620,7 +621,7 @@ const Comrade = () => {
             );
           })}
         </div>
-      </div>
+      </>
     );
   }, [CLS]);
   
@@ -1533,7 +1534,7 @@ const Comrade = () => {
           
           <p className="leading-relaxed text-xs">Just ask Comrade.</p>
           
-          <p className="leading-relaxed text-xs">Comrade is an app for managing group expenses that takes the awkwardness out of bill-splitting. Whether it's a weekend trip, household purchases, or a work dinner, it simplifies group bills and divides them fairly — by taking into account people's wealth (salaries or net worth) to decide the split. Those who have more, pay more.</p>
+          <p className="leading-relaxed text-xs">Comrade is an app that takes the awkwardness out of group expenses. From vacations to household purchases and work drinks, it simplifies shared bills and divides them fairly — by taking into account people's wealth (salaries or net worth) to decide the split. Those who have more, pay more.</p>
           
           <p className="leading-relaxed text-xs">Wealth isn't evenly distributed. Costs shouldn't be either. So next time your friends, family, or coworkers need to split the check, use Comrade for a fairer way to settle up.</p>
           
@@ -1843,8 +1844,7 @@ const Comrade = () => {
                   <div className="mb-6">
                     <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">BILL RECAP</h3>
                     
-                    <div className={CLS.bgWhiteP6Border2}>
-                      <div className="space-y-3 mb-4">
+                    <div className="space-y-3 mb-4">
                         {shareBills.map((bill, idx) => (
                           <div key={bill.id || idx} className={`flex justify-between items-start ${CLS.textXsBlack} border-b ${CLS.borderDashedGray} pb-2`}>
                             <div className="flex-1">
@@ -1859,7 +1859,6 @@ const Comrade = () => {
                         <span className="font-black text-black uppercase">TOTAL</span>
                         <span className="font-black text-black text-lg">{formatCurrency(total, 2, shareCurrency)}</span>
                       </div>
-                    </div>
                   </div>
 
                   <DashedDivider />
