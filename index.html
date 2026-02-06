@@ -370,7 +370,7 @@ return (
           overflow-wrap: break-word;
         }
         /* Prevent overflow in containers */
-        .receipt-container, .bg-white, [class*="border"] {
+        .receipt-wrapper, .receipt-container, .bg-white, [class*="border"] {
           overflow: hidden;
         }
         /* Responsive font sizing for headings */
@@ -405,15 +405,15 @@ return (
         button.calculate-btn {
           font-size: clamp(1rem, 4vw, 1.25rem);
         }
-        /* Receipt container with dashed borders */
+        /* Receipt wrapper owns the borders — CSS borders are always exactly 4px regardless of SVG scaling */
+        .receipt-wrapper {
+          border-left: 4px solid #000;
+          border-right: 4px solid #000;
+        }
+        /* Receipt container — just background and sizing, no borders */
         .receipt-container {
           position: relative;
           background: #F3F4F6;
-          border-left: 4px solid #000;
-          border-right: 4px solid #000;
-          border-top: 4px dashed #000;
-          border-bottom: 4px dashed #000;
-          box-shadow: 0 10px 40px rgba(0,0,0,0.3);
           min-height: calc(100vh - 40px);
         }
         .bg-white {
@@ -454,10 +454,29 @@ return (
         }
       `}</style>
       <div className="max-w-xl mx-auto px-2 sm:px-0 py-5">
+        <div className="receipt-wrapper">
+        {/* Torn edge SVG — zigzag drawn as filled polygons, not strokes, for uniform thickness */}
+        <svg
+          width="100%"
+          height="32"
+          viewBox="0 0 600 32"
+          preserveAspectRatio="none"
+          style={{ display: 'block' }}
+        >
+          {/* Fill area below the zigzag line — matches container background */}
+          <polygon
+            points="0,4 21.428,14 42.857,4 64.286,14 85.714,4 107.143,14 128.571,4 150,14 171.429,4 192.857,14 214.286,4 235.714,14 257.143,4 278.571,14 300,4 321.429,14 342.857,4 364.286,14 385.714,4 407.143,14 428.571,4 450,14 471.429,4 492.857,14 514.286,4 535.714,14 557.143,4 578.571,14 600,4 600,32 0,32"
+            fill="#F3F4F6"
+          />
+          {/* Zigzag line as filled shape — upper edge peaks at y=0, lower edge peaks at y=4 */}
+          <polygon
+            points="0,0 21.428,10 42.857,0 64.286,10 85.714,0 107.143,10 128.571,0 150,10 171.429,0 192.857,10 214.286,0 235.714,10 257.143,0 278.571,10 300,0 321.429,10 342.857,0 364.286,10 385.714,0 407.143,10 428.571,0 450,10 471.429,0 492.857,10 514.286,0 535.714,10 557.143,0 578.571,10 600,0 600,4 578.571,14 557.143,4 535.714,14 514.286,4 492.857,14 471.429,4 450,14 428.571,4 407.143,14 385.714,4 364.286,14 342.857,4 321.429,14 300,4 278.571,14 257.143,4 235.714,14 214.286,4 192.857,14 171.429,4 150,14 128.571,4 107.143,14 85.714,4 64.286,14 42.857,4 21.428,14 0,4"
+            fill="#000"
+          />
+        </svg>
         <div className="receipt-container">
           <div className="pt-4 px-6 pb-6">
-            <div className="border-t-2 border-dashed border-gray-400 mt-2 mb-4"></div>
-            <div className="bg-white mb-4 pb-4 border-b-2 border-dashed border-gray-400">
+            <div className="bg-white mb-4 pt-4 pb-4 border-t-2 border-b-2 border-dashed border-gray-400">
               <div className="cursor-pointer text-center" onClick={() => onNavigate('home')}>
                 <div className="currency-pattern text-xs font-bold text-black mb-2 uppercase tracking-wider">
                   {'$ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £'}
@@ -485,6 +504,26 @@ return (
               <a href="mailto:hello@comrade.money" className="hover:underline">HELLO@COMRADE.MONEY</a>
             </div>
           </div>
+        </div>
+        {/* Bottom torn edge SVG — reversed zigzag */}
+        <svg
+          width="100%"
+          height="32"
+          viewBox="0 0 600 32"
+          preserveAspectRatio="none"
+          style={{ display: 'block' }}
+        >
+          {/* Fill area above the zigzag line — matches container background */}
+          <polygon
+            points="0,0 600,0 600,28 578.571,18 557.143,28 535.714,18 514.286,28 492.857,18 471.429,28 450,18 428.571,28 407.143,18 385.714,28 364.286,18 342.857,28 321.429,18 300,28 278.571,18 257.143,28 235.714,18 214.286,28 192.857,18 171.429,28 150,18 128.571,28 107.143,18 85.714,28 64.286,18 42.857,28 21.428,18 0,28"
+            fill="#F3F4F6"
+          />
+          {/* Zigzag line as filled shape — upper edge peaks at y=28, lower edge peaks at y=32 */}
+          <polygon
+            points="0,32 21.428,22 42.857,32 64.286,22 85.714,32 107.143,22 128.571,32 150,22 171.429,32 192.857,22 214.286,32 235.714,22 257.143,32 278.571,22 300,32 321.429,22 342.857,32 364.286,22 385.714,32 407.143,22 428.571,32 450,22 471.429,32 492.857,22 514.286,32 535.714,22 557.143,32 578.571,22 600,32 600,28 578.571,18 557.143,28 535.714,18 514.286,28 492.857,18 471.429,28 450,18 428.571,28 407.143,18 385.714,28 364.286,18 342.857,28 321.429,18 300,28 278.571,18 257.143,28 235.714,18 214.286,28 192.857,18 171.429,28 150,18 128.571,28 107.143,18 85.714,28 64.286,18 42.857,28 21.428,18 0,28"
+            fill="#000"
+          />
+        </svg>
         </div>
       </div>
       
