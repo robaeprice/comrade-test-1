@@ -23,10 +23,48 @@
 
 // Helper function to apply weighting to wealth values
 const applyWeighting = (wealth, weighting) => {
-  if (weighting === 'none') return 1;
-  if (weighting === 'gentle') return Math.sqrt(wealth);
-  if (weighting === 'strong') return wealth * wealth;
-  return wealth; // standard
+if (weighting === 'none') return 1;
+if (weighting === 'gentle') return Math.sqrt(wealth);
+if (weighting === 'strong') return wealth * wealth;
+return wealth; // standard
+};
+
+// ==================== SHARE LINK UTILITIES ====================
+
+const compressToUrl = async (data) => {
+  const json = JSON.stringify(data);
+  if (typeof CompressionStream !== 'undefined') {
+    try {
+      const stream = new Blob([json]).stream().pipeThrough(new CompressionStream('deflate-raw'));
+      const buffer = await new Response(stream).arrayBuffer();
+      const bytes = new Uint8Array(buffer);
+      let binary = '';
+      bytes.forEach(b => binary += String.fromCharCode(b));
+      return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    } catch (e) {
+      // fallthrough to fallback
+    }
+  }
+  return btoa(unescape(encodeURIComponent(json))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+};
+
+const decompressFromUrl = async (encoded) => {
+  let base64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
+  while (base64.length % 4) base64 += '=';
+
+  if (typeof DecompressionStream !== 'undefined') {
+    try {
+      const binary = atob(base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+      const text = await new Response(stream).text();
+      return JSON.parse(text);
+    } catch (e) {
+      // fallthrough to fallback
+    }
+  }
+  return JSON.parse(decodeURIComponent(escape(atob(base64))));
 };
 
 // ==================== END UTILITY FUNCTIONS ====================
@@ -34,55 +72,55 @@ const applyWeighting = (wealth, weighting) => {
 // ==================== ICON COMPONENTS ====================
 
 const PersonIcon = ({ size = 20 }) => (
-  <svg width={size} height={size} viewBox="0 0 40 40">
-    <circle cx="20" cy="20" r="18" fill="#000"/>
-    <circle cx="20" cy="16" r="5" fill="white"/>
-    <path d="M 10 32 Q 10 24 20 24 Q 30 24 30 32" fill="white"/>
-  </svg>
+<svg width={size} height={size} viewBox="0 0 40 40">
+<circle cx="20" cy="20" r="18" fill="#000"/>
+<circle cx="20" cy="16" r="5" fill="white"/>
+<path d="M 10 32 Q 10 24 20 24 Q 30 24 30 32" fill="white"/>
+</svg>
 );
 
 const BillIcon = ({ size = 20 }) => (
-  <svg width={size} height={size} viewBox="0 0 20 20">
-    <rect x="2" y="4" width="16" height="12" fill="none" stroke="#000" strokeWidth="2"/>
-    <line x1="2" y1="8" x2="18" y2="8" stroke="#000" strokeWidth="2"/>
-    <line x1="2" y1="12" x2="18" y2="12" stroke="#000" strokeWidth="2"/>
-  </svg>
+<svg width={size} height={size} viewBox="0 0 20 20">
+<rect x="2" y="4" width="16" height="12" fill="none" stroke="#000" strokeWidth="2"/>
+<line x1="2" y1="8" x2="18" y2="8" stroke="#000" strokeWidth="2"/>
+<line x1="2" y1="12" x2="18" y2="12" stroke="#000" strokeWidth="2"/>
+</svg>
 );
 
 const HouseIcon = ({ size = 20 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24">
-    <path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z" fill="#000"/>
-  </svg>
+<svg width={size} height={size} viewBox="0 0 24 24">
+<path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z" fill="#000"/>
+</svg>
 );
 
 const TagIcon = ({ size = 20 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24">
-    <path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z" fill="#000"/>
-  </svg>
+<svg width={size} height={size} viewBox="0 0 24 24">
+<path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z" fill="#000"/>
+</svg>
 );
 
 const QuestionIcon = ({ size = 20 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24">
-    <text x="6" y="19" fontFamily="monospace" fontSize="20" fill="#000" fontWeight="bold">?</text>
-  </svg>
+<svg width={size} height={size} viewBox="0 0 24 24">
+<text x="6" y="19" fontFamily="monospace" fontSize="20" fill="#000" fontWeight="bold">?</text>
+</svg>
 );
 
 const ListIcon = ({ size = 20 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24">
-    <rect x="4" y="5" width="3" height="3" fill="#000"/>
-    <rect x="4" y="10" width="3" height="3" fill="#000"/>
-    <rect x="4" y="15" width="3" height="3" fill="#000"/>
-    <line x1="9" y1="6.5" x2="20" y2="6.5" stroke="#000" strokeWidth="2"/>
-    <line x1="9" y1="11.5" x2="20" y2="11.5" stroke="#000" strokeWidth="2"/>
-    <line x1="9" y1="16.5" x2="20" y2="16.5" stroke="#000" strokeWidth="2"/>
-  </svg>
+<svg width={size} height={size} viewBox="0 0 24 24">
+<rect x="4" y="5" width="3" height="3" fill="#000"/>
+<rect x="4" y="10" width="3" height="3" fill="#000"/>
+<rect x="4" y="15" width="3" height="3" fill="#000"/>
+<line x1="9" y1="6.5" x2="20" y2="6.5" stroke="#000" strokeWidth="2"/>
+<line x1="9" y1="11.5" x2="20" y2="11.5" stroke="#000" strokeWidth="2"/>
+<line x1="9" y1="16.5" x2="20" y2="16.5" stroke="#000" strokeWidth="2"/>
+</svg>
 );
 
 const ErrorIcon = ({ size = 20 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24">
-    <line x1="4" y1="4" x2="20" y2="20" stroke="#000" strokeWidth="3"/>
-    <line x1="20" y1="4" x2="4" y2="20" stroke="#000" strokeWidth="3"/>
-  </svg>
+<svg width={size} height={size} viewBox="0 0 24 24">
+<line x1="4" y1="4" x2="20" y2="20" stroke="#000" strokeWidth="3"/>
+<line x1="20" y1="4" x2="4" y2="20" stroke="#000" strokeWidth="3"/>
+</svg>
 );
 
 // ==================== END ICON COMPONENTS ====================
@@ -90,6 +128,7 @@ const ErrorIcon = ({ size = 20 }) => (
 const DashedDivider = () => <div className="border-t-2 border-dashed border-gray-400 my-6" />;
 
 const CurrencyDivider = () => (
+
   <div className="flex items-center gap-4 my-6">
     <div className="flex-1 border-t-4 border-black"></div>
     <span className="text-xs font-bold">$ € £</span>
@@ -98,220 +137,220 @@ const CurrencyDivider = () => (
 );
 
 const WeightingButtons = ({ value, onChange }) => {
-  return (
-    <div className="flex justify-center">
-      <div className="bg-gray-100 p-2 border-2 border-dotted border-black inline-block">
-        <div className="flex flex-wrap gap-2">
-          {[
-            {value: 'gentle', label: 'LOW'},
-            {value: 'standard', label: 'MID'},
-            {value: 'strong', label: 'HIGH'},
-            {value: 'none', label: 'OFF'}
-          ].map(w => (
-            <button key={w.value} onClick={() => onChange(w.value)} className={`flex-1 min-w-[100px] p-3 font-bold text-xs border-2 ${value === w.value ? 'bg-black text-white border-black' : w.value === 'none' ? 'bg-gray-200 text-gray-500 border-gray-400' : 'bg-white text-black border-gray-400'}`}>
-              {w.label}
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
+return (
+<div className="flex justify-center">
+<div className="bg-gray-100 p-2 border-2 border-dotted border-black inline-block">
+<div className="flex flex-wrap gap-2">
+{[
+{value: 'gentle', label: 'LOW'},
+{value: 'standard', label: 'MID'},
+{value: 'strong', label: 'HIGH'},
+{value: 'none', label: 'OFF'}
+].map(w => (
+<button key={w.value} onClick={() => onChange(w.value)} className={`flex-1 min-w-[100px] p-3 font-bold text-xs border-2 ${value === w.value ? 'bg-black text-white border-black' : w.value === 'none' ? 'bg-gray-200 text-gray-500 border-gray-400' : 'bg-white text-black border-gray-400'}`}>
+{w.label}
+</button>
+))}
+</div>
+</div>
+</div>
+);
 };
 
 const WealthMetricButtons = ({ value, onChange }) => {
-  const options = [
-    { value: 'salary', label: 'SALARY' },
-    { value: 'networth', label: 'NET WORTH' }
-  ];
-  
-  return (
-    <div className="flex justify-center">
-      <div className="bg-gray-100 p-2 border-2 border-dotted border-black inline-block">
-        <div className="flex gap-2">
-          {options.map(w => (
-            <button 
-              key={w.value} 
-              onClick={() => onChange(w.value)} 
-              className={`px-4 py-3 font-bold text-xs border-2 ${value === w.value ? 'bg-black text-white border-black' : 'bg-white text-black border-gray-400'}`}
-            >
-              {w.label}
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
+const options = [
+{ value: 'salary', label: 'SALARY' },
+{ value: 'networth', label: 'NET WORTH' }
+];
+
+return (
+<div className="flex justify-center">
+<div className="bg-gray-100 p-2 border-2 border-dotted border-black inline-block">
+<div className="flex gap-2">
+{options.map(w => (
+<button
+key={w.value}
+onClick={() => onChange(w.value)}
+className={`px-4 py-3 font-bold text-xs border-2 ${value === w.value ? 'bg-black text-white border-black' : 'bg-white text-black border-gray-400'}`}
+>
+{w.label}
+</button>
+))}
+</div>
+</div>
+</div>
+);
 };
 
 const MeasurementButtons = ({ value, onChange }) => {
-  const options = [
-    { value: 'sqft', label: 'SQ FT' },
-    { value: 'sqm', label: 'SQ M' }
-  ];
-  
-  return (
-    <div className="flex justify-center">
-      <div className="bg-gray-100 p-2 border-2 border-dotted border-black inline-block">
-        <div className="flex gap-2">
-          {options.map(m => (
-            <button 
-              key={m.value} 
-              onClick={() => onChange(m.value)} 
-              className={`px-4 py-3 font-bold text-xs border-2 ${value === m.value ? 'bg-black text-white border-black' : 'bg-white text-black border-gray-400'}`}
-            >
-              {m.label}
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
+const options = [
+{ value: 'sqft', label: 'SQ FT' },
+{ value: 'sqm', label: 'SQ M' }
+];
+
+return (
+<div className="flex justify-center">
+<div className="bg-gray-100 p-2 border-2 border-dotted border-black inline-block">
+<div className="flex gap-2">
+{options.map(m => (
+<button
+key={m.value}
+onClick={() => onChange(m.value)}
+className={`px-4 py-3 font-bold text-xs border-2 ${value === m.value ? 'bg-black text-white border-black' : 'bg-white text-black border-gray-400'}`}
+>
+{m.label}
+</button>
+))}
+</div>
+</div>
+</div>
+);
 };
 
 const CurrencyButtons = ({ value, onChange }) => {
-  const options = [
-    { value: 'USD', label: '$' },
-    { value: 'EUR', label: '€' },
-    { value: 'GBP', label: '£' }
-  ];
-  
-  return (
-    <div className="flex justify-center">
-      <div className="bg-gray-100 p-2 border-2 border-dotted border-black inline-block">
-        <div className="flex gap-2">
-          {options.map(c => (
-            <button 
-              key={c.value} 
-              onClick={() => onChange(c.value)} 
-              className={`px-6 py-3 font-bold text-xs border-2 ${value === c.value ? 'bg-black text-white border-black' : 'bg-white text-black border-gray-400'}`}
-            >
-              {c.label}
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
+const options = [
+{ value: 'USD', label: '$' },
+{ value: 'EUR', label: '€' },
+{ value: 'GBP', label: '£' }
+];
+
+return (
+<div className="flex justify-center">
+<div className="bg-gray-100 p-2 border-2 border-dotted border-black inline-block">
+<div className="flex gap-2">
+{options.map(c => (
+<button
+key={c.value}
+onClick={() => onChange(c.value)}
+className={`px-6 py-3 font-bold text-xs border-2 ${value === c.value ? 'bg-black text-white border-black' : 'bg-white text-black border-gray-400'}`}
+>
+{c.label}
+</button>
+))}
+</div>
+</div>
+</div>
+);
 };
 
 const FormInput = ({ type = 'text', value, onChange, placeholder, className = '', style, ...props }) => {
-  const baseClasses = "w-full p-2 border-2 border-gray-400 bg-white text-xs uppercase";
-  
-  if (type === 'textarea') {
-    return (
-      <textarea
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        className={`${baseClasses} ${className}`}
-        style={style}
-        {...props}
-      />
-    );
-  }
-  
-  return (
-    <input
-      type={type}
-      value={value}
-      onChange={onChange}
-      placeholder={placeholder}
-      className={`${baseClasses} ${className}`}
-      style={style}
-      {...props}
-    />
-  );
+const baseClasses = "w-full p-2 border-2 border-gray-400 bg-white uppercase";
+
+if (type === 'textarea') {
+return (
+<textarea
+value={value}
+onChange={onChange}
+placeholder={placeholder}
+className={`${baseClasses} ${className}`}
+style={{ fontSize: '16px', ...style }}
+{...props}
+/>
+);
+}
+
+return (
+<input
+type={type}
+value={value}
+onChange={onChange}
+placeholder={placeholder}
+className={`${baseClasses} ${className}`}
+style={{ fontSize: '16px', ...style }}
+{...props}
+/>
+);
 };
 
 const ItemList = ({ items, onDelete, renderItem }) => {
-  if (items.length === 0) return null;
-  
-  return (
-    <div className="mt-4 space-y-2">
-      {items.map((item) => (
-        <div key={item.id} className="bg-white p-3 border border-black flex justify-between items-center">
-          <div className="flex-1">
-            {renderItem(item)}
-          </div>
-          <button onClick={() => onDelete(item.id)} className="text-black font-bold text-xl ml-3 hover:text-gray-600">×</button>
-        </div>
-      ))}
-    </div>
-  );
+if (items.length === 0) return null;
+
+return (
+<div className="mt-4 space-y-2">
+{items.map((item) => (
+<div key={item.id} className="bg-white p-3 border border-black flex justify-between items-center">
+<div className="flex-1">
+{renderItem(item)}
+</div>
+<button onClick={() => onDelete(item.id)} className="text-black font-bold text-xl ml-3 hover:text-gray-600">×</button>
+</div>
+))}
+</div>
+);
 };
 
 const AddItemCard = ({ title, fields, onAdd, items, onDelete, renderItem, addButtonLabel, containerClassName }) => {
-  const className = containerClassName !== undefined ? containerClassName : "bg-white p-6 border-2 border-dashed border-gray-400 mb-4";
-  
-  return (
-    <div className={className}>
-      {title && <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider border-b-2 border-dashed border-gray-400 pb-2">{title}</h3>}
-      <div className="flex flex-wrap gap-2 mb-3">
-        {fields.map((field, idx) => (
-          field.type === 'select' ? (
-            <select
-              key={idx}
-              value={field.value}
-              onChange={field.onChange}
-              className="flex-1 p-2 border-2 border-gray-400 bg-white text-xs uppercase"
-              style={{ minWidth: field.minWidth || '120px', height: '38px' }}
-            >
-              <option value="">{field.placeholder}</option>
-              {field.options && field.options.map((opt, i) => (
-                <option key={i} value={opt.value || opt}>{opt.label || opt}</option>
-              ))}
-            </select>
-          ) : (
-            <FormInput
-              key={idx}
-              type={field.type || 'text'}
-              value={field.value}
-              onChange={field.onChange}
-              placeholder={field.placeholder}
-              min={field.min}
-              step={field.step}
-              inputMode={field.inputMode}
-              className="flex-1"
-              style={{ minWidth: field.minWidth || '120px' }}
-            />
-          )
-        ))}
-      </div>
-      <button onClick={onAdd} className="bg-black text-white px-4 py-2 font-bold border-2 border-black text-xs">{addButtonLabel}</button>
-      
+const className = containerClassName !== undefined ? containerClassName : "bg-white p-6 border-2 border-dashed border-gray-400 mb-4";
+
+return (
+<div className={className}>
+{title && <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider border-b-2 border-dashed border-gray-400 pb-2">{title}</h3>}
+<div className="flex flex-wrap gap-2 mb-3">
+{fields.map((field) => (
+field.type === 'select' ? (
+<select
+key={field.id || field.placeholder}
+value={field.value}
+onChange={field.onChange}
+className="flex-1 p-2 border-2 border-gray-400 bg-white uppercase"
+style={{ minWidth: field.minWidth || '120px', height: '38px', fontSize: '16px' }}
+>
+<option value="">{field.placeholder}</option>
+{field.options && field.options.map((opt, i) => (
+<option key={opt.value || opt.label || opt || i} value={opt.value || opt}>{opt.label || opt}</option>
+))}
+</select>
+) : (
+<FormInput
+key={field.id || field.placeholder}
+type={field.type || 'text'}
+value={field.value}
+onChange={field.onChange}
+placeholder={field.placeholder}
+min={field.min}
+step={field.step}
+inputMode={field.inputMode}
+className="flex-1"
+style={{ minWidth: field.minWidth || '120px' }}
+/>
+)
+))}
+</div>
+<button onClick={onAdd} className="bg-black text-white px-4 py-2 font-bold border-2 border-black text-xs">{addButtonLabel}</button>
+
       <ItemList items={items} onDelete={onDelete} renderItem={renderItem} />
     </div>
-  );
+);
 };
 
 const ResponsiveDataTable = ({ data, columns, mobileCardConfig }) => {
-  return (
-    <>
-      {/* Desktop Table */}
-      <div className="hidden md:block overflow-x-auto">
-        <table className="w-full border-collapse border-2 border-black">
-          <thead>
-            <tr className="bg-gray-200">
-              {columns.map((col, idx) => (
-                <th key={idx} className="p-3 text-left font-bold text-black border-2 border-black text-xs uppercase">
-                  {col.header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((item, i) => (
-              <tr key={item.id || i} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                {columns.map((col, colIdx) => (
-                  <td key={colIdx} className={`p-3 border border-black text-xs ${col.className || 'text-black'}`}>
-                    {col.render(item, i)}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+return (
+<>
+{/* Desktop Table */}
+<div className="hidden md:block overflow-x-auto">
+<table className="w-full border-collapse border-2 border-black">
+<thead>
+<tr className="bg-gray-200">
+{columns.map((col, idx) => (
+<th key={idx} className="p-3 text-left font-bold text-black border-2 border-black text-xs uppercase">
+{col.header}
+</th>
+))}
+</tr>
+</thead>
+<tbody>
+{data.map((item, i) => (
+<tr key={item.id || i} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+{columns.map((col, colIdx) => (
+<td key={colIdx} className={`p-3 border border-black text-xs ${col.className || 'text-black'}`}>
+{col.render(item, i)}
+</td>
+))}
+</tr>
+))}
+</tbody>
+</table>
+</div>
 
       {/* Mobile Cards */}
       <div className="md:hidden space-y-3">
@@ -347,15 +386,15 @@ const ResponsiveDataTable = ({ data, columns, mobileCardConfig }) => {
         })}
       </div>
     </>
-  );
+);
 };
 
-const Layout = ({ children, onNavigate, showCopyToast }) => {
-  return (
-    <div style={{fontFamily: 'Sixtyfour, monospace', background: 'linear-gradient(135deg, rgba(255,215,0,0.85) 0%, rgba(255,140,0,0.85) 100%), url("data:image/svg+xml,%3Csvg width=\'75\' height=\'90\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Ctext x=\'10\' y=\'20\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E$%3C/text%3E%3Ctext x=\'35\' y=\'20\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E€%3C/text%3E%3Ctext x=\'60\' y=\'20\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E£%3C/text%3E%3Ctext x=\'3\' y=\'50\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E€%3C/text%3E%3Ctext x=\'28\' y=\'50\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E£%3C/text%3E%3Ctext x=\'53\' y=\'50\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E$%3C/text%3E%3Ctext x=\'17\' y=\'80\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E£%3C/text%3E%3Ctext x=\'42\' y=\'80\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E$%3C/text%3E%3Ctext x=\'67\' y=\'80\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E€%3C/text%3E%3C/svg%3E") #dc143c', minHeight: '100vh'}}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Sixtyfour:wght@400&display=swap');
-        
+const Layout = ({ children, onNavigate, showCopyToast, copyToastMessage }) => {
+return (
+<div style={{fontFamily: 'Sixtyfour, monospace', background: 'linear-gradient(135deg, rgba(255,215,0,0.85) 0%, rgba(255,140,0,0.85) 100%), url("data:image/svg+xml,%3Csvg width=\'75\' height=\'90\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Ctext x=\'10\' y=\'20\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E$%3C/text%3E%3Ctext x=\'35\' y=\'20\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E€%3C/text%3E%3Ctext x=\'60\' y=\'20\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E£%3C/text%3E%3Ctext x=\'3\' y=\'50\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E€%3C/text%3E%3Ctext x=\'28\' y=\'50\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E£%3C/text%3E%3Ctext x=\'53\' y=\'50\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E$%3C/text%3E%3Ctext x=\'17\' y=\'80\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E£%3C/text%3E%3Ctext x=\'42\' y=\'80\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E$%3C/text%3E%3Ctext x=\'67\' y=\'80\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E€%3C/text%3E%3C/svg%3E") #dc143c', minHeight: '100vh'}}>
+<style>{`
+@import url('https://fonts.googleapis.com/css2?family=Sixtyfour:wght@400&display=swap');
+
         * {
           font-family: 'Sixtyfour', monospace !important;
         }
@@ -451,12 +490,6 @@ const Layout = ({ children, onNavigate, showCopyToast }) => {
         button:active {
           transform: scale(0.97);
         }
-        .bg-white {
-          background-color: #F3F4F6 !important;
-        }
-        .bg-gray-50 {
-          background-color: #E5E7EB !important;
-        }
       `}</style>
       <div className="max-w-xl mx-auto px-2 sm:px-0 py-5">
         <div className="receipt-container">
@@ -495,30 +528,30 @@ const Layout = ({ children, onNavigate, showCopyToast }) => {
       
       {showCopyToast && (
         <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-black text-white px-6 py-3 font-bold z-50 border-2 border-black">
-          COPIED TO CLIPBOARD!
+          {copyToastMessage || 'COPIED TO CLIPBOARD!'}
         </div>
       )}
     </div>
-  );
+);
 };
 
 const Comrade = () => {
-  // Common className constants for repeated patterns
-  const CLS = {
-    textXsBlack: "text-xs text-black",
-    fontBoldBlackUpper: "font-bold text-black uppercase",
-    border2DashedGray: "border-2 border-dashed border-gray-400",
-    bgWhiteBorder2Dashed: "bg-white p-8 border-2 border-dashed border-gray-400",
-    bgWhiteP4Border2: "bg-white p-4 border-2 border-gray-400",
-    bgWhiteP6Border2: "bg-white p-6 border-2 border-gray-400",
-    borderDashedGray: "border-b border-dashed border-gray-400",
-    textBlackFontBold: "text-black font-bold"
-  };
+// Common className constants for repeated patterns
+const CLS = {
+textXsBlack: "text-xs text-black",
+fontBoldBlackUpper: "font-bold text-black uppercase",
+border2DashedGray: "border-2 border-dashed border-gray-400",
+bgWhiteBorder2Dashed: "bg-white p-8 border-2 border-dashed border-gray-400",
+bgWhiteP4Border2: "bg-white p-4 border-2 border-gray-400",
+bgWhiteP6Border2: "bg-white p-6 border-2 border-gray-400",
+borderDashedGray: "border-b border-dashed border-gray-400",
+textBlackFontBold: "text-black font-bold"
+};
 
-  // Set document title and meta description for link previews
-  React.useEffect(() => {
-    document.title = "COMRADE";
-    
+// Set document title and meta description for link previews
+React.useEffect(() => {
+document.title = "COMRADE";
+
     // Update or create meta description
     let metaDescription = document.querySelector('meta[name="description"]');
     if (!metaDescription) {
@@ -527,7 +560,7 @@ const Comrade = () => {
       document.head.appendChild(metaDescription);
     }
     metaDescription.content = 'The fairer way to split costs with friends.';
-    
+
     // Update Open Graph meta tags for better social sharing
     let ogTitle = document.querySelector('meta[property="og:title"]');
     if (!ogTitle) {
@@ -536,7 +569,7 @@ const Comrade = () => {
       document.head.appendChild(ogTitle);
     }
     ogTitle.content = 'COMRADE';
-    
+
     let ogDescription = document.querySelector('meta[property="og:description"]');
     if (!ogDescription) {
       ogDescription = document.createElement('meta');
@@ -544,14 +577,14 @@ const Comrade = () => {
       document.head.appendChild(ogDescription);
     }
     ogDescription.content = 'The fairer way to split costs with friends.';
-  }, []);
+}, []);
 
-  // Reusable pie chart for wealth visualization
-  const renderWealthPieChart = useCallback((data, formatNumberFn) => {
-    const sortedData = [...data].sort((a, b) => b.wealth - a.wealth);
-    const totalWealth = sortedData.reduce((sum, p) => sum + p.wealth, 0);
-    const colors = ['#000000', '#1F2937', '#475569', '#64748B', '#94A3B8', '#CBD5E1', '#E2E8F0', '#F1F5F9'];
-    
+// Reusable pie chart for wealth visualization
+const renderWealthPieChart = useCallback((data, formatNumberFn) => {
+const sortedData = [...data].sort((a, b) => b.wealth - a.wealth);
+const totalWealth = sortedData.reduce((sum, p) => sum + p.wealth, 0);
+const colors = ['#000000', '#1F2937', '#475569', '#64748B', '#94A3B8', '#CBD5E1', '#E2E8F0', '#F1F5F9'];
+
     return (
       <>
         <svg viewBox="0 0 200 200" className="w-full max-w-xs mx-auto">
@@ -623,114 +656,117 @@ const Comrade = () => {
         </div>
       </>
     );
-  }, [CLS]);
-  
-  const EXAMPLE_DATA = {
-    share: {
-      people: [
-        {id: 1, name: 'Alex', wealth: '32000'},
-        {id: 2, name: 'Jordan', wealth: '180000'},
-        {id: 3, name: 'Sam', wealth: '45000'},
-        {id: 4, name: 'Morgan', wealth: '95000'}
-      ],
-      bills: [
-        {id: 5, description: 'Ski passes', amount: '1200', paidBy: 'Jordan'},
-        {id: 6, description: 'Cabin rental', amount: '2400', paidBy: 'Morgan'},
-        {id: 7, description: 'Gas', amount: '110', paidBy: 'Alex'},
-        {id: 8, description: 'Groceries', amount: '520', paidBy: 'Jordan'},
-        {id: 9, description: 'Gear rental', amount: '805', paidBy: 'Sam'}
-      ]
-    },
-    sale: {
-      productName: 'Used Honda Civic',
-      numberAvailable: '1',
-      buyers: [
-        {id: 1, name: 'Riley', wealth: '28000', offer: '4800'},
-        {id: 2, name: 'Casey', wealth: '75000', offer: '5200'},
-        {id: 3, name: 'Taylor', wealth: '140000', offer: '5500'},
-        {id: 4, name: 'Drew', wealth: '220000', offer: '6000'}
-      ]
-    },
-    vote: {
-      decision: 'What should the company\'s remote work policy be?',
-      options: [
-        {id: 1, text: 'Fully remote'},
-        {id: 2, text: 'Hybrid'},
-        {id: 3, text: '100% in-office'}
-      ],
-      participants: [
-        {id: 5, name: 'Oscar', wealth: '250000', vote: '100% in-office'},
-        {id: 6, name: 'Gerry', wealth: '120000', vote: 'Hybrid'},
-        {id: 7, name: 'Sarah', wealth: '65000', vote: 'Fully remote'},
-        {id: 8, name: 'Simone', wealth: '110000', vote: 'Fully remote'},
-        {id: 9, name: 'Thomas', wealth: '85000', vote: 'Hybrid'}
-      ]
-    },
-    rent: {
-      totalRent: '3600',
-      totalUtilities: '240',
-      people: [
-        {id: 1, name: 'River', roomSize: '180', wealth: '42000'},
-        {id: 2, name: 'Skyler', roomSize: '140', wealth: '125000'},
-        {id: 3, name: 'Quinn', roomSize: '160', wealth: '68000'}
-      ]
-    }
-  };
+}, [CLS]);
 
-  const BUTTON_STYLES = useMemo(() => ({
-    primary: 'bg-black text-white px-6 py-2 font-bold border-2 border-black hover:bg-gray-800 transition-all',
-    secondary: 'bg-gray-200 text-black px-6 py-2 font-bold border-2 border-gray-400 hover:bg-gray-300 transition-all',
-    danger: 'bg-white text-black px-6 py-2 font-bold border-2 border-black hover:bg-gray-100 transition-all',
-    large: 'bg-black text-white px-10 py-4 font-black text-xl border-4 border-black hover:bg-gray-800 transition-all uppercase',
-    toggle: 'bg-gray-100 text-black px-6 py-3 font-bold border-2 border-solid border-gray-400 hover:bg-gray-200 transition-all'
-  }), []);
+const EXAMPLE_DATA = {
+share: {
+people: [
+{id: 1, name: 'Alex', wealth: '32000'},
+{id: 2, name: 'Jordan', wealth: '180000'},
+{id: 3, name: 'Sam', wealth: '45000'},
+{id: 4, name: 'Morgan', wealth: '95000'}
+],
+bills: [
+{id: 5, description: 'Ski passes', amount: '1200', paidBy: 'Jordan'},
+{id: 6, description: 'Cabin rental', amount: '2400', paidBy: 'Morgan'},
+{id: 7, description: 'Gas', amount: '110', paidBy: 'Alex'},
+{id: 8, description: 'Groceries', amount: '520', paidBy: 'Jordan'},
+{id: 9, description: 'Gear rental', amount: '805', paidBy: 'Sam'}
+]
+},
+sale: {
+productName: 'Used Honda Civic',
+numberAvailable: '1',
+buyers: [
+{id: 1, name: 'Riley', wealth: '28000', offer: '4800'},
+{id: 2, name: 'Casey', wealth: '75000', offer: '5200'},
+{id: 3, name: 'Taylor', wealth: '140000', offer: '5500'},
+{id: 4, name: 'Drew', wealth: '220000', offer: '6000'}
+]
+},
+vote: {
+decision: 'What should the company\'s remote work policy be?',
+options: [
+{id: 1, text: 'Fully remote'},
+{id: 2, text: 'Hybrid'},
+{id: 3, text: '100% in-office'}
+],
+participants: [
+{id: 5, name: 'Oscar', wealth: '250000', vote: '100% in-office'},
+{id: 6, name: 'Gerry', wealth: '120000', vote: 'Hybrid'},
+{id: 7, name: 'Sarah', wealth: '65000', vote: 'Fully remote'},
+{id: 8, name: 'Simone', wealth: '110000', vote: 'Fully remote'},
+{id: 9, name: 'Thomas', wealth: '85000', vote: 'Hybrid'}
+]
+},
+rent: {
+totalRent: '3600',
+totalUtilities: '240',
+people: [
+{id: 1, name: 'River', roomSize: '180', wealth: '42000'},
+{id: 2, name: 'Skyler', roomSize: '140', wealth: '125000'},
+{id: 3, name: 'Quinn', roomSize: '160', wealth: '68000'}
+]
+}
+};
 
-  const renderNavButtons = useCallback((buttons) => (
-    <div className="flex flex-col gap-3 justify-center max-w-xs mx-auto">
-      {buttons.map(({ label, onClick, variant = 'primary', key }) => (
-        <button 
-          key={key || label}
-          onClick={onClick}
-          className={`${BUTTON_STYLES[variant]} w-full`}
-        >
-          {label}
-        </button>
-      ))}
-    </div>
-  ), [BUTTON_STYLES]);
+const BUTTON_STYLES = useMemo(() => ({
+primary: 'bg-black text-white px-6 py-2 font-bold border-2 border-black hover:bg-gray-800 transition-all',
+secondary: 'bg-gray-200 text-black px-6 py-2 font-bold border-2 border-gray-400 hover:bg-gray-300 transition-all',
+danger: 'bg-white text-black px-6 py-2 font-bold border-2 border-black hover:bg-gray-100 transition-all',
+large: 'bg-black text-white px-10 py-4 font-black text-xl border-4 border-black hover:bg-gray-800 transition-all uppercase',
+toggle: 'bg-gray-100 text-black px-6 py-3 font-bold border-2 border-solid border-gray-400 hover:bg-gray-200 transition-all'
+}), []);
 
-  const NoDataWarning = useCallback(() => (
-    <div className="bg-white p-6 border-2 border-solid border-black mb-6">
-      <div className="flex items-center gap-2 mb-2">
-        <ErrorIcon />
-        <p className="text-black font-bold">NO DATA ENTERED</p>
-      </div>
-      <p className="text-black text-xs mt-1">Please go back and enter some information.</p>
-    </div>
-  ), []);
+const renderNavButtons = useCallback((buttons) => (
+<div className="flex flex-col gap-3 justify-center max-w-xs mx-auto">
+{buttons.map(({ label, onClick, variant = 'primary', key }) => (
+<button
+key={key || label}
+onClick={onClick}
+className={`${BUTTON_STYLES[variant]} w-full`}
+>
+{label}
+</button>
+))}
+</div>
+), [BUTTON_STYLES]);
 
-  const DetailToggleButton = useCallback(({ show, onClick }) => (
-    <div className="text-center mb-6">
-      <button onClick={onClick} className={BUTTON_STYLES.toggle}>
-        {show ? '▲ HIDE BREAKDOWN' : '▼ SHOW BREAKDOWN'}
-      </button>
-    </div>
-  ), [BUTTON_STYLES]);
+const NoDataWarning = useCallback(() => (
+<div className="bg-white p-6 border-2 border-solid border-black mb-6">
+<div className="flex items-center gap-2 mb-2">
+<ErrorIcon />
+<p className="text-black font-bold">NO DATA ENTERED</p>
+</div>
+<p className="text-black text-xs mt-1">Please go back and enter some information.</p>
+</div>
+), []);
 
-  const renderResultsNavigation = (copyText, entryPage) => (
-    <div className="flex flex-col gap-3 max-w-xs mx-auto">
-      <button onClick={() => copyToClipboard(copyText)} className={`${BUTTON_STYLES.primary} w-full`}>COPY RESULTS</button>
-      <button onClick={() => navigateTo(entryPage)} className={`${BUTTON_STYLES.primary} w-full`}>EDIT DETAILS</button>
-      <button onClick={() => navigateTo('home')} className={`${BUTTON_STYLES.secondary} w-full`}>RETURN HOME</button>
-    </div>
-  );
+const DetailToggleButton = useCallback(({ show, onClick }) => (
+<div className="text-center mb-6">
+<button onClick={onClick} className={BUTTON_STYLES.toggle}>
+{show ? '▲ HIDE BREAKDOWN' : '▼ SHOW BREAKDOWN'}
+</button>
+</div>
+), [BUTTON_STYLES]);
 
-  const renderResultsFooter = (hasData, copyText, entryPage) => hasData && (
-    <>
-      <div className="bg-white p-8 border-2 border-dashed border-gray-400">
-        {renderResultsNavigation(copyText, entryPage)}
-      </div>
-      
+const renderResultsNavigation = (copyText, entryPage, shareAction) => (
+<div className="flex flex-col gap-3 max-w-xs mx-auto">
+{shareAction && (
+<button onClick={shareAction} className={`${BUTTON_STYLES.primary} w-full`}>SHARE LINK</button>
+)}
+<button onClick={() => copyToClipboard(copyText)} className={`${BUTTON_STYLES.primary} w-full`}>COPY RESULTS</button>
+<button onClick={() => navigateTo(entryPage)} className={`${BUTTON_STYLES.primary} w-full`}>EDIT DETAILS</button>
+<button onClick={() => navigateTo('home')} className={`${BUTTON_STYLES.secondary} w-full`}>RETURN HOME</button>
+</div>
+);
+
+const renderResultsFooter = (hasData, copyText, entryPage, shareAction) => hasData && (
+<>
+<div className="bg-white p-8 border-2 border-dashed border-gray-400">
+{renderResultsNavigation(copyText, entryPage, shareAction)}
+</div>
+
       <div className="my-4 text-center py-6">
         <MotivationalQuote />
       </div>
@@ -739,51 +775,51 @@ const Comrade = () => {
         {renderEmailSignup()}
       </div>
     </>
-  );
+);
 
-  const renderEntryIntro = ({ title, description, onLoadExample, clearType }) => (
-    <>
-      <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider border-b-4 border-black pb-2">{title}</h2>
-      <p className={`mb-4 text-black leading-relaxed ${CLS.textXsBlack}`}>{description}</p>
-      <p className={`${CLS.textXsBlack} text-center mb-6 text-gray-600 border-t border-b ${CLS.borderDashedGray} py-2`}>THIS APP DOES NOT SAVE ANY FINANCIAL INFORMATION</p>
-      <div className="flex flex-col gap-3 justify-center mb-4">
-        {renderNavButtons([
-          { label: 'LOAD EXAMPLE', onClick: onLoadExample, variant: 'secondary' },
-          { label: 'CLEAR ALL', onClick: () => handleClearAll(clearType), variant: 'danger' }
-        ])}
-      </div>
-    </>
-  );
+const renderEntryIntro = ({ title, description, onLoadExample, clearType }) => (
+<>
+<h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider border-b-4 border-black pb-2">{title}</h2>
+<p className={`mb-4 text-black leading-relaxed ${CLS.textXsBlack}`}>{description}</p>
+<p className={`${CLS.textXsBlack} text-center mb-6 text-gray-600 border-t border-b ${CLS.borderDashedGray} py-2`}>THIS APP DOES NOT SAVE ANY FINANCIAL INFORMATION</p>
+<div className="flex flex-col gap-3 justify-center mb-4">
+{renderNavButtons([
+{ label: 'LOAD EXAMPLE', onClick: onLoadExample, variant: 'secondary' },
+{ label: 'CLEAR ALL', onClick: () => handleClearAll(clearType), variant: 'danger' }
+])}
+</div>
+</>
+);
 
-  const EntryPageWrapper = ({ title, description, type, settingsComponent, children }) => (
-    <>
-      {renderEntryIntro({ 
-        title, 
-        description, 
-        onLoadExample: () => loadExample(type), 
-        clearType: type 
-      })}
-      <CurrencyDivider />
-      {children}
-      {settingsComponent}
-    </>
-  );
+const renderEntryPageWrapper = (title, description, type, settingsComponent, children) => (
+<>
+{renderEntryIntro({
+title,
+description,
+onLoadExample: () => loadExample(type),
+clearType: type
+})}
+<CurrencyDivider />
+{children}
+{settingsComponent}
+</>
+);
 
-  const renderNoDataState = (entryPage) => (
-    <>
-      <NoDataWarning />
-      {renderNavButtons([
-        { label: 'EDIT DETAILS', onClick: () => navigateTo(entryPage), variant: 'primary' },
-        { label: 'RETURN HOME', onClick: () => navigateTo('home'), variant: 'secondary' }
-      ])}
-    </>
-  );
+const renderNoDataState = (entryPage) => (
+<>
+<NoDataWarning />
+{renderNavButtons([
+{ label: 'EDIT DETAILS', onClick: () => navigateTo(entryPage), variant: 'primary' },
+{ label: 'RETURN HOME', onClick: () => navigateTo('home'), variant: 'secondary' }
+])}
+</>
+);
 
-  const renderEmailSignup = () => (
-    <div className={CLS.bgWhiteBorder2Dashed}>
-      <h3 className={`text-lg ${CLS.textBlackFontBold} uppercase tracking-wider text-center mb-2`}>LIKE COMRADE?</h3>
-      <p className={`${CLS.textXsBlack} text-center mb-4`}>Get updates and news from the team.</p>
-      
+const renderEmailSignup = () => (
+<div className={CLS.bgWhiteBorder2Dashed}>
+<h3 className={`text-lg ${CLS.textBlackFontBold} uppercase tracking-wider text-center mb-2`}>LIKE COMRADE?</h3>
+<p className={`${CLS.textXsBlack} text-center mb-4`}>Get updates and news from the team.</p>
+
       {signupStatus === 'success' ? (
         <div className="bg-black text-white p-4 text-center font-bold border-2 border-black">
           THANKS FOR SIGNING UP!
@@ -813,24 +849,24 @@ const Comrade = () => {
         </form>
       )}
     </div>
-  );
+);
 
-  const renderSettingsPanel = (weighting, setWeighting, showSettings, setShowSettings, resultsPage, currency, setCurrency, wealthMetric, setWealthMetric, measurement, setMeasurement) => (
-    <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
-      {!showSettings ? (
-        <div className="text-center">
-          <button onClick={() => setShowSettings(true)} className={`${BUTTON_STYLES.toggle} w-full max-w-xs mx-auto`}>
-            ▼ SHOW SETTINGS
-          </button>
-        </div>
-      ) : (
-        <div className="animate-fadeIn">
-          <div className="text-center mb-6">
-            <button onClick={() => setShowSettings(false)} className={`${BUTTON_STYLES.toggle} w-full max-w-xs mx-auto`}>
-              ▲ HIDE SETTINGS
-            </button>
-          </div>
-          
+const renderSettingsPanel = (weighting, setWeighting, showSettings, setShowSettings, resultsPage, currency, setCurrency, wealthMetric, setWealthMetric, measurement, setMeasurement) => (
+<div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
+{!showSettings ? (
+<div className="text-center">
+<button onClick={() => setShowSettings(true)} className={`${BUTTON_STYLES.toggle} w-full max-w-xs mx-auto`}>
+▼ SHOW SETTINGS
+</button>
+</div>
+) : (
+<div className="animate-fadeIn">
+<div className="text-center mb-6">
+<button onClick={() => setShowSettings(false)} className={`${BUTTON_STYLES.toggle} w-full max-w-xs mx-auto`}>
+▲ HIDE SETTINGS
+</button>
+</div>
+
           <DashedDivider />
 
           <div className="mb-6">
@@ -875,50 +911,138 @@ const Comrade = () => {
         <button onClick={() => navigateTo(resultsPage)} className={`${BUTTON_STYLES.large} calculate-btn w-full max-w-xs mx-auto`}>CALCULATE</button>
       </div>
     </div>
-  );
+);
 
-  const renderBarVisualization = (title, data, bars, getItemName) => (
-    <div className="mb-6">
-      <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">{title}</h3>
-      <div className="space-y-3">
-        {data.map((item, idx) => {
-          const maxValue = Math.max(...data.map(d => Math.max(...bars.map(b => b.getValue(d)))));
-          return (
-            <div key={item.id || idx} className="mb-4">
-              <p className="font-bold text-black mb-1 text-xs uppercase">{getItemName(item)}</p>
-              <div className="space-y-1">
-                {bars.map((bar, barIdx) => {
-                  const value = bar.getValue(item);
-                  const width = maxValue > 0 ? (value / maxValue) * 100 : 0;
-                  return (
-                    <div key={barIdx} className="flex items-center gap-2">
-                      {bar.label && <span className="text-xs text-black w-20 font-bold">{bar.label}:</span>}
-                      <div className="flex-1 bg-gray-200 h-6 relative overflow-hidden border border-gray-400">
-                        <div 
-                          className="h-6 transition-all duration-300 bar-animate flex items-center justify-end pr-2 bg-black"
-                          style={{
-                            width: `${width}%`,
-                            animationDelay: `${idx * 0.1 + barIdx * 0.05}s`
-                          }}
-                        >
-                          {width > 15 && <span className="text-xs font-bold text-white">{bar.displayValue(item)}</span>}
-                        </div>
-                      </div>
-                      <span className="text-xs font-bold text-black w-24 text-right">{bar.rightLabel(item, idx)}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
+const renderBarVisualization = (title, data, bars, getItemName) => (
+<div className="mb-6">
+<h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">{title}</h3>
+<div className="space-y-3">
+{data.map((item, idx) => {
+const maxValue = Math.max(...data.map(d => Math.max(...bars.map(b => b.getValue(d)))));
+return (
+<div key={item.id || idx} className="mb-4">
+<p className="font-bold text-black mb-1 text-xs uppercase">{getItemName(item)}</p>
+<div className="space-y-1">
+{bars.map((bar, barIdx) => {
+const value = bar.getValue(item);
+const width = maxValue > 0 ? (value / maxValue) * 100 : 0;
+return (
+<div key={barIdx} className="flex items-center gap-2">
+{bar.label && <span className="text-xs text-black w-20 font-bold">{bar.label}:</span>}
+<div className="flex-1 bg-gray-200 h-6 relative overflow-hidden border border-gray-400">
+<div
+className="h-6 transition-all duration-300 bar-animate flex items-center justify-end pr-2 bg-black"
+style={{
+width: `${width}%`,
+animationDelay: `${idx * 0.1 + barIdx * 0.05}s`
+}}
+>
+{width > 15 && <span className="text-xs font-bold text-white">{bar.displayValue(item)}</span>}
+</div>
+</div>
+<span className="text-xs font-bold text-black w-24 text-right">{bar.rightLabel(item, idx)}</span>
+</div>
+);
+})}
+</div>
+</div>
+);
+})}
+</div>
+</div>
+);
 
-  const renderDistributionList = (title, data, getItemName, getValue, getValueDisplay) => {
-    const totalValue = data.reduce((sum, item) => sum + getValue(item), 0);
-    
+const renderEntrySection = (icon, title, description) => (
+<>
+<div className="flex items-center gap-2 mb-4">
+{icon}
+<h3 className="text-lg font-bold text-black uppercase tracking-wider">{title}</h3>
+</div>
+<p className="text-xs mb-3 text-black">{description}</p>
+</>
+);
+
+const renderDetailCards = (title, data, getCardConfig) => (
+<div className="mb-6">
+<h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">{title}</h3>
+<div className="space-y-3">
+{data.map((item, idx) => {
+const config = getCardConfig(item, idx);
+return (
+<div key={item.id || idx} className={config.cardClassName || CLS.bgWhiteP4Border2}>
+{config.titleExtra ? (
+<div className={`flex justify-between items-start mb-3 border-b ${CLS.borderDashedGray} pb-2`}>
+<p className="font-bold text-sm text-black uppercase">{config.name}</p>
+{config.titleExtra}
+</div>
+) : (
+<p className={`font-bold text-sm text-black mb-3 uppercase ${CLS.borderDashedGray} pb-2`}>{config.name}</p>
+)}
+<div className={`space-y-2 ${CLS.textXsBlack}`}>
+{config.rows.map((row, i) => (
+<div key={i} className="flex justify-between">
+<span className={CLS.textBlackFontBold}>{row.label}:</span>
+<span className="font-semibold text-black">{row.value}</span>
+</div>
+))}
+{config.summaryRows && config.summaryRows.map((row, i) => (
+<div key={`s${i}`} className={`flex justify-between ${i === 0 ? `pt-2 border-t ${CLS.borderDashedGray}` : ''}`}>
+<span className={CLS.textBlackFontBold}>{row.label}:</span>
+<span className={row.className || "font-black text-black"}>{row.value}</span>
+</div>
+))}
+</div>
+</div>
+);
+})}
+</div>
+</div>
+);
+
+const renderMathRow = (data, getFormula) => (
+data.map(p => (
+<div key={p.id} className="flex justify-between mb-1">
+<span>{p.name}:</span>
+<span className="font-mono">{getFormula(p)}</span>
+</div>
+))
+);
+
+const renderAdjustedWealthStep = (stepNum, data, weighting) => (
+<div>
+<p className="font-bold mb-2">{stepNum}. ADJUSTED WEALTH ({getWeightingLabel(weighting).toUpperCase()}):</p>
+{renderMathRow(data, p => {
+if (weighting === 'gentle') return `√${formatNumber(p.wealth.toFixed(0))} = ${formatNumber(p.adjustedWealth.toFixed(2))}`;
+if (weighting === 'standard') return formatNumber(p.wealth.toFixed(2));
+if (weighting === 'strong') return `${formatNumber(p.wealth.toFixed(0))}² = ${formatSmartNumber(p.adjustedWealth)}`;
+return '';
+})}
+</div>
+);
+
+const renderMathSection = (weighting, weightedSteps, noWeightingContent) => (
+<div className="mb-6">
+<h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">THE MATH</h3>
+<div className={CLS.bgWhiteP6Border2}>
+<div className="space-y-3 text-xs text-black">
+{weighting !== 'none' ? (
+<>
+{weightedSteps.map((step, i) => (
+<React.Fragment key={i}>
+{i > 0 && <div className="border-t-2 border-dashed border-gray-400 my-3"></div>}
+{step}
+</React.Fragment>
+))}
+</>
+) : noWeightingContent}
+</div>
+</div>
+</div>
+);
+
+const renderDistributionList = (title, data, getItemName, getValue, getValueDisplay) => {
+const totalValue = data.reduce((sum, item) => sum + getValue(item), 0);
+
     return (
       <div className="mb-6">
         <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">{title}</h3>
@@ -942,94 +1066,124 @@ const Comrade = () => {
         </div>
       </div>
     );
-  };
+};
 
-  const renderEntryButtons = (onLoadExample, onClearAll, resultsPage) => (
-    <div className="text-center space-y-3">
-      <div className="flex flex-col gap-3 justify-center">
-        {renderNavButtons([
-          { label: 'LOAD EXAMPLE', onClick: onLoadExample, variant: 'secondary' },
-          { label: 'CLEAR ALL', onClick: onClearAll, variant: 'danger' }
-        ])}
-      </div>
-      <button onClick={() => navigateTo(resultsPage)} className={`${BUTTON_STYLES.large} calculate-btn`}>CALCULATE</button>
-    </div>
-  );
+const renderEntryButtons = (onLoadExample, onClearAll, resultsPage) => (
+<div className="text-center space-y-3">
+<div className="flex flex-col gap-3 justify-center">
+{renderNavButtons([
+{ label: 'LOAD EXAMPLE', onClick: onLoadExample, variant: 'secondary' },
+{ label: 'CLEAR ALL', onClick: onClearAll, variant: 'danger' }
+])}
+</div>
+<button onClick={() => navigateTo(resultsPage)} className={`${BUTTON_STYLES.large} calculate-btn`}>CALCULATE</button>
+</div>
+);
 
-  const renderStatsRow = (stats) => (
-    <div className="bg-white p-4 border-2 border-solid border-black mb-4 flex flex-wrap justify-around gap-4">
-      {stats.map(({ label, value }, i) => (
-        <div key={label} className="text-center">
-          <p className="text-xs text-gray-600 uppercase tracking-wider">{label}</p>
-          <p className="text-lg font-bold text-black">{value}</p>
-        </div>
-      ))}
-    </div>
-  );
+const renderStatsRow = (stats) => (
+<div className="bg-white p-4 border-2 border-solid border-black mb-4 flex flex-wrap justify-around gap-4">
+{stats.map(({ label, value }, i) => (
+<div key={label} className="text-center">
+<p className="text-xs text-gray-600 uppercase tracking-wider">{label}</p>
+<p className="text-lg font-bold text-black">{value}</p>
+</div>
+))}
+</div>
+);
 
-  const [page, setPage] = useState('home');
-  const [sharePeople, setSharePeople] = useState([]);
-  const [shareBills, setShareBills] = useState([]);
-  const [currentPersonName, setCurrentPersonName] = useState('');
-  const [currentPersonWealth, setCurrentPersonWealth] = useState('');
-  const [currentBillDescription, setCurrentBillDescription] = useState('');
-  const [currentBillAmount, setCurrentBillAmount] = useState('');
-  const [currentBillPaidBy, setCurrentBillPaidBy] = useState('');
-  const [shareWeighting, setShareWeighting] = useState('standard');
-  const [shareCurrency, setShareCurrency] = useState('USD');
-  const [shareWealthMetric, setShareWealthMetric] = useState('salary');
-  const [productName, setProductName] = useState('');
-  const [numberAvailable, setNumberAvailable] = useState('');
-  const [saleBuyers, setSaleBuyers] = useState([]);
-  const [currentBuyerName, setCurrentBuyerName] = useState('');
-  const [currentBuyerWealth, setCurrentBuyerWealth] = useState('');
-  const [currentBuyerOffer, setCurrentBuyerOffer] = useState('');
-  const [saleWeighting, setSaleWeighting] = useState('standard');
-  const [saleCurrency, setSaleCurrency] = useState('USD');
-  const [saleWealthMetric, setSaleWealthMetric] = useState('salary');
-  const [voteDecision, setVoteDecision] = useState('');
-  const [voteOptions, setVoteOptions] = useState([]);
-  const [currentOptionText, setCurrentOptionText] = useState('');
-  const [voteParticipants, setVoteParticipants] = useState([]);
-  const [currentParticipantName, setCurrentParticipantName] = useState('');
-  const [currentParticipantWealth, setCurrentParticipantWealth] = useState('');
-  const [currentParticipantVote, setCurrentParticipantVote] = useState('');
-  const [voteWeighting, setVoteWeighting] = useState('standard');
-  const [voteCurrency, setVoteCurrency] = useState('USD');
-  const [voteWealthMetric, setVoteWealthMetric] = useState('salary');
-  const [totalRent, setTotalRent] = useState('');
-  const [totalUtilities, setTotalUtilities] = useState('');
-  const [rentPeople, setRentPeople] = useState([]);
-  const [currentRoommateName, setCurrentRoommateName] = useState('');
-  const [currentRoommateRoomSize, setCurrentRoommateRoomSize] = useState('');
-  const [currentRoommateWealth, setCurrentRoommateWealth] = useState('');
-  const [rentWeighting, setRentWeighting] = useState('standard');
-  const [rentCurrency, setRentCurrency] = useState('USD');
-  const [rentWealthMetric, setRentWealthMetric] = useState('salary');
-  const [rentMeasurement, setRentMeasurement] = useState('sqft');
-  const [showCopyToast, setShowCopyToast] = useState(false);
-  const [showShareDetails, setShowShareDetails] = useState(false);
-  const [showVoteDetails, setShowVoteDetails] = useState(false);
-  const [showSaleDetails, setShowSaleDetails] = useState(false);
-  const [showRentDetails, setShowRentDetails] = useState(false);
-  const [randomQuote, setRandomQuote] = useState('');
-  const [lastQuoteIndices, setLastQuoteIndices] = useState([]);
-  const [signupEmail, setSignupEmail] = useState('');
-  const [signupStatus, setSignupStatus] = useState(''); // '', 'success', 'error'
-  const [showShareSettings, setShowShareSettings] = useState(false);
-  const [showSaleSettings, setShowSaleSettings] = useState(false);
-  const [showVoteSettings, setShowVoteSettings] = useState(false);
-  const [showRentSettings, setShowRentSettings] = useState(false);
+const [page, setPage] = useState('home');
+const [sharePeople, setSharePeople] = useState([]);
+const [shareBills, setShareBills] = useState([]);
+const [currentPersonName, setCurrentPersonName] = useState('');
+const [currentPersonWealth, setCurrentPersonWealth] = useState('');
+const [currentBillDescription, setCurrentBillDescription] = useState('');
+const [currentBillAmount, setCurrentBillAmount] = useState('');
+const [currentBillPaidBy, setCurrentBillPaidBy] = useState('');
+const [shareWeighting, setShareWeighting] = useState('standard');
+const [shareCurrency, setShareCurrency] = useState('USD');
+const [shareWealthMetric, setShareWealthMetric] = useState('salary');
+const [productName, setProductName] = useState('');
+const [numberAvailable, setNumberAvailable] = useState('');
+const [saleBuyers, setSaleBuyers] = useState([]);
+const [currentBuyerName, setCurrentBuyerName] = useState('');
+const [currentBuyerWealth, setCurrentBuyerWealth] = useState('');
+const [currentBuyerOffer, setCurrentBuyerOffer] = useState('');
+const [saleWeighting, setSaleWeighting] = useState('standard');
+const [saleCurrency, setSaleCurrency] = useState('USD');
+const [saleWealthMetric, setSaleWealthMetric] = useState('salary');
+const [voteDecision, setVoteDecision] = useState('');
+const [voteOptions, setVoteOptions] = useState([]);
+const [currentOptionText, setCurrentOptionText] = useState('');
+const [voteParticipants, setVoteParticipants] = useState([]);
+const [currentParticipantName, setCurrentParticipantName] = useState('');
+const [currentParticipantWealth, setCurrentParticipantWealth] = useState('');
+const [currentParticipantVote, setCurrentParticipantVote] = useState('');
+const [voteWeighting, setVoteWeighting] = useState('standard');
+const [voteCurrency, setVoteCurrency] = useState('USD');
+const [voteWealthMetric, setVoteWealthMetric] = useState('salary');
+const [totalRent, setTotalRent] = useState('');
+const [totalUtilities, setTotalUtilities] = useState('');
+const [rentPeople, setRentPeople] = useState([]);
+const [currentRoommateName, setCurrentRoommateName] = useState('');
+const [currentRoommateRoomSize, setCurrentRoommateRoomSize] = useState('');
+const [currentRoommateWealth, setCurrentRoommateWealth] = useState('');
+const [rentWeighting, setRentWeighting] = useState('standard');
+const [rentCurrency, setRentCurrency] = useState('USD');
+const [rentWealthMetric, setRentWealthMetric] = useState('salary');
+const [rentMeasurement, setRentMeasurement] = useState('sqft');
+const [showCopyToast, setShowCopyToast] = useState(false);
+const [copyToastMessage, setCopyToastMessage] = useState('COPIED TO CLIPBOARD!');
+const [showShareDetails, setShowShareDetails] = useState(false);
+const [showVoteDetails, setShowVoteDetails] = useState(false);
+const [showSaleDetails, setShowSaleDetails] = useState(false);
+const [showRentDetails, setShowRentDetails] = useState(false);
+const [randomQuote, setRandomQuote] = useState('');
+const [lastQuoteIndices, setLastQuoteIndices] = useState([]);
+const [signupEmail, setSignupEmail] = useState('');
+const [signupStatus, setSignupStatus] = useState(''); // '', 'success', 'error'
+const [showShareSettings, setShowShareSettings] = useState(false);
+const [showSaleSettings, setShowSaleSettings] = useState(false);
+const [showVoteSettings, setShowVoteSettings] = useState(false);
+const [showRentSettings, setShowRentSettings] = useState(false);
+const [isSharedView, setIsSharedView] = useState(false);
 
-  const quotes = useMemo(() => ['JEDER NACH SEINEN FÄHIGKEITEN, JEDEM NACH SEINEN BEDÜRFNISSEN', 'THANKS FOR SHARING', 'SHARE AND SHARE ALIKE', 'MANY HANDS MAKE LIGHT WORK', 'ALL FOR ONE AND ONE FOR ALL', 'A RISING TIDE LIFTS ALL BOATS', 'FAIR\'S FAIR', 'LIBERTÉ, ÉGALITÉ, FRATERNITÉ', 'WE\'RE ALL IN THIS TOGETHER', 'WHAT GOES AROUND COMES AROUND', 'NO ONE LEFT BEHIND', 'YOU GET WHAT YOU GIVE', 'WHICH SIDE ARE YOU ON?', 'SHARE THE LOAD', 'BREAD AND ROSES', 'ALL TOGETHER NOW', 'A COMMON TREASURY OF RELIEF FOR ALL, BOTH BEASTS AND MEN', 'WHEN ADAM DELVED AND EVE SPAN, WHO WAS THEN THE GENTLEMAN?', 'E PLURIBUS UNUM', 'WHO BUILT THEBES OF THE SEVEN GATES?', 'SO THE LAST SHALL BE FIRST, AND THE FIRST LAST', 'THE WISDOM OF THE CROWD', 'AND ALL THAT BELIEVED WERE TOGETHER, AND HAD ALL THINGS IN COMMON', 'SALUS POPULI SUPREMA LEX', 'WHAT\'S MINE IS YOURS, AND WHAT IS YOURS IS MINE', 'GIVE US THIS DAY OUR DAILY BREAD', 'NO MAN IS AN ISLAND', 'VIVE LA COMMUNE', 'FOR WHAT SHALL IT PROFIT A MAN, IF HE SHALL GAIN THE WORLD, AND LOSE HIS OWN SOUL?', 'REND DOWN THE HEDGES', 'AM I MY BROTHER\'S KEEPER?', 'IT TAKES A VILLAGE', 'ONE HAND WASHES THE OTHER', 'I DON\'T WANT YOUR MILLIONS, MISTER', 'BE EXCELLENT TO EACH OTHER'], []);
+// Track whether we've already processed the share hash
+const shareHashProcessed = useRef(false);
 
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' });
-    setShowShareDetails(false);
-    setShowVoteDetails(false);
-    setShowSaleDetails(false);
-    setShowRentDetails(false);
-    
+const quotes = useMemo(() => ['JEDER NACH SEINEN FÄHIGKEITEN, JEDEM NACH SEINEN BEDÜRFNISSEN', 'THANKS FOR SHARING', 'SHARE AND SHARE ALIKE', 'MANY HANDS MAKE LIGHT WORK', 'ALL FOR ONE AND ONE FOR ALL', 'A RISING TIDE LIFTS ALL BOATS', 'FAIR\'S FAIR', 'LIBERTÉ, ÉGALITÉ, FRATERNITÉ', 'WE\'RE ALL IN THIS TOGETHER', 'WHAT GOES AROUND COMES AROUND', 'NO ONE LEFT BEHIND', 'YOU GET WHAT YOU GIVE', 'WHICH SIDE ARE YOU ON?', 'SHARE THE LOAD', 'BREAD AND ROSES', 'ALL TOGETHER NOW', 'A COMMON TREASURY OF RELIEF FOR ALL, BOTH BEASTS AND MEN', 'WHEN ADAM DELVED AND EVE SPAN, WHO WAS THEN THE GENTLEMAN?', 'E PLURIBUS UNUM', 'WHO BUILT THEBES OF THE SEVEN GATES?', 'SO THE LAST SHALL BE FIRST, AND THE FIRST LAST', 'THE WISDOM OF THE CROWD', 'AND ALL THAT BELIEVED WERE TOGETHER, AND HAD ALL THINGS IN COMMON', 'SALUS POPULI SUPREMA LEX', 'WHAT\'S MINE IS YOURS, AND WHAT IS YOURS IS MINE', 'GIVE US THIS DAY OUR DAILY BREAD', 'NO MAN IS AN ISLAND', 'VIVE LA COMMUNE', 'FOR WHAT SHALL IT PROFIT A MAN, IF HE SHALL GAIN THE WORLD, AND LOSE HIS OWN SOUL?', 'REND DOWN THE HEDGES', 'AM I MY BROTHER\'S KEEPER?', 'IT TAKES A VILLAGE', 'ONE HAND WASHES THE OTHER', 'I DON\'T WANT YOUR MILLIONS, MISTER', 'BE EXCELLENT TO EACH OTHER'], []);
+
+// Parse share link from URL hash on mount
+useEffect(() => {
+  if (shareHashProcessed.current) return;
+  shareHashProcessed.current = true;
+
+  const hash = window.location.hash;
+  if (hash.startsWith('#s/')) {
+    const encoded = hash.slice(3);
+    decompressFromUrl(encoded).then(data => {
+      if (data && data.p && data.b) {
+        const baseId = Date.now();
+        setSharePeople(data.p.map((p, i) => ({ id: baseId + i, name: p.n, wealth: p.w })));
+        setShareBills(data.b.map((b, i) => ({ id: baseId + 100 + i, description: b.d, amount: b.a, paidBy: b.p })));
+        if (data.w) setShareWeighting(data.w);
+        if (data.c) setShareCurrency(data.c);
+        if (data.m) setShareWealthMetric(data.m);
+        setIsSharedView(true);
+        setPage('share-results');
+      }
+    }).catch(err => {
+      console.error('Failed to decode share link:', err);
+    });
+  }
+}, []);
+
+useEffect(() => {
+window.scrollTo({ top: 0, behavior: 'instant' });
+setShowShareDetails(false);
+setShowVoteDetails(false);
+setShowSaleDetails(false);
+setShowRentDetails(false);
+
     // Select random quote when navigating to any results page
     if (page === 'share-results' || page === 'sale-results' || page === 'vote-results' || page === 'rent-results') {
       // Generate random quote, avoiding the last 5 quotes
@@ -1050,102 +1204,136 @@ const Comrade = () => {
         return newHistory.slice(-5);
       });
     }
-  }, [page, quotes]);
+}, [page, quotes]);
 
-  useEffect(() => {
-    if (showCopyToast) {
-      const timer = setTimeout(() => setShowCopyToast(false), 2500);
-      return () => clearTimeout(timer);
-    }
-  }, [showCopyToast]);
+useEffect(() => {
+if (showCopyToast) {
+const timer = setTimeout(() => setShowCopyToast(false), 2500);
+return () => clearTimeout(timer);
+}
+}, [showCopyToast]);
 
-  const formatNumber = useCallback((num) => num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","), []);
-  const formatSmartNumber = useCallback((num) => {
-    if (Math.abs(num) < 0.01 && num !== 0) return num.toExponential(4);
-    return formatNumber(num.toFixed(2));
-  }, [formatNumber]);
+const formatNumber = useCallback((num) => num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","), []);
+const formatSmartNumber = useCallback((num) => {
+if (Math.abs(num) < 0.01 && num !== 0) return num.toExponential(4);
+return formatNumber(num.toFixed(2));
+}, [formatNumber]);
 
-  const getCurrencySymbol = useCallback((currency) => {
-    const symbols = { USD: '$', EUR: '€', GBP: '£' };
-    return symbols[currency] || '$';
-  }, []);
+const getCurrencySymbol = useCallback((currency) => {
+const symbols = { USD: '$', EUR: '€', GBP: '£' };
+return symbols[currency] || '$';
+}, []);
 
-  // Currency formatting helpers
-  const formatCurrency = useCallback((value, decimals = 2, currency = 'USD') => 
-    `${getCurrencySymbol(currency)}${formatNumber((parseFloat(value) || 0).toFixed(decimals))}`, 
-    [formatNumber, getCurrencySymbol]
-  );
-  const formatCurrencySmart = useCallback((value, currency = 'USD') => 
-    `${getCurrencySymbol(currency)}${formatSmartNumber(value)}`, 
-    [formatSmartNumber, getCurrencySymbol]
-  );
+// Currency formatting helpers
+const formatCurrency = useCallback((value, decimals = 2, currency = 'USD') =>
+`${getCurrencySymbol(currency)}${formatNumber((parseFloat(value) || 0).toFixed(decimals))}`,
+[formatNumber, getCurrencySymbol]
+);
+const formatCurrencySmart = useCallback((value, currency = 'USD') =>
+`${getCurrencySymbol(currency)}${formatSmartNumber(value)}`,
+[formatSmartNumber, getCurrencySymbol]
+);
 
-  const getWeightingLabel = useCallback((weighting) => {
-    const labels = { none: 'OFF', gentle: 'LOW', standard: 'MID', strong: 'HIGH' };
-    return labels[weighting] || 'MID';
-  }, []);
+const getWeightingLabel = useCallback((weighting) => {
+const labels = { none: 'OFF', gentle: 'LOW', standard: 'MID', strong: 'HIGH' };
+return labels[weighting] || 'MID';
+}, []);
 
-  const getWealthMetricLabel = useCallback((metric) => {
-    return metric === 'networth' ? 'NET WORTH' : 'SALARY';
-  }, []);
+const getWealthMetricLabel = useCallback((metric) => {
+return metric === 'networth' ? 'NET WORTH' : 'SALARY';
+}, []);
 
-  const getMeasurementLabel = useCallback((measurement) => {
-    return measurement === 'sqm' ? 'SQ M' : 'SQ FT';
-  }, []);
+const getMeasurementLabel = useCallback((measurement) => {
+return measurement === 'sqm' ? 'SQ M' : 'SQ FT';
+}, []);
 
-  const copyToClipboard = useCallback((text) => {
-    navigator.clipboard.writeText(text);
+const copyToClipboard = useCallback((text) => {
+navigator.clipboard.writeText(text);
+setCopyToastMessage('COPIED TO CLIPBOARD!');
+setShowCopyToast(true);
+}, []);
+
+const navigateTo = useCallback((newPage) => {
+setPage(newPage);
+// Clear share hash when navigating away from shared results
+if (window.location.hash.startsWith('#s/')) {
+  try {
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+  } catch (e) {
+    // Ignore in environments where this isn't allowed
+  }
+}
+if (newPage !== 'share-results') {
+  setIsSharedView(false);
+}
+}, []);
+
+// Generate share link for bill-splitting (synchronous to preserve user gesture for clipboard)
+const generateShareLink = useCallback(() => {
+  const data = {
+    p: sharePeople.map(p => ({ n: p.name, w: p.wealth })),
+    b: shareBills.map(b => ({ d: b.description, a: b.amount, p: b.paidBy })),
+    w: shareWeighting,
+    c: shareCurrency,
+    m: shareWealthMetric
+  };
+  try {
+    const json = JSON.stringify(data);
+    const encoded = btoa(unescape(encodeURIComponent(json)))
+      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    const url = `https://comrade.money/#s/${encoded}`;
+    navigator.clipboard.writeText(url);
+    setCopyToastMessage('SHARE LINK COPIED!');
     setShowCopyToast(true);
-  }, []);
+  } catch (err) {
+    console.error('Failed to generate share link:', err);
+  }
+}, [sharePeople, shareBills, shareWeighting, shareCurrency, shareWealthMetric]);
 
-  const navigateTo = useCallback((newPage) => {
-    setPage(newPage);
-  }, []);
+const handleClearAll = useCallback((type) => {
+switch(type) {
+case 'share':
+setSharePeople([]);
+setShareBills([]);
+setCurrentPersonName('');
+setCurrentPersonWealth('');
+setCurrentBillDescription('');
+setCurrentBillAmount('');
+setCurrentBillPaidBy('');
+break;
+case 'sale':
+setProductName('');
+setNumberAvailable('');
+setSaleBuyers([]);
+setCurrentBuyerName('');
+setCurrentBuyerWealth('');
+setCurrentBuyerOffer('');
+break;
+case 'vote':
+setVoteDecision('');
+setVoteOptions([]);
+setVoteParticipants([]);
+setCurrentParticipantName('');
+setCurrentParticipantWealth('');
+setCurrentParticipantVote('');
+setCurrentOptionText('');
+break;
+case 'rent':
+setTotalRent('');
+setTotalUtilities('');
+setRentPeople([]);
+setCurrentRoommateName('');
+setCurrentRoommateRoomSize('');
+setCurrentRoommateWealth('');
+break;
+}
+setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
+}, []);
 
-  const handleClearAll = useCallback((type) => {
-    switch(type) {
-      case 'share':
-        setSharePeople([]);
-        setShareBills([]);
-        setCurrentPersonName('');
-        setCurrentPersonWealth('');
-        setCurrentBillDescription('');
-        setCurrentBillAmount('');
-        setCurrentBillPaidBy('');
-        break;
-      case 'sale':
-        setProductName('');
-        setNumberAvailable('');
-        setSaleBuyers([]);
-        setCurrentBuyerName('');
-        setCurrentBuyerWealth('');
-        setCurrentBuyerOffer('');
-        break;
-      case 'vote':
-        setVoteDecision('');
-        setVoteOptions([]);
-        setVoteParticipants([]);
-        setCurrentParticipantName('');
-        setCurrentParticipantWealth('');
-        setCurrentParticipantVote('');
-        setCurrentOptionText('');
-        break;
-      case 'rent':
-        setTotalRent('');
-        setTotalUtilities('');
-        setRentPeople([]);
-        setCurrentRoommateName('');
-        setCurrentRoommateRoomSize('');
-        setCurrentRoommateWealth('');
-        break;
-    }
-    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
-  }, []);
+const loadExample = useCallback((type) => {
+const data = EXAMPLE_DATA[type];
+const baseId = Date.now();
 
-  const loadExample = useCallback((type) => {
-    const data = EXAMPLE_DATA[type];
-    const baseId = Date.now();
-    
     switch(type) {
       case 'share':
         setSharePeople(data.people.map((p, i) => ({...p, id: baseId + i})));
@@ -1183,14 +1371,14 @@ const Comrade = () => {
         break;
     }
     setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
-  }, [EXAMPLE_DATA]);
+}, [EXAMPLE_DATA]);
 
-  const handleEmailSignup = useCallback(async (e) => {
-    e.preventDefault();
-    
+const handleEmailSignup = useCallback(async (e) => {
+e.preventDefault();
+
     // Google Apps Script URL
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxgJDAAOvTIE9Jh3dbYfIu2CBWpUiiwbRuVEPbxRlbGufF1RNL5ZWxen9Noza_eyMHu/exec';
-    
+
     try {
       // Use iframe to trigger the request (most reliable for cross-origin)
       const iframe = document.createElement('iframe');
@@ -1220,19 +1408,19 @@ const Comrade = () => {
         setSignupStatus('');
       }, 5000);
     }
-  }, [signupEmail]);
+}, [signupEmail]);
 
-  const MotivationalQuote = useCallback(() => (
-    <p className="text-center text-gray-700 leading-relaxed text-xs">
-      {randomQuote}
-    </p>
-  ), [randomQuote]);
+const MotivationalQuote = useCallback(() => (
+<p className="text-center text-gray-700 leading-relaxed text-xs">
+{randomQuote}
+</p>
+), [randomQuote]);
 
-  const shareCalculations = useMemo(() => {
-    if (page !== 'share-results' || sharePeople.length === 0) return { total: 0, peopleData: [], transactions: [] };
-    
+const shareCalculations = useMemo(() => {
+if (page !== 'share-results' || sharePeople.length === 0) return { total: 0, peopleData: [], transactions: [] };
+
     const total = shareBills.reduce((sum, b) => sum + (parseFloat(b.amount) || 0), 0);
-    
+
     const peopleData = sharePeople.map(person => {
       const wealth = parseFloat(person.wealth) || 0;
       const paid = shareBills
@@ -1262,15 +1450,15 @@ const Comrade = () => {
     const settlements = peopleData
       .map(p => ({name: p.name, balance: p.paid - p.fairShare}))
       .filter(s => Math.abs(s.balance) > 0.01);
-    
+
     const payers = settlements.filter(s => s.balance < 0).sort((a, b) => a.balance - b.balance);
     const receivers = settlements.filter(s => s.balance > 0).sort((a, b) => b.balance - a.balance);
-    
+
     const transactions = [];
     let payersIdx = 0, receiversIdx = 0;
     const payersCopy = payers.map(p => ({...p}));
     const receiversCopy = receivers.map(r => ({...r}));
-    
+
     while (payersIdx < payersCopy.length && receiversIdx < receiversCopy.length) {
       const amount = Math.min(-payersCopy[payersIdx].balance, receiversCopy[receiversIdx].balance);
       transactions.push({
@@ -1285,11 +1473,11 @@ const Comrade = () => {
     }
 
     return { total, peopleData, transactions };
-  }, [sharePeople, shareBills, shareWeighting, page]);
+}, [sharePeople, shareBills, shareWeighting, page]);
 
-  const saleCalculations = useMemo(() => {
-    if (page !== 'sale-results' || saleBuyers.length === 0) return { rankedBuyers: [], totalOffers: 0, avgOffer: 0 };
-    
+const saleCalculations = useMemo(() => {
+if (page !== 'sale-results' || saleBuyers.length === 0) return { rankedBuyers: [], totalOffers: 0, avgOffer: 0 };
+
     const rankedBuyers = saleBuyers.map(buyer => {
       const wealth = parseFloat(buyer.wealth) || 1;
       const offer = parseFloat(buyer.offer) || 0;
@@ -1302,15 +1490,15 @@ const Comrade = () => {
     const avgOffer = rankedBuyers.length > 0 ? totalOffers / rankedBuyers.length : 0;
 
     return { rankedBuyers, totalOffers, avgOffer };
-  }, [saleBuyers, saleWeighting, page]);
+}, [saleBuyers, saleWeighting, page]);
 
-  const voteCalculations = useMemo(() => {
-    if (page !== 'vote-results' || voteParticipants.length === 0) return { participantsData: [], totalVotingPower: 0, voteBreakdown: [], options: [] };
-    
+const voteCalculations = useMemo(() => {
+if (page !== 'vote-results' || voteParticipants.length === 0) return { participantsData: [], totalVotingPower: 0, voteBreakdown: [], options: [] };
+
     const options = voteOptions.map(o => o.text);
     const totalWealth = voteParticipants.reduce((sum, p) => sum + (parseFloat(p.wealth) || 0), 0);
     const avgWealth = totalWealth / voteParticipants.length;
-    
+
     const participantsData = voteParticipants.map(p => {
       const wealth = parseFloat(p.wealth) || 0;
       const adjustedWealth = applyWeighting(wealth, voteWeighting);
@@ -1330,16 +1518,16 @@ const Comrade = () => {
     }).sort((a, b) => b.percentage - a.percentage);
 
     return { participantsData, totalVotingPower, voteBreakdown, options };
-  }, [voteParticipants, voteOptions, voteWeighting, page]);
+}, [voteParticipants, voteOptions, voteWeighting, page]);
 
-  const rentCalculations = useMemo(() => {
-    if (page !== 'rent-results' || rentPeople.length === 0) return { rentAmount: 0, utilitiesAmount: 0, total: 0, totalRoomSize: 0, rentData: [], avgRent: 0, totalRoomValue: 0 };
-    
+const rentCalculations = useMemo(() => {
+if (page !== 'rent-results' || rentPeople.length === 0) return { rentAmount: 0, utilitiesAmount: 0, total: 0, totalRoomSize: 0, rentData: [], avgRent: 0, totalRoomValue: 0 };
+
     const rentAmount = parseFloat(totalRent) || 0;
     const utilitiesAmount = parseFloat(totalUtilities) || 0;
     const total = rentAmount + utilitiesAmount;
     const totalRoomSize = rentPeople.reduce((sum, p) => sum + (parseFloat(p.roomSize) || 0), 0);
-    
+
     const peopleData = rentPeople.map(person => {
       const roomSize = parseFloat(person.roomSize) || 0;
       const wealth = parseFloat(person.wealth) || 0;
@@ -1351,7 +1539,7 @@ const Comrade = () => {
     });
 
     const totalRoomValue = peopleData.reduce((sum, p) => sum + p.roomValue, 0);
-    
+
     const rentData = peopleData.map(p => ({
       ...p,
       fairRent: totalRoomValue > 0 ? (p.roomValue / totalRoomValue) * total : total / rentPeople.length,
@@ -1361,17 +1549,17 @@ const Comrade = () => {
     const avgRent = rentData.length > 0 ? total / rentData.length : 0;
 
     return { rentAmount, utilitiesAmount, total, totalRoomSize, rentData, avgRent, totalRoomValue };
-  }, [rentPeople, totalRent, totalUtilities, rentWeighting, page]);
+}, [rentPeople, totalRent, totalUtilities, rentWeighting, page]);
 
-  if (page === 'home') {
-    return (
-      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
-        <p className="text-center text-sm mb-4 text-black leading-relaxed font-bold">THE FAIRER WAY TO SPLIT COSTS WITH FRIENDS.</p>
-        <p className="text-center text-sm mb-4 text-black leading-relaxed">COMRADE COMBINES AND SIMPLIFIES GROUP BILLS — THEN DIVIDES THEM BASED ON WEALTH.</p>
-        <div className="space-y-4 max-w-md mx-auto mb-4">
-          <button onClick={() => navigateTo('share-entry')} className="w-full bg-black text-white font-bold py-4 px-6 border-2 border-black hover:bg-gray-800 transition-all text-xl">GET STARTED</button>
-        </div>
-        
+if (page === 'home') {
+return (
+<Layout onNavigate={navigateTo} showCopyToast={showCopyToast} copyToastMessage={copyToastMessage}>
+<p className="text-center text-sm mb-4 text-black leading-relaxed font-bold">THE FAIRER WAY TO SPLIT COSTS WITH FRIENDS.</p>
+<p className="text-center text-sm mb-4 text-black leading-relaxed">COMRADE COMBINES AND SIMPLIFIES GROUP BILLS — THEN DIVIDES THEM BASED ON WEALTH.</p>
+<div className="space-y-4 max-w-md mx-auto mb-4">
+<button onClick={() => navigateTo('share-entry')} className="w-full bg-black text-white font-bold py-4 px-6 border-2 border-black hover:bg-gray-800 transition-all text-xl">GET STARTED</button>
+</div>
+
         <CurrencyDivider />
         
         {/* How It Works Section */}
@@ -1418,7 +1606,7 @@ const Comrade = () => {
                 <div className="flex justify-between items-center text-xs font-bold text-gray-500 border-b-2 border-dashed border-gray-400 pb-1">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full" style={{backgroundColor: '#D1D5DB'}}></div>
-                    <span>DINNER</span>
+                    <span>MEAL</span>
                   </div>
                   <span>$95</span>
                 </div>
@@ -1481,14 +1669,14 @@ const Comrade = () => {
         </div>
       </Layout>
     );
-  }
+}
 
-  if (page === 'about') {
-    return (
-      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
-        {/* About section */}
-        <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider border-b-4 border-black pb-2">ABOUT</h2>
-        
+if (page === 'about') {
+return (
+<Layout onNavigate={navigateTo} showCopyToast={showCopyToast} copyToastMessage={copyToastMessage}>
+{/* About section */}
+<h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider border-b-4 border-black pb-2">ABOUT</h2>
+
         {/* Illustration */}
         <div className="mb-6">
           <div className="bg-white p-4">
@@ -1599,60 +1787,54 @@ const Comrade = () => {
         </div>
       </Layout>
     );
-  }
+}
 
-  if (page === 'legal') {
-    return (
-      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
-        <div className="bg-white p-8 border-2 border-dashed border-gray-400">
-          <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider border-b-4 border-black pb-2">LEGAL</h2>
-          <div className="text-black space-y-4">
-            <p className="leading-relaxed text-xs">Comrade does not collect, store, or transmit any financial information entered into the application. All calculations are performed locally in your browser.</p>
-            <div className="border-t border-dashed border-gray-400"></div>
-            <p className="leading-relaxed text-xs">This application is provided for informational purposes only. Users are solely responsible for their own actions. The creators of Comrade are not liable for any outcomes, disputes, unintended consequences, or bad decisions resulting from the use of Comrade and its calculations. Sorry!</p>
-            <div className="border-t border-dashed border-gray-400"></div>
-            <p className="leading-relaxed text-xs">By entering your email address, you consent to Comrade and its team contacting you about updates to the app, news, and other projects they may be working on. Comrade will not sell your personal information to third parties.</p>
-            <div className="border-t border-dashed border-gray-400"></div>
-            <p className="leading-relaxed text-xs">This application is available under a Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0).</p>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
+if (page === 'legal') {
+return (
+<Layout onNavigate={navigateTo} showCopyToast={showCopyToast} copyToastMessage={copyToastMessage}>
+<div className="bg-white p-8 border-2 border-dashed border-gray-400">
+<h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider border-b-4 border-black pb-2">LEGAL</h2>
+<div className="text-black space-y-4">
+<p className="leading-relaxed text-xs">Comrade does not collect, store, or transmit any financial information entered into the application. All calculations are performed locally in your browser.</p>
+<div className="border-t border-dashed border-gray-400"></div>
+<p className="leading-relaxed text-xs">This application is provided for informational purposes only. Users are solely responsible for their own actions. The creators of Comrade are not liable for any outcomes, disputes, unintended consequences, or bad decisions resulting from the use of Comrade and its calculations. Sorry!</p>
+<div className="border-t border-dashed border-gray-400"></div>
+<p className="leading-relaxed text-xs">By entering your email address, you consent to Comrade and its team contacting you about updates to the app, news, and other projects they may be working on. Comrade will not sell your personal information to third parties.</p>
+<div className="border-t border-dashed border-gray-400"></div>
+<p className="leading-relaxed text-xs">This application is available under a Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0).</p>
+</div>
+</div>
+</Layout>
+);
+}
 
-  if (page === 'share-entry') {
-    return (
-      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
-        <EntryPageWrapper
-          title="BILL-SPLITTING"
-          description="From meals to vacations, taxis to tickets, handle your shared expenses with friends more fairly. Comrade combines and simplifies group bills, while using information about group members' finances to decide how much everyone should pay."
-          type="share"
-          settingsComponent={renderSettingsPanel(shareWeighting, setShareWeighting, showShareSettings, setShowShareSettings, 'share-results', shareCurrency, setShareCurrency, shareWealthMetric, setShareWealthMetric, undefined, undefined)}
-        >
-          {/* Box 2: People and Bills */}
-          <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-4">
-              <svg width="20" height="20" viewBox="0 0 40 40">
-                <circle cx="20" cy="20" r="18" fill="#000"/>
-                <circle cx="20" cy="16" r="5" fill="white"/>
-                <path d="M 10 32 Q 10 24 20 24 Q 30 24 30 32" fill="white"/>
-              </svg>
-              <h3 className="text-lg font-bold text-black uppercase tracking-wider">PEOPLE</h3>
-            </div>
-            <p className="text-xs mb-3 text-black">List the people splitting the costs, including their financial resources.</p>
-            
+if (page === 'share-entry') {
+return (
+<Layout onNavigate={navigateTo} showCopyToast={showCopyToast} copyToastMessage={copyToastMessage}>
+{renderEntryPageWrapper(
+"BILL-SPLITTING",
+"From meals to vacations, taxis to tickets, handle your shared expenses with friends more fairly. Comrade combines and simplifies group bills, while using information about group members' finances to decide how much everyone should pay.",
+"share",
+renderSettingsPanel(shareWeighting, setShareWeighting, showShareSettings, setShowShareSettings, 'share-results', shareCurrency, setShareCurrency, shareWealthMetric, setShareWealthMetric, undefined, undefined),
+<>
+{/* Box 2: People and Bills */}
+<div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
+<div className="mb-6">
+{renderEntrySection(<PersonIcon />, "PEOPLE", "List the people splitting the costs, including their financial resources.")}
+
             <AddItemCard
               title=""
               containerClassName=""
               fields={[
               {
+                id: 'person-name',
                 value: currentPersonName,
                 onChange: (e) => setCurrentPersonName(e.target.value),
                 placeholder: "NAME",
                 minWidth: '140px'
               },
               {
+                id: 'person-wealth',
                 value: currentPersonWealth,
                 onChange: (e) => setCurrentPersonWealth(e.target.value),
                 placeholder: `${getCurrencySymbol(shareCurrency)} ${getWealthMetricLabel(shareWealthMetric).toUpperCase()}`,
@@ -1689,23 +1871,21 @@ const Comrade = () => {
           <div className="border-t-2 border-dashed border-gray-400 my-6"></div>
 
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <BillIcon />
-              <h3 className="text-lg font-bold text-black uppercase tracking-wider">BILLS</h3>
-            </div>
-            <p className="text-xs mb-3 text-black">Add all the expenses the group is splitting, along with who already paid for what.</p>
+            {renderEntrySection(<BillIcon />, "BILLS", "Add all the expenses the group is splitting, along with who already paid for what.")}
             
             <AddItemCard
               title=""
               containerClassName=""
               fields={[
               {
+                id: 'bill-description',
                 value: currentBillDescription,
                 onChange: (e) => setCurrentBillDescription(e.target.value),
                 placeholder: "DESCRIPTION",
                 minWidth: '150px'
               },
               {
+                id: 'bill-amount',
                 value: currentBillAmount,
                 onChange: (e) => setCurrentBillAmount(e.target.value),
                 placeholder: `${getCurrencySymbol(shareCurrency)} AMOUNT`,
@@ -1716,6 +1896,7 @@ const Comrade = () => {
                 minWidth: '150px'
               },
               {
+                id: 'bill-paidby',
                 type: 'select',
                 value: currentBillPaidBy,
                 onChange: (e) => setCurrentBillPaidBy(e.target.value),
@@ -1749,19 +1930,26 @@ const Comrade = () => {
             />
           </div>
         </div>
+</>
+)}
+</Layout>
+);
+}
 
-        </EntryPageWrapper>
-      </Layout>
-    );
-  }
-
-  if (page === 'share-results') {
-    const { total, peopleData, transactions } = shareCalculations;
-    const hasData = sharePeople.length > 0 && shareBills.length > 0 && shareBills.some(b => parseFloat(b.amount) > 0);
+if (page === 'share-results') {
+const { total, peopleData, transactions } = shareCalculations;
+const hasData = sharePeople.length > 0 && shareBills.length > 0 && shareBills.some(b => parseFloat(b.amount) > 0);
 
     return (
-      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
+      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast} copyToastMessage={copyToastMessage}>
         <h2 className="text-2xl font-black mb-6 text-black uppercase tracking-wider border-b-4 border-black pb-2">BILL-SPLITTING RESULTS</h2>
+        
+        {isSharedView && hasData && (
+          <div className="bg-gray-200 p-4 mb-4 border-2 border-dashed border-gray-500 text-center">
+            <p className="text-xs text-black font-bold uppercase">SHARED RESULTS</p>
+            <p className="text-xs text-gray-600 mt-1">SOMEONE SHARED THESE RESULTS WITH YOU VIA COMRADE</p>
+          </div>
+        )}
         
         {!hasData && renderNoDataState('share-entry')}
 
@@ -1802,42 +1990,21 @@ const Comrade = () => {
                 <div className="animate-fadeIn">
                   <DashedDivider />
                   
-                  <div className="mb-6">
-                    <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">PARTICIPANT DATA</h3>
-                    
-                    <div className="space-y-3">
-                      {[...peopleData].sort((a, b) => b.wealth - a.wealth).map((p, idx) => {
-                        const balance = p.paid - p.fairShare;
-                        const colorClass = balance > 0.01 ? 'text-black' : balance < -0.01 ? 'text-black' : 'text-gray-600';
-                        
-                        return (
-                          <div key={p.id || idx} className={CLS.bgWhiteP4Border2}>
-                            <p className={`font-bold text-sm text-black mb-3 uppercase ${CLS.borderDashedGray} pb-2`}>
-                              {p.name}
-                            </p>
-                            <div className={`space-y-2 ${CLS.textXsBlack}`}>
-                              <div className="flex justify-between">
-                                <span className={CLS.textBlackFontBold}>WEALTH:</span>
-                                <span className="font-semibold text-black">{formatCurrency(p.wealth, 2, shareCurrency)}</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className={CLS.textBlackFontBold}>PAID:</span>
-                                <span className="font-semibold text-black">{formatCurrency(p.paid, 2, shareCurrency)} ({p.paidPct.toFixed(1)}%)</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className={CLS.textBlackFontBold}>FAIR SHARE:</span>
-                                <span className="font-semibold text-black">{formatCurrencySmart(p.fairShare, shareCurrency)} ({p.fairPct.toFixed(1)}%)</span>
-                              </div>
-                              <div className={`flex justify-between pt-2 border-t ${CLS.borderDashedGray}`}>
-                                <span className={CLS.textBlackFontBold}>BALANCE:</span>
-                                <span className={`font-black ${colorClass}`}>{balance > 0.01 ? '+' : ''}{formatCurrencySmart(balance, shareCurrency)}</span>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
+                  {renderDetailCards('PARTICIPANT DATA', [...peopleData].sort((a, b) => b.wealth - a.wealth), (p) => {
+                    const balance = p.paid - p.fairShare;
+                    const colorClass = balance > 0.01 ? 'text-black' : balance < -0.01 ? 'text-black' : 'text-gray-600';
+                    return {
+                      name: p.name,
+                      rows: [
+                        { label: 'WEALTH', value: formatCurrency(p.wealth, 2, shareCurrency) },
+                        { label: 'PAID', value: `${formatCurrency(p.paid, 2, shareCurrency)} (${p.paidPct.toFixed(1)}%)` },
+                        { label: 'FAIR SHARE', value: `${formatCurrencySmart(p.fairShare, shareCurrency)} (${p.fairPct.toFixed(1)}%)` }
+                      ],
+                      summaryRows: [
+                        { label: 'BALANCE', value: `${balance > 0.01 ? '+' : ''}${formatCurrencySmart(balance, shareCurrency)}`, className: `font-black ${colorClass}` }
+                      ]
+                    };
+                  })}
 
                   <DashedDivider />
 
@@ -1892,71 +2059,31 @@ const Comrade = () => {
 
                   <DashedDivider />
 
-                  <div className="mb-6">
-                    <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">THE MATH</h3>
-                    <div className={CLS.bgWhiteP6Border2}>
-                      <div className="space-y-3 text-xs text-black">
-                        {shareWeighting !== 'none' ? (
-                          <>
-                            <div>
-                              <p className="font-bold mb-2">1. ADJUSTED WEALTH ({getWeightingLabel(shareWeighting).toUpperCase()}):</p>
-                              {peopleData.map(p => (
-                                <div key={p.id} className="flex justify-between mb-1">
-                                  <span>{p.name}:</span>
-                                  <span className="font-mono">
-                                    {shareWeighting === 'gentle' && `√${formatNumber(p.wealth.toFixed(0))} = ${formatNumber(p.adjustedWealth.toFixed(2))}`}
-                                    {shareWeighting === 'standard' && `${formatNumber(p.wealth.toFixed(2))}`}
-                                    {shareWeighting === 'strong' && `${formatNumber(p.wealth.toFixed(0))}² = ${formatSmartNumber(p.adjustedWealth)}`}
-                                  </span>
-                                </div>
-                              ))}
-                              <div className="flex justify-between mt-2 pt-2 border-t border-dashed border-gray-400 font-bold">
-                                <span>TOTAL:</span>
-                                <span className="font-mono">{formatSmartNumber(peopleData.reduce((sum, p) => sum + p.adjustedWealth, 0))}</span>
-                              </div>
-                            </div>
-
-                            <div className="border-t-2 border-dashed border-gray-400 my-3"></div>
-
-                            <div>
-                              <p className="font-bold mb-2">2. FAIR SHARE %:</p>
-                              {peopleData.map(p => {
-                                const totalAdjusted = peopleData.reduce((sum, p) => sum + p.adjustedWealth, 0);
-                                return (
-                                  <div key={p.id} className="flex justify-between mb-1">
-                                    <span>{p.name}:</span>
-                                    <span className="font-mono">{formatSmartNumber(p.adjustedWealth)} ÷ {formatSmartNumber(totalAdjusted)} = {p.fairPct.toFixed(1)}%</span>
-                                  </div>
-                                );
-                              })}
-                            </div>
-
-                            <div className="border-t-2 border-dashed border-gray-400 my-3"></div>
-
-                            <div>
-                              <p className="font-bold mb-2">3. AMOUNT OWED:</p>
-                              {peopleData.map(p => (
-                                <div key={p.id} className="flex justify-between mb-1">
-                                  <span>{p.name}:</span>
-                                  <span className="font-mono">{p.fairPct.toFixed(1)}% × {formatCurrency(total, 2, shareCurrency)} = {formatCurrencySmart(p.fairShare, shareCurrency)}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </>
-                        ) : (
-                          <div>
-                            <p className="font-bold mb-2">EQUAL SPLIT (NO WEIGHTING):</p>
-                            {peopleData.map(p => (
-                              <div key={p.id} className="flex justify-between mb-1">
-                                <span>{p.name}:</span>
-                                <span className="font-mono">{formatCurrency(total, 2, shareCurrency)} ÷ {peopleData.length} = {formatCurrencySmart(p.fairShare, shareCurrency)}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                  {renderMathSection(shareWeighting, [
+                    <div key="s1">
+                      {renderAdjustedWealthStep(1, peopleData, shareWeighting)}
+                      <div className="flex justify-between mt-2 pt-2 border-t border-dashed border-gray-400 font-bold">
+                        <span>TOTAL:</span>
+                        <span className="font-mono">{formatSmartNumber(peopleData.reduce((sum, p) => sum + p.adjustedWealth, 0))}</span>
                       </div>
+                    </div>,
+                    <div key="s2">
+                      <p className="font-bold mb-2">2. FAIR SHARE %:</p>
+                      {renderMathRow(peopleData, p => {
+                        const totalAdjusted = peopleData.reduce((sum, pp) => sum + pp.adjustedWealth, 0);
+                        return `${formatSmartNumber(p.adjustedWealth)} ÷ ${formatSmartNumber(totalAdjusted)} = ${p.fairPct.toFixed(1)}%`;
+                      })}
+                    </div>,
+                    <div key="s3">
+                      <p className="font-bold mb-2">3. AMOUNT OWED:</p>
+                      {renderMathRow(peopleData, p => `${p.fairPct.toFixed(1)}% × ${formatCurrency(total, 2, shareCurrency)} = ${formatCurrencySmart(p.fairShare, shareCurrency)}`)}
                     </div>
-                  </div>
+                  ], (
+                    <div>
+                      <p className="font-bold mb-2">EQUAL SPLIT (NO WEIGHTING):</p>
+                      {renderMathRow(peopleData, p => `${formatCurrency(total, 2, shareCurrency)} ÷ ${peopleData.length} = ${formatCurrencySmart(p.fairShare, shareCurrency)}`)}
+                    </div>
+                  ))}
                 </div>
               )}
             </>
@@ -1965,68 +2092,61 @@ const Comrade = () => {
         {renderResultsFooter(
           hasData,
           `Comrade | Bill-splitting results\n\nTotal: ${formatCurrency(total, 2, shareCurrency)}\n\nBreakdown:\n${peopleData.map(p => `${p.name}: Paid ${formatCurrency(p.paid, 2, shareCurrency)}, fair share ${formatCurrencySmart(p.fairShare, shareCurrency)}`).join('\n')}\n\nSettlements:\n${transactions.length === 0 ? 'All settled!' : transactions.map(t => `${t.from} pays ${t.to} ${formatCurrencySmart(t.amount, shareCurrency)}`).join('\n')}\n\nCalculated using www.comrade.money — the fairer way to split costs with friends.`,
-          'share-entry'
+          'share-entry',
+          generateShareLink
         )}
       </Layout>
     );
-  }
+}
 
-  if (page === 'sale-entry') {
-    return (
-      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
-        <EntryPageWrapper
-          title="SELLING"
-          description="If you're selling something, make sure it goes to the potential buyer who needs it the most — not just whoever offers to pay the most. Comrade takes into account prospective purchasers' financial resources to help you understand how much your product is truly worth to them."
-          type="sale"
-          settingsComponent={renderSettingsPanel(saleWeighting, setSaleWeighting, showSaleSettings, setShowSaleSettings, 'sale-results', saleCurrency, setSaleCurrency, saleWealthMetric, setSaleWealthMetric, undefined, undefined)}
-        >
-          {/* Box 2: Product Info and Potential Buyers */}
-          <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-4">
-              <svg width="20" height="20" viewBox="0 0 24 24">
-                <path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z" fill="#000"/>
-              </svg>
-              <h3 className="text-lg font-bold text-black uppercase tracking-wider">PRODUCT DETAILS</h3>
-            </div>
-            <p className="text-xs mb-3 text-black">List what you're selling, and how many items are available.</p>
-            <FormInput
-              value={productName}
-              onChange={(e) => setProductName(e.target.value)}
-              placeholder="PRODUCT NAME"
-              className="mb-3"
-            />
-            <FormInput
-              type="number"
-              value={numberAvailable}
-              onChange={(e) => setNumberAvailable(e.target.value)}
-              placeholder="NUMBER AVAILABLE"
-              min="1"
-              step="1"
-              inputMode="numeric"
-            />
-          </div>
+if (page === 'sale-entry') {
+return (
+<Layout onNavigate={navigateTo} showCopyToast={showCopyToast} copyToastMessage={copyToastMessage}>
+{renderEntryPageWrapper(
+"SELLING",
+"If you're selling something, make sure it goes to the potential buyer who needs it the most — not just whoever offers to pay the most. Comrade takes into account prospective purchasers' financial resources to help you understand how much your product is truly worth to them.",
+"sale",
+renderSettingsPanel(saleWeighting, setSaleWeighting, showSaleSettings, setShowSaleSettings, 'sale-results', saleCurrency, setSaleCurrency, saleWealthMetric, setSaleWealthMetric, undefined, undefined),
+<>
+{/* Box 2: Product Info and Potential Buyers */}
+<div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
+<div className="mb-6">
+{renderEntrySection(<TagIcon />, "PRODUCT DETAILS", "List what you're selling, and how many items are available.")}
+<FormInput
+value={productName}
+onChange={(e) => setProductName(e.target.value)}
+placeholder="PRODUCT NAME"
+className="mb-3"
+/>
+<FormInput
+type="number"
+value={numberAvailable}
+onChange={(e) => setNumberAvailable(e.target.value)}
+placeholder="NUMBER AVAILABLE"
+min="1"
+step="1"
+inputMode="numeric"
+/>
+</div>
 
           <div className="border-t-2 border-dashed border-gray-400 my-6"></div>
 
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <PersonIcon />
-              <h3 className="text-lg font-bold text-black uppercase tracking-wider">POTENTIAL BUYERS</h3>
-            </div>
-            <p className="text-xs mb-3 text-black">Add all the people interested in buying, along with their financial information.</p>
+            {renderEntrySection(<PersonIcon />, "POTENTIAL BUYERS", "Add all the people interested in buying, along with their financial information.")}
             
             <AddItemCard
               title=""
               containerClassName=""
               fields={[
               {
+                id: 'buyer-name',
                 value: currentBuyerName,
                 onChange: (e) => setCurrentBuyerName(e.target.value),
                 placeholder: "NAME",
                 minWidth: '120px'
               },
               {
+                id: 'buyer-wealth',
                 value: currentBuyerWealth,
                 onChange: (e) => setCurrentBuyerWealth(e.target.value),
                 placeholder: `${getCurrencySymbol(saleCurrency)} ${getWealthMetricLabel(saleWealthMetric).toUpperCase()}`,
@@ -2037,6 +2157,7 @@ const Comrade = () => {
                 minWidth: '150px'
               },
               {
+                id: 'buyer-offer',
                 value: currentBuyerOffer,
                 onChange: (e) => setCurrentBuyerOffer(e.target.value),
                 placeholder: `${getCurrencySymbol(saleCurrency)} OFFER`,
@@ -2073,21 +2194,21 @@ const Comrade = () => {
             />
           </div>
         </div>
+</>
+)}
+</Layout>
+);
+}
 
-        </EntryPageWrapper>
-      </Layout>
-    );
-  }
-
-  if (page === 'sale-results') {
-    const { rankedBuyers, totalOffers, avgOffer } = saleCalculations;
-    const numAvailable = parseInt(numberAvailable) || 1;
-    const winners = rankedBuyers.slice(0, numAvailable);
-    const hasData = saleBuyers.length > 0 && productName.trim();
-    const isPerfectTie = hasData && rankedBuyers.length > 1 && rankedBuyers[0].needScore === rankedBuyers[1].needScore && rankedBuyers[0].needScore > 0;
+if (page === 'sale-results') {
+const { rankedBuyers, totalOffers, avgOffer } = saleCalculations;
+const numAvailable = parseInt(numberAvailable) || 1;
+const winners = rankedBuyers.slice(0, numAvailable);
+const hasData = saleBuyers.length > 0 && productName.trim();
+const isPerfectTie = hasData && rankedBuyers.length > 1 && rankedBuyers[0].needScore === rankedBuyers[1].needScore && rankedBuyers[0].needScore > 0;
 
     return (
-      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
+      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast} copyToastMessage={copyToastMessage}>
         <h2 className="text-2xl font-black mb-6 text-black uppercase tracking-wider border-b-4 border-black pb-2">SELLING RESULTS</h2>
         
         {!hasData && renderNoDataState('sale-entry')}
@@ -2125,39 +2246,25 @@ const Comrade = () => {
                 <div className="animate-fadeIn">
                   <div className="border-t-2 border-dashed border-gray-400 my-6"></div>
                   
-                  <div className="mb-6">
-                    <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">BUYER DATA</h3>
-                    
-                    <div className="space-y-3">
-                      {rankedBuyers.map((buyer, i) => {
-                        const isWinner = i < numAvailable;
-                        return (
-                          <div key={buyer.id || i} className={`p-4 border-2 ${isWinner ? 'border-black bg-gray-100' : 'border-gray-400 bg-white'}`}>
-                            <div className={`flex justify-between items-start mb-3 border-b ${CLS.borderDashedGray} pb-2`}>
-                              <p className={`font-bold text-sm text-black uppercase`}>#{i + 1} {buyer.name}</p>
-                              <span className={`px-2 py-1 ${CLS.textXsBlack} font-bold border ${isWinner ? 'bg-black text-white border-black' : 'bg-white text-black border-black'}`}>
-                                {isWinner ? 'SELECTED' : 'NOT SELECTED'}
-                              </span>
-                            </div>
-                            <div className={`space-y-2 ${CLS.textXsBlack}`}>
-                              <div className="flex justify-between">
-                                <span className={CLS.textBlackFontBold}>WEALTH:</span>
-                                <span className="font-semibold text-black">{formatCurrency(buyer.wealth, 2, saleCurrency)}</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className={CLS.textBlackFontBold}>OFFER:</span>
-                                <span className="font-semibold text-black">{formatCurrency(buyer.offer, 2, saleCurrency)}</span>
-                              </div>
-                              <div className={`flex justify-between pt-2 border-t ${CLS.borderDashedGray}`}>
-                                <span className={CLS.textBlackFontBold}>NEED SCORE:</span>
-                                <span className="font-black text-black">{buyer.needScore < 0.01 ? buyer.needScore.toExponential(4) : buyer.needScore.toFixed(2)}%</span>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
+                  {renderDetailCards('BUYER DATA', rankedBuyers, (buyer, i) => {
+                    const isWinner = i < numAvailable;
+                    return {
+                      name: `#${i + 1} ${buyer.name}`,
+                      cardClassName: `p-4 border-2 ${isWinner ? 'border-black bg-gray-100' : 'border-gray-400 bg-white'}`,
+                      titleExtra: (
+                        <span className={`px-2 py-1 ${CLS.textXsBlack} font-bold border ${isWinner ? 'bg-black text-white border-black' : 'bg-white text-black border-black'}`}>
+                          {isWinner ? 'SELECTED' : 'NOT SELECTED'}
+                        </span>
+                      ),
+                      rows: [
+                        { label: 'WEALTH', value: formatCurrency(buyer.wealth, 2, saleCurrency) },
+                        { label: 'OFFER', value: formatCurrency(buyer.offer, 2, saleCurrency) }
+                      ],
+                      summaryRows: [
+                        { label: 'NEED SCORE', value: `${buyer.needScore < 0.01 ? buyer.needScore.toExponential(4) : buyer.needScore.toFixed(2)}%` }
+                      ]
+                    };
+                  })}
 
                   <div className="border-t-2 border-dashed border-gray-400 my-6"></div>
 
@@ -2176,52 +2283,23 @@ const Comrade = () => {
 
                   <div className="border-t-2 border-dashed border-gray-400 my-6"></div>
 
-                  <div className="mb-6">
-                    <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">THE MATH</h3>
-                    <div className={CLS.bgWhiteP6Border2}>
-                      <div className="space-y-3 text-xs text-black">
-                        {saleWeighting !== 'none' ? (
-                          <>
-                            <div>
-                              <p className="font-bold mb-2">1. ADJUSTED WEALTH ({getWeightingLabel(saleWeighting).toUpperCase()}):</p>
-                              {rankedBuyers.map(b => (
-                                <div key={b.id} className="flex justify-between mb-1">
-                                  <span>{b.name}:</span>
-                                  <span className="font-mono">
-                                    {saleWeighting === 'gentle' && `√${formatNumber(b.wealth.toFixed(0))} = ${formatNumber(b.adjustedWealth.toFixed(2))}`}
-                                    {saleWeighting === 'standard' && `${formatNumber(b.wealth.toFixed(2))}`}
-                                    {saleWeighting === 'strong' && `${formatNumber(b.wealth.toFixed(0))}² = ${formatSmartNumber(b.adjustedWealth)}`}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-
-                            <div className="border-t-2 border-dashed border-gray-400 my-3"></div>
-
-                            <div>
-                              <p className="font-bold mb-2">2. NEED SCORE (OFFER ÷ ADJUSTED WEALTH × 100):</p>
-                              {rankedBuyers.map(b => (
-                                <div key={b.id} className="flex justify-between mb-1">
-                                  <span>{b.name}:</span>
-                                  <span className="font-mono">{formatCurrency(b.offer, 2, saleCurrency)} ÷ {formatSmartNumber(b.adjustedWealth)} × 100 = {b.needScore < 0.01 ? b.needScore.toExponential(2) : b.needScore.toFixed(2)}%</span>
-                                </div>
-                              ))}
-                            </div>
-                          </>
-                        ) : (
-                          <div>
-                            <p className="font-bold mb-2">NO WEIGHTING - RANKED BY OFFER AMOUNT:</p>
-                            {rankedBuyers.map((b, idx) => (
-                              <div key={b.id} className="flex justify-between mb-1">
-                                <span>#{idx + 1} {b.name}:</span>
-                                <span className="font-mono">{formatCurrency(b.offer, 2, saleCurrency)}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
+                  {renderMathSection(saleWeighting, [
+                    renderAdjustedWealthStep(1, rankedBuyers, saleWeighting),
+                    <div key="s2">
+                      <p className="font-bold mb-2">2. NEED SCORE (OFFER ÷ ADJUSTED WEALTH × 100):</p>
+                      {renderMathRow(rankedBuyers, b => `${formatCurrency(b.offer, 2, saleCurrency)} ÷ ${formatSmartNumber(b.adjustedWealth)} × 100 = ${b.needScore < 0.01 ? b.needScore.toExponential(2) : b.needScore.toFixed(2)}%`)}
                     </div>
-                  </div>
+                  ], (
+                    <div>
+                      <p className="font-bold mb-2">NO WEIGHTING - RANKED BY OFFER AMOUNT:</p>
+                      {rankedBuyers.map((b, idx) => (
+                        <div key={b.id} className="flex justify-between mb-1">
+                          <span>#{idx + 1} {b.name}:</span>
+                          <span className="font-mono">{formatCurrency(b.offer, 2, saleCurrency)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
                 </div>
               )}
             </>
@@ -2234,50 +2312,41 @@ const Comrade = () => {
         )}
       </Layout>
     );
-  }
+}
 
-  if (page === 'vote-entry') {
-    return (
-      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
-        <EntryPageWrapper
-          title="VOTING"
-          description="Make group decisions more equitably. If your friends, classmates, or coworkers are grappling with a dispute, give more voting power to those with less wealth."
-          type="vote"
-          settingsComponent={renderSettingsPanel(voteWeighting, setVoteWeighting, showVoteSettings, setShowVoteSettings, 'vote-results', voteCurrency, setVoteCurrency, voteWealthMetric, setVoteWealthMetric, undefined, undefined)}
-        >
-          {/* Box 2: Decision, Options, and Participants */}
-          <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-4">
-              <svg width="20" height="20" viewBox="0 0 24 24">
-                <text x="6" y="19" font-family="monospace" font-size="20" fill="#000" font-weight="bold">?</text>
-              </svg>
-              <h3 className="text-lg font-bold text-black uppercase tracking-wider">DECISION</h3>
-            </div>
-            <p className="text-xs mb-3 text-black">Enter the question the group is voting on.</p>
-            <FormInput
-              type="textarea"
-              value={voteDecision}
-              onChange={(e) => setVoteDecision(e.target.value)}
-              placeholder="DECISION TO BE MADE"
-              rows={3}
-            />
-          </div>
+if (page === 'vote-entry') {
+return (
+<Layout onNavigate={navigateTo} showCopyToast={showCopyToast} copyToastMessage={copyToastMessage}>
+{renderEntryPageWrapper(
+"VOTING",
+"Make group decisions more equitably. If your friends, classmates, or coworkers are grappling with a dispute, give more voting power to those with less wealth.",
+"vote",
+renderSettingsPanel(voteWeighting, setVoteWeighting, showVoteSettings, setShowVoteSettings, 'vote-results', voteCurrency, setVoteCurrency, voteWealthMetric, setVoteWealthMetric, undefined, undefined),
+<>
+{/* Box 2: Decision, Options, and Participants */}
+<div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
+<div className="mb-6">
+{renderEntrySection(<QuestionIcon />, "DECISION", "Enter the question the group is voting on.")}
+<FormInput
+type="textarea"
+value={voteDecision}
+onChange={(e) => setVoteDecision(e.target.value)}
+placeholder="DECISION TO BE MADE"
+rows={4}
+/>
+</div>
 
           <div className="border-t-2 border-dashed border-gray-400 my-6"></div>
 
           <div className="mb-6">
-            <div className="flex items-center gap-2 mb-4">
-              <ListIcon />
-              <h3 className="text-lg font-bold text-black uppercase tracking-wider">OPTIONS</h3>
-            </div>
-            <p className="text-xs mb-3 text-black">Add all the possible choices people can vote for.</p>
+            {renderEntrySection(<ListIcon />, "OPTIONS", "Add all the possible choices people can vote for.")}
             
             <AddItemCard
               title=""
               containerClassName=""
               fields={[
               {
+                id: 'option-text',
                 value: currentOptionText,
                 onChange: (e) => setCurrentOptionText(e.target.value),
                 placeholder: "OPTION TEXT",
@@ -2305,23 +2374,21 @@ const Comrade = () => {
           <div className="border-t-2 border-dashed border-gray-400 my-6"></div>
 
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <PersonIcon />
-              <h3 className="text-lg font-bold text-black uppercase tracking-wider">PEOPLE</h3>
-            </div>
-            <p className="text-xs mb-3 text-black">List the people in the group, their financial resources, and how they chose to vote.</p>
+            {renderEntrySection(<PersonIcon />, "PEOPLE", "List the people in the group, their financial resources, and how they chose to vote.")}
             
             <AddItemCard
               title=""
               containerClassName=""
               fields={[
               {
+                id: 'participant-name',
                 value: currentParticipantName,
                 onChange: (e) => setCurrentParticipantName(e.target.value),
                 placeholder: "NAME",
                 minWidth: '120px'
               },
               {
+                id: 'participant-wealth',
                 value: currentParticipantWealth,
                 onChange: (e) => setCurrentParticipantWealth(e.target.value),
                 placeholder: `${getCurrencySymbol(voteCurrency)} ${getWealthMetricLabel(voteWealthMetric).toUpperCase()}`,
@@ -2332,6 +2399,7 @@ const Comrade = () => {
                 minWidth: '150px'
               },
               {
+                id: 'participant-vote',
                 type: 'select',
                 value: currentParticipantVote,
                 onChange: (e) => setCurrentParticipantVote(e.target.value),
@@ -2366,20 +2434,20 @@ const Comrade = () => {
             />
           </div>
         </div>
+</>
+)}
+</Layout>
+);
+}
 
-        </EntryPageWrapper>
-      </Layout>
-    );
-  }
-
-  if (page === 'vote-results') {
-    const { participantsData, totalVotingPower, voteBreakdown, options } = voteCalculations;
-    const hasData = voteParticipants.length > 0 && voteDecision.trim() && voteOptions.length > 0;
-    const winner = voteBreakdown.length > 0 ? voteBreakdown[0] : null;
-    const isTie = hasData && voteBreakdown.length > 1 && voteBreakdown[0].percentage === voteBreakdown[1].percentage;
+if (page === 'vote-results') {
+const { participantsData, totalVotingPower, voteBreakdown, options } = voteCalculations;
+const hasData = voteParticipants.length > 0 && voteDecision.trim() && voteOptions.length > 0;
+const winner = voteBreakdown.length > 0 ? voteBreakdown[0] : null;
+const isTie = hasData && voteBreakdown.length > 1 && voteBreakdown[0].percentage === voteBreakdown[1].percentage;
 
     return (
-      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
+      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast} copyToastMessage={copyToastMessage}>
         <h2 className="text-2xl font-black mb-6 text-black uppercase tracking-wider border-b-4 border-black pb-2">VOTING RESULTS</h2>
         
         {!hasData && renderNoDataState('vote-entry')}
@@ -2444,33 +2512,16 @@ const Comrade = () => {
 
                   <div className="border-t-2 border-dashed border-gray-400 my-6"></div>
 
-                  <div className="mb-6">
-                    <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">PARTICIPANT DATA</h3>
-                    
-                    <div className="space-y-3">
-                      {[...participantsData].sort((a, b) => b.wealth - a.wealth).map((p, idx) => (
-                        <div key={p.id || idx} className={CLS.bgWhiteP4Border2}>
-                          <p className={`font-bold text-sm text-black mb-3 uppercase ${CLS.borderDashedGray} pb-2`}>
-                            {p.name}
-                          </p>
-                          <div className={`space-y-2 ${CLS.textXsBlack}`}>
-                            <div className="flex justify-between">
-                              <span className={CLS.textBlackFontBold}>WEALTH:</span>
-                              <span className="font-semibold text-black">{formatCurrency(p.wealth, 2, voteCurrency)}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className={CLS.textBlackFontBold}>VOTE:</span>
-                              <span className="font-semibold text-black">{p.vote || 'NO VOTE'}</span>
-                            </div>
-                            <div className={`flex justify-between pt-2 border-t ${CLS.borderDashedGray}`}>
-                              <span className={CLS.textBlackFontBold}>VOTING POWER:</span>
-                              <span className="font-black text-black">{p.votingPower.toFixed(2)}</span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                  {renderDetailCards('PARTICIPANT DATA', [...participantsData].sort((a, b) => b.wealth - a.wealth), (p) => ({
+                    name: p.name,
+                    rows: [
+                      { label: 'WEALTH', value: formatCurrency(p.wealth, 2, voteCurrency) },
+                      { label: 'VOTE', value: p.vote || 'NO VOTE' }
+                    ],
+                    summaryRows: [
+                      { label: 'VOTING POWER', value: p.votingPower.toFixed(2) }
+                    ]
+                  }))}
 
                   <div className="border-t-2 border-dashed border-gray-400 my-6"></div>
 
@@ -2546,73 +2597,36 @@ const Comrade = () => {
 
                   <div className="border-t-2 border-dashed border-gray-400 my-6"></div>
 
-                  <div className="mb-6">
-                    <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">THE MATH</h3>
-                    <div className={CLS.bgWhiteP6Border2}>
-                      <div className="space-y-3 text-xs text-black">
-                        {voteWeighting !== 'none' ? (
-                          <>
-                            <div>
-                              <p className="font-bold mb-2">1. ADJUSTED WEALTH ({getWeightingLabel(voteWeighting).toUpperCase()}):</p>
-                              {participantsData.map(p => (
-                                <div key={p.id} className="flex justify-between mb-1">
-                                  <span>{p.name}:</span>
-                                  <span className="font-mono">
-                                    {voteWeighting === 'gentle' && `√${formatNumber(p.wealth.toFixed(0))} = ${formatNumber(p.adjustedWealth.toFixed(2))}`}
-                                    {voteWeighting === 'standard' && `${formatNumber(p.wealth.toFixed(2))}`}
-                                    {voteWeighting === 'strong' && `${formatNumber(p.wealth.toFixed(0))}² = ${formatSmartNumber(p.adjustedWealth)}`}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-
-                            <div className="border-t-2 border-dashed border-gray-400 my-3"></div>
-
-                            <div>
-                              <p className="font-bold mb-2">2. AVERAGE WEALTH:</p>
-                              <div className="flex justify-between mb-1">
-                                <span>TOTAL:</span>
-                                <span className="font-mono">{formatSmartNumber(participantsData.reduce((sum, p) => sum + p.wealth, 0))}</span>
-                              </div>
-                              <div className="flex justify-between mb-1">
-                                <span>AVERAGE:</span>
-                                <span className="font-mono">{formatSmartNumber(participantsData.reduce((sum, p) => sum + p.wealth, 0) / participantsData.length)}</span>
-                              </div>
-                            </div>
-
-                            <div className="border-t-2 border-dashed border-gray-400 my-3"></div>
-
-                            <div>
-                              <p className="font-bold mb-2">3. VOTING POWER (AVG ÷ ADJUSTED):</p>
-                              {participantsData.map(p => {
-                                const avgWealth = participantsData.reduce((sum, p) => sum + p.wealth, 0) / participantsData.length;
-                                return (
-                                  <div key={p.id} className="flex justify-between mb-1">
-                                    <span>{p.name}:</span>
-                                    <span className="font-mono">{formatSmartNumber(avgWealth)} ÷ {formatSmartNumber(p.adjustedWealth)} = {p.votingPower.toFixed(2)}</span>
-                                  </div>
-                                );
-                              })}
-                              <div className="flex justify-between mt-2 pt-2 border-t border-dashed border-gray-400 font-bold">
-                                <span>TOTAL POWER:</span>
-                                <span className="font-mono">{totalVotingPower.toFixed(2)}</span>
-                              </div>
-                            </div>
-                          </>
-                        ) : (
-                          <div>
-                            <p className="font-bold mb-2">EQUAL VOTING POWER (NO WEIGHTING):</p>
-                            {participantsData.map(p => (
-                              <div key={p.id} className="flex justify-between mb-1">
-                                <span>{p.name}:</span>
-                                <span className="font-mono">1 vote</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                  {renderMathSection(voteWeighting, [
+                    renderAdjustedWealthStep(1, participantsData, voteWeighting),
+                    <div key="v2">
+                      <p className="font-bold mb-2">2. AVERAGE WEALTH:</p>
+                      <div className="flex justify-between mb-1">
+                        <span>TOTAL:</span>
+                        <span className="font-mono">{formatSmartNumber(participantsData.reduce((sum, p) => sum + p.wealth, 0))}</span>
+                      </div>
+                      <div className="flex justify-between mb-1">
+                        <span>AVERAGE:</span>
+                        <span className="font-mono">{formatSmartNumber(participantsData.reduce((sum, p) => sum + p.wealth, 0) / participantsData.length)}</span>
+                      </div>
+                    </div>,
+                    <div key="v3">
+                      <p className="font-bold mb-2">3. VOTING POWER (AVG ÷ ADJUSTED):</p>
+                      {renderMathRow(participantsData, p => {
+                        const avgWealth = participantsData.reduce((sum, pp) => sum + pp.wealth, 0) / participantsData.length;
+                        return `${formatSmartNumber(avgWealth)} ÷ ${formatSmartNumber(p.adjustedWealth)} = ${p.votingPower.toFixed(2)}`;
+                      })}
+                      <div className="flex justify-between mt-2 pt-2 border-t border-dashed border-gray-400 font-bold">
+                        <span>TOTAL POWER:</span>
+                        <span className="font-mono">{totalVotingPower.toFixed(2)}</span>
                       </div>
                     </div>
-                  </div>
+                  ], (
+                    <div>
+                      <p className="font-bold mb-2">EQUAL VOTING POWER (NO WEIGHTING):</p>
+                      {renderMathRow(participantsData, () => '1 vote')}
+                    </div>
+                  ))}
                 </div>
               )}
             </>
@@ -2625,68 +2639,60 @@ const Comrade = () => {
         )}
       </Layout>
     );
-  }
+}
 
-  if (page === 'rent-entry') {
-    return (
-      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
-        <EntryPageWrapper
-          title="RENT SPLITTING"
-          description="Figuring out rent splits with roommates can be a fraught process. Decide it more fairly by accounting for both room size and tenants' financial resources. Larger rooms and higher earners both pay more."
-          type="rent"
-          settingsComponent={renderSettingsPanel(rentWeighting, setRentWeighting, showRentSettings, setShowRentSettings, 'rent-results', rentCurrency, setRentCurrency, rentWealthMetric, setRentWealthMetric, rentMeasurement, setRentMeasurement)}
-        >
-          {/* Box 2: Total Costs and Roommates */}
-          <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-4">
-              <svg width="20" height="20" viewBox="0 0 24 24">
-                <path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z" fill="#000"/>
-              </svg>
-              <h3 className="text-lg font-bold text-black uppercase tracking-wider">TOTAL RENTAL COSTS</h3>
-            </div>
-            <p className="text-xs mb-3 text-black">List your total monthly rent, and monthly utility costs.</p>
-            <FormInput
-              type="number"
-              value={totalRent}
-              onChange={(e) => setTotalRent(e.target.value)}
-              placeholder={`${getCurrencySymbol(rentCurrency)} MONTHLY RENT`}
-              min="0"
-              step="0.01"
-              inputMode="decimal"
-              className="mb-3"
-            />
-            <FormInput
-              type="number"
-              value={totalUtilities}
-              onChange={(e) => setTotalUtilities(e.target.value)}
-              placeholder={`${getCurrencySymbol(rentCurrency)} MONTHLY UTILITIES`}
-              min="0"
-              step="0.01"
-              inputMode="decimal"
-            />
-          </div>
+if (page === 'rent-entry') {
+return (
+<Layout onNavigate={navigateTo} showCopyToast={showCopyToast} copyToastMessage={copyToastMessage}>
+{renderEntryPageWrapper(
+"RENT SPLITTING",
+"Figuring out rent splits with roommates can be a fraught process. Decide it more fairly by accounting for both room size and tenants' financial resources. Larger rooms and higher earners both pay more.",
+"rent",
+renderSettingsPanel(rentWeighting, setRentWeighting, showRentSettings, setShowRentSettings, 'rent-results', rentCurrency, setRentCurrency, rentWealthMetric, setRentWealthMetric, rentMeasurement, setRentMeasurement),
+<>
+{/* Box 2: Total Costs and Roommates */}
+<div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
+<div className="mb-6">
+{renderEntrySection(<HouseIcon />, "TOTAL RENTAL COSTS", "List your total monthly rent, and monthly utility costs.")}
+<FormInput
+type="number"
+value={totalRent}
+onChange={(e) => setTotalRent(e.target.value)}
+placeholder={`${getCurrencySymbol(rentCurrency)} MONTHLY RENT`}
+min="0"
+step="0.01"
+inputMode="decimal"
+className="mb-3"
+/>
+<FormInput
+type="number"
+value={totalUtilities}
+onChange={(e) => setTotalUtilities(e.target.value)}
+placeholder={`${getCurrencySymbol(rentCurrency)} MONTHLY UTILITIES`}
+min="0"
+step="0.01"
+inputMode="decimal"
+/>
+</div>
 
           <div className="border-t-2 border-dashed border-gray-400 my-6"></div>
 
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <PersonIcon />
-              <h3 className="text-lg font-bold text-black uppercase tracking-wider">TENANTS</h3>
-            </div>
-            <p className="text-xs mb-3 text-black">Add the names and details of each person sharing the property.</p>
+            {renderEntrySection(<PersonIcon />, "TENANTS", "Add the names and details of each person sharing the property.")}
             
             <AddItemCard
               title=""
               containerClassName=""
               fields={[
               {
+                id: 'roommate-name',
                 value: currentRoommateName,
                 onChange: (e) => setCurrentRoommateName(e.target.value),
                 placeholder: "NAME",
                 minWidth: '120px'
               },
               {
+                id: 'roommate-roomsize',
                 value: currentRoommateRoomSize,
                 onChange: (e) => setCurrentRoommateRoomSize(e.target.value),
                 placeholder: `ROOM SIZE (${getMeasurementLabel(rentMeasurement).toUpperCase()})`,
@@ -2697,6 +2703,7 @@ const Comrade = () => {
                 minWidth: '150px'
               },
               {
+                id: 'roommate-wealth',
                 value: currentRoommateWealth,
                 onChange: (e) => setCurrentRoommateWealth(e.target.value),
                 placeholder: `${getCurrencySymbol(rentCurrency)} ${getWealthMetricLabel(rentWealthMetric).toUpperCase()}`,
@@ -2733,18 +2740,18 @@ const Comrade = () => {
             />
           </div>
         </div>
+</>
+)}
+</Layout>
+);
+}
 
-        </EntryPageWrapper>
-      </Layout>
-    );
-  }
-
-  if (page === 'rent-results') {
-    const { rentAmount, utilitiesAmount, total, totalRoomSize, rentData, avgRent, totalRoomValue } = rentCalculations;
-    const hasData = rentPeople.length > 0 && parseFloat(totalRent) > 0;
+if (page === 'rent-results') {
+const { rentAmount, utilitiesAmount, total, totalRoomSize, rentData, avgRent, totalRoomValue } = rentCalculations;
+const hasData = rentPeople.length > 0 && parseFloat(totalRent) > 0;
 
     return (
-      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
+      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast} copyToastMessage={copyToastMessage}>
         <h2 className="text-2xl font-black mb-6 text-black uppercase tracking-wider border-b-4 border-black pb-2">RENT SPLITTING RESULTS</h2>
         
         {!hasData && renderNoDataState('rent-entry')}
@@ -2780,37 +2787,17 @@ const Comrade = () => {
                 <div className="animate-fadeIn">
                   <div className="border-t-2 border-dashed border-gray-400 my-6"></div>
                   
-                  <div className="mb-6">
-                    <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">ROOMMATE DATA</h3>
-                    
-                    <div className="space-y-3">
-                      {rentData.map((p, idx) => (
-                        <div key={p.id || idx} className={CLS.bgWhiteP4Border2}>
-                          <p className={`font-bold text-sm text-black mb-3 uppercase ${CLS.borderDashedGray} pb-2`}>
-                            {p.name}
-                          </p>
-                          <div className={`space-y-2 ${CLS.textXsBlack}`}>
-                            <div className="flex justify-between">
-                              <span className={CLS.textBlackFontBold}>ROOM SIZE:</span>
-                              <span className="font-semibold text-black">{formatNumber(p.roomSize.toFixed(0))} {getMeasurementLabel(rentMeasurement).toLowerCase()}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className={CLS.textBlackFontBold}>WEALTH:</span>
-                              <span className="font-semibold text-black">{formatCurrency(p.wealth, 2, rentCurrency)}</span>
-                            </div>
-                            <div className={`flex justify-between pt-2 border-t ${CLS.borderDashedGray}`}>
-                              <span className={CLS.textBlackFontBold}>MONTHLY RENT:</span>
-                              <span className="font-black text-black">{formatCurrencySmart(p.fairRent, rentCurrency)}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className={CLS.textBlackFontBold}>% OF TOTAL:</span>
-                              <span className="font-black text-black">{p.rentPct.toFixed(1)}%</span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                  {renderDetailCards('ROOMMATE DATA', rentData, (p) => ({
+                    name: p.name,
+                    rows: [
+                      { label: 'ROOM SIZE', value: `${formatNumber(p.roomSize.toFixed(0))} ${getMeasurementLabel(rentMeasurement).toLowerCase()}` },
+                      { label: 'WEALTH', value: formatCurrency(p.wealth, 2, rentCurrency) }
+                    ],
+                    summaryRows: [
+                      { label: 'MONTHLY RENT', value: formatCurrencySmart(p.fairRent, rentCurrency) },
+                      { label: '% OF TOTAL', value: `${p.rentPct.toFixed(1)}%` }
+                    ]
+                  }))}
 
                   <div className="border-t-2 border-dashed border-gray-400 my-6"></div>
 
@@ -2872,94 +2859,37 @@ const Comrade = () => {
 
                   <div className="border-t-2 border-dashed border-gray-400 my-6"></div>
 
-                  <div className="mb-6">
-                    <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">THE MATH</h3>
-                    <div className={CLS.bgWhiteP6Border2}>
-                      <div className="space-y-3 text-xs text-black">
-                        {rentWeighting !== 'none' ? (
-                          <>
-                            <div>
-                              <p className="font-bold mb-2">1. ROOM SIZE %:</p>
-                              {rentData.map(p => (
-                                <div key={p.id} className="flex justify-between mb-1">
-                                  <span>{p.name}:</span>
-                                  <span className="font-mono">{formatNumber(p.roomSize.toFixed(0))} ÷ {formatNumber(totalRoomSize.toFixed(0))} = {p.roomPct.toFixed(1)}%</span>
-                                </div>
-                              ))}
-                            </div>
-
-                            <div className="border-t-2 border-dashed border-gray-400 my-3"></div>
-
-                            <div>
-                              <p className="font-bold mb-2">2. ADJUSTED WEALTH ({getWeightingLabel(rentWeighting).toUpperCase()}):</p>
-                              {rentData.map(p => (
-                                <div key={p.id} className="flex justify-between mb-1">
-                                  <span>{p.name}:</span>
-                                  <span className="font-mono">
-                                    {rentWeighting === 'gentle' && `√${formatNumber(p.wealth.toFixed(0))} = ${formatNumber(p.adjustedWealth.toFixed(2))}`}
-                                    {rentWeighting === 'standard' && `${formatNumber(p.wealth.toFixed(2))}`}
-                                    {rentWeighting === 'strong' && `${formatNumber(p.wealth.toFixed(0))}² = ${formatSmartNumber(p.adjustedWealth)}`}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-
-                            <div className="border-t-2 border-dashed border-gray-400 my-3"></div>
-
-                            <div>
-                              <p className="font-bold mb-2">3. ROOM VALUE (ROOM % × ADJUSTED WEALTH):</p>
-                              {rentData.map(p => (
-                                <div key={p.id} className="flex justify-between mb-1">
-                                  <span>{p.name}:</span>
-                                  <span className="font-mono">{p.roomPct.toFixed(1)}% × {formatSmartNumber(p.adjustedWealth)} = {formatSmartNumber(p.roomValue)}</span>
-                                </div>
-                              ))}
-                              <div className="flex justify-between mt-2 pt-2 border-t border-dashed border-gray-400 font-bold">
-                                <span>TOTAL VALUE:</span>
-                                <span className="font-mono">{formatSmartNumber(totalRoomValue)}</span>
-                              </div>
-                            </div>
-
-                            <div className="border-t-2 border-dashed border-gray-400 my-3"></div>
-
-                            <div>
-                              <p className="font-bold mb-2">4. RENT OWED (VALUE % × TOTAL):</p>
-                              {rentData.map(p => (
-                                <div key={p.id} className="flex justify-between mb-1">
-                                  <span>{p.name}:</span>
-                                  <span className="font-mono">{p.rentPct.toFixed(1)}% × {formatCurrency(total, 2, rentCurrency)} = {formatCurrencySmart(p.fairRent, rentCurrency)}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            <div>
-                              <p className="font-bold mb-2">1. ROOM SIZE % (NO WEALTH WEIGHTING):</p>
-                              {rentData.map(p => (
-                                <div key={p.id} className="flex justify-between mb-1">
-                                  <span>{p.name}:</span>
-                                  <span className="font-mono">{formatNumber(p.roomSize.toFixed(0))} ÷ {formatNumber(totalRoomSize.toFixed(0))} = {p.roomPct.toFixed(1)}%</span>
-                                </div>
-                              ))}
-                            </div>
-
-                            <div className="border-t-2 border-dashed border-gray-400 my-3"></div>
-
-                            <div>
-                              <p className="font-bold mb-2">2. RENT OWED (ROOM % × TOTAL):</p>
-                              {rentData.map(p => (
-                                <div key={p.id} className="flex justify-between mb-1">
-                                  <span>{p.name}:</span>
-                                  <span className="font-mono">{p.roomPct.toFixed(1)}% × {formatCurrency(total, 2, rentCurrency)} = {formatCurrencySmart(p.fairRent, rentCurrency)}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </>
-                        )}
+                  {renderMathSection(rentWeighting, [
+                    <div key="r1">
+                      <p className="font-bold mb-2">1. ROOM SIZE %:</p>
+                      {renderMathRow(rentData, p => `${formatNumber(p.roomSize.toFixed(0))} ÷ ${formatNumber(totalRoomSize.toFixed(0))} = ${p.roomPct.toFixed(1)}%`)}
+                    </div>,
+                    renderAdjustedWealthStep(2, rentData, rentWeighting),
+                    <div key="r3">
+                      <p className="font-bold mb-2">3. ROOM VALUE (ROOM % × ADJUSTED WEALTH):</p>
+                      {renderMathRow(rentData, p => `${p.roomPct.toFixed(1)}% × ${formatSmartNumber(p.adjustedWealth)} = ${formatSmartNumber(p.roomValue)}`)}
+                      <div className="flex justify-between mt-2 pt-2 border-t border-dashed border-gray-400 font-bold">
+                        <span>TOTAL VALUE:</span>
+                        <span className="font-mono">{formatSmartNumber(totalRoomValue)}</span>
                       </div>
+                    </div>,
+                    <div key="r4">
+                      <p className="font-bold mb-2">4. RENT OWED (VALUE % × TOTAL):</p>
+                      {renderMathRow(rentData, p => `${p.rentPct.toFixed(1)}% × ${formatCurrency(total, 2, rentCurrency)} = ${formatCurrencySmart(p.fairRent, rentCurrency)}`)}
                     </div>
-                  </div>
+                  ], (
+                    <>
+                      <div>
+                        <p className="font-bold mb-2">1. ROOM SIZE % (NO WEALTH WEIGHTING):</p>
+                        {renderMathRow(rentData, p => `${formatNumber(p.roomSize.toFixed(0))} ÷ ${formatNumber(totalRoomSize.toFixed(0))} = ${p.roomPct.toFixed(1)}%`)}
+                      </div>
+                      <div className="border-t-2 border-dashed border-gray-400 my-3"></div>
+                      <div>
+                        <p className="font-bold mb-2">2. RENT OWED (ROOM % × TOTAL):</p>
+                        {renderMathRow(rentData, p => `${p.rentPct.toFixed(1)}% × ${formatCurrency(total, 2, rentCurrency)} = ${formatCurrencySmart(p.fairRent, rentCurrency)}`)}
+                      </div>
+                    </>
+                  ))}
                 </div>
               )}
             </>
@@ -2972,11 +2902,9 @@ const Comrade = () => {
         )}
       </Layout>
     );
-  }
-  
-  
+}
 
-  return null;
+return null;
 };
 
 
