@@ -224,8 +224,34 @@ style={{ fontSize: '16px', ...style }}
 );
 };
 
-const ItemList = ({ items, onDelete, renderItem }) => {
+const ItemList = ({ items, onDelete, renderItem, receiptStyle, formatTotal, getAmount }) => {
 if (items.length === 0) return null;
+
+if (receiptStyle) {
+// Receipt-style layout for bills
+const total = items.reduce((sum, item) => sum + (parseFloat(getAmount ? getAmount(item) : item.amount) || 0), 0);
+return (
+<div className="mt-4">
+<div className="space-y-0 mb-4">
+{items.map((item) => (
+<div key={item.id} className="flex justify-between items-start text-xs text-black border-b border-dashed border-gray-400 pb-2 pt-2">
+<div className="flex-1">
+{renderItem(item)}
+</div>
+<div className="flex items-center gap-3">
+<span className="text-black font-bold">{formatTotal ? formatTotal(parseFloat(getAmount ? getAmount(item) : item.amount) || 0) : (parseFloat(getAmount ? getAmount(item) : item.amount) || 0).toFixed(2)}</span>
+<button onClick={() => onDelete(item.id)} className="text-black font-bold text-xl hover:text-gray-600 leading-none">×</button>
+</div>
+</div>
+))}
+</div>
+<div className="flex justify-between items-center pt-3 border-t-2 border-black">
+<span className="font-black text-black uppercase">TOTAL</span>
+<span className="font-black text-black text-lg">{formatTotal ? formatTotal(total) : total.toFixed(2)}</span>
+</div>
+</div>
+);
+}
 
 return (
 <div className="mt-4 space-y-2">
@@ -241,7 +267,7 @@ return (
 );
 };
 
-const AddItemCard = ({ title, fields, onAdd, items, onDelete, renderItem, addButtonLabel, containerClassName }) => {
+const AddItemCard = ({ title, fields, onAdd, items, onDelete, renderItem, addButtonLabel, containerClassName, receiptStyle, formatTotal, getAmount, renderItemsExternally }) => {
 const className = containerClassName !== undefined ? containerClassName : "bg-white p-6 border-2 border-dashed border-gray-400 mb-4";
 
 return (
@@ -280,7 +306,7 @@ style={{ minWidth: field.minWidth || '120px' }}
 </div>
 <button onClick={onAdd} className="bg-black text-white px-4 py-2 font-bold border-2 border-black text-xs">{addButtonLabel}</button>
 
-      <ItemList items={items} onDelete={onDelete} renderItem={renderItem} />
+      {!renderItemsExternally && <ItemList items={items} onDelete={onDelete} renderItem={renderItem} receiptStyle={receiptStyle} formatTotal={formatTotal} getAmount={getAmount} />}
     </div>
 );
 };
@@ -542,7 +568,7 @@ const CLS = {
 textXsBlack: "text-xs text-black",
 fontBoldBlackUpper: "font-bold text-black uppercase",
 border2DashedGray: "border-2 border-dashed border-gray-400",
-bgWhiteBorder2Dashed: "bg-white p-8 border-2 border-dashed border-gray-400",
+bgWhiteBorder2Dashed: "bg-white p-6 border-2 border-dashed border-gray-400",
 bgWhiteP4Border2: "bg-white p-4 border-2 border-gray-400",
 bgWhiteP6Border2: "bg-white p-6 border-2 border-gray-400",
 borderDashedGray: "border-b border-dashed border-gray-400",
@@ -850,7 +876,7 @@ const renderEmailSignup = () => (
 );
 
 const renderSettingsPanel = (weighting, setWeighting, showSettings, setShowSettings, resultsPage, currency, setCurrency, wealthMetric, setWealthMetric, measurement, setMeasurement) => (
-<div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
+<div className="bg-white p-6 border-2 border-dashed border-gray-400 mb-4">
 {!showSettings ? (
 <div className="text-center">
 <button onClick={() => setShowSettings(true)} className={`${BUTTON_STYLES.toggle} w-full max-w-xs mx-auto`}>
@@ -1671,7 +1697,7 @@ return (
         </div>
 
         {/* FAQ box */}
-        <div className="bg-white p-8 border-2 border-dashed border-gray-400">
+        <div className="bg-white p-6 border-2 border-dashed border-gray-400">
           <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider border-b-4 border-black pb-2">FAQ</h2>
           <div className="space-y-6 text-black">
             <div>
@@ -1725,8 +1751,8 @@ return (
 
 if (page === 'legal') {
 return (
-<Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
-<div className="bg-white p-8 border-2 border-dashed border-gray-400">
+      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
+<div className="bg-white p-6 border-2 border-dashed border-gray-400">
 <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider border-b-4 border-black pb-2">LEGAL</h2>
 <div className="text-black space-y-4">
 <p className="leading-relaxed text-xs">Comrade does not collect, store, or transmit any financial information entered into the application. All calculations are performed locally in your browser.</p>
@@ -1750,15 +1776,15 @@ return (
 "From meals to vacations, taxis to tickets, handle your shared expenses with friends more fairly. Comrade combines and simplifies group bills, while using information about group members' finances to decide how much everyone should pay.",
 "share",
 renderSettingsPanel(shareWeighting, setShareWeighting, showShareSettings, setShowShareSettings, 'share-results', shareCurrency, setShareCurrency, shareWealthMetric, setShareWealthMetric, undefined, undefined),
-<>
-{/* Box 2: People and Bills */}
-<div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
-<div className="mb-6">
+          <>
+{/* Box 2: People */}
+<div className="bg-white p-6 border-2 border-dashed border-gray-400 mb-4">
 {renderEntrySection(<PersonIcon />, "PEOPLE", "List the people splitting the costs, including their financial resources.")}
 
             <AddItemCard
               title=""
               containerClassName=""
+              renderItemsExternally={true}
               fields={[
               {
                 id: 'person-name',
@@ -1800,16 +1826,42 @@ renderSettingsPanel(shareWeighting, setShareWeighting, showShareSettings, setSho
             )}
             addButtonLabel="+ ADD PERSON"
             />
+        </div>
+
+        {/* People list rendered directly on main content box */}
+        {sharePeople.length > 0 ? (
+          <div className="mb-6">
+            <ItemList 
+              items={sharePeople}
+              onDelete={(id) => setSharePeople(sharePeople.filter(p => p.id !== id))}
+              renderItem={(person) => (
+                <>
+                  <p className={`${CLS.textXsBlack} ${CLS.fontBoldBlackUpper}`}>{person.name}</p>
+                  <p className={CLS.textXsBlack}>{getWealthMetricLabel(shareWealthMetric)}: {formatCurrency(person.wealth, 2, shareCurrency)}</p>
+                </>
+              )}
+            />
           </div>
+        ) : (
+          <div className="mb-6">
+            <div className="py-4">
+              <p className="text-center text-gray-600 uppercase tracking-wider font-bold" style={{ fontSize: '10px' }}>
+                — No people yet —
+              </p>
+            </div>
+          </div>
+        )}
 
-          <div className="border-t-2 border-dashed border-gray-400 my-6"></div>
-
+        {/* Box 3: Bills */}
+        <div className="bg-white p-6 border-2 border-dashed border-gray-400 mb-4">
           <div>
             {renderEntrySection(<BillIcon />, "BILLS", "Add all the expenses the group is splitting, along with who already paid for what.")}
             
             <AddItemCard
               title=""
               containerClassName=""
+              receiptStyle={true}
+              renderItemsExternally={true}
               fields={[
               {
                 id: 'bill-description',
@@ -1856,13 +1908,46 @@ renderSettingsPanel(shareWeighting, setShareWeighting, showShareSettings, setSho
             onDelete={(id) => setShareBills(shareBills.filter(b => b.id !== id))}
             renderItem={(bill) => (
               <>
-                <p className={`${CLS.textXsBlack} ${CLS.fontBoldBlackUpper}`}>{bill.description}</p>
-                <p className={CLS.textXsBlack}>{bill.paidBy || 'Unknown'} paid: {formatCurrency(bill.amount, 2, shareCurrency)}</p>
+                <p className="text-black font-bold uppercase">{bill.description}</p>
+                <p className="text-black text-xs">{bill.paidBy || 'Unknown'}</p>
               </>
             )}
+            formatTotal={(total) => formatCurrency(total, 2, shareCurrency)}
+            getAmount={(bill) => bill.amount}
             addButtonLabel="+ ADD BILL"
             />
           </div>
+        </div>
+
+        {/* Bills list rendered directly on main content box */}
+        <div className="mb-6">
+          {shareBills.length > 0 ? (
+            <ItemList 
+              items={shareBills}
+              onDelete={(id) => setShareBills(shareBills.filter(b => b.id !== id))}
+              renderItem={(bill) => (
+                <>
+                  <p className="text-black font-bold uppercase">{bill.description}</p>
+                  <p className="text-black text-xs">{bill.paidBy || 'Unknown'}</p>
+                </>
+              )}
+              receiptStyle={true}
+              formatTotal={(total) => formatCurrency(total, 2, shareCurrency)}
+              getAmount={(bill) => bill.amount}
+            />
+          ) : (
+            <>
+              <div className="py-4 mb-4">
+                <p className="text-center text-gray-600 uppercase tracking-wider font-bold" style={{ fontSize: '10px' }}>
+                  — No bills yet —
+                </p>
+              </div>
+              <div className="flex justify-between items-center pt-3 border-t-2 border-black">
+                <span className="font-black text-black uppercase">TOTAL</span>
+                <span className="font-black text-black text-lg">{formatCurrency(0, 2, shareCurrency)}</span>
+              </div>
+            </>
+          )}
         </div>
 </>
 )}
@@ -2033,10 +2118,9 @@ return (
 "If you're selling something, make sure it goes to the potential buyer who needs it the most — not just whoever offers to pay the most. Comrade takes into account prospective purchasers' financial resources to help you understand how much your product is truly worth to them.",
 "sale",
 renderSettingsPanel(saleWeighting, setSaleWeighting, showSaleSettings, setShowSaleSettings, 'sale-results', saleCurrency, setSaleCurrency, saleWealthMetric, setSaleWealthMetric, undefined, undefined),
-<>
-{/* Box 2: Product Info and Potential Buyers */}
-<div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
-<div className="mb-6">
+          <>
+{/* Box 2: Product Info */}
+<div className="bg-white p-6 border-2 border-dashed border-gray-400 mb-4">
 {renderEntrySection(<TagIcon />, "PRODUCT DETAILS", "List what you're selling, and how many items are available.")}
 <FormInput
 value={productName}
@@ -2055,71 +2139,89 @@ inputMode="numeric"
 />
 </div>
 
-          <div className="border-t-2 border-dashed border-gray-400 my-6"></div>
-
+        {/* Box 3: Potential Buyers */}
+        <div className="bg-white p-6 border-2 border-dashed border-gray-400 mb-4">
           <div>
             {renderEntrySection(<PersonIcon />, "POTENTIAL BUYERS", "Add all the people interested in buying, along with their financial information.")}
             
-            <AddItemCard
-              title=""
-              containerClassName=""
-              fields={[
-              {
-                id: 'buyer-name',
-                value: currentBuyerName,
-                onChange: (e) => setCurrentBuyerName(e.target.value),
-                placeholder: "NAME",
-                minWidth: '120px'
-              },
-              {
-                id: 'buyer-wealth',
-                value: currentBuyerWealth,
-                onChange: (e) => setCurrentBuyerWealth(e.target.value),
-                placeholder: `${getCurrencySymbol(saleCurrency)} ${getWealthMetricLabel(saleWealthMetric).toUpperCase()}`,
-                type: 'number',
-                min: '0',
-                step: '0.01',
-                inputMode: 'decimal',
-                minWidth: '150px'
-              },
-              {
-                id: 'buyer-offer',
-                value: currentBuyerOffer,
-                onChange: (e) => setCurrentBuyerOffer(e.target.value),
-                placeholder: `${getCurrencySymbol(saleCurrency)} OFFER`,
-                type: 'number',
-                min: '0',
-                step: '0.01',
-                inputMode: 'decimal',
-                minWidth: '120px'
-              }
-            ]}
-            onAdd={() => {
-              if (currentBuyerName.trim()) {
-                setSaleBuyers([...saleBuyers, {
-                  id: Date.now(),
-                  name: currentBuyerName,
-                  wealth: currentBuyerWealth,
-                  offer: currentBuyerOffer
-                }]);
-                setCurrentBuyerName('');
-                setCurrentBuyerWealth('');
-                setCurrentBuyerOffer('');
-              }
-            }}
-            items={saleBuyers}
-            onDelete={(id) => setSaleBuyers(saleBuyers.filter(b => b.id !== id))}
-            renderItem={(buyer) => (
-              <>
-                <p className={`${CLS.textXsBlack} ${CLS.fontBoldBlackUpper}`}>{buyer.name}</p>
-                <p className={CLS.textXsBlack}>{getWealthMetricLabel(saleWealthMetric)}: {formatCurrency(buyer.wealth, 2, saleCurrency)}</p>
-                <p className={CLS.textXsBlack}>Offer: {formatCurrency(buyer.offer, 2, saleCurrency)}</p>
-              </>
-            )}
-            addButtonLabel="+ ADD BUYER"
-            />
+            <div className="flex flex-wrap gap-2 mb-3">
+              <FormInput
+                value={currentBuyerName}
+                onChange={(e) => setCurrentBuyerName(e.target.value)}
+                placeholder="NAME"
+                className="flex-1"
+                style={{ minWidth: '120px' }}
+              />
+              <FormInput
+                type="number"
+                value={currentBuyerOffer}
+                onChange={(e) => setCurrentBuyerOffer(e.target.value)}
+                placeholder={`${getCurrencySymbol(saleCurrency)} OFFER`}
+                min="0"
+                step="0.01"
+                inputMode="decimal"
+                className="flex-1"
+                style={{ minWidth: '120px' }}
+              />
+            </div>
+            <div className="flex flex-wrap gap-2 mb-3">
+              <FormInput
+                type="number"
+                value={currentBuyerWealth}
+                onChange={(e) => setCurrentBuyerWealth(e.target.value)}
+                placeholder={`${getCurrencySymbol(saleCurrency)} ${getWealthMetricLabel(saleWealthMetric).toUpperCase()}`}
+                min="0"
+                step="0.01"
+                inputMode="decimal"
+                className="flex-1"
+                style={{ minWidth: '180px' }}
+              />
+            </div>
+            <button 
+              onClick={() => {
+                if (currentBuyerName.trim()) {
+                  setSaleBuyers([...saleBuyers, {
+                    id: Date.now(),
+                    name: currentBuyerName,
+                    wealth: currentBuyerWealth,
+                    offer: currentBuyerOffer
+                  }]);
+                  setCurrentBuyerName('');
+                  setCurrentBuyerWealth('');
+                  setCurrentBuyerOffer('');
+                }
+              }}
+              className="bg-black text-white px-4 py-2 font-bold border-2 border-black text-xs"
+            >
+              + ADD BUYER
+            </button>
           </div>
         </div>
+
+        {/* Buyers list rendered directly on main content box */}
+        {saleBuyers.length > 0 ? (
+          <div className="mb-6">
+            <ItemList 
+              items={saleBuyers}
+              onDelete={(id) => setSaleBuyers(saleBuyers.filter(b => b.id !== id))}
+              renderItem={(buyer) => (
+                <>
+                  <p className={`${CLS.textXsBlack} ${CLS.fontBoldBlackUpper}`}>{buyer.name}</p>
+                  <p className={CLS.textXsBlack}>{getWealthMetricLabel(saleWealthMetric)}: {formatCurrency(buyer.wealth, 2, saleCurrency)}</p>
+                  <p className={CLS.textXsBlack}>Offer: {formatCurrency(buyer.offer, 2, saleCurrency)}</p>
+                </>
+              )}
+            />
+          </div>
+        ) : (
+          <div className="mb-6">
+            <div className="py-4">
+              <p className="text-center text-gray-600 uppercase tracking-wider font-bold" style={{ fontSize: '10px' }}>
+                — No buyers yet —
+              </p>
+            </div>
+          </div>
+        )}
 </>
 )}
 </Layout>
@@ -2248,10 +2350,9 @@ return (
 "Make group decisions more equitably. If your friends, classmates, or coworkers are grappling with a dispute, give more voting power to those with less wealth.",
 "vote",
 renderSettingsPanel(voteWeighting, setVoteWeighting, showVoteSettings, setShowVoteSettings, 'vote-results', voteCurrency, setVoteCurrency, voteWealthMetric, setVoteWealthMetric, undefined, undefined),
-<>
-{/* Box 2: Decision, Options, and Participants */}
-<div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
-<div className="mb-6">
+          <>
+{/* Box 2: Decision */}
+<div className="bg-white p-6 border-2 border-dashed border-gray-400 mb-4">
 {renderEntrySection(<QuestionIcon />, "DECISION", "Enter the question the group is voting on.")}
 <FormInput
 type="textarea"
@@ -2262,14 +2363,14 @@ rows={4}
 />
 </div>
 
-          <div className="border-t-2 border-dashed border-gray-400 my-6"></div>
-
-          <div className="mb-6">
-            {renderEntrySection(<ListIcon />, "OPTIONS", "Add all the possible choices people can vote for.")}
+        {/* Box 3: Options */}
+        <div className="bg-white p-6 border-2 border-dashed border-gray-400 mb-4">
+          {renderEntrySection(<ListIcon />, "OPTIONS", "Add all the possible choices people can vote for.")}
             
             <AddItemCard
               title=""
               containerClassName=""
+              renderItemsExternally={true}
               fields={[
               {
                 id: 'option-text',
@@ -2295,71 +2396,113 @@ rows={4}
             )}
             addButtonLabel="+ ADD OPTION"
             />
+        </div>
+
+        {/* Options list rendered directly on main content box */}
+        {voteOptions.length > 0 ? (
+          <div className="mb-6">
+            <div className="space-y-0">
+              {voteOptions.map((option, idx) => (
+                <div key={option.id} className="flex justify-between items-center text-xs text-black border-b border-dashed border-gray-400 pb-2 pt-2">
+                  <p className="font-bold text-black uppercase flex-1">{option.text}</p>
+                  <button onClick={() => setVoteOptions(voteOptions.filter(o => o.id !== option.id))} className="text-black font-bold text-xl ml-3 hover:text-gray-600 leading-none">×</button>
+                </div>
+              ))}
+            </div>
           </div>
+        ) : (
+          <div className="mb-6">
+            <div className="py-4">
+              <p className="text-center text-gray-600 uppercase tracking-wider font-bold" style={{ fontSize: '10px' }}>
+                — No options yet —
+              </p>
+            </div>
+          </div>
+        )}
 
-          <div className="border-t-2 border-dashed border-gray-400 my-6"></div>
-
+        {/* Box 4: People */}
+        <div className="bg-white p-6 border-2 border-dashed border-gray-400 mb-4">
           <div>
             {renderEntrySection(<PersonIcon />, "PEOPLE", "List the people in the group, their financial resources, and how they chose to vote.")}
             
-            <AddItemCard
-              title=""
-              containerClassName=""
-              fields={[
-              {
-                id: 'participant-name',
-                value: currentParticipantName,
-                onChange: (e) => setCurrentParticipantName(e.target.value),
-                placeholder: "NAME",
-                minWidth: '120px'
-              },
-              {
-                id: 'participant-wealth',
-                value: currentParticipantWealth,
-                onChange: (e) => setCurrentParticipantWealth(e.target.value),
-                placeholder: `${getCurrencySymbol(voteCurrency)} ${getWealthMetricLabel(voteWealthMetric).toUpperCase()}`,
-                type: 'number',
-                min: '0',
-                step: '0.01',
-                inputMode: 'decimal',
-                minWidth: '150px'
-              },
-              {
-                id: 'participant-vote',
-                type: 'select',
-                value: currentParticipantVote,
-                onChange: (e) => setCurrentParticipantVote(e.target.value),
-                placeholder: "VOTE",
-                options: voteOptions.map(o => o.text),
-                minWidth: '120px'
-              }
-            ]}
-            onAdd={() => {
-              if (currentParticipantName.trim()) {
-                setVoteParticipants([...voteParticipants, {
-                  id: Date.now(),
-                  name: currentParticipantName,
-                  wealth: currentParticipantWealth,
-                  vote: currentParticipantVote
-                }]);
-                setCurrentParticipantName('');
-                setCurrentParticipantWealth('');
-                setCurrentParticipantVote('');
-              }
-            }}
-            items={voteParticipants}
-            onDelete={(id) => setVoteParticipants(voteParticipants.filter(p => p.id !== id))}
-            renderItem={(participant) => (
-              <>
-                <p className={`${CLS.textXsBlack} ${CLS.fontBoldBlackUpper}`}>{participant.name}</p>
-                <p className={CLS.textXsBlack}>{getWealthMetricLabel(voteWealthMetric)}: {formatCurrency(participant.wealth, 2, voteCurrency)}</p>
-                <p className={CLS.textXsBlack}>Vote: {participant.vote || 'Not selected'}</p>
-              </>
-            )}
-            addButtonLabel="+ ADD PARTICIPANT"
-            />
+            <div className="flex flex-wrap gap-2 mb-3">
+              <FormInput
+                value={currentParticipantName}
+                onChange={(e) => setCurrentParticipantName(e.target.value)}
+                placeholder="NAME"
+                className="flex-1"
+                style={{ minWidth: '120px' }}
+              />
+              <select
+                value={currentParticipantVote}
+                onChange={(e) => setCurrentParticipantVote(e.target.value)}
+                className="flex-1 p-2 border-2 border-gray-400 bg-white uppercase"
+                style={{ minWidth: '120px', height: '38px', fontSize: '16px' }}
+              >
+                <option value="">VOTE</option>
+                {voteOptions.map((opt, i) => (
+                  <option key={opt.id || i} value={opt.text}>{opt.text}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex flex-wrap gap-2 mb-3">
+              <FormInput
+                type="number"
+                value={currentParticipantWealth}
+                onChange={(e) => setCurrentParticipantWealth(e.target.value)}
+                placeholder={`${getCurrencySymbol(voteCurrency)} ${getWealthMetricLabel(voteWealthMetric).toUpperCase()}`}
+                min="0"
+                step="0.01"
+                inputMode="decimal"
+                className="flex-1"
+                style={{ minWidth: '150px' }}
+              />
+            </div>
+            <button
+              onClick={() => {
+                if (currentParticipantName.trim()) {
+                  setVoteParticipants([...voteParticipants, {
+                    id: Date.now(),
+                    name: currentParticipantName,
+                    wealth: currentParticipantWealth,
+                    vote: currentParticipantVote
+                  }]);
+                  setCurrentParticipantName('');
+                  setCurrentParticipantWealth('');
+                  setCurrentParticipantVote('');
+                }
+              }}
+              className="bg-black text-white px-4 py-2 font-bold border-2 border-black text-xs"
+            >
+              + ADD PERSON
+            </button>
           </div>
         </div>
+
+        {/* People list rendered directly on main content box */}
+        {voteParticipants.length > 0 ? (
+          <div className="mb-6">
+            <ItemList 
+              items={voteParticipants}
+              onDelete={(id) => setVoteParticipants(voteParticipants.filter(p => p.id !== id))}
+              renderItem={(participant) => (
+                <>
+                  <p className={`${CLS.textXsBlack} ${CLS.fontBoldBlackUpper}`}>{participant.name}</p>
+                  <p className={CLS.textXsBlack}>{getWealthMetricLabel(voteWealthMetric)}: {formatCurrency(participant.wealth, 2, voteCurrency)}</p>
+                  <p className={CLS.textXsBlack}>Vote: {participant.vote || 'Not selected'}</p>
+                </>
+              )}
+            />
+          </div>
+        ) : (
+          <div className="mb-6">
+            <div className="py-4">
+              <p className="text-center text-gray-600 uppercase tracking-wider font-bold" style={{ fontSize: '10px' }}>
+                — No people yet —
+              </p>
+            </div>
+          </div>
+        )}
 </>
 )}
 </Layout>
@@ -2575,10 +2718,9 @@ return (
 "Figuring out rent splits with roommates can be a fraught process. Decide it more fairly by accounting for both room size and tenants' financial resources. Larger rooms and higher earners both pay more.",
 "rent",
 renderSettingsPanel(rentWeighting, setRentWeighting, showRentSettings, setShowRentSettings, 'rent-results', rentCurrency, setRentCurrency, rentWealthMetric, setRentWealthMetric, rentMeasurement, setRentMeasurement),
-<>
-{/* Box 2: Total Costs and Roommates */}
-<div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
-<div className="mb-6">
+          <>
+{/* Box 2: Total Rental Costs */}
+<div className="bg-white p-6 border-2 border-dashed border-gray-400 mb-4">
 {renderEntrySection(<HouseIcon />, "TOTAL RENTAL COSTS", "List your total monthly rent, and monthly utility costs.")}
 <FormInput
 type="number"
@@ -2601,14 +2743,15 @@ inputMode="decimal"
 />
 </div>
 
-          <div className="border-t-2 border-dashed border-gray-400 my-6"></div>
-
+        {/* Box 3: Tenants */}
+        <div className="bg-white p-6 border-2 border-dashed border-gray-400 mb-4">
           <div>
             {renderEntrySection(<PersonIcon />, "TENANTS", "Add the names and details of each person sharing the property.")}
             
             <AddItemCard
               title=""
               containerClassName=""
+              renderItemsExternally={true}
               fields={[
               {
                 id: 'roommate-name',
@@ -2666,6 +2809,31 @@ inputMode="decimal"
             />
           </div>
         </div>
+
+        {/* Tenants list rendered directly on main content box */}
+        {rentPeople.length > 0 ? (
+          <div className="mb-6">
+            <ItemList 
+              items={rentPeople}
+              onDelete={(id) => setRentPeople(rentPeople.filter(p => p.id !== id))}
+              renderItem={(person) => (
+                <>
+                  <p className={`${CLS.textXsBlack} ${CLS.fontBoldBlackUpper}`}>{person.name}</p>
+                  <p className={CLS.textXsBlack}>Room: {formatNumber((parseFloat(person.roomSize) || 0).toFixed(0))} {getMeasurementLabel(rentMeasurement).toLowerCase()}</p>
+                  <p className={CLS.textXsBlack}>{getWealthMetricLabel(rentWealthMetric)}: {formatCurrency(person.wealth, 2, rentCurrency)}</p>
+                </>
+              )}
+            />
+          </div>
+        ) : (
+          <div className="mb-6">
+            <div className="py-4">
+              <p className="text-center text-gray-600 uppercase tracking-wider font-bold" style={{ fontSize: '10px' }}>
+                — No tenants yet —
+              </p>
+            </div>
+          </div>
+        )}
 </>
 )}
 </Layout>
