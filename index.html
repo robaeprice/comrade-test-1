@@ -29,44 +29,6 @@ if (weighting === 'strong') return wealth * wealth;
 return wealth; // standard
 };
 
-// ==================== SHARE LINK UTILITIES ====================
-
-const compressToUrl = async (data) => {
-  const json = JSON.stringify(data);
-  if (typeof CompressionStream !== 'undefined') {
-    try {
-      const stream = new Blob([json]).stream().pipeThrough(new CompressionStream('deflate-raw'));
-      const buffer = await new Response(stream).arrayBuffer();
-      const bytes = new Uint8Array(buffer);
-      let binary = '';
-      bytes.forEach(b => binary += String.fromCharCode(b));
-      return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-    } catch (e) {
-      // fallthrough to fallback
-    }
-  }
-  return btoa(unescape(encodeURIComponent(json))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-};
-
-const decompressFromUrl = async (encoded) => {
-  let base64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
-  while (base64.length % 4) base64 += '=';
-
-  if (typeof DecompressionStream !== 'undefined') {
-    try {
-      const binary = atob(base64);
-      const bytes = new Uint8Array(binary.length);
-      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-      const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
-      const text = await new Response(stream).text();
-      return JSON.parse(text);
-    } catch (e) {
-      // fallthrough to fallback
-    }
-  }
-  return JSON.parse(decodeURIComponent(escape(atob(base64))));
-};
-
 // ==================== END UTILITY FUNCTIONS ====================
 
 // ==================== ICON COMPONENTS ====================
@@ -389,7 +351,7 @@ return (
 );
 };
 
-const Layout = ({ children, onNavigate, showCopyToast, copyToastMessage }) => {
+const Layout = ({ children, onNavigate, showCopyToast }) => {
 return (
 <div style={{fontFamily: 'Sixtyfour, monospace', background: 'linear-gradient(135deg, rgba(255,215,0,0.85) 0%, rgba(255,140,0,0.85) 100%), url("data:image/svg+xml,%3Csvg width=\'75\' height=\'90\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Ctext x=\'10\' y=\'20\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E$%3C/text%3E%3Ctext x=\'35\' y=\'20\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E€%3C/text%3E%3Ctext x=\'60\' y=\'20\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E£%3C/text%3E%3Ctext x=\'3\' y=\'50\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E€%3C/text%3E%3Ctext x=\'28\' y=\'50\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E£%3C/text%3E%3Ctext x=\'53\' y=\'50\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E$%3C/text%3E%3Ctext x=\'17\' y=\'80\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E£%3C/text%3E%3Ctext x=\'42\' y=\'80\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E$%3C/text%3E%3Ctext x=\'67\' y=\'80\' font-family=\'Sixtyfour,monospace\' font-size=\'18\' fill=\'%23ffffff\' font-weight=\'bold\'%3E€%3C/text%3E%3C/svg%3E") #dc143c', minHeight: '100vh'}}>
 <style>{`
@@ -528,7 +490,7 @@ return (
       
       {showCopyToast && (
         <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-black text-white px-6 py-3 font-bold z-50 border-2 border-black">
-          {copyToastMessage || 'COPIED TO CLIPBOARD!'}
+          COPIED TO CLIPBOARD!
         </div>
       )}
     </div>
@@ -750,21 +712,18 @@ const DetailToggleButton = useCallback(({ show, onClick }) => (
 </div>
 ), [BUTTON_STYLES]);
 
-const renderResultsNavigation = (copyText, entryPage, shareAction) => (
+const renderResultsNavigation = (copyText, entryPage) => (
 <div className="flex flex-col gap-3 max-w-xs mx-auto">
-{shareAction && (
-<button onClick={shareAction} className={`${BUTTON_STYLES.primary} w-full`}>SHARE LINK</button>
-)}
 <button onClick={() => copyToClipboard(copyText)} className={`${BUTTON_STYLES.primary} w-full`}>COPY RESULTS</button>
 <button onClick={() => navigateTo(entryPage)} className={`${BUTTON_STYLES.primary} w-full`}>EDIT DETAILS</button>
 <button onClick={() => navigateTo('home')} className={`${BUTTON_STYLES.secondary} w-full`}>RETURN HOME</button>
 </div>
 );
 
-const renderResultsFooter = (hasData, copyText, entryPage, shareAction) => hasData && (
+const renderResultsFooter = (hasData, copyText, entryPage) => hasData && (
 <>
 <div className="bg-white p-8 border-2 border-dashed border-gray-400">
-{renderResultsNavigation(copyText, entryPage, shareAction)}
+{renderResultsNavigation(copyText, entryPage)}
 </div>
 
       <div className="my-4 text-center py-6">
@@ -1132,7 +1091,6 @@ const [rentCurrency, setRentCurrency] = useState('USD');
 const [rentWealthMetric, setRentWealthMetric] = useState('salary');
 const [rentMeasurement, setRentMeasurement] = useState('sqft');
 const [showCopyToast, setShowCopyToast] = useState(false);
-const [copyToastMessage, setCopyToastMessage] = useState('COPIED TO CLIPBOARD!');
 const [showShareDetails, setShowShareDetails] = useState(false);
 const [showVoteDetails, setShowVoteDetails] = useState(false);
 const [showSaleDetails, setShowSaleDetails] = useState(false);
@@ -1145,37 +1103,8 @@ const [showShareSettings, setShowShareSettings] = useState(false);
 const [showSaleSettings, setShowSaleSettings] = useState(false);
 const [showVoteSettings, setShowVoteSettings] = useState(false);
 const [showRentSettings, setShowRentSettings] = useState(false);
-const [isSharedView, setIsSharedView] = useState(false);
-
-// Track whether we've already processed the share hash
-const shareHashProcessed = useRef(false);
 
 const quotes = useMemo(() => ['JEDER NACH SEINEN FÄHIGKEITEN, JEDEM NACH SEINEN BEDÜRFNISSEN', 'THANKS FOR SHARING', 'SHARE AND SHARE ALIKE', 'MANY HANDS MAKE LIGHT WORK', 'ALL FOR ONE AND ONE FOR ALL', 'A RISING TIDE LIFTS ALL BOATS', 'FAIR\'S FAIR', 'LIBERTÉ, ÉGALITÉ, FRATERNITÉ', 'WE\'RE ALL IN THIS TOGETHER', 'WHAT GOES AROUND COMES AROUND', 'NO ONE LEFT BEHIND', 'YOU GET WHAT YOU GIVE', 'WHICH SIDE ARE YOU ON?', 'SHARE THE LOAD', 'BREAD AND ROSES', 'ALL TOGETHER NOW', 'A COMMON TREASURY OF RELIEF FOR ALL, BOTH BEASTS AND MEN', 'WHEN ADAM DELVED AND EVE SPAN, WHO WAS THEN THE GENTLEMAN?', 'E PLURIBUS UNUM', 'WHO BUILT THEBES OF THE SEVEN GATES?', 'SO THE LAST SHALL BE FIRST, AND THE FIRST LAST', 'THE WISDOM OF THE CROWD', 'AND ALL THAT BELIEVED WERE TOGETHER, AND HAD ALL THINGS IN COMMON', 'SALUS POPULI SUPREMA LEX', 'WHAT\'S MINE IS YOURS, AND WHAT IS YOURS IS MINE', 'GIVE US THIS DAY OUR DAILY BREAD', 'NO MAN IS AN ISLAND', 'VIVE LA COMMUNE', 'FOR WHAT SHALL IT PROFIT A MAN, IF HE SHALL GAIN THE WORLD, AND LOSE HIS OWN SOUL?', 'REND DOWN THE HEDGES', 'AM I MY BROTHER\'S KEEPER?', 'IT TAKES A VILLAGE', 'ONE HAND WASHES THE OTHER', 'I DON\'T WANT YOUR MILLIONS, MISTER', 'BE EXCELLENT TO EACH OTHER'], []);
-
-// Parse share link from URL hash on mount
-useEffect(() => {
-  if (shareHashProcessed.current) return;
-  shareHashProcessed.current = true;
-
-  const hash = window.location.hash;
-  if (hash.startsWith('#s/')) {
-    const encoded = hash.slice(3);
-    decompressFromUrl(encoded).then(data => {
-      if (data && data.p && data.b) {
-        const baseId = Date.now();
-        setSharePeople(data.p.map((p, i) => ({ id: baseId + i, name: p.n, wealth: p.w })));
-        setShareBills(data.b.map((b, i) => ({ id: baseId + 100 + i, description: b.d, amount: b.a, paidBy: b.p })));
-        if (data.w) setShareWeighting(data.w);
-        if (data.c) setShareCurrency(data.c);
-        if (data.m) setShareWealthMetric(data.m);
-        setIsSharedView(true);
-        setPage('share-results');
-      }
-    }).catch(err => {
-      console.error('Failed to decode share link:', err);
-    });
-  }
-}, []);
 
 useEffect(() => {
 window.scrollTo({ top: 0, behavior: 'instant' });
@@ -1249,46 +1178,12 @@ return measurement === 'sqm' ? 'SQ M' : 'SQ FT';
 
 const copyToClipboard = useCallback((text) => {
 navigator.clipboard.writeText(text);
-setCopyToastMessage('COPIED TO CLIPBOARD!');
 setShowCopyToast(true);
 }, []);
 
 const navigateTo = useCallback((newPage) => {
 setPage(newPage);
-// Clear share hash when navigating away from shared results
-if (window.location.hash.startsWith('#s/')) {
-  try {
-    history.replaceState(null, '', window.location.pathname + window.location.search);
-  } catch (e) {
-    // Ignore in environments where this isn't allowed
-  }
-}
-if (newPage !== 'share-results') {
-  setIsSharedView(false);
-}
 }, []);
-
-// Generate share link for bill-splitting (synchronous to preserve user gesture for clipboard)
-const generateShareLink = useCallback(() => {
-  const data = {
-    p: sharePeople.map(p => ({ n: p.name, w: p.wealth })),
-    b: shareBills.map(b => ({ d: b.description, a: b.amount, p: b.paidBy })),
-    w: shareWeighting,
-    c: shareCurrency,
-    m: shareWealthMetric
-  };
-  try {
-    const json = JSON.stringify(data);
-    const encoded = btoa(unescape(encodeURIComponent(json)))
-      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-    const url = `https://comrade.money/#s/${encoded}`;
-    navigator.clipboard.writeText(url);
-    setCopyToastMessage('SHARE LINK COPIED!');
-    setShowCopyToast(true);
-  } catch (err) {
-    console.error('Failed to generate share link:', err);
-  }
-}, [sharePeople, shareBills, shareWeighting, shareCurrency, shareWealthMetric]);
 
 const handleClearAll = useCallback((type) => {
 switch(type) {
@@ -1553,7 +1448,7 @@ if (page !== 'rent-results' || rentPeople.length === 0) return { rentAmount: 0, 
 
 if (page === 'home') {
 return (
-<Layout onNavigate={navigateTo} showCopyToast={showCopyToast} copyToastMessage={copyToastMessage}>
+<Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
 <p className="text-center text-sm mb-4 text-black leading-relaxed font-bold">THE FAIRER WAY TO SPLIT COSTS WITH FRIENDS.</p>
 <p className="text-center text-sm mb-4 text-black leading-relaxed">COMRADE COMBINES AND SIMPLIFIES GROUP BILLS — THEN DIVIDES THEM BASED ON WEALTH.</p>
 <div className="space-y-4 max-w-md mx-auto mb-4">
@@ -1673,7 +1568,7 @@ return (
 
 if (page === 'about') {
 return (
-<Layout onNavigate={navigateTo} showCopyToast={showCopyToast} copyToastMessage={copyToastMessage}>
+<Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
 {/* About section */}
 <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider border-b-4 border-black pb-2">ABOUT</h2>
 
@@ -1791,7 +1686,7 @@ return (
 
 if (page === 'legal') {
 return (
-<Layout onNavigate={navigateTo} showCopyToast={showCopyToast} copyToastMessage={copyToastMessage}>
+<Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
 <div className="bg-white p-8 border-2 border-dashed border-gray-400">
 <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider border-b-4 border-black pb-2">LEGAL</h2>
 <div className="text-black space-y-4">
@@ -1810,7 +1705,7 @@ return (
 
 if (page === 'share-entry') {
 return (
-<Layout onNavigate={navigateTo} showCopyToast={showCopyToast} copyToastMessage={copyToastMessage}>
+<Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
 {renderEntryPageWrapper(
 "BILL-SPLITTING",
 "From meals to vacations, taxis to tickets, handle your shared expenses with friends more fairly. Comrade combines and simplifies group bills, while using information about group members' finances to decide how much everyone should pay.",
@@ -1941,15 +1836,8 @@ const { total, peopleData, transactions } = shareCalculations;
 const hasData = sharePeople.length > 0 && shareBills.length > 0 && shareBills.some(b => parseFloat(b.amount) > 0);
 
     return (
-      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast} copyToastMessage={copyToastMessage}>
+      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
         <h2 className="text-2xl font-black mb-6 text-black uppercase tracking-wider border-b-4 border-black pb-2">BILL-SPLITTING RESULTS</h2>
-        
-        {isSharedView && hasData && (
-          <div className="bg-gray-200 p-4 mb-4 border-2 border-dashed border-gray-500 text-center">
-            <p className="text-xs text-black font-bold uppercase">SHARED RESULTS</p>
-            <p className="text-xs text-gray-600 mt-1">SOMEONE SHARED THESE RESULTS WITH YOU VIA COMRADE</p>
-          </div>
-        )}
         
         {!hasData && renderNoDataState('share-entry')}
 
@@ -2092,8 +1980,7 @@ const hasData = sharePeople.length > 0 && shareBills.length > 0 && shareBills.so
         {renderResultsFooter(
           hasData,
           `Comrade | Bill-splitting results\n\nTotal: ${formatCurrency(total, 2, shareCurrency)}\n\nBreakdown:\n${peopleData.map(p => `${p.name}: Paid ${formatCurrency(p.paid, 2, shareCurrency)}, fair share ${formatCurrencySmart(p.fairShare, shareCurrency)}`).join('\n')}\n\nSettlements:\n${transactions.length === 0 ? 'All settled!' : transactions.map(t => `${t.from} pays ${t.to} ${formatCurrencySmart(t.amount, shareCurrency)}`).join('\n')}\n\nCalculated using www.comrade.money — the fairer way to split costs with friends.`,
-          'share-entry',
-          generateShareLink
+          'share-entry'
         )}
       </Layout>
     );
@@ -2101,7 +1988,7 @@ const hasData = sharePeople.length > 0 && shareBills.length > 0 && shareBills.so
 
 if (page === 'sale-entry') {
 return (
-<Layout onNavigate={navigateTo} showCopyToast={showCopyToast} copyToastMessage={copyToastMessage}>
+<Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
 {renderEntryPageWrapper(
 "SELLING",
 "If you're selling something, make sure it goes to the potential buyer who needs it the most — not just whoever offers to pay the most. Comrade takes into account prospective purchasers' financial resources to help you understand how much your product is truly worth to them.",
@@ -2208,7 +2095,7 @@ const hasData = saleBuyers.length > 0 && productName.trim();
 const isPerfectTie = hasData && rankedBuyers.length > 1 && rankedBuyers[0].needScore === rankedBuyers[1].needScore && rankedBuyers[0].needScore > 0;
 
     return (
-      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast} copyToastMessage={copyToastMessage}>
+      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
         <h2 className="text-2xl font-black mb-6 text-black uppercase tracking-wider border-b-4 border-black pb-2">SELLING RESULTS</h2>
         
         {!hasData && renderNoDataState('sale-entry')}
@@ -2316,7 +2203,7 @@ const isPerfectTie = hasData && rankedBuyers.length > 1 && rankedBuyers[0].needS
 
 if (page === 'vote-entry') {
 return (
-<Layout onNavigate={navigateTo} showCopyToast={showCopyToast} copyToastMessage={copyToastMessage}>
+<Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
 {renderEntryPageWrapper(
 "VOTING",
 "Make group decisions more equitably. If your friends, classmates, or coworkers are grappling with a dispute, give more voting power to those with less wealth.",
@@ -2447,7 +2334,7 @@ const winner = voteBreakdown.length > 0 ? voteBreakdown[0] : null;
 const isTie = hasData && voteBreakdown.length > 1 && voteBreakdown[0].percentage === voteBreakdown[1].percentage;
 
     return (
-      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast} copyToastMessage={copyToastMessage}>
+      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
         <h2 className="text-2xl font-black mb-6 text-black uppercase tracking-wider border-b-4 border-black pb-2">VOTING RESULTS</h2>
         
         {!hasData && renderNoDataState('vote-entry')}
@@ -2643,7 +2530,7 @@ const isTie = hasData && voteBreakdown.length > 1 && voteBreakdown[0].percentage
 
 if (page === 'rent-entry') {
 return (
-<Layout onNavigate={navigateTo} showCopyToast={showCopyToast} copyToastMessage={copyToastMessage}>
+<Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
 {renderEntryPageWrapper(
 "RENT SPLITTING",
 "Figuring out rent splits with roommates can be a fraught process. Decide it more fairly by accounting for both room size and tenants' financial resources. Larger rooms and higher earners both pay more.",
@@ -2751,7 +2638,7 @@ const { rentAmount, utilitiesAmount, total, totalRoomSize, rentData, avgRent, to
 const hasData = rentPeople.length > 0 && parseFloat(totalRent) > 0;
 
     return (
-      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast} copyToastMessage={copyToastMessage}>
+      <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
         <h2 className="text-2xl font-black mb-6 text-black uppercase tracking-wider border-b-4 border-black pb-2">RENT SPLITTING RESULTS</h2>
         
         {!hasData && renderNoDataState('rent-entry')}
