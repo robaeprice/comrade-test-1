@@ -18,7 +18,6 @@
 
 
 
-
 // ==================== UTILITY FUNCTIONS ====================
 
 // Helper function to apply weighting to wealth values
@@ -1857,65 +1856,57 @@ renderSettingsPanel(shareWeighting, setShareWeighting, showShareSettings, setSho
           <div>
             {renderEntrySection(<BillIcon />, "BILLS", "Add all the expenses the group is splitting, along with who already paid for what.")}
             
-            <AddItemCard
-              title=""
-              containerClassName=""
-              receiptStyle={true}
-              renderItemsExternally={true}
-              fields={[
-              {
-                id: 'bill-description',
-                value: currentBillDescription,
-                onChange: (e) => setCurrentBillDescription(e.target.value),
-                placeholder: "DESCRIPTION",
-                minWidth: '150px'
-              },
-              {
-                id: 'bill-amount',
-                value: currentBillAmount,
-                onChange: (e) => setCurrentBillAmount(e.target.value),
-                placeholder: `${getCurrencySymbol(shareCurrency)} AMOUNT`,
-                type: 'number',
-                min: '0',
-                step: '0.01',
-                inputMode: 'decimal',
-                minWidth: '150px'
-              },
-              {
-                id: 'bill-paidby',
-                type: 'select',
-                value: currentBillPaidBy,
-                onChange: (e) => setCurrentBillPaidBy(e.target.value),
-                placeholder: "WHO PAID?",
-                options: sharePeople.map(p => ({ value: p.name, label: p.name })),
-                minWidth: '150px'
-              }
-            ]}
-            onAdd={() => {
-              if (currentBillDescription.trim()) {
-                setShareBills([...shareBills, {
-                  id: Date.now(),
-                  description: currentBillDescription,
-                  amount: currentBillAmount,
-                  paidBy: currentBillPaidBy
-                }]);
-                setCurrentBillDescription('');
-                setCurrentBillAmount('');
-                setCurrentBillPaidBy('');
-              }
-            }}
-            items={shareBills}
-            onDelete={(id) => setShareBills(shareBills.filter(b => b.id !== id))}
-            renderItem={(bill) => (
-              <>
-                <p className="text-black font-bold uppercase">{bill.description}</p>
-                <p className="text-black text-xs">{bill.paidBy || 'Unknown'}</p>
-              </>
-            )}
-            formatTotal={(total) => formatCurrency(total, 2, shareCurrency)}
-            getAmount={(bill) => bill.amount}
-            addButtonLabel="+ ADD BILL"
-            />
+            <div className="flex flex-wrap gap-2 mb-3">
+              <FormInput
+                value={currentBillDescription}
+                onChange={(e) => setCurrentBillDescription(e.target.value)}
+                placeholder="DESCRIPTION"
+                className="flex-1"
+                style={{ minWidth: '150px' }}
+              />
+            </div>
+            <div className="flex flex-wrap gap-2 mb-3">
+              <FormInput
+                type="number"
+                value={currentBillAmount}
+                onChange={(e) => setCurrentBillAmount(e.target.value)}
+                placeholder={`${getCurrencySymbol(shareCurrency)} AMOUNT`}
+                min="0"
+                step="0.01"
+                inputMode="decimal"
+                className="flex-1"
+                style={{ minWidth: '150px' }}
+              />
+              <select
+                value={currentBillPaidBy}
+                onChange={(e) => setCurrentBillPaidBy(e.target.value)}
+                className="flex-1 p-2 border-2 border-gray-400 bg-white uppercase"
+                style={{ minWidth: '150px', height: '38px', fontSize: '16px' }}
+              >
+                <option value="">WHO PAID?</option>
+                {sharePeople.map((p, i) => (
+                  <option key={p.id || i} value={p.name}>{p.name}</option>
+                ))}
+              </select>
+            </div>
+            <button 
+              onClick={() => {
+                if (currentBillDescription.trim()) {
+                  setShareBills([...shareBills, {
+                    id: Date.now(),
+                    description: currentBillDescription,
+                    amount: currentBillAmount,
+                    paidBy: currentBillPaidBy
+                  }]);
+                  setCurrentBillDescription('');
+                  setCurrentBillAmount('');
+                  setCurrentBillPaidBy('');
+                }
+              }}
+              className="bg-black text-white px-4 py-2 font-bold border-2 border-black text-xs"
+            >
+              + ADD BILL
+            </button>
           </div>
         </div>
 
@@ -2748,65 +2739,57 @@ inputMode="decimal"
           <div>
             {renderEntrySection(<PersonIcon />, "TENANTS", "Add the names and details of each person sharing the property.")}
             
-            <AddItemCard
-              title=""
-              containerClassName=""
-              renderItemsExternally={true}
-              fields={[
-              {
-                id: 'roommate-name',
-                value: currentRoommateName,
-                onChange: (e) => setCurrentRoommateName(e.target.value),
-                placeholder: "NAME",
-                minWidth: '120px'
-              },
-              {
-                id: 'roommate-roomsize',
-                value: currentRoommateRoomSize,
-                onChange: (e) => setCurrentRoommateRoomSize(e.target.value),
-                placeholder: `ROOM SIZE (${getMeasurementLabel(rentMeasurement).toUpperCase()})`,
-                type: 'number',
-                min: '0',
-                step: '0.01',
-                inputMode: 'decimal',
-                minWidth: '150px'
-              },
-              {
-                id: 'roommate-wealth',
-                value: currentRoommateWealth,
-                onChange: (e) => setCurrentRoommateWealth(e.target.value),
-                placeholder: `${getCurrencySymbol(rentCurrency)} ${getWealthMetricLabel(rentWealthMetric).toUpperCase()}`,
-                type: 'number',
-                min: '0',
-                step: '0.01',
-                inputMode: 'decimal',
-                minWidth: '180px'
-              }
-            ]}
-            onAdd={() => {
-              if (currentRoommateName.trim()) {
-                setRentPeople([...rentPeople, {
-                  id: Date.now(),
-                  name: currentRoommateName,
-                  roomSize: currentRoommateRoomSize,
-                  wealth: currentRoommateWealth
-                }]);
-                setCurrentRoommateName('');
-                setCurrentRoommateRoomSize('');
-                setCurrentRoommateWealth('');
-              }
-            }}
-            items={rentPeople}
-            onDelete={(id) => setRentPeople(rentPeople.filter(p => p.id !== id))}
-            renderItem={(person) => (
-              <>
-                <p className={`${CLS.textXsBlack} ${CLS.fontBoldBlackUpper}`}>{person.name}</p>
-                <p className={CLS.textXsBlack}>Room: {formatNumber((parseFloat(person.roomSize) || 0).toFixed(0))} {getMeasurementLabel(rentMeasurement).toLowerCase()}</p>
-                <p className={CLS.textXsBlack}>{getWealthMetricLabel(rentWealthMetric)}: {formatCurrency(person.wealth, 2, rentCurrency)}</p>
-              </>
-            )}
-            addButtonLabel="+ ADD ROOMMATE"
-            />
+            <div className="flex flex-wrap gap-2 mb-3">
+              <FormInput
+                value={currentRoommateName}
+                onChange={(e) => setCurrentRoommateName(e.target.value)}
+                placeholder="NAME"
+                className="flex-1"
+                style={{ minWidth: '120px' }}
+              />
+              <FormInput
+                type="number"
+                value={currentRoommateRoomSize}
+                onChange={(e) => setCurrentRoommateRoomSize(e.target.value)}
+                placeholder={`ROOM SIZE (${getMeasurementLabel(rentMeasurement).toUpperCase()})`}
+                min="0"
+                step="0.01"
+                inputMode="decimal"
+                className="flex-1"
+                style={{ minWidth: '150px' }}
+              />
+            </div>
+            <div className="flex flex-wrap gap-2 mb-3">
+              <FormInput
+                type="number"
+                value={currentRoommateWealth}
+                onChange={(e) => setCurrentRoommateWealth(e.target.value)}
+                placeholder={`${getCurrencySymbol(rentCurrency)} ${getWealthMetricLabel(rentWealthMetric).toUpperCase()}`}
+                min="0"
+                step="0.01"
+                inputMode="decimal"
+                className="flex-1"
+                style={{ minWidth: '180px' }}
+              />
+            </div>
+            <button 
+              onClick={() => {
+                if (currentRoommateName.trim()) {
+                  setRentPeople([...rentPeople, {
+                    id: Date.now(),
+                    name: currentRoommateName,
+                    roomSize: currentRoommateRoomSize,
+                    wealth: currentRoommateWealth
+                  }]);
+                  setCurrentRoommateName('');
+                  setCurrentRoommateRoomSize('');
+                  setCurrentRoommateWealth('');
+                }
+              }}
+              className="bg-black text-white px-4 py-2 font-bold border-2 border-black text-xs"
+            >
+              + ADD TENANT
+            </button>
           </div>
         </div>
 
@@ -3000,7 +2983,6 @@ const hasData = rentPeople.length > 0 && parseFloat(totalRent) > 0;
 
 return null;
 };
-
 
 
 // Render the app
