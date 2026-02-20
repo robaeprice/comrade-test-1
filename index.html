@@ -17,7 +17,6 @@
 
 
 
-
 const applyWeighting = (wealth, weighting) => {
   if (weighting === 'none') return 1;
   if (weighting === 'gentle') return Math.sqrt(wealth);
@@ -25,104 +24,80 @@ const applyWeighting = (wealth, weighting) => {
   return wealth;
 };
 
-const PersonIcon = ({ size = 20 }) => (
-  <svg width={size} height={size} viewBox="0 0 40 40" style={{flexShrink:0}}>
-    <circle cx="20" cy="20" r="18" fill="#333333"/>
-    <circle cx="20" cy="16" r="5" fill="white"/>
-    <path d="M 10 32 Q 10 24 20 24 Q 30 24 30 32" fill="white"/>
-  </svg>
-);
-
-const BillIcon = ({ size = 20 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}>
-    <text x="4" y="20" fontFamily="Sixtyfour, monospace" fontSize="22" fill="#333333" fontWeight="bold">$</text>
-  </svg>
-);
-
-const HouseIcon = ({ size = 20 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}>
-    <path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z" fill="#333333"/>
-  </svg>
-);
-
-const TagIcon = ({ size = 20 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}>
-    <text x="4" y="20" fontFamily="Sixtyfour, monospace" fontSize="22" fill="#333333" fontWeight="bold">$</text>
-  </svg>
-);
-
-const QuestionIcon = ({ size = 20 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}>
-    <text x="6" y="19" fontFamily="monospace" fontSize="20" fill="#333333" fontWeight="bold">?</text>
-  </svg>
-);
-
-const CheckCircleIcon = ({ size = 20 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}>
-    <circle cx="12" cy="12" r="10" fill="none" stroke="#333333" strokeWidth="3"/>
-    <polyline points="7,12.5 10.5,16 17,9" fill="none" stroke="#333333" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-
-const ListIcon = ({ size = 20 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}>
-    <rect x="4" y="5" width="3" height="3" fill="#333333"/>
-    <rect x="4" y="10" width="3" height="3" fill="#333333"/>
-    <rect x="4" y="15" width="3" height="3" fill="#333333"/>
-    <line x1="9" y1="6.5" x2="20" y2="6.5" stroke="#333333" strokeWidth="2"/>
-    <line x1="9" y1="11.5" x2="20" y2="11.5" stroke="#333333" strokeWidth="2"/>
-    <line x1="9" y1="16.5" x2="20" y2="16.5" stroke="#333333" strokeWidth="2"/>
-  </svg>
-);
-
-const CalculateIcon = ({ size = 20 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}>
-    <line x1="4" y1="9" x2="20" y2="9" stroke="#333333" strokeWidth="3.5" strokeLinecap="round"/>
-    <line x1="4" y1="15" x2="20" y2="15" stroke="#333333" strokeWidth="3.5" strokeLinecap="round"/>
-  </svg>
-);
-
-const ErrorIcon = ({ size = 20 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}>
-    <line x1="4" y1="4" x2="20" y2="20" stroke="#333333" strokeWidth="3"/>
-    <line x1="20" y1="4" x2="4" y2="20" stroke="#333333" strokeWidth="3"/>
-  </svg>
-);
-
-const CLS = {
-  textXsBlack: "text-xs text-black",
-  fontBoldBlackUpper: "font-bold text-black uppercase",
-  border2DashedGray: "border-2 border-dashed border-gray-400",
-  bgWhiteBorder2Dashed: "bg-white p-6 border-2 border-dashed border-gray-400",
-  bgWhiteP4Border2: "bg-white p-4 border-2 border-gray-400",
-  bgWhiteP6Border2: "bg-white p-6 border-2 border-gray-400",
-  borderDashedGray: "border-b border-dashed border-gray-400",
-  textBlackFontBold: "text-black font-bold"
-};
-
-const EXAMPLE_DATA = {
-  share: {
-    people: [{id:1,name:'Alex',wealth:'32000'},{id:2,name:'Jordan',wealth:'180000'},{id:3,name:'Sam',wealth:'45000'},{id:4,name:'Morgan',wealth:'95000'}],
-    bills: [{id:5,description:'Ski passes',amount:'1200',paidBy:'Jordan'},{id:6,description:'Cabin rental',amount:'2400',paidBy:'Morgan'},{id:7,description:'Gas',amount:'110',paidBy:'Alex'},{id:8,description:'Groceries',amount:'520',paidBy:'Jordan'},{id:9,description:'Gear rental',amount:'805',paidBy:'Sam'}]
-  },
-  sale: {
-    productName:'Used Honda Civic',numberAvailable:'1',
-    buyers:[{id:1,name:'Riley',wealth:'28000',offer:'4800'},{id:2,name:'Casey',wealth:'75000',offer:'5200'},{id:3,name:'Taylor',wealth:'140000',offer:'5500'},{id:4,name:'Drew',wealth:'220000',offer:'6000'}]
-  },
-  vote: {
-    decision:"What should the company's remote work policy be?",
-    options:[{id:1,text:'Fully remote'},{id:2,text:'Hybrid'},{id:3,text:'100% in-office'}],
-    participants:[{id:5,name:'Oscar',wealth:'250000',vote:'100% in-office'},{id:6,name:'Gerry',wealth:'120000',vote:'Hybrid'},{id:7,name:'Sarah',wealth:'65000',vote:'Fully remote'},{id:8,name:'Simone',wealth:'110000',vote:'Fully remote'},{id:9,name:'Thomas',wealth:'85000',vote:'Hybrid'}]
-  },
-  rent: {
-    totalRent:'3600',totalUtilities:'240',
-    people:[{id:1,name:'River',roomSize:'180',wealth:'42000'},{id:2,name:'Skyler',roomSize:'140',wealth:'125000'},{id:3,name:'Quinn',roomSize:'160',wealth:'68000'}]
-  }
-};
-
 const QUOTES = ['JEDER NACH SEINEN FÄHIGKEITEN, JEDEM NACH SEINEN BEDÜRFNISSEN','THANKS FOR SHARING','SHARE AND SHARE ALIKE','MANY HANDS MAKE LIGHT WORK','ALL FOR ONE AND ONE FOR ALL','A RISING TIDE LIFTS ALL BOATS','FAIR\'S FAIR','LIBERTÉ, ÉGALITÉ, FRATERNITÉ','WE\'RE ALL IN THIS TOGETHER','WHAT GOES AROUND COMES AROUND','NO ONE LEFT BEHIND','YOU GET WHAT YOU GIVE','WHICH SIDE ARE YOU ON?','SHARE THE LOAD','BREAD AND ROSES','ALL TOGETHER NOW','A COMMON TREASURY OF RELIEF FOR ALL, BOTH BEASTS AND MEN','WHEN ADAM DELVED AND EVE SPAN, WHO WAS THEN THE GENTLEMAN?','E PLURIBUS UNUM','WHO BUILT THEBES OF THE SEVEN GATES?','SO THE LAST SHALL BE FIRST, AND THE FIRST LAST','THE WISDOM OF THE CROWD','AND ALL THAT BELIEVED WERE TOGETHER, AND HAD ALL THINGS IN COMMON','SALUS POPULI SUPREMA LEX','WHAT\'S MINE IS YOURS, AND WHAT IS YOURS IS MINE','GIVE US THIS DAY OUR DAILY BREAD','NO MAN IS AN ISLAND','VIVE LA COMMUNE','FOR WHAT SHALL IT PROFIT A MAN, IF HE SHALL GAIN THE WORLD, AND LOSE HIS OWN SOUL?','REND DOWN THE HEDGES','AM I MY BROTHER\'S KEEPER?','IT TAKES A VILLAGE','ONE HAND WASHES THE OTHER','I DON\'T WANT YOUR MILLIONS, MISTER','BE EXCELLENT TO EACH OTHER'];
 
-const DashedDivider = () => <div className="border-t-2 border-dashed border-gray-400 my-6" />;
+const EXAMPLE_DATA = {
+  share: { people: [{id:1,name:'Alex',wealth:'32000'},{id:2,name:'Jordan',wealth:'180000'},{id:3,name:'Sam',wealth:'45000'},{id:4,name:'Morgan',wealth:'95000'}], bills: [{id:5,description:'Ski passes',amount:'1200',paidBy:'Jordan'},{id:6,description:'Cabin rental',amount:'2400',paidBy:'Morgan'},{id:7,description:'Gas',amount:'110',paidBy:'Alex'},{id:8,description:'Groceries',amount:'520',paidBy:'Jordan'},{id:9,description:'Gear rental',amount:'805',paidBy:'Sam'}] },
+  sale: { productName:'Used Honda Civic',numberAvailable:'1', buyers:[{id:1,name:'Riley',wealth:'28000',offer:'4800'},{id:2,name:'Casey',wealth:'75000',offer:'5200'},{id:3,name:'Taylor',wealth:'140000',offer:'5500'},{id:4,name:'Drew',wealth:'220000',offer:'6000'}] },
+  vote: { decision:"What should the company's remote work policy be?", options:[{id:1,text:'Fully remote'},{id:2,text:'Hybrid'},{id:3,text:'100% in-office'}], participants:[{id:5,name:'Oscar',wealth:'250000',vote:'100% in-office'},{id:6,name:'Gerry',wealth:'120000',vote:'Hybrid'},{id:7,name:'Sarah',wealth:'65000',vote:'Fully remote'},{id:8,name:'Simone',wealth:'110000',vote:'Fully remote'},{id:9,name:'Thomas',wealth:'85000',vote:'Hybrid'}] },
+  rent: { totalRent:'3600',totalUtilities:'240', people:[{id:1,name:'River',roomSize:'180',wealth:'42000'},{id:2,name:'Skyler',roomSize:'140',wealth:'125000'},{id:3,name:'Quinn',roomSize:'160',wealth:'68000'}] }
+};
+
+// ── ICONS ──
+const PersonIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 40 40" style={{flexShrink:0}}><circle cx="20" cy="20" r="18" fill="#333333"/><circle cx="20" cy="16" r="5" fill="white"/><path d="M 10 32 Q 10 24 20 24 Q 30 24 30 32" fill="white"/></svg>;
+const BillIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><text x="4" y="20" fontFamily="Sixtyfour, monospace" fontSize="22" fill="#333333" fontWeight="bold">$</text></svg>;
+const HouseIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z" fill="#333333"/></svg>;
+const TagIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><text x="4" y="20" fontFamily="Sixtyfour, monospace" fontSize="22" fill="#333333" fontWeight="bold">$</text></svg>;
+const QuestionIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><text x="6" y="19" fontFamily="monospace" fontSize="20" fill="#333333" fontWeight="bold">?</text></svg>;
+const CheckCircleIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><circle cx="12" cy="12" r="10" fill="none" stroke="#333333" strokeWidth="3"/><polyline points="7,12.5 10.5,16 17,9" fill="none" stroke="#333333" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+const ListIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><rect x="4" y="5" width="3" height="3" fill="#333333"/><rect x="4" y="10" width="3" height="3" fill="#333333"/><rect x="4" y="15" width="3" height="3" fill="#333333"/><line x1="9" y1="6.5" x2="20" y2="6.5" stroke="#333333" strokeWidth="2"/><line x1="9" y1="11.5" x2="20" y2="11.5" stroke="#333333" strokeWidth="2"/><line x1="9" y1="16.5" x2="20" y2="16.5" stroke="#333333" strokeWidth="2"/></svg>;
+const CalculateIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><line x1="4" y1="9" x2="20" y2="9" stroke="#333333" strokeWidth="3.5" strokeLinecap="round"/><line x1="4" y1="15" x2="20" y2="15" stroke="#333333" strokeWidth="3.5" strokeLinecap="round"/></svg>;
+const ErrorIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><line x1="4" y1="4" x2="20" y2="20" stroke="#333333" strokeWidth="3"/><line x1="20" y1="4" x2="4" y2="20" stroke="#333333" strokeWidth="3"/></svg>;
+
+// ── ABOUT BANNER ──
+const AboutBanner = () => (
+  <div className="mb-6">
+    <div className="bg-white p-4">
+      <svg width="100%" height="60" viewBox="0 0 600 60" preserveAspectRatio="xMidYMid meet">
+        <g transform="translate(50,30)"><text x="0" y="12" fontFamily="Sixtyfour, monospace" fontSize="32" fill="#333333" fontWeight="bold" textAnchor="middle">$</text></g>
+        <g transform="translate(150,30)"><rect x="-30" y="8" width="12" height="15" fill="#333333"/><rect x="-15" y="-3" width="12" height="26" fill="#666"/><rect x="0" y="5" width="12" height="18" fill="#999"/><rect x="15" y="-8" width="12" height="31" fill="#333333"/><line x1="-30" y1="23" x2="27" y2="23" stroke="#333333" strokeWidth="2"/></g>
+        <g transform="translate(250,30)"><text x="0" y="12" fontFamily="Sixtyfour, monospace" fontSize="32" fill="#333333" fontWeight="bold" textAnchor="middle">€</text></g>
+        <g transform="translate(350,30)"><circle cx="0" cy="0" r="18" fill="#666"/><circle cx="0" cy="-4" r="5" fill="white"/><path d="M -10 12 Q -10 4 0 4 Q 10 4 10 12" fill="white"/></g>
+        <g transform="translate(450,30)"><text x="0" y="12" fontFamily="Sixtyfour, monospace" fontSize="32" fill="#333333" fontWeight="bold" textAnchor="middle">£</text></g>
+        <g transform="translate(550,30)"><path d="M 0 0 L 0 -22 A 22 22 0 0 1 15.6 15.6 Z" fill="#333333"/><path d="M 0 0 L 15.6 15.6 A 22 22 0 0 1 -11 19 Z" fill="#666"/><path d="M 0 0 L -11 19 A 22 22 0 0 1 -21.1 -5.7 Z" fill="#999"/><path d="M 0 0 L -21.1 -5.7 A 22 22 0 0 1 0 -22 Z" fill="#CCC"/></g>
+      </svg>
+    </div>
+  </div>
+);
+
+// ── HOW IT WORKS ILLUSTRATIONS ──
+const PeopleAvatars = () => (
+  <div className="flex justify-center gap-2 py-2">
+    {['#D1D5DB','#9CA3AF','#6B7280'].map((c,i) => (
+      <svg key={i} width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill={c}/><circle cx="20" cy="16" r="6" fill="white"/><path d="M 10 32 Q 10 24 20 24 Q 30 24 30 32" fill="white"/></svg>
+    ))}
+  </div>
+);
+
+const MockReceipt = () => (
+  <div className="flex justify-center py-2 px-16">
+    <div className="space-y-2 w-full">
+      {[['#D1D5DB','MEAL','$95'],['#9CA3AF','GAS','$45'],['#6B7280','HOTEL','$300']].map(([color,label,amount]) => (
+        <div key={label} className="flex justify-between items-center text-xs font-bold text-gray-500 border-b-2 border-dashed border-gray-400 pb-1">
+          <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full" style={{backgroundColor:color}}></div><span>{label}</span></div>
+          <span>{amount}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+// BG_GREY used to exactly match the receipt background in SVGs
+const BG_GREY = '#F3F4F6';
+
+const ResultPieChart = () => (
+  <div className="flex justify-center py-2">
+    <svg width="80" height="80" viewBox="0 0 80 80">
+      <rect width="80" height="80" fill={BG_GREY}/>
+      <path d="M 40 5 A 35 35 0 0 1 52.5 71.2 L 40 40 Z"             fill="#D1D5DB" stroke={BG_GREY} strokeWidth="2"/>
+      <path d="M 40 40 L 52.5 71.2 A 35 35 0 0 1 8.8 52.5 L 40 40 Z" fill="#9CA3AF" stroke={BG_GREY} strokeWidth="2"/>
+      <path d="M 40 40 L 8.8 52.5 A 35 35 0 0 1 40 5 L 40 40 Z"       fill="#6B7280" stroke={BG_GREY} strokeWidth="2"/>
+    </svg>
+  </div>
+);
+
+// ── SHARED UI ──
+const DashedDivider = () => <div className="border-t-2 border-dashed border-gray-400 my-6"/>;
 const CurrencyDivider = () => (
   <div className="flex items-center gap-4 my-6">
     <div className="flex-1 border-t-4 border-black"></div>
@@ -130,76 +105,64 @@ const CurrencyDivider = () => (
     <div className="flex-1 border-t-4 border-black"></div>
   </div>
 );
-
-const BlackBoxStats = ({ stats }) => (
+const BlackBoxStats = ({stats}) => (
   <div className="flex flex-wrap gap-x-5 gap-y-1 mt-4 pt-3 border-t-2 border-dashed border-white">
-    {stats.map(({label, value}) => (
-      <div key={label} className="text-xs text-white">
-        <span>{label}: </span>
-        <span className="font-bold">{value}</span>
-      </div>
-    ))}
+    {stats.map(({label,value}) => <div key={label} className="text-xs text-white"><span>{label}: </span><span className="font-bold">{value}</span></div>)}
   </div>
 );
-
-const WeightingButtons = ({ value, onChange }) => (
+const WeightingButtons = ({value,onChange}) => (
   <div className="flex justify-center">
     <div className="bg-gray-100 p-2 border-2 border-dotted border-black inline-block">
       <div className="flex flex-wrap gap-2">
         {[{value:'gentle',label:'LOW'},{value:'standard',label:'MID'},{value:'strong',label:'HIGH'},{value:'none',label:'OFF'}].map(w => (
-          <button key={w.value} onClick={() => onChange(w.value)} className={`flex-1 min-w-[100px] p-3 font-bold text-xs border-2 ${value===w.value?'bg-black text-white border-black':w.value==='none'?'bg-gray-200 text-gray-500 border-gray-400':'bg-white text-black border-gray-400'}`}>{w.label}</button>
+          <button key={w.value} onClick={()=>onChange(w.value)} className={`flex-1 min-w-[100px] p-3 font-bold text-xs border-2 ${value===w.value?'bg-black text-white border-black':w.value==='none'?'bg-gray-200 text-gray-500 border-gray-400':'bg-white text-black border-gray-400'}`}>{w.label}</button>
         ))}
       </div>
     </div>
   </div>
 );
-
-const WealthMetricButtons = ({ value, onChange }) => (
+const WealthMetricButtons = ({value,onChange}) => (
   <div className="flex justify-center">
     <div className="bg-gray-100 p-2 border-2 border-dotted border-black inline-block">
       <div className="flex gap-2">
         {[{value:'salary',label:'SALARY'},{value:'networth',label:'NET WORTH'}].map(w => (
-          <button key={w.value} onClick={() => onChange(w.value)} className={`px-4 py-3 font-bold text-xs border-2 ${value===w.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{w.label}</button>
+          <button key={w.value} onClick={()=>onChange(w.value)} className={`px-4 py-3 font-bold text-xs border-2 ${value===w.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{w.label}</button>
         ))}
       </div>
     </div>
   </div>
 );
-
-const MeasurementButtons = ({ value, onChange }) => (
+const MeasurementButtons = ({value,onChange}) => (
   <div className="flex justify-center">
     <div className="bg-gray-100 p-2 border-2 border-dotted border-black inline-block">
       <div className="flex gap-2">
         {[{value:'sqft',label:'SQ FT'},{value:'sqm',label:'SQ M'}].map(m => (
-          <button key={m.value} onClick={() => onChange(m.value)} className={`px-4 py-3 font-bold text-xs border-2 ${value===m.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{m.label}</button>
+          <button key={m.value} onClick={()=>onChange(m.value)} className={`px-4 py-3 font-bold text-xs border-2 ${value===m.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{m.label}</button>
         ))}
       </div>
     </div>
   </div>
 );
-
-const CurrencyButtons = ({ value, onChange }) => (
+const CurrencyButtons = ({value,onChange}) => (
   <div className="flex justify-center">
     <div className="bg-gray-100 p-2 border-2 border-dotted border-black inline-block">
       <div className="flex gap-2">
         {[{value:'USD',label:'$'},{value:'EUR',label:'€'},{value:'GBP',label:'£'}].map(c => (
-          <button key={c.value} onClick={() => onChange(c.value)} className={`px-6 py-3 font-bold text-xs border-2 ${value===c.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{c.label}</button>
+          <button key={c.value} onClick={()=>onChange(c.value)} className={`px-6 py-3 font-bold text-xs border-2 ${value===c.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{c.label}</button>
         ))}
       </div>
     </div>
   </div>
 );
-
-const FormInput = ({ type='text', value, onChange, placeholder, className='', style, ...props }) => {
+const FormInput = ({type='text',value,onChange,placeholder,className='',style,...props}) => {
   const base = "w-full p-2 border-2 border-gray-400 bg-white uppercase";
-  if (type==='textarea') return <textarea value={value} onChange={onChange} placeholder={placeholder} className={`${base} ${className}`} style={{fontSize:'16px',...style}} {...props}/>;
+  if(type==='textarea') return <textarea value={value} onChange={onChange} placeholder={placeholder} className={`${base} ${className}`} style={{fontSize:'16px',...style}} {...props}/>;
   return <input type={type} value={value} onChange={onChange} placeholder={placeholder} className={`${base} ${className}`} style={{fontSize:'16px',...style}} {...props}/>;
 };
-
-const ItemList = ({ items, onDelete, renderItem, receiptStyle, formatTotal, getAmount }) => {
-  if (!items.length) return null;
-  if (receiptStyle) {
-    const total = items.reduce((s,i) => s+(parseFloat(getAmount?getAmount(i):i.amount)||0),0);
+const ItemList = ({items,onDelete,renderItem,receiptStyle,formatTotal,getAmount}) => {
+  if(!items.length) return null;
+  if(receiptStyle) {
+    const total=items.reduce((s,i)=>s+(parseFloat(getAmount?getAmount(i):i.amount)||0),0);
     return (
       <div className="mt-4">
         <div className="space-y-0 mb-4">
@@ -208,7 +171,7 @@ const ItemList = ({ items, onDelete, renderItem, receiptStyle, formatTotal, getA
               <div className="flex-1">{renderItem(item)}</div>
               <div className="flex items-center gap-3">
                 <span className="text-black font-bold">{formatTotal?formatTotal(parseFloat(getAmount?getAmount(item):item.amount)||0):(parseFloat(getAmount?getAmount(item):item.amount)||0).toFixed(2)}</span>
-                <button onClick={() => onDelete(item.id)} className="text-black font-bold text-xl hover:text-gray-600 leading-none">×</button>
+                <button onClick={()=>onDelete(item.id)} className="text-black font-bold text-xl hover:text-gray-600 leading-none">×</button>
               </div>
             </div>
           ))}
@@ -225,53 +188,73 @@ const ItemList = ({ items, onDelete, renderItem, receiptStyle, formatTotal, getA
       {items.map(item => (
         <div key={item.id} className="bg-white p-3 border-2 border-black flex justify-between items-center">
           <div className="flex-1">{renderItem(item)}</div>
-          <button onClick={() => onDelete(item.id)} className="text-black font-bold text-xl ml-3 hover:text-gray-600">×</button>
+          <button onClick={()=>onDelete(item.id)} className="text-black font-bold text-xl ml-3 hover:text-gray-600">×</button>
         </div>
       ))}
     </div>
   );
 };
 
-const AccordionPage = ({ steps, activeIdx, setActiveIdx, renderContent }) => (
+// ── ACCORDION — multi-open ──
+// openIndices: number[] of currently open step indices
+// onToggle(i): toggle a single step (open without closing others, or close if already open)
+const AccordionPage = ({steps,openIndices,onToggle,renderContent}) => (
   <div>
-    {steps.map((s, i) => (
-      <div key={i} className={i>0?'border-t-2 border-dashed border-gray-400':''}>
-        <button
-          onClick={(e) => {
-            const opening = activeIdx !== i;
-            setActiveIdx(opening ? i : -1);
-            if (opening) setTimeout(() => e.currentTarget.scrollIntoView({behavior:'smooth',block:'start'}),0);
-          }}
-          className="w-full flex items-center justify-between py-4 px-1 text-left hover:opacity-60 transition-all"
-        >
-          <div className="flex items-center gap-3">
-            {s.icon}
-            <div>
-              {i>0 && <p className="text-xs text-gray-500 font-bold uppercase">STEP {i} OF {steps.length-1}</p>}
-              <p className="font-black text-xl uppercase text-black leading-tight">{s.label}</p>
+    {steps.map((s,i) => {
+      const isOpen = openIndices.includes(i);
+      return (
+        <div key={i} className={i>0?'border-t-2 border-dashed border-gray-400':''}>
+          <button
+            onClick={(e) => {
+              const opening = !isOpen;
+              onToggle(i);
+              if(opening) setTimeout(()=>e.currentTarget.scrollIntoView({behavior:'smooth',block:'start'}),0);
+            }}
+            className="w-full flex items-center justify-between py-4 px-1 text-left hover:opacity-60 transition-all"
+          >
+            <div className="flex items-center gap-3" style={{opacity: isOpen ? 1 : 0.5}}>
+              {s.icon}
+              <div>
+                {i>0&&<p className="text-xs text-gray-500 font-bold uppercase">STEP {i} OF {steps.length-1}</p>}
+                <p className="font-black text-xl uppercase text-black leading-tight">{s.label}</p>
+              </div>
             </div>
-          </div>
-          <span className="text-3xl font-black text-black ml-4 leading-none flex-shrink-0">{activeIdx===i?'−':'+'}</span>
-        </button>
-        {activeIdx===i && (
-          <div className="pb-8 px-1 animate-fadeIn">
-            {renderContent(i)}
-          </div>
-        )}
-      </div>
-    ))}
+            <span className="text-3xl font-black text-black ml-4 leading-none flex-shrink-0">{isOpen?'−':'+'}</span>
+          </button>
+          {isOpen&&(
+            <div className="pb-8 px-1 animate-fadeIn">
+              {renderContent(i)}
+            </div>
+          )}
+        </div>
+      );
+    })}
   </div>
 );
 
-const Layout = ({ children, onNavigate, showCopyToast }) => (
+// ── RECEIPT TEARS ──
+const ReceiptTop = () => (
+  <svg width="100%" height="32" viewBox="0 0 600 32" preserveAspectRatio="none" style={{display:'block'}}>
+    <polygon points="0,4 21.428,14 42.857,4 64.286,14 85.714,4 107.143,14 128.571,4 150,14 171.429,4 192.857,14 214.286,4 235.714,14 257.143,4 278.571,14 300,4 321.429,14 342.857,4 364.286,14 385.714,4 407.143,14 428.571,4 450,14 471.429,4 492.857,14 514.286,4 535.714,14 557.143,4 578.571,14 600,4 600,32 0,32" fill={BG_GREY}/>
+    <polygon points="0,0 21.428,10 42.857,0 64.286,10 85.714,0 107.143,10 128.571,0 150,10 171.429,0 192.857,10 214.286,0 235.714,10 257.143,0 278.571,10 300,0 321.429,10 342.857,0 364.286,10 385.714,0 407.143,10 428.571,0 450,10 471.429,0 492.857,10 514.286,0 535.714,10 557.143,0 578.571,10 600,0 600,4 578.571,14 557.143,4 535.714,14 514.286,4 492.857,14 471.429,4 450,14 428.571,4 407.143,14 385.714,4 364.286,14 342.857,4 321.429,14 300,4 278.571,14 257.143,4 235.714,14 214.286,4 192.857,14 171.429,4 150,14 128.571,4 107.143,14 85.714,4 64.286,14 42.857,4 21.428,14 0,4" fill="#333333"/>
+  </svg>
+);
+const ReceiptBottom = () => (
+  <svg width="100%" height="32" viewBox="0 0 600 32" preserveAspectRatio="none" style={{display:'block'}}>
+    <polygon points="0,0 600,0 600,28 578.571,18 557.143,28 535.714,18 514.286,28 492.857,18 471.429,28 450,18 428.571,28 407.143,18 385.714,28 364.286,18 342.857,28 321.429,18 300,28 278.571,18 257.143,28 235.714,18 214.286,28 192.857,18 171.429,28 150,18 128.571,28 107.143,18 85.714,28 64.286,18 42.857,28 21.428,18 0,28" fill={BG_GREY}/>
+    <polygon points="0,32 21.428,22 42.857,32 64.286,22 85.714,32 107.143,22 128.571,32 150,22 171.429,32 192.857,22 214.286,32 235.714,22 257.143,32 278.571,22 300,32 321.429,22 342.857,32 364.286,22 385.714,32 407.143,22 428.571,32 450,22 471.429,32 492.857,22 514.286,32 535.714,22 557.143,32 578.571,22 600,32 600,28 578.571,18 557.143,28 535.714,18 514.286,28 492.857,18 471.429,28 450,18 428.571,28 407.143,18 385.714,28 364.286,18 342.857,28 321.429,18 300,28 278.571,18 257.143,28 235.714,18 214.286,28 192.857,18 171.429,28 150,18 128.571,28 107.143,18 85.714,28 64.286,18 42.857,28 21.428,18 0,28" fill="#333333"/>
+  </svg>
+);
+
+const Layout = ({children,onNavigate,showCopyToast}) => (
   <div style={{fontFamily:'Sixtyfour, monospace',background:'#dc143c',backgroundImage:`linear-gradient(180deg, rgba(255,215,0,0.85) 0%, rgba(255,140,0,0.85) 50%, rgba(255,215,0,0.85) 100%), url("data:image/svg+xml,%3Csvg width='75' height='90' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='10' y='20' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E$%3C/text%3E%3Ctext x='35' y='20' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E€%3C/text%3E%3Ctext x='60' y='20' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E£%3C/text%3E%3Ctext x='3' y='50' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E€%3C/text%3E%3Ctext x='28' y='50' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E£%3C/text%3E%3Ctext x='53' y='50' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E$%3C/text%3E%3Ctext x='17' y='80' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E£%3C/text%3E%3Ctext x='42' y='80' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E$%3C/text%3E%3Ctext x='67' y='80' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E€%3C/text%3E%3C/svg%3E")`,backgroundSize:'100% 1400px, auto',backgroundRepeat:'repeat-y, repeat',minHeight:'100vh'}}>
     <style>{`
       @import url('https://fonts.googleapis.com/css2?family=Sixtyfour:wght@400&display=swap');
       * { font-family: 'Sixtyfour', monospace !important; word-wrap: break-word; overflow-wrap: break-word; }
       html, body { overflow-y: auto !important; height: auto !important; }
       .receipt-wrapper { border-left: 4px solid #333333; border-right: 4px solid #333333; }
-      .receipt-container { position: relative; background: #F3F4F6; }
-      .bg-white { background-color: #F3F4F6 !important; }
+      .receipt-container { position: relative; background: ${BG_GREY}; }
+      .bg-white { background-color: ${BG_GREY} !important; }
       .bg-gray-50 { background-color: #E5E7EB !important; }
       h1 { font-size: clamp(1.5rem, 5vw, 2.5rem); }
       h2 { font-size: clamp(1.25rem, 4vw, 1.5rem); }
@@ -291,14 +274,12 @@ const Layout = ({ children, onNavigate, showCopyToast }) => (
     `}</style>
     <div className="max-w-xl mx-auto px-2 sm:px-0 py-5">
       <div className="receipt-wrapper">
-        <svg width="100%" height="32" viewBox="0 0 600 32" preserveAspectRatio="none" style={{display:'block'}}>
-          <polygon points="0,4 21.428,14 42.857,4 64.286,14 85.714,4 107.143,14 128.571,4 150,14 171.429,4 192.857,14 214.286,4 235.714,14 257.143,4 278.571,14 300,4 321.429,14 342.857,4 364.286,14 385.714,4 407.143,14 428.571,4 450,14 471.429,4 492.857,14 514.286,4 535.714,14 557.143,4 578.571,14 600,4 600,32 0,32" fill="#F3F4F6"/>
-          <polygon points="0,0 21.428,10 42.857,0 64.286,10 85.714,0 107.143,10 128.571,0 150,10 171.429,0 192.857,10 214.286,0 235.714,10 257.143,0 278.571,10 300,0 321.429,10 342.857,0 364.286,10 385.714,0 407.143,10 428.571,0 450,10 471.429,0 492.857,10 514.286,0 535.714,10 557.143,0 578.571,10 600,0 600,4 578.571,14 557.143,4 535.714,14 514.286,4 492.857,14 471.429,4 450,14 428.571,4 407.143,14 385.714,4 364.286,14 342.857,4 321.429,14 300,4 278.571,14 257.143,4 235.714,14 214.286,4 192.857,14 171.429,4 150,14 128.571,4 107.143,14 85.714,4 64.286,14 42.857,4 21.428,14 0,4" fill="#333333"/>
-        </svg>
+        <ReceiptTop />
         <div className="receipt-container">
-          <div className="pt-4 px-6 pb-3">
-            <div className="bg-white mb-4 pt-4 pb-4 border-t-2 border-b-2 border-dashed border-gray-400">
-              <div className="cursor-pointer text-center" onClick={() => onNavigate('home')}>
+          {/* pt-1 sits closer to the tear edge — border-b only on header, no border-t */}
+          <div className="pt-1 px-6 pb-3">
+            <div className="bg-white mb-4 pt-3 pb-3 border-b-2 border-dashed border-gray-400">
+              <div className="cursor-pointer text-center" onClick={()=>onNavigate('home')}>
                 <div className="currency-pattern text-xs font-bold text-black mb-2 uppercase tracking-wider">{'$ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £'}</div>
                 <h1 className="font-black text-black tracking-wider text-4xl">COMRADE</h1>
                 <div className="currency-pattern text-xs font-bold text-black mt-2 uppercase tracking-wider">{'$ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £'}</div>
@@ -307,97 +288,258 @@ const Layout = ({ children, onNavigate, showCopyToast }) => (
             {children}
             <CurrencyDivider />
             <div className="text-center mt-4 mb-4 text-black text-xs">
-              <span className="cursor-pointer hover:underline font-bold" onClick={() => onNavigate('home')}>HOME</span>
+              <span className="cursor-pointer hover:underline font-bold" onClick={()=>onNavigate('home')}>HOME</span>
               <span className="mx-3">/</span>
-              <span className="cursor-pointer hover:underline font-bold" onClick={() => onNavigate('about')}>ABOUT</span>
+              <span className="cursor-pointer hover:underline font-bold" onClick={()=>onNavigate('about')}>ABOUT</span>
               <span className="mx-3">/</span>
-              <span className="cursor-pointer hover:underline font-bold" onClick={() => onNavigate('legal')}>LEGAL</span>
+              <span className="cursor-pointer hover:underline font-bold" onClick={()=>onNavigate('legal')}>LEGAL</span>
             </div>
             <div className="text-center text-xs text-gray-700 pb-3">
               <a href="mailto:hello@comrade.money" className="hover:underline">HELLO@COMRADE.MONEY</a>
             </div>
           </div>
         </div>
-        <svg width="100%" height="32" viewBox="0 0 600 32" preserveAspectRatio="none" style={{display:'block'}}>
-          <polygon points="0,0 600,0 600,28 578.571,18 557.143,28 535.714,18 514.286,28 492.857,18 471.429,28 450,18 428.571,28 407.143,18 385.714,28 364.286,18 342.857,28 321.429,18 300,28 278.571,18 257.143,28 235.714,18 214.286,28 192.857,18 171.429,28 150,18 128.571,28 107.143,18 85.714,28 64.286,18 42.857,28 21.428,18 0,28" fill="#F3F4F6"/>
-          <polygon points="0,32 21.428,22 42.857,32 64.286,22 85.714,32 107.143,22 128.571,32 150,22 171.429,32 192.857,22 214.286,32 235.714,22 257.143,32 278.571,22 300,32 321.429,22 342.857,32 364.286,22 385.714,32 407.143,22 428.571,32 450,22 471.429,32 492.857,22 514.286,32 535.714,22 557.143,32 578.571,22 600,32 600,28 578.571,18 557.143,28 535.714,18 514.286,28 492.857,18 471.429,28 450,18 428.571,28 407.143,18 385.714,28 364.286,18 342.857,28 321.429,18 300,28 278.571,18 257.143,28 235.714,18 214.286,28 192.857,18 171.429,28 150,18 128.571,28 107.143,18 85.714,28 64.286,18 42.857,28 21.428,18 0,28" fill="#333333"/>
-        </svg>
+        <ReceiptBottom />
       </div>
     </div>
-    {showCopyToast && (
+    {showCopyToast&&(
       <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-black text-white px-6 py-3 font-bold z-50 border-2 border-black">COPIED TO CLIPBOARD!</div>
     )}
   </div>
 );
 
+// ── MAIN APP ──
 const Comrade = () => {
-  React.useEffect(() => {
-    document.title = "COMRADE";
-    let m = document.querySelector('meta[name="description"]');
-    if (!m) { m = document.createElement('meta'); m.name='description'; document.head.appendChild(m); }
-    m.content = 'The fairer way to split costs with friends.';
-  }, []);
+  useEffect(()=>{
+    document.title="COMRADE";
+    let m=document.querySelector('meta[name="description"]');
+    if(!m){m=document.createElement('meta');m.name='description';document.head.appendChild(m);}
+    m.content='The fairer way to split costs with friends.';
+  },[]);
 
-  const renderWealthPieChart = useCallback((data, fmt) => {
-    const sorted = [...data].sort((a,b)=>b.wealth-a.wealth);
-    const total = sorted.reduce((s,p)=>s+p.wealth,0);
-    const colors = ['#000000','#1F2937','#475569','#64748B','#94A3B8','#CBD5E1','#E2E8F0','#F1F5F9'];
-    return (
-      <>
-        <svg viewBox="0 0 200 200" className="w-full max-w-xs mx-auto">
-          {(() => {
-            let cur=0;
-            return sorted.map((p,idx)=>{
-              const pct=total>0?(p.wealth/total):(1/sorted.length);
-              const angle=pct*360,cx=100,cy=100,r=70,ir=30;
-              const s1=((cur-90)*Math.PI/180),e1=((cur+angle-90)*Math.PI/180);
-              const x1=cx+r*Math.cos(s1),y1=cy+r*Math.sin(s1),x2=cx+r*Math.cos(e1),y2=cy+r*Math.sin(e1);
-              const x3=cx+ir*Math.cos(e1),y3=cy+ir*Math.sin(e1),x4=cx+ir*Math.cos(s1),y4=cy+ir*Math.sin(s1);
-              const la=angle>180?1:0;
-              const d=`M${x1} ${y1} A${r} ${r} 0 ${la} 1 ${x2} ${y2} L${x3} ${y3} A${ir} ${ir} 0 ${la} 0 ${x4} ${y4} Z`;
-              cur+=angle;
-              return <path key={idx} d={d} fill={colors[idx%colors.length]} stroke="#F3F4F6" strokeWidth="1"/>;
-            });
-          })()}
-        </svg>
-        <div className="mt-6 space-y-2">
-          {sorted.map((p,idx)=>{
-            const pct=total>0?(p.wealth/total)*100:100/sorted.length;
-            return (
-              <div key={idx} className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-black">
-                <div className="w-4 h-4 border border-gray-400 flex-shrink-0" style={{backgroundColor:colors[idx%colors.length]}}></div>
-                <span className="font-bold text-black">{p.name}</span>
-                <span className="text-black">${fmt(p.wealth.toFixed(2))}</span>
-                <span className="font-bold text-black">({pct.toFixed(1)}%)</span>
-              </div>
-            );
-          })}
-        </div>
-      </>
-    );
-  }, []);
+  const formatNumber = useCallback(n=>n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,","),[]);
+  const formatSmartNumber = useCallback(n=>{if(Math.abs(n)<0.01&&n!==0)return n.toExponential(4);return formatNumber(n.toFixed(2));},[formatNumber]);
+  const getCurrencySymbol = useCallback(c=>({USD:'$',EUR:'€',GBP:'£'})[c]||'$',[]);
+  const formatCurrency = useCallback((v,d=2,c='USD')=>`${getCurrencySymbol(c)}${formatNumber((parseFloat(v)||0).toFixed(d))}`,[formatNumber,getCurrencySymbol]);
+  const formatCurrencySmart = useCallback((v,c='USD')=>`${getCurrencySymbol(c)}${formatSmartNumber(v)}`,[formatSmartNumber,getCurrencySymbol]);
+  const getWeightingLabel = useCallback(w=>({none:'OFF',gentle:'LOW',standard:'MID',strong:'HIGH'})[w]||'MID',[]);
+  const getWealthMetricLabel = useCallback(m=>m==='networth'?'NET WORTH':'SALARY',[]);
+  const getMeasurementLabel = useCallback(m=>m==='sqm'?'SQ M':'SQ FT',[]);
+  const copyToClipboard = useCallback(t=>{navigator.clipboard.writeText(t);setShowCopyToast(true);},[]);
+  const navigateTo = useCallback(p=>setPage(p),[]);
 
-  const BUTTON_STYLES = useMemo(()=>({
-    primary:'bg-black text-white px-6 py-2 font-bold border-2 border-black hover:bg-gray-800 transition-all',
-    secondary:'bg-gray-200 text-black px-6 py-2 font-bold border-2 border-gray-400 hover:bg-gray-300 transition-all',
-    toggle:'bg-white text-black px-6 py-3 font-bold border-2 border-black hover:bg-gray-50 transition-all'
-  }),[]);
+  // ── STATE ──
+  const [page,setPage] = useState('home');
+  const [showCopyToast,setShowCopyToast] = useState(false);
+  const [randomQuote,setRandomQuote] = useState('');
+  const [lastQuoteIndices,setLastQuoteIndices] = useState([]);
+  const [signupEmail,setSignupEmail] = useState('');
+  const [signupStatus,setSignupStatus] = useState('');
 
-  const DetailToggleButton = useCallback(({show,onClick})=>(
-    <div className="text-center mb-6">
-      <button onClick={onClick} className={BUTTON_STYLES.toggle}>{show?'▲ HIDE BREAKDOWN':'▼ SHOW BREAKDOWN'}</button>
-    </div>
-  ),[BUTTON_STYLES]);
+  // Share
+  const [sharePeople,setSharePeople] = useState([]);
+  const [shareBills,setShareBills] = useState([]);
+  const [curPersonName,setCurPersonName] = useState('');
+  const [curPersonWealth,setCurPersonWealth] = useState('');
+  const [curBillDesc,setCurBillDesc] = useState('');
+  const [curBillAmt,setCurBillAmt] = useState('');
+  const [curBillPaidBy,setCurBillPaidBy] = useState('');
+  const [shareWeighting,setShareWeighting] = useState('standard');
+  const [shareCurrency,setShareCurrency] = useState('USD');
+  const [shareWealthMetric,setShareWealthMetric] = useState('salary');
+  const [shareOpen,setShareOpen] = useState([0]); // multi-open accordion indices
+  const [showShareDetails,setShowShareDetails] = useState(false);
 
-  const renderResultsNavigation = (copyText,entryPage) => (
-    <div className="flex flex-col gap-3 max-w-xs mx-auto">
-      <button onClick={()=>copyToClipboard(copyText)} className={`${BUTTON_STYLES.primary} w-full`}>COPY RESULTS</button>
-      <button onClick={()=>navigateTo(entryPage)} className={`${BUTTON_STYLES.primary} w-full`}>EDIT DETAILS</button>
-      <button onClick={()=>navigateTo('home')} className={`${BUTTON_STYLES.secondary} w-full`}>RETURN HOME</button>
+  // Sale
+  const [productName,setProductName] = useState('');
+  const [numberAvailable,setNumberAvailable] = useState('');
+  const [saleBuyers,setSaleBuyers] = useState([]);
+  const [curBuyerName,setCurBuyerName] = useState('');
+  const [curBuyerWealth,setCurBuyerWealth] = useState('');
+  const [curBuyerOffer,setCurBuyerOffer] = useState('');
+  const [saleWeighting,setSaleWeighting] = useState('standard');
+  const [saleCurrency,setSaleCurrency] = useState('USD');
+  const [saleWealthMetric,setSaleWealthMetric] = useState('salary');
+  const [saleOpen,setSaleOpen] = useState([0]);
+  const [showSaleDetails,setShowSaleDetails] = useState(false);
+
+  // Vote
+  const [voteDecision,setVoteDecision] = useState('');
+  const [voteOptions,setVoteOptions] = useState([]);
+  const [curOptionText,setCurOptionText] = useState('');
+  const [voteParticipants,setVoteParticipants] = useState([]);
+  const [curParticipantName,setCurParticipantName] = useState('');
+  const [curParticipantWealth,setCurParticipantWealth] = useState('');
+  const [curParticipantVote,setCurParticipantVote] = useState('');
+  const [voteWeighting,setVoteWeighting] = useState('standard');
+  const [voteCurrency,setVoteCurrency] = useState('USD');
+  const [voteWealthMetric,setVoteWealthMetric] = useState('salary');
+  const [voteOpen,setVoteOpen] = useState([0]);
+  const [showVoteDetails,setShowVoteDetails] = useState(false);
+
+  // Rent
+  const [totalRent,setTotalRent] = useState('');
+  const [totalUtilities,setTotalUtilities] = useState('');
+  const [rentPeople,setRentPeople] = useState([]);
+  const [curRoommateName,setCurRoommateName] = useState('');
+  const [curRoommateRoomSize,setCurRoommateRoomSize] = useState('');
+  const [curRoommateWealth,setCurRoommateWealth] = useState('');
+  const [rentWeighting,setRentWeighting] = useState('standard');
+  const [rentCurrency,setRentCurrency] = useState('USD');
+  const [rentWealthMetric,setRentWealthMetric] = useState('salary');
+  const [rentMeasurement,setRentMeasurement] = useState('sqft');
+  const [rentOpen,setRentOpen] = useState([0]);
+  const [showRentDetails,setShowRentDetails] = useState(false);
+
+  // ── ACCORDION HELPERS ──
+  // toggle a single index (open without closing others; close if already open)
+  const makeToggle = setter => i => setter(prev => prev.includes(i) ? prev.filter(x=>x!==i) : [...prev, i]);
+  // jump: collapse everything except the target (used by Begin/Continue)
+  const makeJump = setter => i => setter([i]);
+  // expand all (used by Load Example)
+  const makeExpandAll = (setter, count) => () => setter(Array.from({length:count},(_,i)=>i));
+  // close all except first (used by Clear All)
+  const makeCollapseToFirst = setter => () => setter([0]);
+
+  useEffect(()=>{
+    window.scrollTo({top:0,behavior:'instant'});
+    setShowShareDetails(false);setShowVoteDetails(false);setShowSaleDetails(false);setShowRentDetails(false);
+    if(['share-results','sale-results','vote-results','rent-results'].includes(page)){
+      setLastQuoteIndices(prev=>{
+        let idx,attempts=0;
+        do{idx=Math.floor(Math.random()*QUOTES.length);attempts++;}while(prev.includes(idx)&&QUOTES.length>5&&attempts<100);
+        setRandomQuote(QUOTES[idx]);
+        return [...prev,idx].slice(-5);
+      });
+    }
+  },[page]);
+  useEffect(()=>{if(showCopyToast){const t=setTimeout(()=>setShowCopyToast(false),2500);return()=>clearTimeout(t);}},[showCopyToast]);
+
+  const handleClearAll = useCallback(type=>{
+    if(type==='share'){setSharePeople([]);setShareBills([]);setCurPersonName('');setCurPersonWealth('');setCurBillDesc('');setCurBillAmt('');setCurBillPaidBy('');makeCollapseToFirst(setShareOpen)();}
+    if(type==='sale'){setProductName('');setNumberAvailable('');setSaleBuyers([]);setCurBuyerName('');setCurBuyerWealth('');setCurBuyerOffer('');makeCollapseToFirst(setSaleOpen)();}
+    if(type==='vote'){setVoteDecision('');setVoteOptions([]);setVoteParticipants([]);setCurParticipantName('');setCurParticipantWealth('');setCurParticipantVote('');setCurOptionText('');makeCollapseToFirst(setVoteOpen)();}
+    if(type==='rent'){setTotalRent('');setTotalUtilities('');setRentPeople([]);setCurRoommateName('');setCurRoommateRoomSize('');setCurRoommateWealth('');makeCollapseToFirst(setRentOpen)();}
+    setTimeout(()=>window.scrollTo({top:0,behavior:'smooth'}),0);
+  },[]);
+
+  const loadExample = useCallback(type=>{
+    const data=EXAMPLE_DATA[type];const base=Date.now();
+    if(type==='share'){setSharePeople(data.people.map((p,i)=>({...p,id:base+i})));setShareBills(data.bills.map((b,i)=>({...b,id:base+100+i})));setCurPersonName('');setCurPersonWealth('');setCurBillDesc('');setCurBillAmt('');setCurBillPaidBy('');setShareOpen([0,1,2,3]);}
+    if(type==='sale'){setProductName(data.productName);setNumberAvailable(data.numberAvailable);setSaleBuyers(data.buyers.map((b,i)=>({...b,id:base+i})));setCurBuyerName('');setCurBuyerWealth('');setCurBuyerOffer('');setSaleOpen([0,1,2,3]);}
+    if(type==='vote'){setVoteDecision(data.decision);setVoteOptions(data.options.map((o,i)=>({...o,id:base+i})));setVoteParticipants(data.participants.map((p,i)=>({...p,id:base+100+i})));setCurParticipantName('');setCurParticipantWealth('');setCurParticipantVote('');setCurOptionText('');setVoteOpen([0,1,2,3,4]);}
+    if(type==='rent'){setTotalRent(data.totalRent);setTotalUtilities(data.totalUtilities);setRentPeople(data.people.map((p,i)=>({...p,id:base+i})));setCurRoommateName('');setCurRoommateRoomSize('');setCurRoommateWealth('');setRentOpen([0,1,2,3]);}
+    setTimeout(()=>window.scrollTo({top:0,behavior:'smooth'}),0);
+  },[]);
+
+  const handleEmailSignup = useCallback(e=>{
+    e.preventDefault();
+    try{
+      const iframe=document.createElement('iframe');iframe.style.display='none';
+      iframe.src=`https://script.google.com/macros/s/AKfycbxgJDAAOvTIE9Jh3dbYfIu2CBWpUiiwbRuVEPbxRlbGufF1RNL5ZWxen9Noza_eyMHu/exec?email=${encodeURIComponent(signupEmail)}`;
+      document.body.appendChild(iframe);setTimeout(()=>document.body.removeChild(iframe),2000);
+      setSignupStatus('success');setSignupEmail('');setTimeout(()=>setSignupStatus(''),5000);
+    }catch{setSignupStatus('error');setTimeout(()=>setSignupStatus(''),5000);}
+  },[signupEmail]);
+
+  // ── CALCULATIONS ──
+  const shareCalculations = useMemo(()=>{
+    if(page!=='share-results'||!sharePeople.length) return{total:0,peopleData:[],transactions:[]};
+    const total=shareBills.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
+    const peopleData=sharePeople.map(p=>{
+      const w=parseFloat(p.wealth)||0,paid=shareBills.filter(b=>b.paidBy===p.name).reduce((s,b)=>s+(parseFloat(b.amount)||0),0),aw=applyWeighting(w,shareWeighting);
+      const taw=sharePeople.reduce((s,pp)=>s+applyWeighting(parseFloat(pp.wealth)||0,shareWeighting),0);
+      const fs=taw>0?(aw/taw)*total:total/sharePeople.length;
+      return{...p,wealth:w,paid,fairShare:fs,adjustedWealth:aw,paidPct:total>0?(paid/total)*100:0,fairPct:total>0?(fs/total)*100:0};
+    });
+    const settlements=peopleData.map(p=>({name:p.name,balance:p.paid-p.fairShare})).filter(s=>Math.abs(s.balance)>0.01);
+    const payers=settlements.filter(s=>s.balance<0).sort((a,b)=>a.balance-b.balance);
+    const receivers=settlements.filter(s=>s.balance>0).sort((a,b)=>b.balance-a.balance);
+    const transactions=[];let pi=0,ri=0;
+    const pc=payers.map(p=>({...p})),rc=receivers.map(r=>({...r}));
+    while(pi<pc.length&&ri<rc.length){
+      const amt=Math.min(-pc[pi].balance,rc[ri].balance);
+      transactions.push({from:pc[pi].name,to:rc[ri].name,amount:amt});
+      pc[pi].balance+=amt;rc[ri].balance-=amt;
+      if(Math.abs(pc[pi].balance)<0.01)pi++;if(Math.abs(rc[ri].balance)<0.01)ri++;
+    }
+    return{total,peopleData,transactions};
+  },[sharePeople,shareBills,shareWeighting,page]);
+
+  const saleCalculations = useMemo(()=>{
+    if(page!=='sale-results'||!saleBuyers.length) return{rankedBuyers:[],avgOffer:0};
+    const rankedBuyers=saleBuyers.map(b=>{
+      const w=parseFloat(b.wealth)||1,o=parseFloat(b.offer)||0,aw=applyWeighting(w,saleWeighting);
+      return{...b,wealth:w,offer:o,needScore:(o/aw)*100,adjustedWealth:aw};
+    }).sort((a,b)=>b.needScore-a.needScore);
+    const totalOffers=rankedBuyers.reduce((s,b)=>s+b.offer,0);
+    return{rankedBuyers,avgOffer:rankedBuyers.length?totalOffers/rankedBuyers.length:0};
+  },[saleBuyers,saleWeighting,page]);
+
+  const voteCalculations = useMemo(()=>{
+    if(page!=='vote-results'||!voteParticipants.length) return{participantsData:[],totalVotingPower:0,voteBreakdown:[]};
+    const totalW=voteParticipants.reduce((s,p)=>s+(parseFloat(p.wealth)||0),0),avgW=totalW/voteParticipants.length;
+    const participantsData=voteParticipants.map(p=>{
+      const w=parseFloat(p.wealth)||0,aw=applyWeighting(w,voteWeighting),vp=aw>0?avgW/aw:1;
+      return{...p,wealth:w,votingPower:vp,adjustedWealth:aw};
+    });
+    const totalVP=participantsData.reduce((s,p)=>s+p.votingPower,0);
+    const voteBreakdown=voteOptions.map(opt=>{
+      const voters=participantsData.filter(p=>p.vote===opt.text),pwr=voters.reduce((s,p)=>s+p.votingPower,0);
+      return{option:opt.text,percentage:totalVP>0?(pwr/totalVP)*100:0,voters};
+    }).sort((a,b)=>b.percentage-a.percentage);
+    return{participantsData,totalVotingPower:totalVP,voteBreakdown};
+  },[voteParticipants,voteOptions,voteWeighting,page]);
+
+  const rentCalculations = useMemo(()=>{
+    if(page!=='rent-results'||!rentPeople.length) return{rentAmount:0,utilitiesAmount:0,total:0,totalRoomSize:0,rentData:[],totalRoomValue:0};
+    const rentAmount=parseFloat(totalRent)||0,utilitiesAmount=parseFloat(totalUtilities)||0,total=rentAmount+utilitiesAmount;
+    const trs=rentPeople.reduce((s,p)=>s+(parseFloat(p.roomSize)||0),0);
+    const pd=rentPeople.map(p=>{
+      const rs=parseFloat(p.roomSize)||0,w=parseFloat(p.wealth)||0,rp=trs>0?(rs/trs)*100:0,aw=applyWeighting(w,rentWeighting);
+      return{...p,roomSize:rs,wealth:w,roomPct:rp,adjustedWealth:aw,roomValue:rp*aw};
+    });
+    const trv=pd.reduce((s,p)=>s+p.roomValue,0);
+    const rentData=pd.map(p=>({...p,fairRent:trv>0?(p.roomValue/trv)*total:total/rentPeople.length,rentPct:trv>0?(p.roomValue/trv)*100:100/rentPeople.length})).sort((a,b)=>b.fairRent-a.fairRent);
+    return{rentAmount,utilitiesAmount,total,totalRoomSize:trs,rentData,totalRoomValue:trv};
+  },[rentPeople,totalRent,totalUtilities,rentWeighting,page]);
+
+  // ── REUSABLE RENDER HELPERS ──
+  const MotivationalQuote = () => <p className="text-center text-gray-700 leading-relaxed text-xs">{randomQuote}</p>;
+
+  const renderEmailSignup = () => (
+    <div className="bg-white p-6 border-2 border-dashed border-gray-400">
+      <h3 className="text-lg font-bold text-black uppercase tracking-wider text-center mb-2">LIKE COMRADE?</h3>
+      <p className="text-xs text-black text-center mb-4">Get updates and news from the team.</p>
+      {signupStatus==='success'
+        ? <div className="bg-black text-white p-4 text-center font-bold border-2 border-black">THANKS FOR SIGNING UP!</div>
+        : signupStatus==='error'
+          ? <div className="bg-white text-black p-4 text-center font-bold border-2 border-black">ERROR - PLEASE TRY AGAIN</div>
+          : <div className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto">
+              <FormInput type="email" value={signupEmail} onChange={e=>setSignupEmail(e.target.value)} placeholder="YOUR EMAIL" className="flex-1"/>
+              <button onClick={handleEmailSignup} className="bg-black text-white px-6 py-2 font-bold border-2 border-black hover:bg-gray-800 transition-all">+ SIGN UP</button>
+            </div>
+      }
     </div>
   );
 
-  const renderResultsFooter = (hasData,copyText,entryPage) => hasData && (
+  const renderNoDataState = entryPage => (
+    <div className="bg-white p-6 border-2 border-solid border-black mb-6">
+      <div className="flex items-center gap-2 mb-2"><ErrorIcon/><p className="text-black font-bold">ERROR!</p></div>
+      <p className="text-black text-xs mt-1">Missing or incomplete data. Go back and check your information.</p>
+      <div className="mt-4"><button onClick={()=>navigateTo(entryPage)} className="bg-black text-white px-6 py-2 font-bold border-2 border-black w-full max-w-xs">GO BACK</button></div>
+    </div>
+  );
+
+  const renderResultsNavigation = (copyText,entryPage) => (
+    <div className="flex flex-col gap-3 max-w-xs mx-auto">
+      <button onClick={()=>copyToClipboard(copyText)} className="bg-black text-white px-6 py-2 font-bold border-2 border-black hover:bg-gray-800 transition-all w-full">COPY RESULTS</button>
+      <button onClick={()=>navigateTo(entryPage)} className="bg-black text-white px-6 py-2 font-bold border-2 border-black hover:bg-gray-800 transition-all w-full">EDIT DETAILS</button>
+      <button onClick={()=>navigateTo('home')} className="bg-gray-200 text-black px-6 py-2 font-bold border-2 border-gray-400 hover:bg-gray-300 transition-all w-full">RETURN HOME</button>
+    </div>
+  );
+
+  const renderResultsFooter = (hasData,copyText,entryPage) => hasData&&(
     <>
       <div className="bg-white p-8 border-2 border-dashed border-gray-400">{renderResultsNavigation(copyText,entryPage)}</div>
       <div className="my-4 text-center py-6"><MotivationalQuote /></div>
@@ -405,42 +547,49 @@ const Comrade = () => {
     </>
   );
 
-  const renderDetailCards = (title,data,getCardConfig) => (
-    <div className="mb-6">
-      <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">{title}</h3>
-      <div className="space-y-3">
-        {data.map((item,idx)=>{
-          const cfg=getCardConfig(item,idx);
-          return (
-            <div key={item.id||idx} className={cfg.cardClassName||CLS.bgWhiteP4Border2}>
-              {cfg.titleExtra?(
-                <div className={`flex justify-between items-start mb-3 border-b ${CLS.borderDashedGray} pb-2`}>
-                  <p className="font-bold text-sm text-black uppercase">{cfg.name}</p>
-                  {cfg.titleExtra}
-                </div>
-              ):(
-                <p className={`font-bold text-sm text-black mb-3 uppercase ${CLS.borderDashedGray} pb-2`}>{cfg.name}</p>
-              )}
-              <div className={`space-y-2 ${CLS.textXsBlack}`}>
-                {cfg.rows.map((r,i)=>(
-                  <div key={i} className="flex justify-between">
-                    <span className={CLS.textBlackFontBold}>{r.label}:</span>
-                    <span className="font-semibold text-black">{r.value}</span>
-                  </div>
-                ))}
-                {cfg.summaryRows&&cfg.summaryRows.map((r,i)=>(
-                  <div key={`s${i}`} className={`flex justify-between ${i===0?`pt-2 border-t ${CLS.borderDashedGray}`:''}`}>
-                    <span className={CLS.textBlackFontBold}>{r.label}:</span>
-                    <span className={r.className||"font-black text-black"}>{r.value}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+  const DetailToggleButton = ({show,onClick}) => (
+    <div className="text-center mb-6">
+      <button onClick={onClick} className="bg-white text-black px-6 py-3 font-bold border-2 border-black hover:bg-gray-50 transition-all" style={{gap:'12px'}}>
+        <span>{show?'HIDE BREAKDOWN':'SHOW BREAKDOWN'}</span>
+        <span style={{fontSize:'22px', fontWeight:'black', lineHeight:1}}>{show?'−':'+'}</span>
+      </button>
     </div>
   );
+
+  const renderWealthPieChart = data => {
+    const sorted=[...data].sort((a,b)=>b.wealth-a.wealth);
+    const total=sorted.reduce((s,p)=>s+p.wealth,0);
+    const colors=['#000000','#1F2937','#475569','#64748B','#94A3B8','#CBD5E1','#E2E8F0','#F1F5F9'];
+    return(
+      <>
+        <svg viewBox="0 0 200 200" className="w-full max-w-xs mx-auto">
+          {(()=>{let cur=0;return sorted.map((p,idx)=>{
+            const pct=total>0?(p.wealth/total):(1/sorted.length),angle=pct*360,cx=100,cy=100,r=70,ir=30;
+            const s1=((cur-90)*Math.PI/180),e1=((cur+angle-90)*Math.PI/180);
+            const x1=cx+r*Math.cos(s1),y1=cy+r*Math.sin(s1),x2=cx+r*Math.cos(e1),y2=cy+r*Math.sin(e1);
+            const x3=cx+ir*Math.cos(e1),y3=cy+ir*Math.sin(e1),x4=cx+ir*Math.cos(s1),y4=cy+ir*Math.sin(s1);
+            const la=angle>180?1:0;
+            const d=`M${x1} ${y1} A${r} ${r} 0 ${la} 1 ${x2} ${y2} L${x3} ${y3} A${ir} ${ir} 0 ${la} 0 ${x4} ${y4} Z`;
+            cur+=angle;
+            return <path key={idx} d={d} fill={colors[idx%colors.length]} stroke={BG_GREY} strokeWidth="1"/>;
+          });})()}
+        </svg>
+        <div className="mt-6 space-y-2">
+          {sorted.map((p,idx)=>{
+            const pct=total>0?(p.wealth/total)*100:100/sorted.length;
+            return(
+              <div key={idx} className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-black">
+                <div className="w-4 h-4 border border-gray-400 flex-shrink-0" style={{backgroundColor:colors[idx%colors.length]}}></div>
+                <span className="font-bold text-black">{p.name}</span>
+                <span className="text-black">${formatNumber(p.wealth.toFixed(2))}</span>
+                <span className="font-bold text-black">({pct.toFixed(1)}%)</span>
+              </div>
+            );
+          })}
+        </div>
+      </>
+    );
+  };
 
   const renderBarVisualization = (title,data,bars,getItemName) => (
     <div className="mb-6">
@@ -448,17 +597,17 @@ const Comrade = () => {
       <div className="space-y-3">
         {data.map((item,idx)=>{
           const maxV=Math.max(...data.map(d=>Math.max(...bars.map(b=>b.getValue(d)))));
-          return (
+          return(
             <div key={item.id||idx} className="mb-4">
               <p className="font-bold text-black mb-1 text-xs uppercase">{getItemName(item)}</p>
               <div className="space-y-1">
                 {bars.map((bar,bi)=>{
                   const v=bar.getValue(item),w=maxV>0?(v/maxV)*100:0;
-                  return (
+                  return(
                     <div key={bi} className="flex items-center gap-2">
                       {bar.label&&<span className="text-xs text-black w-20 font-bold">{bar.label}:</span>}
                       <div className="flex-1 bg-gray-200 h-6 relative overflow-hidden border border-gray-400">
-                        <div className="h-6 transition-all duration-300 bar-animate flex items-center justify-end pr-2 bg-black" style={{width:`${w}%`,animationDelay:`${idx*0.1+bi*0.05}s`}}>
+                        <div className="h-6 bar-animate flex items-center justify-end pr-2 bg-black" style={{width:`${w}%`,animationDelay:`${idx*0.1+bi*0.05}s`}}>
                           {w>15&&<span className="text-xs font-bold text-white">{bar.displayValue(item)}</span>}
                         </div>
                       </div>
@@ -475,9 +624,7 @@ const Comrade = () => {
   );
 
   const renderMathRow = (data,getFormula) => data.map(p=>(
-    <div key={p.id} className="flex justify-between mb-1">
-      <span>{p.name}:</span><span className="font-mono">{getFormula(p)}</span>
-    </div>
+    <div key={p.id} className="flex justify-between mb-1"><span>{p.name}:</span><span className="font-mono">{getFormula(p)}</span></div>
   ));
 
   const renderAdjustedWealthStep = (num,data,weighting) => (
@@ -495,224 +642,46 @@ const Comrade = () => {
   const renderMathSection = (weighting,weightedSteps,noWeightingContent) => (
     <div className="mb-6">
       <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">THE MATH</h3>
-      <div className={CLS.bgWhiteP6Border2}>
+      <div className="bg-white p-6 border-2 border-gray-400">
         <div className="space-y-3 text-xs text-black">
-          {weighting!=='none'?(
-            weightedSteps.map((step,i)=>(
-              <React.Fragment key={i}>
-                {i>0&&<div className="border-t-2 border-dashed border-gray-400 my-3"></div>}
-                {step}
-              </React.Fragment>
-            ))
-          ):noWeightingContent}
+          {weighting!=='none'
+            ? weightedSteps.map((step,i)=><React.Fragment key={i}>{i>0&&<div className="border-t-2 border-dashed border-gray-400 my-3"></div>}{step}</React.Fragment>)
+            : noWeightingContent
+          }
         </div>
       </div>
     </div>
   );
 
-  // ── STATE ──
-  const [page,setPage]=useState('home');
-  const [sharePeople,setSharePeople]=useState([]);
-  const [shareBills,setShareBills]=useState([]);
-  const [currentPersonName,setCurrentPersonName]=useState('');
-  const [currentPersonWealth,setCurrentPersonWealth]=useState('');
-  const [currentBillDescription,setCurrentBillDescription]=useState('');
-  const [currentBillAmount,setCurrentBillAmount]=useState('');
-  const [currentBillPaidBy,setCurrentBillPaidBy]=useState('');
-  const [shareWeighting,setShareWeighting]=useState('standard');
-  const [shareCurrency,setShareCurrency]=useState('USD');
-  const [shareWealthMetric,setShareWealthMetric]=useState('salary');
-  const [shareAccordion,setShareAccordion]=useState(0);
-  const [productName,setProductName]=useState('');
-  const [numberAvailable,setNumberAvailable]=useState('');
-  const [saleBuyers,setSaleBuyers]=useState([]);
-  const [currentBuyerName,setCurrentBuyerName]=useState('');
-  const [currentBuyerWealth,setCurrentBuyerWealth]=useState('');
-  const [currentBuyerOffer,setCurrentBuyerOffer]=useState('');
-  const [saleWeighting,setSaleWeighting]=useState('standard');
-  const [saleCurrency,setSaleCurrency]=useState('USD');
-  const [saleWealthMetric,setSaleWealthMetric]=useState('salary');
-  const [saleAccordion,setSaleAccordion]=useState(0);
-  const [voteDecision,setVoteDecision]=useState('');
-  const [voteOptions,setVoteOptions]=useState([]);
-  const [currentOptionText,setCurrentOptionText]=useState('');
-  const [voteParticipants,setVoteParticipants]=useState([]);
-  const [currentParticipantName,setCurrentParticipantName]=useState('');
-  const [currentParticipantWealth,setCurrentParticipantWealth]=useState('');
-  const [currentParticipantVote,setCurrentParticipantVote]=useState('');
-  const [voteWeighting,setVoteWeighting]=useState('standard');
-  const [voteCurrency,setVoteCurrency]=useState('USD');
-  const [voteWealthMetric,setVoteWealthMetric]=useState('salary');
-  const [voteAccordion,setVoteAccordion]=useState(0);
-  const [totalRent,setTotalRent]=useState('');
-  const [totalUtilities,setTotalUtilities]=useState('');
-  const [rentPeople,setRentPeople]=useState([]);
-  const [currentRoommateName,setCurrentRoommateName]=useState('');
-  const [currentRoommateRoomSize,setCurrentRoommateRoomSize]=useState('');
-  const [currentRoommateWealth,setCurrentRoommateWealth]=useState('');
-  const [rentWeighting,setRentWeighting]=useState('standard');
-  const [rentCurrency,setRentCurrency]=useState('USD');
-  const [rentWealthMetric,setRentWealthMetric]=useState('salary');
-  const [rentMeasurement,setRentMeasurement]=useState('sqft');
-  const [rentAccordion,setRentAccordion]=useState(0);
-  const [showCopyToast,setShowCopyToast]=useState(false);
-  const [showShareDetails,setShowShareDetails]=useState(false);
-  const [showVoteDetails,setShowVoteDetails]=useState(false);
-  const [showSaleDetails,setShowSaleDetails]=useState(false);
-  const [showRentDetails,setShowRentDetails]=useState(false);
-  const [randomQuote,setRandomQuote]=useState('');
-  const [lastQuoteIndices,setLastQuoteIndices]=useState([]);
-  const [signupEmail,setSignupEmail]=useState('');
-  const [signupStatus,setSignupStatus]=useState('');
-
-  useEffect(()=>{
-    window.scrollTo({top:0,behavior:'instant'});
-    setShowShareDetails(false); setShowVoteDetails(false); setShowSaleDetails(false); setShowRentDetails(false);
-    if(['share-results','sale-results','vote-results','rent-results'].includes(page)){
-      setLastQuoteIndices(prev=>{
-        let idx,attempts=0;
-        do { idx=Math.floor(Math.random()*QUOTES.length); attempts++; } while(prev.includes(idx)&&QUOTES.length>5&&attempts<100);
-        setRandomQuote(QUOTES[idx]);
-        return [...prev,idx].slice(-5);
-      });
-    }
-  },[page]);
-
-  useEffect(()=>{ if(showCopyToast){const t=setTimeout(()=>setShowCopyToast(false),2500);return()=>clearTimeout(t);} },[showCopyToast]);
-
-  const formatNumber=useCallback(n=>n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,","),[]);
-  const formatSmartNumber=useCallback(n=>{ if(Math.abs(n)<0.01&&n!==0)return n.toExponential(4); return formatNumber(n.toFixed(2)); },[formatNumber]);
-  const getCurrencySymbol=useCallback(c=>({USD:'$',EUR:'€',GBP:'£'})[c]||'$',[]);
-  const formatCurrency=useCallback((v,d=2,c='USD')=>`${getCurrencySymbol(c)}${formatNumber((parseFloat(v)||0).toFixed(d))}`,[formatNumber,getCurrencySymbol]);
-  const formatCurrencySmart=useCallback((v,c='USD')=>`${getCurrencySymbol(c)}${formatSmartNumber(v)}`,[formatSmartNumber,getCurrencySymbol]);
-  const getWeightingLabel=useCallback(w=>({none:'OFF',gentle:'LOW',standard:'MID',strong:'HIGH'})[w]||'MID',[]);
-  const getWealthMetricLabel=useCallback(m=>m==='networth'?'NET WORTH':'SALARY',[]);
-  const getMeasurementLabel=useCallback(m=>m==='sqm'?'SQ M':'SQ FT',[]);
-  const copyToClipboard=useCallback(t=>{navigator.clipboard.writeText(t);setShowCopyToast(true);},[]);
-  const navigateTo=useCallback(p=>setPage(p),[]);
-
-  const renderNoDataState=useCallback(entryPage=>(
-    <div className="bg-white p-6 border-2 border-solid border-black mb-6">
-      <div className="flex items-center gap-2 mb-2"><ErrorIcon/><p className="text-black font-bold">ERROR!</p></div>
-      <p className="text-black text-xs mt-1">Missing or incomplete data. Go back and check your information.</p>
-      <div className="mt-4"><button onClick={()=>navigateTo(entryPage)} className="bg-black text-white px-6 py-2 font-bold border-2 border-black w-full max-w-xs">GO BACK</button></div>
-    </div>
-  ),[navigateTo]);
-
-  const handleClearAll=useCallback(type=>{
-    switch(type){
-      case 'share': setSharePeople([]); setShareBills([]); setCurrentPersonName(''); setCurrentPersonWealth(''); setCurrentBillDescription(''); setCurrentBillAmount(''); setCurrentBillPaidBy(''); break;
-      case 'sale': setProductName(''); setNumberAvailable(''); setSaleBuyers([]); setCurrentBuyerName(''); setCurrentBuyerWealth(''); setCurrentBuyerOffer(''); break;
-      case 'vote': setVoteDecision(''); setVoteOptions([]); setVoteParticipants([]); setCurrentParticipantName(''); setCurrentParticipantWealth(''); setCurrentParticipantVote(''); setCurrentOptionText(''); break;
-      case 'rent': setTotalRent(''); setTotalUtilities(''); setRentPeople([]); setCurrentRoommateName(''); setCurrentRoommateRoomSize(''); setCurrentRoommateWealth(''); break;
-    }
-    setTimeout(()=>window.scrollTo({top:0,behavior:'smooth'}),0);
-  },[]);
-
-  const loadExample=useCallback(type=>{
-    const data=EXAMPLE_DATA[type]; const base=Date.now();
-    switch(type){
-      case 'share': setSharePeople(data.people.map((p,i)=>({...p,id:base+i}))); setShareBills(data.bills.map((b,i)=>({...b,id:base+100+i}))); setCurrentPersonName(''); setCurrentPersonWealth(''); setCurrentBillDescription(''); setCurrentBillAmount(''); setCurrentBillPaidBy(''); break;
-      case 'sale': setProductName(data.productName); setNumberAvailable(data.numberAvailable); setSaleBuyers(data.buyers.map((b,i)=>({...b,id:base+i}))); setCurrentBuyerName(''); setCurrentBuyerWealth(''); setCurrentBuyerOffer(''); break;
-      case 'vote': setVoteDecision(data.decision); setVoteOptions(data.options.map((o,i)=>({...o,id:base+i}))); setVoteParticipants(data.participants.map((p,i)=>({...p,id:base+100+i}))); setCurrentParticipantName(''); setCurrentParticipantWealth(''); setCurrentParticipantVote(''); setCurrentOptionText(''); break;
-      case 'rent': setTotalRent(data.totalRent); setTotalUtilities(data.totalUtilities); setRentPeople(data.people.map((p,i)=>({...p,id:base+i}))); setCurrentRoommateName(''); setCurrentRoommateRoomSize(''); setCurrentRoommateWealth(''); break;
-    }
-    setTimeout(()=>window.scrollTo({top:0,behavior:'smooth'}),0);
-  },[]);
-
-  const handleEmailSignup=useCallback(async e=>{
-    e.preventDefault();
-    try {
-      const iframe=document.createElement('iframe'); iframe.style.display='none';
-      iframe.src=`https://script.google.com/macros/s/AKfycbxgJDAAOvTIE9Jh3dbYfIu2CBWpUiiwbRuVEPbxRlbGufF1RNL5ZWxen9Noza_eyMHu/exec?email=${encodeURIComponent(signupEmail)}`;
-      document.body.appendChild(iframe); setTimeout(()=>document.body.removeChild(iframe),2000);
-      setSignupStatus('success'); setSignupEmail(''); setTimeout(()=>setSignupStatus(''),5000);
-    } catch { setSignupStatus('error'); setTimeout(()=>setSignupStatus(''),5000); }
-  },[signupEmail]);
-
-  const MotivationalQuote=useCallback(()=><p className="text-center text-gray-700 leading-relaxed text-xs">{randomQuote}</p>,[randomQuote]);
-
-  const renderEmailSignup=()=>(
-    <div className={CLS.bgWhiteBorder2Dashed}>
-      <h3 className="text-lg font-bold text-black uppercase tracking-wider text-center mb-2">LIKE COMRADE?</h3>
-      <p className="text-xs text-black text-center mb-4">Get updates and news from the team.</p>
-      {signupStatus==='success'?<div className="bg-black text-white p-4 text-center font-bold border-2 border-black">THANKS FOR SIGNING UP!</div>:
-       signupStatus==='error'?<div className="bg-white text-black p-4 text-center font-bold border-2 border-black">ERROR - PLEASE TRY AGAIN</div>:(
-        <form onSubmit={handleEmailSignup}>
-          <div className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto">
-            <FormInput type="email" value={signupEmail} onChange={e=>setSignupEmail(e.target.value)} placeholder="YOUR EMAIL" required className="flex-1"/>
-            <button type="submit" className="bg-black text-white px-6 py-2 font-bold border-2 border-black hover:bg-gray-800 transition-all">+ SIGN UP</button>
-          </div>
-        </form>
-      )}
+  const renderDetailCards = (title,data,getCardConfig) => (
+    <div className="mb-6">
+      <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">{title}</h3>
+      <div className="space-y-3">
+        {data.map((item,idx)=>{
+          const cfg=getCardConfig(item,idx);
+          return(
+            <div key={item.id||idx} className={cfg.cardClassName||"bg-white p-4 border-2 border-gray-400"}>
+              {cfg.titleExtra
+                ? <div className="flex justify-between items-start mb-3 border-b border-dashed border-gray-400 pb-2"><p className="font-bold text-sm text-black uppercase">{cfg.name}</p>{cfg.titleExtra}</div>
+                : <p className="font-bold text-sm text-black mb-3 uppercase border-b border-dashed border-gray-400 pb-2">{cfg.name}</p>
+              }
+              <div className="space-y-2 text-xs text-black">
+                {cfg.rows.map((r,i)=><div key={i} className="flex justify-between"><span className="text-black font-bold">{r.label}:</span><span className="font-semibold text-black">{r.value}</span></div>)}
+                {cfg.summaryRows&&cfg.summaryRows.map((r,i)=>(
+                  <div key={`s${i}`} className={`flex justify-between ${i===0?'pt-2 border-t border-dashed border-gray-400':''}`}>
+                    <span className="text-black font-bold">{r.label}:</span>
+                    <span className={r.className||"font-black text-black"}>{r.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 
-  // ── CALCULATIONS ──
-  const shareCalculations=useMemo(()=>{
-    if(page!=='share-results'||!sharePeople.length) return {total:0,peopleData:[],transactions:[]};
-    const total=shareBills.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
-    const peopleData=sharePeople.map(p=>{
-      const w=parseFloat(p.wealth)||0,paid=shareBills.filter(b=>b.paidBy===p.name).reduce((s,b)=>s+(parseFloat(b.amount)||0),0),aw=applyWeighting(w,shareWeighting);
-      const taw=sharePeople.reduce((s,pp)=>s+applyWeighting(parseFloat(pp.wealth)||0,shareWeighting),0);
-      const fs=taw>0?(aw/taw)*total:total/sharePeople.length;
-      return {...p,wealth:w,paid,fairShare:fs,adjustedWealth:aw,paidPct:total>0?(paid/total)*100:0,fairPct:total>0?(fs/total)*100:0};
-    });
-    const settlements=peopleData.map(p=>({name:p.name,balance:p.paid-p.fairShare})).filter(s=>Math.abs(s.balance)>0.01);
-    const payers=settlements.filter(s=>s.balance<0).sort((a,b)=>a.balance-b.balance);
-    const receivers=settlements.filter(s=>s.balance>0).sort((a,b)=>b.balance-a.balance);
-    const transactions=[]; let pi=0,ri=0;
-    const pc=payers.map(p=>({...p})),rc=receivers.map(r=>({...r}));
-    while(pi<pc.length&&ri<rc.length){
-      const amt=Math.min(-pc[pi].balance,rc[ri].balance);
-      transactions.push({from:pc[pi].name,to:rc[ri].name,amount:amt});
-      pc[pi].balance+=amt; rc[ri].balance-=amt;
-      if(Math.abs(pc[pi].balance)<0.01)pi++; if(Math.abs(rc[ri].balance)<0.01)ri++;
-    }
-    return {total,peopleData,transactions};
-  },[sharePeople,shareBills,shareWeighting,page]);
-
-  const saleCalculations=useMemo(()=>{
-    if(page!=='sale-results'||!saleBuyers.length) return {rankedBuyers:[],totalOffers:0,avgOffer:0};
-    const rankedBuyers=saleBuyers.map(b=>{
-      const w=parseFloat(b.wealth)||1,o=parseFloat(b.offer)||0,aw=applyWeighting(w,saleWeighting);
-      return {...b,wealth:w,offer:o,needScore:(o/aw)*100,adjustedWealth:aw};
-    }).sort((a,b)=>b.needScore-a.needScore);
-    const totalOffers=rankedBuyers.reduce((s,b)=>s+b.offer,0);
-    return {rankedBuyers,totalOffers,avgOffer:rankedBuyers.length?totalOffers/rankedBuyers.length:0};
-  },[saleBuyers,saleWeighting,page]);
-
-  const voteCalculations=useMemo(()=>{
-    if(page!=='vote-results'||!voteParticipants.length) return {participantsData:[],totalVotingPower:0,voteBreakdown:[],options:[]};
-    const options=voteOptions.map(o=>o.text);
-    const totalW=voteParticipants.reduce((s,p)=>s+(parseFloat(p.wealth)||0),0),avgW=totalW/voteParticipants.length;
-    const participantsData=voteParticipants.map(p=>{
-      const w=parseFloat(p.wealth)||0,aw=applyWeighting(w,voteWeighting),vp=aw>0?avgW/aw:1;
-      return {...p,wealth:w,votingPower:vp,adjustedWealth:aw};
-    });
-    const totalVP=participantsData.reduce((s,p)=>s+p.votingPower,0);
-    const voteBreakdown=options.map(opt=>{
-      const voters=participantsData.filter(p=>p.vote===opt),pwr=voters.reduce((s,p)=>s+p.votingPower,0);
-      return {option:opt,percentage:totalVP>0?(pwr/totalVP)*100:0,voters};
-    }).sort((a,b)=>b.percentage-a.percentage);
-    return {participantsData,totalVotingPower:totalVP,voteBreakdown,options};
-  },[voteParticipants,voteOptions,voteWeighting,page]);
-
-  const rentCalculations=useMemo(()=>{
-    if(page!=='rent-results'||!rentPeople.length) return {rentAmount:0,utilitiesAmount:0,total:0,totalRoomSize:0,rentData:[],avgRent:0,totalRoomValue:0};
-    const rentAmount=parseFloat(totalRent)||0,utilitiesAmount=parseFloat(totalUtilities)||0,total=rentAmount+utilitiesAmount;
-    const trs=rentPeople.reduce((s,p)=>s+(parseFloat(p.roomSize)||0),0);
-    const pd=rentPeople.map(p=>{
-      const rs=parseFloat(p.roomSize)||0,w=parseFloat(p.wealth)||0,rp=trs>0?(rs/trs)*100:0,aw=applyWeighting(w,rentWeighting);
-      return {...p,roomSize:rs,wealth:w,roomPct:rp,adjustedWealth:aw,roomValue:rp*aw};
-    });
-    const trv=pd.reduce((s,p)=>s+p.roomValue,0);
-    const rentData=pd.map(p=>({...p,fairRent:trv>0?(p.roomValue/trv)*total:total/rentPeople.length,rentPct:trv>0?(p.roomValue/trv)*100:100/rentPeople.length})).sort((a,b)=>b.fairRent-a.fairRent);
-    return {rentAmount,utilitiesAmount,total,totalRoomSize:trs,rentData,avgRent:rentData.length?total/rentData.length:0,totalRoomValue:trv};
-  },[rentPeople,totalRent,totalUtilities,rentWeighting,page]);
-
-  // ── CALCULATE SETTINGS BLOCK ──
-  const renderCalculateStep = (weighting, setWeighting, currency, setCurrency, wealthMetric, setWealthMetric, onCalculate, measurement, setMeasurement) => (
+  const renderCalculateStep = (weighting,setWeighting,currency,setCurrency,wealthMetric,setWealthMetric,onCalculate,measurement,setMeasurement) => (
     <div>
       <p className="text-xs mb-5 text-black">Adjust any settings, and see your results.</p>
       <div className="mb-5">
@@ -721,16 +690,14 @@ const Comrade = () => {
         <CurrencyButtons value={currency} onChange={setCurrency}/>
       </div>
       <div className="border-t border-dashed border-gray-400 my-4"></div>
-      {measurement!==undefined&&(
-        <>
-          <div className="mb-5">
-            <h4 className="text-sm font-bold mb-1 text-black uppercase tracking-wider">MEASUREMENTS</h4>
-            <p className="text-xs mb-3 text-black">Pick what unit room size should be measured in.</p>
-            <MeasurementButtons value={measurement} onChange={setMeasurement}/>
-          </div>
-          <div className="border-t border-dashed border-gray-400 my-4"></div>
-        </>
-      )}
+      {measurement!==undefined&&(<>
+        <div className="mb-5">
+          <h4 className="text-sm font-bold mb-1 text-black uppercase tracking-wider">MEASUREMENTS</h4>
+          <p className="text-xs mb-3 text-black">Pick what unit room size should be measured in.</p>
+          <MeasurementButtons value={measurement} onChange={setMeasurement}/>
+        </div>
+        <div className="border-t border-dashed border-gray-400 my-4"></div>
+      </>)}
       <div className="mb-5">
         <h4 className="text-sm font-bold mb-1 text-black uppercase tracking-wider">WEALTH</h4>
         <p className="text-xs mb-3 text-black">Select your preferred financial metric of wealth.</p>
@@ -747,9 +714,9 @@ const Comrade = () => {
     </div>
   );
 
-  const renderIntroSlide = (description, exampleType) => (
+  const renderIntroSlide = (description,exampleType) => (
     <div>
-      <p className={`mb-4 text-black leading-relaxed ${CLS.textXsBlack}`}>{description}</p>
+      <p className="mb-4 text-black leading-relaxed text-xs">{description}</p>
       <div className="flex gap-4 mb-6">
         <button onClick={()=>loadExample(exampleType)} className="flex-1 bg-gray-200 text-black font-bold py-2 px-4 border-2 border-gray-400 text-xs hover:bg-gray-300 transition-all">LOAD EXAMPLE</button>
         <button onClick={()=>handleClearAll(exampleType)} className="flex-1 bg-white text-black font-bold py-2 px-4 border-2 border-black text-xs hover:bg-gray-100 transition-all">CLEAR ALL</button>
@@ -757,7 +724,9 @@ const Comrade = () => {
     </div>
   );
 
-  // ──────────────── PAGES ────────────────
+  // ══════════════════════════════════
+  // PAGES
+  // ══════════════════════════════════
 
   if(page==='home') return (
     <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
@@ -770,16 +739,21 @@ const Comrade = () => {
       <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
         <h2 className="text-xl font-black mb-6 text-black uppercase tracking-wider text-center">HOW IT WORKS</h2>
         <div className="space-y-6">
-          {[
-            {n:'1',title:'ADD YOUR GROUP',desc:"Enter everyone's names, and incomes or net worth"},
-            {n:'2',title:'ENTER YOUR BILLS',desc:'List what was spent, and who paid'},
-            {n:'3',title:'GET FAIR RESULTS',desc:'See who owes what, based on ability to pay'}
-          ].map(({n,title,desc})=>(
-            <div key={n} className="flex gap-4 items-start">
-              <div className="bg-black text-white font-black text-4xl w-16 h-16 flex items-center justify-center border-2 border-black flex-shrink-0">{n}</div>
-              <div><h3 className="font-bold text-black uppercase mb-1">{title}</h3><p className="text-xs text-black">{desc}</p></div>
-            </div>
-          ))}
+          <div className="flex gap-4 items-start">
+            <div className="bg-black text-white font-black text-4xl w-16 h-16 flex items-center justify-center border-2 border-black flex-shrink-0">1</div>
+            <div><h3 className="font-bold text-black uppercase mb-1">ADD YOUR GROUP</h3><p className="text-xs text-black">Enter everyone's names, and incomes or net worth</p></div>
+          </div>
+          <PeopleAvatars />
+          <div className="flex gap-4 items-start">
+            <div className="bg-black text-white font-black text-4xl w-16 h-16 flex items-center justify-center border-2 border-black flex-shrink-0">2</div>
+            <div><h3 className="font-bold text-black uppercase mb-1">ENTER YOUR BILLS</h3><p className="text-xs text-black">List what was spent, and who paid</p></div>
+          </div>
+          <MockReceipt />
+          <div className="flex gap-4 items-start">
+            <div className="bg-black text-white font-black text-4xl w-16 h-16 flex items-center justify-center border-2 border-black flex-shrink-0">3</div>
+            <div><h3 className="font-bold text-black uppercase mb-1">GET FAIR RESULTS</h3><p className="text-xs text-black">See who owes what, based on ability to pay</p></div>
+          </div>
+          <ResultPieChart />
         </div>
         <div className="mt-6">
           <div className="flex flex-col gap-3 max-w-xs mx-auto">
@@ -807,6 +781,7 @@ const Comrade = () => {
   if(page==='about') return (
     <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
       <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider text-center">ABOUT</h2>
+      <AboutBanner />
       <div className="space-y-4 text-black mb-4">
         <p className="leading-relaxed text-xs">If a banker, a nurse, and a student go out for dinner, how should they split the bill?</p>
         <p className="leading-relaxed text-xs">Just ask Comrade.</p>
@@ -826,15 +801,30 @@ const Comrade = () => {
             {q:'NOTHING?',a:'Nothing. All calculations are performed on the user\'s device. Comrade does not receive or save user data.\n\nIf a user signs up for email updates, their email is shared with Comrade only, and is not associated with any financial data.'},
             {q:'WHO BUILT THIS?',a:'Comrade is a startup based in Brooklyn, New York. Get in touch at hello@comrade.money'},
             {q:'IS COMRADE AVAILABLE ON THE APP STORE?',a:'Not yet! For now, Comrade is fully functional on mobile and desktop via our website, www.comrade.money. If you\'d like to use a standalone app, or have other feedback or feature requests, please get in touch.'},
-            {q:'IT\'S AWKWARD ASKING MY FRIENDS HOW MUCH MONEY THEY HAVE. WHAT SHOULD I DO?',a:'Do it anyway. Studies have found breaking the taboos around sharing information about wealth makes society better.'},
-            {q:'IS THIS SERIOUS?',a:'What do you think?'}
-          ].map(({q,a},i,arr)=>(
+          ].map(({q,a},i)=>(
             <div key={q}>
               <h3 className="font-bold mb-2 text-sm uppercase tracking-wider">{q}</h3>
               {a.split('\n\n').map((para,j)=><p key={j} className="leading-relaxed text-xs mb-2">{para}</p>)}
-              {i<arr.length-1&&<div className="border-t border-dashed border-gray-400 mt-4"></div>}
+              <div className="border-t border-dashed border-gray-400 mt-4"></div>
             </div>
           ))}
+          <div>
+            <h3 className="font-bold mb-2 text-sm uppercase tracking-wider">IT'S AWKWARD ASKING MY FRIENDS HOW MUCH MONEY THEY HAVE. WHAT SHOULD I DO?</h3>
+            <p className="leading-relaxed text-xs">
+              Do it anyway.{' '}
+              <a href="https://www.hbs.edu/ris/Publication%20Files/23-039_f20d86a0-a1cf-4bd6-8066-74ccc6f2c3cf.pdf" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">Studies</a>{' '}
+              have found{' '}
+              <a href="https://www.nytimes.com/interactive/2020/02/19/magazine/salary-sharing.html" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">breaking</a>{' '}
+              the{' '}
+              <a href="https://www.businessinsider.com/salary-pay-transparency-jobs-income-taboo-equity-2023-1" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">taboos</a>{' '}
+              around sharing information about wealth makes society better.
+            </p>
+            <div className="border-t border-dashed border-gray-400 mt-4"></div>
+          </div>
+          <div>
+            <h3 className="font-bold mb-2 text-sm uppercase tracking-wider">IS THIS SERIOUS?</h3>
+            <p className="leading-relaxed text-xs">What do you think?</p>
+          </div>
         </div>
       </div>
     </Layout>
@@ -849,10 +839,10 @@ const Comrade = () => {
             'This application is provided for informational purposes only. Users are solely responsible for their own actions. The creators of Comrade are not liable for any outcomes, disputes, unintended consequences, or bad decisions resulting from the use of Comrade and its calculations. Sorry!',
             'By entering your email address, you consent to Comrade and its team contacting you about updates to the app, news, and other projects they may be working on. Comrade will not sell your personal information to third parties.',
             'This application is available under a Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0).'
-          ].map((t,i)=>(
+          ].map((t,i,arr)=>(
             <React.Fragment key={i}>
               <p className="leading-relaxed text-xs">{t}</p>
-              {i<3&&<div className="border-t border-dashed border-gray-400"></div>}
+              {i<arr.length-1&&<div className="border-t border-dashed border-gray-400"></div>}
             </React.Fragment>
           ))}
         </div>
@@ -862,52 +852,41 @@ const Comrade = () => {
 
   // ── SHARE ENTRY ──
   if(page==='share-entry'){
-    const steps=[
-      {label:'SPLIT BILLS',icon:<BillIcon size={22}/>},
-      {label:'PEOPLE',icon:<PersonIcon size={22}/>},
-      {label:'BILLS',icon:<BillIcon size={22}/>},
-      {label:'CALCULATE',icon:<CalculateIcon size={22}/>}
-    ];
+    const steps=[{label:'SPLIT COSTS',icon:<BillIcon size={22}/>},{label:'PEOPLE',icon:<PersonIcon size={22}/>},{label:'BILLS',icon:<BillIcon size={22}/>},{label:'CALCULATE',icon:<CalculateIcon size={22}/>}];
+    const jump=makeJump(setShareOpen);
     const renderContent=i=>{
-      if(i===0) return (
-        <>
-          {renderIntroSlide('From meals to vacations, taxis to tickets, handle your shared expenses with friends more fairly. Comrade combines and simplifies group bills, while using information about group members\' finances to decide how much everyone should pay.','share')}
-          <div className="flex justify-end"><button onClick={()=>setShareAccordion(1)} className="bg-black text-white px-5 py-2 font-bold border-2 border-black text-xs hover:bg-gray-800">BEGIN →</button></div>
-        </>
-      );
+      if(i===0) return (<>{renderIntroSlide('From meals to vacations, taxis to tickets, handle your shared expenses with friends more fairly. Comrade combines and simplifies group bills, while using information about group members\' finances to decide how much everyone should pay.','share')}<div className="flex justify-end"><button onClick={()=>jump(1)} className="bg-black text-white px-5 py-2 font-bold border-2 border-black text-xs hover:bg-gray-800">BEGIN →</button></div></>);
       if(i===1) return (
         <div>
           <p className="text-xs mb-4 text-black">List the people splitting the costs, including their financial resources.</p>
           <div className="flex flex-col sm:flex-row gap-2 mb-3">
-            <FormInput value={currentPersonName} onChange={e=>setCurrentPersonName(e.target.value)} placeholder="NAME" className="flex-1" style={{minWidth:'140px'}}/>
-            <FormInput type="number" value={currentPersonWealth} onChange={e=>setCurrentPersonWealth(e.target.value)} placeholder={`${getCurrencySymbol(shareCurrency)} ${getWealthMetricLabel(shareWealthMetric)}`} min="0" step="0.01" inputMode="decimal" className="flex-1" style={{minWidth:'180px'}}/>
+            <FormInput value={curPersonName} onChange={e=>setCurPersonName(e.target.value)} placeholder="NAME" className="flex-1" style={{minWidth:'140px'}}/>
+            <FormInput type="number" value={curPersonWealth} onChange={e=>setCurPersonWealth(e.target.value)} placeholder={`${getCurrencySymbol(shareCurrency)} ${getWealthMetricLabel(shareWealthMetric)}`} min="0" step="0.01" inputMode="decimal" className="flex-1" style={{minWidth:'180px'}}/>
           </div>
-          <button onClick={()=>{if(currentPersonName.trim()){setSharePeople([...sharePeople,{id:Date.now(),name:currentPersonName,wealth:currentPersonWealth}]);setCurrentPersonName('');setCurrentPersonWealth('');}}} className="bg-black text-white px-4 py-2 font-bold border-2 border-black text-xs mb-4">+ ADD PERSON</button>
-          {sharePeople.length>0?<ItemList items={sharePeople} onDelete={id=>setSharePeople(sharePeople.filter(p=>p.id!==id))} renderItem={p=><><p className={`${CLS.textXsBlack} ${CLS.fontBoldBlackUpper}`}>{p.name}</p><p className={CLS.textXsBlack}>{getWealthMetricLabel(shareWealthMetric)}: {formatCurrency(p.wealth,2,shareCurrency)}</p></>}/>:<p className="text-center text-gray-600 uppercase tracking-wider font-bold mt-2" style={{fontSize:'10px'}}>— No people added yet —</p>}
-          <div className="mt-6 flex justify-end"><button onClick={()=>setShareAccordion(2)} className="bg-black text-white px-5 py-2 font-bold border-2 border-black text-xs hover:bg-gray-800">CONTINUE →</button></div>
+          <button onClick={()=>{if(curPersonName.trim()){setSharePeople([...sharePeople,{id:Date.now(),name:curPersonName,wealth:curPersonWealth}]);setCurPersonName('');setCurPersonWealth('');}}} className="bg-black text-white px-4 py-2 font-bold border-2 border-black text-xs mb-4">+ ADD PERSON</button>
+          {sharePeople.length>0?<ItemList items={sharePeople} onDelete={id=>setSharePeople(sharePeople.filter(p=>p.id!==id))} renderItem={p=><><p className="text-xs text-black font-bold uppercase">{p.name}</p><p className="text-xs text-black">{getWealthMetricLabel(shareWealthMetric)}: {formatCurrency(p.wealth,2,shareCurrency)}</p></>}/>:<p className="text-center text-gray-600 uppercase tracking-wider font-bold mt-2" style={{fontSize:'10px'}}>— No people added yet —</p>}
+          <div className="mt-6 flex justify-end"><button onClick={()=>jump(2)} className="bg-black text-white px-5 py-2 font-bold border-2 border-black text-xs hover:bg-gray-800">CONTINUE →</button></div>
         </div>
       );
       if(i===2) return (
         <div>
           <p className="text-xs mb-4 text-black">Add all the expenses the group is splitting, along with who already paid for what.</p>
-          <FormInput value={currentBillDescription} onChange={e=>setCurrentBillDescription(e.target.value)} placeholder="DESCRIPTION" className="w-full mb-2"/>
+          <FormInput value={curBillDesc} onChange={e=>setCurBillDesc(e.target.value)} placeholder="DESCRIPTION" className="w-full mb-2"/>
           <div className="flex flex-col sm:flex-row gap-2 mb-3">
-            <FormInput type="number" value={currentBillAmount} onChange={e=>setCurrentBillAmount(e.target.value)} placeholder={`${getCurrencySymbol(shareCurrency)} AMOUNT`} min="0" step="0.01" inputMode="decimal" className="flex-1" style={{minWidth:'150px'}}/>
-            <select value={currentBillPaidBy} onChange={e=>setCurrentBillPaidBy(e.target.value)} className="flex-1 p-2 border-2 border-gray-400 bg-white uppercase" style={{minWidth:'150px',fontSize:'16px',height:'42px'}}>
+            <FormInput type="number" value={curBillAmt} onChange={e=>setCurBillAmt(e.target.value)} placeholder={`${getCurrencySymbol(shareCurrency)} AMOUNT`} min="0" step="0.01" inputMode="decimal" className="flex-1" style={{minWidth:'150px'}}/>
+            <select value={curBillPaidBy} onChange={e=>setCurBillPaidBy(e.target.value)} className="flex-1 p-2 border-2 border-gray-400 bg-white uppercase" style={{minWidth:'150px',fontSize:'16px',height:'42px'}}>
               <option value="">WHO PAID?</option>
               {sharePeople.map((p,j)=><option key={p.id||j} value={p.name}>{p.name}</option>)}
             </select>
           </div>
-          <button onClick={()=>{if(currentBillDescription.trim()){setShareBills([...shareBills,{id:Date.now(),description:currentBillDescription,amount:currentBillAmount,paidBy:currentBillPaidBy}]);setCurrentBillDescription('');setCurrentBillAmount('');setCurrentBillPaidBy('');}}} className="bg-black text-white px-4 py-2 font-bold border-2 border-black text-xs mb-4">+ ADD BILL</button>
-          {shareBills.length>0?<ItemList items={shareBills} onDelete={id=>setShareBills(shareBills.filter(b=>b.id!==id))} renderItem={b=><><p className="text-black font-bold uppercase">{b.description}</p><p className="text-black text-xs">{b.paidBy||'Unknown'}</p></>} receiptStyle formatTotal={t=>formatCurrency(t,2,shareCurrency)} getAmount={b=>b.amount}/>:(
-            <><p className="text-center text-gray-600 uppercase tracking-wider font-bold mb-4" style={{fontSize:'10px'}}>— No bills added yet —</p><div className="flex justify-between items-center pt-3 border-t-2 border-black"><span className="font-black text-black uppercase">TOTAL</span><span className="font-black text-black text-lg">{formatCurrency(0,2,shareCurrency)}</span></div></>
-          )}
-          <div className="mt-6 flex justify-end"><button onClick={()=>setShareAccordion(3)} className="bg-black text-white px-5 py-2 font-bold border-2 border-black text-xs hover:bg-gray-800">CONTINUE →</button></div>
+          <button onClick={()=>{if(curBillDesc.trim()){setShareBills([...shareBills,{id:Date.now(),description:curBillDesc,amount:curBillAmt,paidBy:curBillPaidBy}]);setCurBillDesc('');setCurBillAmt('');setCurBillPaidBy('');}}} className="bg-black text-white px-4 py-2 font-bold border-2 border-black text-xs mb-4">+ ADD BILL</button>
+          {shareBills.length>0?<ItemList items={shareBills} onDelete={id=>setShareBills(shareBills.filter(b=>b.id!==id))} renderItem={b=><><p className="text-black font-bold uppercase">{b.description}</p><p className="text-black text-xs">{b.paidBy||'Unknown'}</p></>} receiptStyle formatTotal={t=>formatCurrency(t,2,shareCurrency)} getAmount={b=>b.amount}/>:<><p className="text-center text-gray-600 uppercase tracking-wider font-bold mb-4" style={{fontSize:'10px'}}>— No bills added yet —</p><div className="flex justify-between items-center pt-3 border-t-2 border-black"><span className="font-black text-black uppercase">TOTAL</span><span className="font-black text-black text-lg">{formatCurrency(0,2,shareCurrency)}</span></div></>}
+          <div className="mt-6 flex justify-end"><button onClick={()=>jump(3)} className="bg-black text-white px-5 py-2 font-bold border-2 border-black text-xs hover:bg-gray-800">CONTINUE →</button></div>
         </div>
       );
       return renderCalculateStep(shareWeighting,setShareWeighting,shareCurrency,setShareCurrency,shareWealthMetric,setShareWealthMetric,()=>navigateTo('share-results'));
     };
-    return <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}><AccordionPage steps={steps} activeIdx={shareAccordion} setActiveIdx={setShareAccordion} renderContent={renderContent}/></Layout>;
+    return <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}><AccordionPage steps={steps} openIndices={shareOpen} onToggle={makeToggle(setShareOpen)} renderContent={renderContent}/></Layout>;
   }
 
   // ── SHARE RESULTS ──
@@ -918,62 +897,34 @@ const Comrade = () => {
     return (
       <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
         {!hasData&&renderNoDataState('share-entry')}
-        {hasData&&(
-          <>
-            <div className="bg-black text-white p-8 mb-4 border-4 border-black">
-              <h3 className="text-xl font-black mb-4 uppercase tracking-wider border-b-2 border-white pb-2">YOUR SETTLEMENT</h3>
-              {transactions.length===0?<p className="text-lg font-bold">ALL SETTLED! EVERYONE'S SQUARE.</p>:(
-                <div className="space-y-3">
-                  {transactions.map((t,i)=>(
-                    <div key={i} className="text-sm leading-relaxed border-b border-dashed border-white pb-2">
-                      <span className="font-semibold">{t.from.toUpperCase()}</span><span> PAYS </span><span className="font-semibold">{t.to.toUpperCase()}</span><br/>
-                      <span className="font-black text-2xl">{formatCurrencySmart(t.amount,shareCurrency)}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-              <BlackBoxStats stats={[
-                {label:'TOTAL BILLS', value: shareBills.length},
-                {label:'TOTAL', value: formatCurrency(total,2,shareCurrency)},
-                {label:'PEOPLE', value: sharePeople.length},
-                {label:'WEIGHTING', value: getWeightingLabel(shareWeighting)},
-              ]}/>
+        {hasData&&(<>
+          <div className="bg-black text-white p-8 mb-4 border-4 border-black">
+            <h3 className="text-xl font-black mb-4 uppercase tracking-wider border-b-2 border-white pb-2">YOUR SETTLEMENT</h3>
+            {transactions.length===0?<p className="text-lg font-bold">ALL SETTLED! EVERYONE'S SQUARE.</p>:<div className="space-y-3">{transactions.map((t,i)=><div key={i} className="text-sm leading-relaxed border-b border-dashed border-white pb-2"><span className="font-semibold">{t.from.toUpperCase()}</span><span> PAYS </span><span className="font-semibold">{t.to.toUpperCase()}</span><br/><span className="font-black text-2xl">{formatCurrencySmart(t.amount,shareCurrency)}</span></div>)}</div>}
+            <BlackBoxStats stats={[{label:'TOTAL BILLS',value:shareBills.length},{label:'TOTAL',value:formatCurrency(total,2,shareCurrency)},{label:'PEOPLE',value:sharePeople.length},{label:'WEIGHTING',value:getWeightingLabel(shareWeighting)}]}/>
+          </div>
+          <DetailToggleButton show={showShareDetails} onClick={()=>setShowShareDetails(!showShareDetails)}/>
+          {showShareDetails&&<div className="animate-fadeIn">
+            <DashedDivider/>
+            {renderDetailCards('PARTICIPANT DATA',[...peopleData].sort((a,b)=>b.wealth-a.wealth),p=>{const bal=p.paid-p.fairShare;return{name:p.name,rows:[{label:'WEALTH',value:formatCurrency(p.wealth,2,shareCurrency)},{label:'PAID',value:`${formatCurrency(p.paid,2,shareCurrency)} (${p.paidPct.toFixed(1)}%)`},{label:'FAIR SHARE',value:`${formatCurrencySmart(p.fairShare,shareCurrency)} (${p.fairPct.toFixed(1)}%)`}],summaryRows:[{label:'BALANCE',value:`${bal>0.01?'+':''}${formatCurrencySmart(bal,shareCurrency)}`}]};})}
+            <DashedDivider/>
+            <div className="mb-6">
+              <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">BILL RECAP</h3>
+              <div className="space-y-3 mb-4">{shareBills.map((b,i)=><div key={b.id||i} className="flex justify-between items-start text-xs text-black border-b border-dashed border-gray-400 pb-2"><div className="flex-1"><p className="font-bold text-black uppercase">{b.description}</p><p className="text-black text-xs">{b.paidBy||'Unknown'}</p></div><span className="font-bold text-black ml-4">{formatCurrency(b.amount,2,shareCurrency)}</span></div>)}</div>
+              <div className="flex justify-between items-center pt-3 border-t-2 border-black"><span className="font-black text-black uppercase">TOTAL</span><span className="font-black text-black text-lg">{formatCurrency(total,2,shareCurrency)}</span></div>
             </div>
-            <DetailToggleButton show={showShareDetails} onClick={()=>setShowShareDetails(!showShareDetails)}/>
-            {showShareDetails&&(
-              <div className="animate-fadeIn">
-                <DashedDivider/>
-                {renderDetailCards('PARTICIPANT DATA',[...peopleData].sort((a,b)=>b.wealth-a.wealth),p=>{
-                  const bal=p.paid-p.fairShare;
-                  return {name:p.name,rows:[{label:'WEALTH',value:formatCurrency(p.wealth,2,shareCurrency)},{label:'PAID',value:`${formatCurrency(p.paid,2,shareCurrency)} (${p.paidPct.toFixed(1)}%)`},{label:'FAIR SHARE',value:`${formatCurrencySmart(p.fairShare,shareCurrency)} (${p.fairPct.toFixed(1)}%)`}],summaryRows:[{label:'BALANCE',value:`${bal>0.01?'+':''}${formatCurrencySmart(bal,shareCurrency)}`,className:'font-black text-black'}]};
-                })}
-                <DashedDivider/>
-                <div className="mb-6">
-                  <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">BILL RECAP</h3>
-                  <div className="space-y-3 mb-4">
-                    {shareBills.map((b,i)=>(
-                      <div key={b.id||i} className={`flex justify-between items-start text-xs text-black border-b ${CLS.borderDashedGray} pb-2`}>
-                        <div className="flex-1"><p className="font-bold text-black uppercase">{b.description}</p><p className="text-black text-xs">{b.paidBy||'Unknown'}</p></div>
-                        <span className="font-bold text-black ml-4">{formatCurrency(b.amount,2,shareCurrency)}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex justify-between items-center pt-3 border-t-2 border-black"><span className="font-black text-black uppercase">TOTAL</span><span className="font-black text-black text-lg">{formatCurrency(total,2,shareCurrency)}</span></div>
-                </div>
-                <DashedDivider/>
-                <div className="mb-6"><h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">WEALTH VISUALIZATION</h3>{renderWealthPieChart(peopleData,formatNumber)}</div>
-                <DashedDivider/>
-                {renderBarVisualization('PAYMENT VISUALIZATION',[...peopleData].sort((a,b)=>b.wealth-a.wealth),[{label:'PAID',getValue:p=>p.paid,displayValue:p=>`${p.paidPct.toFixed(0)}%`,rightLabel:p=>formatCurrency(p.paid,2,shareCurrency)},{label:'FAIR',getValue:p=>p.fairShare,displayValue:p=>`${p.fairPct.toFixed(0)}%`,rightLabel:p=>formatCurrencySmart(p.fairShare,shareCurrency)}],p=>p.name)}
-                <DashedDivider/>
-                {renderMathSection(shareWeighting,[
-                  <div key="s1">{renderAdjustedWealthStep(1,peopleData,shareWeighting)}<div className="flex justify-between mt-2 pt-2 border-t border-dashed border-gray-400 font-bold"><span>TOTAL:</span><span className="font-mono">{formatSmartNumber(peopleData.reduce((s,p)=>s+p.adjustedWealth,0))}</span></div></div>,
-                  <div key="s2"><p className="font-bold mb-2">2. FAIR SHARE %:</p>{renderMathRow(peopleData,p=>{const ta=peopleData.reduce((s,pp)=>s+pp.adjustedWealth,0);return `${formatSmartNumber(p.adjustedWealth)} ÷ ${formatSmartNumber(ta)} = ${p.fairPct.toFixed(1)}%`;})}</div>,
-                  <div key="s3"><p className="font-bold mb-2">3. AMOUNT OWED:</p>{renderMathRow(peopleData,p=>`${p.fairPct.toFixed(1)}% × ${formatCurrency(total,2,shareCurrency)} = ${formatCurrencySmart(p.fairShare,shareCurrency)}`)}</div>
-                ],<div><p className="font-bold mb-2">EQUAL SPLIT (NO WEIGHTING):</p>{renderMathRow(peopleData,p=>`${formatCurrency(total,2,shareCurrency)} ÷ ${peopleData.length} = ${formatCurrencySmart(p.fairShare,shareCurrency)}`)}</div>)}
-              </div>
-            )}
-          </>
-        )}
+            <DashedDivider/>
+            <div className="mb-6"><h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">WEALTH VISUALIZATION</h3>{renderWealthPieChart(peopleData)}</div>
+            <DashedDivider/>
+            {renderBarVisualization('PAYMENT VISUALIZATION',[...peopleData].sort((a,b)=>b.wealth-a.wealth),[{label:'PAID',getValue:p=>p.paid,displayValue:p=>`${p.paidPct.toFixed(0)}%`,rightLabel:p=>formatCurrency(p.paid,2,shareCurrency)},{label:'FAIR',getValue:p=>p.fairShare,displayValue:p=>`${p.fairPct.toFixed(0)}%`,rightLabel:p=>formatCurrencySmart(p.fairShare,shareCurrency)}],p=>p.name)}
+            <DashedDivider/>
+            {renderMathSection(shareWeighting,[
+              <div key="s1">{renderAdjustedWealthStep(1,peopleData,shareWeighting)}<div className="flex justify-between mt-2 pt-2 border-t border-dashed border-gray-400 font-bold"><span>TOTAL:</span><span className="font-mono">{formatSmartNumber(peopleData.reduce((s,p)=>s+p.adjustedWealth,0))}</span></div></div>,
+              <div key="s2"><p className="font-bold mb-2">2. FAIR SHARE %:</p>{renderMathRow(peopleData,p=>{const ta=peopleData.reduce((s,pp)=>s+pp.adjustedWealth,0);return`${formatSmartNumber(p.adjustedWealth)} ÷ ${formatSmartNumber(ta)} = ${p.fairPct.toFixed(1)}%`;})}</div>,
+              <div key="s3"><p className="font-bold mb-2">3. AMOUNT OWED:</p>{renderMathRow(peopleData,p=>`${p.fairPct.toFixed(1)}% × ${formatCurrency(total,2,shareCurrency)} = ${formatCurrencySmart(p.fairShare,shareCurrency)}`)}</div>
+            ],<div><p className="font-bold mb-2">EQUAL SPLIT (NO WEIGHTING):</p>{renderMathRow(peopleData,p=>`${formatCurrency(total,2,shareCurrency)} ÷ ${peopleData.length} = ${formatCurrencySmart(p.fairShare,shareCurrency)}`)}</div>)}
+          </div>}
+        </>)}
         {renderResultsFooter(hasData,`Comrade | Bill-splitting results\n\nTotal: ${formatCurrency(total,2,shareCurrency)}\n\nBreakdown:\n${peopleData.map(p=>`${p.name}: Paid ${formatCurrency(p.paid,2,shareCurrency)}, fair share ${formatCurrencySmart(p.fairShare,shareCurrency)}`).join('\n')}\n\nSettlements:\n${transactions.length===0?'All settled!':transactions.map(t=>`${t.from} pays ${t.to} ${formatCurrencySmart(t.amount,shareCurrency)}`).join('\n')}\n\nCalculated using www.comrade.money`,'share-entry')}
       </Layout>
     );
@@ -981,43 +932,34 @@ const Comrade = () => {
 
   // ── SALE ENTRY ──
   if(page==='sale-entry'){
-    const steps=[
-      {label:'SELL',icon:<TagIcon size={22}/>},
-      {label:'PRODUCT',icon:<TagIcon size={22}/>},
-      {label:'BUYERS',icon:<PersonIcon size={22}/>},
-      {label:'CALCULATE',icon:<CalculateIcon size={22}/>}
-    ];
+    const steps=[{label:'SELL',icon:<TagIcon size={22}/>},{label:'PRODUCT',icon:<TagIcon size={22}/>},{label:'BUYERS',icon:<PersonIcon size={22}/>},{label:'CALCULATE',icon:<CalculateIcon size={22}/>}];
+    const jump=makeJump(setSaleOpen);
     const renderContent=i=>{
-      if(i===0) return (
-        <>
-          {renderIntroSlide("If you're selling something, make sure it goes to the potential buyer who needs it the most — not just whoever offers to pay the most. Comrade takes into account prospective purchasers' financial resources to help you understand how much your product is truly worth to them.",'sale')}
-          <div className="flex justify-end"><button onClick={()=>setSaleAccordion(1)} className="bg-black text-white px-5 py-2 font-bold border-2 border-black text-xs hover:bg-gray-800">BEGIN →</button></div>
-        </>
-      );
+      if(i===0) return (<>{renderIntroSlide("If you're selling something, make sure it goes to the potential buyer who needs it the most — not just whoever offers to pay the most. Comrade takes into account prospective purchasers' financial resources to help you understand how much your product is truly worth to them.",'sale')}<div className="flex justify-end"><button onClick={()=>jump(1)} className="bg-black text-white px-5 py-2 font-bold border-2 border-black text-xs hover:bg-gray-800">BEGIN →</button></div></>);
       if(i===1) return (
         <div>
           <p className="text-xs mb-4 text-black">List what you're selling, and how many items are available.</p>
           <FormInput value={productName} onChange={e=>setProductName(e.target.value)} placeholder="PRODUCT NAME" className="w-full mb-2"/>
           <FormInput type="number" value={numberAvailable} onChange={e=>setNumberAvailable(e.target.value)} placeholder="NUMBER AVAILABLE" min="1" step="1" inputMode="numeric" className="w-full"/>
-          <div className="mt-6 flex justify-end"><button onClick={()=>setSaleAccordion(2)} className="bg-black text-white px-5 py-2 font-bold border-2 border-black text-xs hover:bg-gray-800">CONTINUE →</button></div>
+          <div className="mt-6 flex justify-end"><button onClick={()=>jump(2)} className="bg-black text-white px-5 py-2 font-bold border-2 border-black text-xs hover:bg-gray-800">CONTINUE →</button></div>
         </div>
       );
       if(i===2) return (
         <div>
           <p className="text-xs mb-4 text-black">Add all the people interested in buying, along with their financial information.</p>
           <div className="flex flex-col sm:flex-row gap-2 mb-2">
-            <FormInput value={currentBuyerName} onChange={e=>setCurrentBuyerName(e.target.value)} placeholder="NAME" className="flex-1" style={{minWidth:'120px'}}/>
-            <FormInput type="number" value={currentBuyerOffer} onChange={e=>setCurrentBuyerOffer(e.target.value)} placeholder={`${getCurrencySymbol(saleCurrency)} OFFER`} min="0" step="0.01" inputMode="decimal" className="flex-1" style={{minWidth:'120px'}}/>
+            <FormInput value={curBuyerName} onChange={e=>setCurBuyerName(e.target.value)} placeholder="NAME" className="flex-1" style={{minWidth:'120px'}}/>
+            <FormInput type="number" value={curBuyerOffer} onChange={e=>setCurBuyerOffer(e.target.value)} placeholder={`${getCurrencySymbol(saleCurrency)} OFFER`} min="0" step="0.01" inputMode="decimal" className="flex-1" style={{minWidth:'120px'}}/>
           </div>
-          <FormInput type="number" value={currentBuyerWealth} onChange={e=>setCurrentBuyerWealth(e.target.value)} placeholder={`${getCurrencySymbol(saleCurrency)} ${getWealthMetricLabel(saleWealthMetric)}`} min="0" step="0.01" inputMode="decimal" className="w-full mb-3"/>
-          <button onClick={()=>{if(currentBuyerName.trim()){setSaleBuyers([...saleBuyers,{id:Date.now(),name:currentBuyerName,wealth:currentBuyerWealth,offer:currentBuyerOffer}]);setCurrentBuyerName('');setCurrentBuyerWealth('');setCurrentBuyerOffer('');}}} className="bg-black text-white px-4 py-2 font-bold border-2 border-black text-xs mb-4">+ ADD BUYER</button>
-          {saleBuyers.length>0?<ItemList items={saleBuyers} onDelete={id=>setSaleBuyers(saleBuyers.filter(b=>b.id!==id))} renderItem={b=><><p className={`${CLS.textXsBlack} ${CLS.fontBoldBlackUpper}`}>{b.name}</p><p className={CLS.textXsBlack}>{getWealthMetricLabel(saleWealthMetric)}: {formatCurrency(b.wealth,2,saleCurrency)}</p><p className={CLS.textXsBlack}>Offer: {formatCurrency(b.offer,2,saleCurrency)}</p></>}/>:<p className="text-center text-gray-600 uppercase tracking-wider font-bold mt-2" style={{fontSize:'10px'}}>— No buyers added yet —</p>}
-          <div className="mt-6 flex justify-end"><button onClick={()=>setSaleAccordion(3)} className="bg-black text-white px-5 py-2 font-bold border-2 border-black text-xs hover:bg-gray-800">CONTINUE →</button></div>
+          <FormInput type="number" value={curBuyerWealth} onChange={e=>setCurBuyerWealth(e.target.value)} placeholder={`${getCurrencySymbol(saleCurrency)} ${getWealthMetricLabel(saleWealthMetric)}`} min="0" step="0.01" inputMode="decimal" className="w-full mb-3"/>
+          <button onClick={()=>{if(curBuyerName.trim()){setSaleBuyers([...saleBuyers,{id:Date.now(),name:curBuyerName,wealth:curBuyerWealth,offer:curBuyerOffer}]);setCurBuyerName('');setCurBuyerWealth('');setCurBuyerOffer('');}}} className="bg-black text-white px-4 py-2 font-bold border-2 border-black text-xs mb-4">+ ADD BUYER</button>
+          {saleBuyers.length>0?<ItemList items={saleBuyers} onDelete={id=>setSaleBuyers(saleBuyers.filter(b=>b.id!==id))} renderItem={b=><><p className="text-xs text-black font-bold uppercase">{b.name}</p><p className="text-xs text-black">{getWealthMetricLabel(saleWealthMetric)}: {formatCurrency(b.wealth,2,saleCurrency)}</p><p className="text-xs text-black">Offer: {formatCurrency(b.offer,2,saleCurrency)}</p></>}/>:<p className="text-center text-gray-600 uppercase tracking-wider font-bold mt-2" style={{fontSize:'10px'}}>— No buyers added yet —</p>}
+          <div className="mt-6 flex justify-end"><button onClick={()=>jump(3)} className="bg-black text-white px-5 py-2 font-bold border-2 border-black text-xs hover:bg-gray-800">CONTINUE →</button></div>
         </div>
       );
       return renderCalculateStep(saleWeighting,setSaleWeighting,saleCurrency,setSaleCurrency,saleWealthMetric,setSaleWealthMetric,()=>navigateTo('sale-results'));
     };
-    return <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}><AccordionPage steps={steps} activeIdx={saleAccordion} setActiveIdx={setSaleAccordion} renderContent={renderContent}/></Layout>;
+    return <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}><AccordionPage steps={steps} openIndices={saleOpen} onToggle={makeToggle(setSaleOpen)} renderContent={renderContent}/></Layout>;
   }
 
   // ── SALE RESULTS ──
@@ -1029,42 +971,25 @@ const Comrade = () => {
     return (
       <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
         {!hasData&&renderNoDataState('sale-entry')}
-        {hasData&&(
-          <>
-            <div className="bg-black text-white p-8 mb-4 border-4 border-black">
-              <h3 className="text-xl font-black mb-4 uppercase tracking-wider border-b-2 border-white pb-2">SELECTED BUYER{winners.length>1?'S':''}</h3>
-              {isTie?<p className="text-lg font-bold">PERFECT TIE. EVERYONE HAS EQUAL CLAIM.</p>:(
-                winners.map((w,i)=>(
-                  <div key={w.id} className="mb-3 border-b border-dashed border-white pb-3">
-                    <p className="text-3xl font-black mb-2">{w.name.toUpperCase()}</p>
-                    <p className="text-xl font-semibold">OFFER: {formatCurrency(w.offer,2,saleCurrency)}</p>
-                    <p className="text-xs text-white">NEED SCORE: {w.needScore<0.01?w.needScore.toExponential(4):w.needScore.toFixed(2)}%</p>
-                  </div>
-                ))
-              )}
-              <BlackBoxStats stats={[
-                {label:'PRODUCT', value: productName.toUpperCase()||'N/A'},
-                {label:'AVAILABLE', value: numAvail},
-                {label:'AVG OFFER', value: formatCurrency(avgOffer,2,saleCurrency)},
-                {label:'WEIGHTING', value: getWeightingLabel(saleWeighting)},
-              ]}/>
-            </div>
-            <DetailToggleButton show={showSaleDetails} onClick={()=>setShowSaleDetails(!showSaleDetails)}/>
-            {showSaleDetails&&(
-              <div className="animate-fadeIn">
-                <DashedDivider/>
-                {renderDetailCards('BUYER DATA',rankedBuyers,(b,i)=>({name:`#${i+1} ${b.name}`,cardClassName:`p-4 border-2 ${i<numAvail?'border-black bg-gray-100':'border-gray-400 bg-white'}`,titleExtra:<span className={`px-2 py-1 text-xs font-bold border ${i<numAvail?'bg-black text-white border-black':'bg-white text-black border-black'}`}>{i<numAvail?'SELECTED':'NOT SELECTED'}</span>,rows:[{label:'WEALTH',value:formatCurrency(b.wealth,2,saleCurrency)},{label:'OFFER',value:formatCurrency(b.offer,2,saleCurrency)}],summaryRows:[{label:'NEED SCORE',value:`${b.needScore<0.01?b.needScore.toExponential(4):b.needScore.toFixed(2)}%`}]}))}
-                <DashedDivider/>
-                {renderBarVisualization('NEED SCORE VISUALIZATION',rankedBuyers,[{getValue:b=>b.needScore,displayValue:b=>`${b.needScore<0.01?b.needScore.toExponential(2):b.needScore.toFixed(1)}%`,rightLabel:(_,i)=>`#${i+1}`}],b=>b.name)}
-                <DashedDivider/>
-                {renderMathSection(saleWeighting,[
-                  renderAdjustedWealthStep(1,rankedBuyers,saleWeighting),
-                  <div key="s2"><p className="font-bold mb-2">2. NEED SCORE (OFFER ÷ ADJUSTED WEALTH × 100):</p>{renderMathRow(rankedBuyers,b=>`${formatCurrency(b.offer,2,saleCurrency)} ÷ ${formatSmartNumber(b.adjustedWealth)} × 100 = ${b.needScore<0.01?b.needScore.toExponential(2):b.needScore.toFixed(2)}%`)}</div>
-                ],<div><p className="font-bold mb-2">NO WEIGHTING - RANKED BY OFFER AMOUNT:</p>{rankedBuyers.map((b,i)=><div key={b.id} className="flex justify-between mb-1"><span>#{i+1} {b.name}:</span><span className="font-mono">{formatCurrency(b.offer,2,saleCurrency)}</span></div>)}</div>)}
-              </div>
-            )}
-          </>
-        )}
+        {hasData&&(<>
+          <div className="bg-black text-white p-8 mb-4 border-4 border-black">
+            <h3 className="text-xl font-black mb-4 uppercase tracking-wider border-b-2 border-white pb-2">SELECTED BUYER{winners.length>1?'S':''}</h3>
+            {isTie?<p className="text-lg font-bold">PERFECT TIE. EVERYONE HAS EQUAL CLAIM.</p>:winners.map((w,i)=><div key={w.id} className="mb-3 border-b border-dashed border-white pb-3"><p className="text-3xl font-black mb-2">{w.name.toUpperCase()}</p><p className="text-xl font-semibold">OFFER: {formatCurrency(w.offer,2,saleCurrency)}</p><p className="text-xs text-white">NEED SCORE: {w.needScore<0.01?w.needScore.toExponential(4):w.needScore.toFixed(2)}%</p></div>)}
+            <BlackBoxStats stats={[{label:'PRODUCT',value:productName.toUpperCase()||'N/A'},{label:'AVAILABLE',value:numAvail},{label:'AVG OFFER',value:formatCurrency(avgOffer,2,saleCurrency)},{label:'WEIGHTING',value:getWeightingLabel(saleWeighting)}]}/>
+          </div>
+          <DetailToggleButton show={showSaleDetails} onClick={()=>setShowSaleDetails(!showSaleDetails)}/>
+          {showSaleDetails&&<div className="animate-fadeIn">
+            <DashedDivider/>
+            {renderDetailCards('BUYER DATA',rankedBuyers,(b,i)=>({name:`#${i+1} ${b.name}`,cardClassName:`p-4 border-2 ${i<numAvail?'border-black bg-gray-100':'border-gray-400 bg-white'}`,titleExtra:<span className={`px-2 py-1 text-xs font-bold border ${i<numAvail?'bg-black text-white border-black':'bg-white text-black border-black'}`}>{i<numAvail?'SELECTED':'NOT SELECTED'}</span>,rows:[{label:'WEALTH',value:formatCurrency(b.wealth,2,saleCurrency)},{label:'OFFER',value:formatCurrency(b.offer,2,saleCurrency)}],summaryRows:[{label:'NEED SCORE',value:`${b.needScore<0.01?b.needScore.toExponential(4):b.needScore.toFixed(2)}%`}]}))}
+            <DashedDivider/>
+            {renderBarVisualization('NEED SCORE VISUALIZATION',rankedBuyers,[{getValue:b=>b.needScore,displayValue:b=>`${b.needScore<0.01?b.needScore.toExponential(2):b.needScore.toFixed(1)}%`,rightLabel:(_,i)=>`#${i+1}`}],b=>b.name)}
+            <DashedDivider/>
+            {renderMathSection(saleWeighting,[
+              renderAdjustedWealthStep(1,rankedBuyers,saleWeighting),
+              <div key="s2"><p className="font-bold mb-2">2. NEED SCORE (OFFER ÷ ADJUSTED WEALTH × 100):</p>{renderMathRow(rankedBuyers,b=>`${formatCurrency(b.offer,2,saleCurrency)} ÷ ${formatSmartNumber(b.adjustedWealth)} × 100 = ${b.needScore<0.01?b.needScore.toExponential(2):b.needScore.toFixed(2)}%`)}</div>
+            ],<div><p className="font-bold mb-2">NO WEIGHTING - RANKED BY OFFER AMOUNT:</p>{rankedBuyers.map((b,i)=><div key={b.id} className="flex justify-between mb-1"><span>#{i+1} {b.name}:</span><span className="font-mono">{formatCurrency(b.offer,2,saleCurrency)}</span></div>)}</div>)}
+          </div>}
+        </>)}
         {renderResultsFooter(hasData,`Comrade | Selling results\n\nProduct: ${productName||'Unnamed'}\nQuantity: ${numAvail}\n\nSelected buyer${winners.length>1?'s':''}:\n${winners.map(w=>`${w.name} - ${formatCurrency(w.offer,2,saleCurrency)}`).join('\n')}\n\nAll buyers ranked:\n${rankedBuyers.map((b,i)=>`${i+1}. ${b.name} - Offer: ${formatCurrency(b.offer,2,saleCurrency)}, need score: ${b.needScore.toFixed(4)}%`).join('\n')}\n\nCalculated using www.comrade.money`,'sale-entry')}
       </Layout>
     );
@@ -1072,69 +997,44 @@ const Comrade = () => {
 
   // ── VOTE ENTRY ──
   if(page==='vote-entry'){
-    const steps=[
-      {label:'VOTE',icon:<CheckCircleIcon size={22}/>},
-      {label:'DECISION',icon:<QuestionIcon size={22}/>},
-      {label:'OPTIONS',icon:<ListIcon size={22}/>},
-      {label:'PEOPLE',icon:<PersonIcon size={22}/>},
-      {label:'CALCULATE',icon:<CalculateIcon size={22}/>}
-    ];
+    const steps=[{label:'VOTE',icon:<CheckCircleIcon size={22}/>},{label:'DECISION',icon:<QuestionIcon size={22}/>},{label:'OPTIONS',icon:<ListIcon size={22}/>},{label:'PEOPLE',icon:<PersonIcon size={22}/>},{label:'CALCULATE',icon:<CalculateIcon size={22}/>}];
+    const jump=makeJump(setVoteOpen);
     const renderContent=i=>{
-      if(i===0) return (
-        <>
-          {renderIntroSlide("Make group decisions more equitably. If your friends, classmates, or coworkers are grappling with a dispute, give more voting power to those with less wealth.",'vote')}
-          <div className="flex justify-end"><button onClick={()=>setVoteAccordion(1)} className="bg-black text-white px-5 py-2 font-bold border-2 border-black text-xs hover:bg-gray-800">BEGIN →</button></div>
-        </>
-      );
-      if(i===1) return (
-        <div>
-          <p className="text-xs mb-4 text-black">Enter the question the group is voting on.</p>
-          <FormInput type="textarea" value={voteDecision} onChange={e=>setVoteDecision(e.target.value)} placeholder="DECISION TO BE MADE" rows={4} className="w-full"/>
-          <div className="mt-6 flex justify-end"><button onClick={()=>setVoteAccordion(2)} className="bg-black text-white px-5 py-2 font-bold border-2 border-black text-xs hover:bg-gray-800">CONTINUE →</button></div>
-        </div>
-      );
+      if(i===0) return (<>{renderIntroSlide("Make group decisions more equitably. If your friends, classmates, or coworkers are grappling with a dispute, give more voting power to those with less wealth.",'vote')}<div className="flex justify-end"><button onClick={()=>jump(1)} className="bg-black text-white px-5 py-2 font-bold border-2 border-black text-xs hover:bg-gray-800">BEGIN →</button></div></>);
+      if(i===1) return (<div><p className="text-xs mb-4 text-black">Enter the question the group is voting on.</p><FormInput type="textarea" value={voteDecision} onChange={e=>setVoteDecision(e.target.value)} placeholder="DECISION TO BE MADE" rows={4} className="w-full"/><div className="mt-6 flex justify-end"><button onClick={()=>jump(2)} className="bg-black text-white px-5 py-2 font-bold border-2 border-black text-xs hover:bg-gray-800">CONTINUE →</button></div></div>);
       if(i===2) return (
         <div>
           <p className="text-xs mb-4 text-black">Add all the possible choices people can vote for.</p>
-          <FormInput value={currentOptionText} onChange={e=>setCurrentOptionText(e.target.value)} placeholder="OPTION TEXT" className="w-full mb-3"/>
-          <button onClick={()=>{if(currentOptionText.trim()){setVoteOptions([...voteOptions,{id:Date.now(),text:currentOptionText}]);setCurrentOptionText('');}}} className="bg-black text-white px-4 py-2 font-bold border-2 border-black text-xs mb-4">+ ADD OPTION</button>
-          {voteOptions.length>0?(
-            <div className="space-y-0">
-              {voteOptions.map(opt=>(
-                <div key={opt.id} className="flex justify-between items-center text-xs text-black border-b border-dashed border-gray-400 pb-2 pt-2">
-                  <p className="font-bold text-black uppercase flex-1">{opt.text}</p>
-                  <button onClick={()=>setVoteOptions(voteOptions.filter(o=>o.id!==opt.id))} className="text-black font-bold text-xl ml-3 hover:text-gray-600 leading-none">×</button>
-                </div>
-              ))}
-            </div>
-          ):<p className="text-center text-gray-600 uppercase tracking-wider font-bold mt-2" style={{fontSize:'10px'}}>— No options added yet —</p>}
-          <div className="mt-6 flex justify-end"><button onClick={()=>setVoteAccordion(3)} className="bg-black text-white px-5 py-2 font-bold border-2 border-black text-xs hover:bg-gray-800">CONTINUE →</button></div>
+          <FormInput value={curOptionText} onChange={e=>setCurOptionText(e.target.value)} placeholder="OPTION TEXT" className="w-full mb-3"/>
+          <button onClick={()=>{if(curOptionText.trim()){setVoteOptions([...voteOptions,{id:Date.now(),text:curOptionText}]);setCurOptionText('');}}} className="bg-black text-white px-4 py-2 font-bold border-2 border-black text-xs mb-4">+ ADD OPTION</button>
+          {voteOptions.length>0?<div className="space-y-0">{voteOptions.map(opt=><div key={opt.id} className="flex justify-between items-center text-xs text-black border-b border-dashed border-gray-400 pb-2 pt-2"><p className="font-bold text-black uppercase flex-1">{opt.text}</p><button onClick={()=>setVoteOptions(voteOptions.filter(o=>o.id!==opt.id))} className="text-black font-bold text-xl ml-3 hover:text-gray-600 leading-none">×</button></div>)}</div>:<p className="text-center text-gray-600 uppercase tracking-wider font-bold mt-2" style={{fontSize:'10px'}}>— No options added yet —</p>}
+          <div className="mt-6 flex justify-end"><button onClick={()=>jump(3)} className="bg-black text-white px-5 py-2 font-bold border-2 border-black text-xs hover:bg-gray-800">CONTINUE →</button></div>
         </div>
       );
       if(i===3) return (
         <div>
           <p className="text-xs mb-4 text-black">List the people in the group, their financial resources, and how they chose to vote.</p>
           <div className="flex flex-col sm:flex-row gap-2 mb-2">
-            <FormInput value={currentParticipantName} onChange={e=>setCurrentParticipantName(e.target.value)} placeholder="NAME" className="flex-1" style={{minWidth:'120px'}}/>
-            <select value={currentParticipantVote} onChange={e=>setCurrentParticipantVote(e.target.value)} className="flex-1 p-2 border-2 border-gray-400 bg-white uppercase" style={{minWidth:'120px',height:'42px',fontSize:'16px'}}>
+            <FormInput value={curParticipantName} onChange={e=>setCurParticipantName(e.target.value)} placeholder="NAME" className="flex-1" style={{minWidth:'120px'}}/>
+            <select value={curParticipantVote} onChange={e=>setCurParticipantVote(e.target.value)} className="flex-1 p-2 border-2 border-gray-400 bg-white uppercase" style={{minWidth:'120px',height:'42px',fontSize:'16px'}}>
               <option value="">VOTE</option>
               {voteOptions.map((opt,j)=><option key={opt.id||j} value={opt.text}>{opt.text}</option>)}
             </select>
           </div>
-          <FormInput type="number" value={currentParticipantWealth} onChange={e=>setCurrentParticipantWealth(e.target.value)} placeholder={`${getCurrencySymbol(voteCurrency)} ${getWealthMetricLabel(voteWealthMetric)}`} min="0" step="0.01" inputMode="decimal" className="w-full mb-3"/>
-          <button onClick={()=>{if(currentParticipantName.trim()){setVoteParticipants([...voteParticipants,{id:Date.now(),name:currentParticipantName,wealth:currentParticipantWealth,vote:currentParticipantVote}]);setCurrentParticipantName('');setCurrentParticipantWealth('');setCurrentParticipantVote('');}}} className="bg-black text-white px-4 py-2 font-bold border-2 border-black text-xs mb-4">+ ADD PERSON</button>
-          {voteParticipants.length>0?<ItemList items={voteParticipants} onDelete={id=>setVoteParticipants(voteParticipants.filter(p=>p.id!==id))} renderItem={p=><><p className={`${CLS.textXsBlack} ${CLS.fontBoldBlackUpper}`}>{p.name}</p><p className={CLS.textXsBlack}>{getWealthMetricLabel(voteWealthMetric)}: {formatCurrency(p.wealth,2,voteCurrency)}</p><p className={CLS.textXsBlack}>Vote: {p.vote||'Not selected'}</p></>}/>:<p className="text-center text-gray-600 uppercase tracking-wider font-bold mt-2" style={{fontSize:'10px'}}>— No people added yet —</p>}
-          <div className="mt-6 flex justify-end"><button onClick={()=>setVoteAccordion(4)} className="bg-black text-white px-5 py-2 font-bold border-2 border-black text-xs hover:bg-gray-800">CONTINUE →</button></div>
+          <FormInput type="number" value={curParticipantWealth} onChange={e=>setCurParticipantWealth(e.target.value)} placeholder={`${getCurrencySymbol(voteCurrency)} ${getWealthMetricLabel(voteWealthMetric)}`} min="0" step="0.01" inputMode="decimal" className="w-full mb-3"/>
+          <button onClick={()=>{if(curParticipantName.trim()){setVoteParticipants([...voteParticipants,{id:Date.now(),name:curParticipantName,wealth:curParticipantWealth,vote:curParticipantVote}]);setCurParticipantName('');setCurParticipantWealth('');setCurParticipantVote('');}}} className="bg-black text-white px-4 py-2 font-bold border-2 border-black text-xs mb-4">+ ADD PERSON</button>
+          {voteParticipants.length>0?<ItemList items={voteParticipants} onDelete={id=>setVoteParticipants(voteParticipants.filter(p=>p.id!==id))} renderItem={p=><><p className="text-xs text-black font-bold uppercase">{p.name}</p><p className="text-xs text-black">{getWealthMetricLabel(voteWealthMetric)}: {formatCurrency(p.wealth,2,voteCurrency)}</p><p className="text-xs text-black">Vote: {p.vote||'Not selected'}</p></>}/>:<p className="text-center text-gray-600 uppercase tracking-wider font-bold mt-2" style={{fontSize:'10px'}}>— No people added yet —</p>}
+          <div className="mt-6 flex justify-end"><button onClick={()=>jump(4)} className="bg-black text-white px-5 py-2 font-bold border-2 border-black text-xs hover:bg-gray-800">CONTINUE →</button></div>
         </div>
       );
       return renderCalculateStep(voteWeighting,setVoteWeighting,voteCurrency,setVoteCurrency,voteWealthMetric,setVoteWealthMetric,()=>navigateTo('vote-results'));
     };
-    return <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}><AccordionPage steps={steps} activeIdx={voteAccordion} setActiveIdx={setVoteAccordion} renderContent={renderContent}/></Layout>;
+    return <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}><AccordionPage steps={steps} openIndices={voteOpen} onToggle={makeToggle(setVoteOpen)} renderContent={renderContent}/></Layout>;
   }
 
   // ── VOTE RESULTS ──
   if(page==='vote-results'){
-    const {participantsData,totalVotingPower,voteBreakdown,options}=voteCalculations;
+    const {participantsData,totalVotingPower,voteBreakdown}=voteCalculations;
     const optTexts=voteOptions.map(o=>o.text);
     const hasOrphaned=voteParticipants.some(p=>p.vote&&!optTexts.includes(p.vote));
     const hasData=voteParticipants.length>0&&voteDecision.trim()&&voteOptions.length>0&&!hasOrphaned;
@@ -1143,82 +1043,38 @@ const Comrade = () => {
     return (
       <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
         {!hasData&&renderNoDataState('vote-entry')}
-        {hasData&&(
-          <>
-            <div className="bg-black text-white p-8 mb-4 border-4 border-black">
-              <h3 className="text-xl font-black mb-4 uppercase tracking-wider border-b-2 border-white pb-2">DECISION</h3>
-              <p className="text-lg mb-6 font-semibold">{voteDecision.toUpperCase()}</p>
-              {isTie?<p className="text-xl font-bold">PERFECT TIE. NO CLEAR WINNER.</p>:winner?(
-                <><p className="text-sm mb-2">WINNING OPTION:</p><p className="text-3xl font-black mb-2">{winner.option.toUpperCase()}</p><p className="text-xl font-semibold">{winner.percentage.toFixed(1)}% OF VOTING POWER</p></>
-              ):<p className="text-lg font-bold">NO VOTES CAST</p>}
-              <BlackBoxStats stats={[
-                {label:'PARTICIPANTS', value: voteParticipants.length},
-                {label:'OPTIONS', value: voteOptions.length},
-                {label:'WEIGHTING', value: getWeightingLabel(voteWeighting)},
-              ]}/>
+        {hasData&&(<>
+          <div className="bg-black text-white p-8 mb-4 border-4 border-black">
+            <h3 className="text-xl font-black mb-4 uppercase tracking-wider border-b-2 border-white pb-2">DECISION</h3>
+            <p className="text-lg mb-6 font-semibold">{voteDecision.toUpperCase()}</p>
+            {isTie?<p className="text-xl font-bold">PERFECT TIE. NO CLEAR WINNER.</p>:winner?<><p className="text-sm mb-2">WINNING OPTION:</p><p className="text-3xl font-black mb-2">{winner.option.toUpperCase()}</p><p className="text-xl font-semibold">{winner.percentage.toFixed(1)}% OF VOTING POWER</p></>:<p className="text-lg font-bold">NO VOTES CAST</p>}
+            <BlackBoxStats stats={[{label:'PARTICIPANTS',value:voteParticipants.length},{label:'OPTIONS',value:voteOptions.length},{label:'WEIGHTING',value:getWeightingLabel(voteWeighting)}]}/>
+          </div>
+          <DetailToggleButton show={showVoteDetails} onClick={()=>setShowVoteDetails(!showVoteDetails)}/>
+          {showVoteDetails&&<div className="animate-fadeIn">
+            <DashedDivider/>
+            <div className="mb-6">
+              <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">VOTE BREAKDOWN</h3>
+              <div className="space-y-4">{voteBreakdown.map((item,i)=><div key={i} className="border-2 border-gray-400 p-4"><div className="flex justify-between items-start mb-3 border-b border-dashed border-gray-400 pb-2"><p className="font-bold text-sm text-black uppercase">#{i+1} {item.option}</p><span className="px-2 py-1 text-xs font-bold bg-black text-white border border-black">{item.percentage.toFixed(1)}%</span></div><p className="text-xs text-black mb-2 font-bold">VOTERS ({item.voters.length}):</p><div className="space-y-1">{item.voters.map(v=><p key={v.name} className="text-xs text-black">• {v.name} (Power: {v.votingPower.toFixed(2)})</p>)}</div></div>)}</div>
             </div>
-            <DetailToggleButton show={showVoteDetails} onClick={()=>setShowVoteDetails(!showVoteDetails)}/>
-            {showVoteDetails&&(
-              <div className="animate-fadeIn">
-                <DashedDivider/>
-                <div className="mb-6">
-                  <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">VOTE BREAKDOWN</h3>
-                  <div className="space-y-4">
-                    {voteBreakdown.map((item,i)=>(
-                      <div key={i} className="border-2 border-gray-400 p-4">
-                        <div className="flex justify-between items-start mb-3 border-b border-dashed border-gray-400 pb-2">
-                          <p className="font-bold text-sm text-black uppercase">#{i+1} {item.option}</p>
-                          <span className="px-2 py-1 text-xs font-bold bg-black text-white border border-black">{item.percentage.toFixed(1)}%</span>
-                        </div>
-                        <p className="text-xs text-black mb-2 font-bold">VOTERS ({item.voters.length}):</p>
-                        <div className="space-y-1">{item.voters.map(v=><p key={v.name} className="text-xs text-black">• {v.name} (Power: {v.votingPower.toFixed(2)})</p>)}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <DashedDivider/>
-                {renderDetailCards('PARTICIPANT DATA',[...participantsData].sort((a,b)=>b.wealth-a.wealth),p=>({name:p.name,rows:[{label:'WEALTH',value:formatCurrency(p.wealth,2,voteCurrency)},{label:'VOTE',value:p.vote||'NO VOTE'}],summaryRows:[{label:'VOTING POWER',value:p.votingPower.toFixed(2)}]}))}
-                <DashedDivider/>
-                <div className="mb-6">
-                  <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">VOTE DISTRIBUTION</h3>
-                  <div className="space-y-3">
-                    {voteBreakdown.map((item,idx)=>{
-                      const uw=voteOptions.map(o=>({option:o.text,pct:participantsData.length>0?(participantsData.filter(p=>p.vote===o.text).length/participantsData.length)*100:0}));
-                      const up=uw.find(u=>u.option===item.option)?.pct||0;
-                      const mx=Math.max(...voteBreakdown.map(b=>b.percentage));
-                      return (
-                        <div key={idx} className="mb-4">
-                          <p className="font-bold text-black mb-1 text-xs uppercase">{item.option}</p>
-                          <div className="space-y-1">
-                            {[{lbl:'WEIGHTED',pct:item.percentage,mx},{lbl:'UNWEIGHTED',pct:up,mx}].map(({lbl,pct,mx:m},bi)=>(
-                              <div key={bi} className="flex items-center gap-2">
-                                <span className="text-xs text-black w-24 font-bold">{lbl}:</span>
-                                <div className="flex-1 bg-gray-200 h-6 relative overflow-hidden border border-gray-400">
-                                  <div className="h-6 bar-animate flex items-center justify-end pr-2 bg-black" style={{width:`${m>0?(pct/m)*100:0}%`,animationDelay:`${idx*0.1+bi*0.05}s`}}>
-                                    {m>0&&(pct/m)*100>15&&<span className="text-xs font-bold text-white">{pct.toFixed(1)}%</span>}
-                                  </div>
-                                </div>
-                                <span className="text-xs font-bold text-black w-16 text-right">{pct.toFixed(1)}%</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-                <DashedDivider/>
-                <div className="mb-6"><h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">WEALTH VISUALIZATION</h3>{renderWealthPieChart(participantsData,formatNumber)}</div>
-                <DashedDivider/>
-                {renderMathSection(voteWeighting,[
-                  renderAdjustedWealthStep(1,participantsData,voteWeighting),
-                  <div key="v2"><p className="font-bold mb-2">2. AVERAGE WEALTH:</p><div className="flex justify-between mb-1"><span>TOTAL:</span><span className="font-mono">{formatSmartNumber(participantsData.reduce((s,p)=>s+p.wealth,0))}</span></div><div className="flex justify-between mb-1"><span>AVERAGE:</span><span className="font-mono">{formatSmartNumber(participantsData.reduce((s,p)=>s+p.wealth,0)/participantsData.length)}</span></div></div>,
-                  <div key="v3"><p className="font-bold mb-2">3. VOTING POWER (AVG ÷ ADJUSTED):</p>{renderMathRow(participantsData,p=>{const avg=participantsData.reduce((s,pp)=>s+pp.wealth,0)/participantsData.length;return `${formatSmartNumber(avg)} ÷ ${formatSmartNumber(p.adjustedWealth)} = ${p.votingPower.toFixed(2)}`;})}<div className="flex justify-between mt-2 pt-2 border-t border-dashed border-gray-400 font-bold"><span>TOTAL POWER:</span><span className="font-mono">{totalVotingPower.toFixed(2)}</span></div></div>
-                ],<div><p className="font-bold mb-2">EQUAL VOTING POWER (NO WEIGHTING):</p>{renderMathRow(participantsData,()=>'1 vote')}</div>)}
+            <DashedDivider/>
+            {renderDetailCards('PARTICIPANT DATA',[...participantsData].sort((a,b)=>b.wealth-a.wealth),p=>({name:p.name,rows:[{label:'WEALTH',value:formatCurrency(p.wealth,2,voteCurrency)},{label:'VOTE',value:p.vote||'NO VOTE'}],summaryRows:[{label:'VOTING POWER',value:p.votingPower.toFixed(2)}]}))}
+            <DashedDivider/>
+            <div className="mb-6">
+              <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">VOTE DISTRIBUTION</h3>
+              <div className="space-y-3">{voteBreakdown.map((item,idx)=>{const up=participantsData.length>0?(participantsData.filter(p=>p.vote===item.option).length/participantsData.length)*100:0;const mx=Math.max(...voteBreakdown.map(b=>b.percentage));return<div key={idx} className="mb-4"><p className="font-bold text-black mb-1 text-xs uppercase">{item.option}</p><div className="space-y-1">{[{lbl:'WEIGHTED',pct:item.percentage},{lbl:'UNWEIGHTED',pct:up}].map(({lbl,pct},bi)=><div key={bi} className="flex items-center gap-2"><span className="text-xs text-black w-24 font-bold">{lbl}:</span><div className="flex-1 bg-gray-200 h-6 relative overflow-hidden border border-gray-400"><div className="h-6 bar-animate flex items-center justify-end pr-2 bg-black" style={{width:`${mx>0?(pct/mx)*100:0}%`,animationDelay:`${idx*0.1+bi*0.05}s`}}>{mx>0&&(pct/mx)*100>15&&<span className="text-xs font-bold text-white">{pct.toFixed(1)}%</span>}</div></div><span className="text-xs font-bold text-black w-16 text-right">{pct.toFixed(1)}%</span></div>)}</div></div>;})}
               </div>
-            )}
-          </>
-        )}
+            </div>
+            <DashedDivider/>
+            <div className="mb-6"><h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">WEALTH VISUALIZATION</h3>{renderWealthPieChart(participantsData)}</div>
+            <DashedDivider/>
+            {renderMathSection(voteWeighting,[
+              renderAdjustedWealthStep(1,participantsData,voteWeighting),
+              <div key="v2"><p className="font-bold mb-2">2. AVERAGE WEALTH:</p><div className="flex justify-between mb-1"><span>TOTAL:</span><span className="font-mono">{formatSmartNumber(participantsData.reduce((s,p)=>s+p.wealth,0))}</span></div><div className="flex justify-between mb-1"><span>AVERAGE:</span><span className="font-mono">{formatSmartNumber(participantsData.reduce((s,p)=>s+p.wealth,0)/participantsData.length)}</span></div></div>,
+              <div key="v3"><p className="font-bold mb-2">3. VOTING POWER (AVG ÷ ADJUSTED):</p>{renderMathRow(participantsData,p=>{const avg=participantsData.reduce((s,pp)=>s+pp.wealth,0)/participantsData.length;return`${formatSmartNumber(avg)} ÷ ${formatSmartNumber(p.adjustedWealth)} = ${p.votingPower.toFixed(2)}`;})}<div className="flex justify-between mt-2 pt-2 border-t border-dashed border-gray-400 font-bold"><span>TOTAL POWER:</span><span className="font-mono">{totalVotingPower.toFixed(2)}</span></div></div>
+            ],<div><p className="font-bold mb-2">EQUAL VOTING POWER (NO WEIGHTING):</p>{renderMathRow(participantsData,()=>'1 vote')}</div>)}
+          </div>}
+        </>)}
         {renderResultsFooter(hasData,`Comrade | Voting results\n\nDecision: ${voteDecision}\n\nWinner: ${winner?`${winner.option} (${winner.percentage.toFixed(1)}%)`:'None'}\n\nBreakdown:\n${voteBreakdown.map((b,i)=>`${i+1}. ${b.option}: ${b.percentage.toFixed(1)}% (${b.voters.length} voter${b.voters.length!==1?'s':''})`).join('\n')}\n\nCalculated using www.comrade.money`,'vote-entry')}
       </Layout>
     );
@@ -1226,43 +1082,34 @@ const Comrade = () => {
 
   // ── RENT ENTRY ──
   if(page==='rent-entry'){
-    const steps=[
-      {label:'SPLIT RENT',icon:<HouseIcon size={22}/>},
-      {label:'COSTS',icon:<BillIcon size={22}/>},
-      {label:'TENANTS',icon:<PersonIcon size={22}/>},
-      {label:'CALCULATE',icon:<CalculateIcon size={22}/>}
-    ];
+    const steps=[{label:'SPLIT RENT',icon:<HouseIcon size={22}/>},{label:'COSTS',icon:<BillIcon size={22}/>},{label:'TENANTS',icon:<PersonIcon size={22}/>},{label:'CALCULATE',icon:<CalculateIcon size={22}/>}];
+    const jump=makeJump(setRentOpen);
     const renderContent=i=>{
-      if(i===0) return (
-        <>
-          {renderIntroSlide("Figuring out rent splits with roommates can be a fraught process. Decide it more fairly by accounting for both room size and tenants' financial resources. Larger rooms and higher earners both pay more.",'rent')}
-          <div className="flex justify-end"><button onClick={()=>setRentAccordion(1)} className="bg-black text-white px-5 py-2 font-bold border-2 border-black text-xs hover:bg-gray-800">BEGIN →</button></div>
-        </>
-      );
+      if(i===0) return (<>{renderIntroSlide("Figuring out rent splits with roommates can be a fraught process. Decide it more fairly by accounting for both room size and tenants' financial resources. Larger rooms and higher earners both pay more.",'rent')}<div className="flex justify-end"><button onClick={()=>jump(1)} className="bg-black text-white px-5 py-2 font-bold border-2 border-black text-xs hover:bg-gray-800">BEGIN →</button></div></>);
       if(i===1) return (
         <div>
           <p className="text-xs mb-4 text-black">List your total monthly rent, and monthly utility costs.</p>
           <FormInput type="number" value={totalRent} onChange={e=>setTotalRent(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} MONTHLY RENT`} min="0" step="0.01" inputMode="decimal" className="w-full mb-2"/>
           <FormInput type="number" value={totalUtilities} onChange={e=>setTotalUtilities(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} MONTHLY UTILITIES`} min="0" step="0.01" inputMode="decimal" className="w-full"/>
-          <div className="mt-6 flex justify-end"><button onClick={()=>setRentAccordion(2)} className="bg-black text-white px-5 py-2 font-bold border-2 border-black text-xs hover:bg-gray-800">CONTINUE →</button></div>
+          <div className="mt-6 flex justify-end"><button onClick={()=>jump(2)} className="bg-black text-white px-5 py-2 font-bold border-2 border-black text-xs hover:bg-gray-800">CONTINUE →</button></div>
         </div>
       );
       if(i===2) return (
         <div>
           <p className="text-xs mb-4 text-black">Add the names and details of each person sharing the property.</p>
           <div className="flex flex-col sm:flex-row gap-2 mb-2">
-            <FormInput value={currentRoommateName} onChange={e=>setCurrentRoommateName(e.target.value)} placeholder="NAME" className="flex-1" style={{minWidth:'120px'}}/>
-            <FormInput type="number" value={currentRoommateRoomSize} onChange={e=>setCurrentRoommateRoomSize(e.target.value)} placeholder={`ROOM SIZE (${getMeasurementLabel(rentMeasurement)})`} min="0" step="0.01" inputMode="decimal" className="flex-1" style={{minWidth:'150px'}}/>
+            <FormInput value={curRoommateName} onChange={e=>setCurRoommateName(e.target.value)} placeholder="NAME" className="flex-1" style={{minWidth:'120px'}}/>
+            <FormInput type="number" value={curRoommateRoomSize} onChange={e=>setCurRoommateRoomSize(e.target.value)} placeholder={`ROOM SIZE (${getMeasurementLabel(rentMeasurement)})`} min="0" step="0.01" inputMode="decimal" className="flex-1" style={{minWidth:'150px'}}/>
           </div>
-          <FormInput type="number" value={currentRoommateWealth} onChange={e=>setCurrentRoommateWealth(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} ${getWealthMetricLabel(rentWealthMetric)}`} min="0" step="0.01" inputMode="decimal" className="w-full mb-3"/>
-          <button onClick={()=>{if(currentRoommateName.trim()){setRentPeople([...rentPeople,{id:Date.now(),name:currentRoommateName,roomSize:currentRoommateRoomSize,wealth:currentRoommateWealth}]);setCurrentRoommateName('');setCurrentRoommateRoomSize('');setCurrentRoommateWealth('');}}} className="bg-black text-white px-4 py-2 font-bold border-2 border-black text-xs mb-4">+ ADD TENANT</button>
-          {rentPeople.length>0?<ItemList items={rentPeople} onDelete={id=>setRentPeople(rentPeople.filter(p=>p.id!==id))} renderItem={p=><><p className={`${CLS.textXsBlack} ${CLS.fontBoldBlackUpper}`}>{p.name}</p><p className={CLS.textXsBlack}>Room: {formatNumber((parseFloat(p.roomSize)||0).toFixed(0))} {getMeasurementLabel(rentMeasurement).toLowerCase()}</p><p className={CLS.textXsBlack}>{getWealthMetricLabel(rentWealthMetric)}: {formatCurrency(p.wealth,2,rentCurrency)}</p></>}/>:<p className="text-center text-gray-600 uppercase tracking-wider font-bold mt-2" style={{fontSize:'10px'}}>— No tenants added yet —</p>}
-          <div className="mt-6 flex justify-end"><button onClick={()=>setRentAccordion(3)} className="bg-black text-white px-5 py-2 font-bold border-2 border-black text-xs hover:bg-gray-800">CONTINUE →</button></div>
+          <FormInput type="number" value={curRoommateWealth} onChange={e=>setCurRoommateWealth(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} ${getWealthMetricLabel(rentWealthMetric)}`} min="0" step="0.01" inputMode="decimal" className="w-full mb-3"/>
+          <button onClick={()=>{if(curRoommateName.trim()){setRentPeople([...rentPeople,{id:Date.now(),name:curRoommateName,roomSize:curRoommateRoomSize,wealth:curRoommateWealth}]);setCurRoommateName('');setCurRoommateRoomSize('');setCurRoommateWealth('');}}} className="bg-black text-white px-4 py-2 font-bold border-2 border-black text-xs mb-4">+ ADD TENANT</button>
+          {rentPeople.length>0?<ItemList items={rentPeople} onDelete={id=>setRentPeople(rentPeople.filter(p=>p.id!==id))} renderItem={p=><><p className="text-xs text-black font-bold uppercase">{p.name}</p><p className="text-xs text-black">Room: {formatNumber((parseFloat(p.roomSize)||0).toFixed(0))} {getMeasurementLabel(rentMeasurement).toLowerCase()}</p><p className="text-xs text-black">{getWealthMetricLabel(rentWealthMetric)}: {formatCurrency(p.wealth,2,rentCurrency)}</p></>}/>:<p className="text-center text-gray-600 uppercase tracking-wider font-bold mt-2" style={{fontSize:'10px'}}>— No tenants added yet —</p>}
+          <div className="mt-6 flex justify-end"><button onClick={()=>jump(3)} className="bg-black text-white px-5 py-2 font-bold border-2 border-black text-xs hover:bg-gray-800">CONTINUE →</button></div>
         </div>
       );
       return renderCalculateStep(rentWeighting,setRentWeighting,rentCurrency,setRentCurrency,rentWealthMetric,setRentWealthMetric,()=>navigateTo('rent-results'),rentMeasurement,setRentMeasurement);
     };
-    return <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}><AccordionPage steps={steps} activeIdx={rentAccordion} setActiveIdx={setRentAccordion} renderContent={renderContent}/></Layout>;
+    return <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}><AccordionPage steps={steps} openIndices={rentOpen} onToggle={makeToggle(setRentOpen)} renderContent={renderContent}/></Layout>;
   }
 
   // ── RENT RESULTS ──
@@ -1272,72 +1119,33 @@ const Comrade = () => {
     return (
       <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>
         {!hasData&&renderNoDataState('rent-entry')}
-        {hasData&&(
-          <>
-            <div className="bg-black text-white p-8 mb-4 border-4 border-black">
-              <h3 className="text-xl font-black mb-4 uppercase tracking-wider border-b-2 border-white pb-2">MONTHLY PAYMENTS</h3>
-              <div className="space-y-3">
-                {rentData.map(p=>(
-                  <div key={p.id} className="border-b border-dashed border-white pb-2">
-                    <p className="text-lg font-semibold">{p.name.toUpperCase()}</p>
-                    <p className="text-3xl font-black">{formatCurrencySmart(p.fairRent,rentCurrency)}</p>
-                    <p className="text-xs text-white">{p.rentPct.toFixed(1)}% of total</p>
-                  </div>
-                ))}
+        {hasData&&(<>
+          <div className="bg-black text-white p-8 mb-4 border-4 border-black">
+            <h3 className="text-xl font-black mb-4 uppercase tracking-wider border-b-2 border-white pb-2">MONTHLY PAYMENTS</h3>
+            <div className="space-y-3">{rentData.map(p=><div key={p.id} className="border-b border-dashed border-white pb-2"><p className="text-lg font-semibold">{p.name.toUpperCase()}</p><p className="text-3xl font-black">{formatCurrencySmart(p.fairRent,rentCurrency)}</p><p className="text-xs text-white">{p.rentPct.toFixed(1)}% of total</p></div>)}</div>
+            <BlackBoxStats stats={[{label:'RENT',value:formatCurrency(rentAmount,2,rentCurrency)},{label:'UTILITIES',value:formatCurrency(utilitiesAmount,2,rentCurrency)},{label:'TOTAL',value:formatCurrency(total,2,rentCurrency)},{label:'TENANTS',value:rentPeople.length},{label:'WEIGHTING',value:getWeightingLabel(rentWeighting)}]}/>
+          </div>
+          <DetailToggleButton show={showRentDetails} onClick={()=>setShowRentDetails(!showRentDetails)}/>
+          {showRentDetails&&<div className="animate-fadeIn">
+            <DashedDivider/>
+            {renderDetailCards('ROOMMATE DATA',rentData,p=>({name:p.name,rows:[{label:'ROOM SIZE',value:`${formatNumber(p.roomSize.toFixed(0))} ${getMeasurementLabel(rentMeasurement).toLowerCase()}`},{label:'WEALTH',value:formatCurrency(p.wealth,2,rentCurrency)}],summaryRows:[{label:'MONTHLY RENT',value:formatCurrencySmart(p.fairRent,rentCurrency)},{label:'% OF TOTAL',value:`${p.rentPct.toFixed(1)}%`}]}))}
+            <DashedDivider/>
+            <div className="mb-6">
+              <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">RENT AND ROOM SIZE BREAKDOWN</h3>
+              <div className="space-y-3">{rentData.map((p,idx)=>{const mxR=Math.max(...rentData.map(d=>d.fairRent));return<div key={p.id||idx} className="mb-4"><p className="font-bold text-black mb-1 text-xs uppercase">{p.name}</p><div className="space-y-1">{[{lbl:'RENT',v:p.fairRent,mx:mxR,disp:`${p.rentPct.toFixed(0)}%`,right:formatCurrencySmart(p.fairRent,rentCurrency)},{lbl:'ROOM',v:p.roomSize,mx:totalRoomSize,disp:`${p.roomPct.toFixed(0)}%`,right:`${formatNumber(p.roomSize.toFixed(0))} ${getMeasurementLabel(rentMeasurement).toLowerCase()}`}].map(({lbl,v,mx,disp,right},bi)=><div key={bi} className="flex items-center gap-2"><span className="text-xs text-black w-20 font-bold">{lbl}:</span><div className="flex-1 bg-gray-200 h-6 relative overflow-hidden border border-gray-400"><div className="h-6 bar-animate flex items-center justify-end pr-2 bg-black" style={{width:`${mx>0?(v/mx)*100:0}%`,animationDelay:`${idx*0.1+bi*0.05}s`}}>{mx>0&&(v/mx)*100>15&&<span className="text-xs font-bold text-white">{disp}</span>}</div></div><span className="text-xs font-bold text-black w-24 text-right">{right}</span></div>)}</div></div>;})}
               </div>
-              <BlackBoxStats stats={[
-                {label:'RENT', value: formatCurrency(rentAmount,2,rentCurrency)},
-                {label:'UTILITIES', value: formatCurrency(utilitiesAmount,2,rentCurrency)},
-                {label:'TOTAL', value: formatCurrency(total,2,rentCurrency)},
-                {label:'TENANTS', value: rentPeople.length},
-                {label:'WEIGHTING', value: getWeightingLabel(rentWeighting)},
-              ]}/>
             </div>
-            <DetailToggleButton show={showRentDetails} onClick={()=>setShowRentDetails(!showRentDetails)}/>
-            {showRentDetails&&(
-              <div className="animate-fadeIn">
-                <DashedDivider/>
-                {renderDetailCards('ROOMMATE DATA',rentData,p=>({name:p.name,rows:[{label:'ROOM SIZE',value:`${formatNumber(p.roomSize.toFixed(0))} ${getMeasurementLabel(rentMeasurement).toLowerCase()}`},{label:'WEALTH',value:formatCurrency(p.wealth,2,rentCurrency)}],summaryRows:[{label:'MONTHLY RENT',value:formatCurrencySmart(p.fairRent,rentCurrency)},{label:'% OF TOTAL',value:`${p.rentPct.toFixed(1)}%`}]}))}
-                <DashedDivider/>
-                <div className="mb-6">
-                  <h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">RENT AND ROOM SIZE BREAKDOWN</h3>
-                  <div className="space-y-3">
-                    {rentData.map((p,idx)=>{
-                      const mxR=Math.max(...rentData.map(d=>d.fairRent));
-                      return (
-                        <div key={p.id||idx} className="mb-4">
-                          <p className="font-bold text-black mb-1 text-xs uppercase">{p.name}</p>
-                          <div className="space-y-1">
-                            {[{lbl:'RENT',v:p.fairRent,mx:mxR,disp:`${p.rentPct.toFixed(0)}%`,right:formatCurrencySmart(p.fairRent,rentCurrency)},{lbl:'ROOM',v:p.roomSize,mx:totalRoomSize,disp:`${p.roomPct.toFixed(0)}%`,right:`${formatNumber(p.roomSize.toFixed(0))} ${getMeasurementLabel(rentMeasurement).toLowerCase()}`}].map(({lbl,v,mx,disp,right},bi)=>(
-                              <div key={bi} className="flex items-center gap-2">
-                                <span className="text-xs text-black w-20 font-bold">{lbl}:</span>
-                                <div className="flex-1 bg-gray-200 h-6 relative overflow-hidden border border-gray-400">
-                                  <div className="h-6 bar-animate flex items-center justify-end pr-2 bg-black" style={{width:`${mx>0?(v/mx)*100:0}%`,animationDelay:`${idx*0.1+bi*0.05}s`}}>
-                                    {mx>0&&(v/mx)*100>15&&<span className="text-xs font-bold text-white">{disp}</span>}
-                                  </div>
-                                </div>
-                                <span className="text-xs font-bold text-black w-24 text-right">{right}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-                <DashedDivider/>
-                <div className="mb-6"><h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">WEALTH VISUALIZATION</h3>{renderWealthPieChart(rentData,formatNumber)}</div>
-                <DashedDivider/>
-                {renderMathSection(rentWeighting,[
-                  <div key="r1"><p className="font-bold mb-2">1. ROOM SIZE %:</p>{renderMathRow(rentData,p=>`${formatNumber(p.roomSize.toFixed(0))} ÷ ${formatNumber(totalRoomSize.toFixed(0))} = ${p.roomPct.toFixed(1)}%`)}</div>,
-                  renderAdjustedWealthStep(2,rentData,rentWeighting),
-                  <div key="r3"><p className="font-bold mb-2">3. ROOM VALUE (ROOM % × ADJUSTED WEALTH):</p>{renderMathRow(rentData,p=>`${p.roomPct.toFixed(1)}% × ${formatSmartNumber(p.adjustedWealth)} = ${formatSmartNumber(p.roomValue)}`)}<div className="flex justify-between mt-2 pt-2 border-t border-dashed border-gray-400 font-bold"><span>TOTAL VALUE:</span><span className="font-mono">{formatSmartNumber(totalRoomValue)}</span></div></div>,
-                  <div key="r4"><p className="font-bold mb-2">4. RENT OWED (VALUE % × TOTAL):</p>{renderMathRow(rentData,p=>`${p.rentPct.toFixed(1)}% × ${formatCurrency(total,2,rentCurrency)} = ${formatCurrencySmart(p.fairRent,rentCurrency)}`)}</div>
-                ],<><div><p className="font-bold mb-2">1. ROOM SIZE % (NO WEALTH WEIGHTING):</p>{renderMathRow(rentData,p=>`${formatNumber(p.roomSize.toFixed(0))} ÷ ${formatNumber(totalRoomSize.toFixed(0))} = ${p.roomPct.toFixed(1)}%`)}</div><div className="border-t-2 border-dashed border-gray-400 my-3"></div><div><p className="font-bold mb-2">2. RENT OWED (ROOM % × TOTAL):</p>{renderMathRow(rentData,p=>`${p.rentPct.toFixed(1)}% × ${formatCurrency(total,2,rentCurrency)} = ${formatCurrencySmart(p.fairRent,rentCurrency)}`)}</div></>)}
-              </div>
-            )}
-          </>
-        )}
+            <DashedDivider/>
+            <div className="mb-6"><h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">WEALTH VISUALIZATION</h3>{renderWealthPieChart(rentData)}</div>
+            <DashedDivider/>
+            {renderMathSection(rentWeighting,[
+              <div key="r1"><p className="font-bold mb-2">1. ROOM SIZE %:</p>{renderMathRow(rentData,p=>`${formatNumber(p.roomSize.toFixed(0))} ÷ ${formatNumber(totalRoomSize.toFixed(0))} = ${p.roomPct.toFixed(1)}%`)}</div>,
+              renderAdjustedWealthStep(2,rentData,rentWeighting),
+              <div key="r3"><p className="font-bold mb-2">3. ROOM VALUE (ROOM % × ADJUSTED WEALTH):</p>{renderMathRow(rentData,p=>`${p.roomPct.toFixed(1)}% × ${formatSmartNumber(p.adjustedWealth)} = ${formatSmartNumber(p.roomValue)}`)}<div className="flex justify-between mt-2 pt-2 border-t border-dashed border-gray-400 font-bold"><span>TOTAL VALUE:</span><span className="font-mono">{formatSmartNumber(totalRoomValue)}</span></div></div>,
+              <div key="r4"><p className="font-bold mb-2">4. RENT OWED (VALUE % × TOTAL):</p>{renderMathRow(rentData,p=>`${p.rentPct.toFixed(1)}% × ${formatCurrency(total,2,rentCurrency)} = ${formatCurrencySmart(p.fairRent,rentCurrency)}`)}</div>
+            ],<><div><p className="font-bold mb-2">1. ROOM SIZE % (NO WEALTH WEIGHTING):</p>{renderMathRow(rentData,p=>`${formatNumber(p.roomSize.toFixed(0))} ÷ ${formatNumber(totalRoomSize.toFixed(0))} = ${p.roomPct.toFixed(1)}%`)}</div><div className="border-t-2 border-dashed border-gray-400 my-3"></div><div><p className="font-bold mb-2">2. RENT OWED (ROOM % × TOTAL):</p>{renderMathRow(rentData,p=>`${p.rentPct.toFixed(1)}% × ${formatCurrency(total,2,rentCurrency)} = ${formatCurrencySmart(p.fairRent,rentCurrency)}`)}</div></>)}
+          </div>}
+        </>)}
         {renderResultsFooter(hasData,`Comrade | Rent-splitting results\n\nTotal: ${formatCurrency(total,2,rentCurrency)}/month\nRent: ${formatCurrency(rentAmount,2,rentCurrency)}\nUtilities: ${formatCurrency(utilitiesAmount,2,rentCurrency)}\n\nBreakdown:\n${rentData.map(p=>`${p.name}: ${formatCurrencySmart(p.fairRent,rentCurrency)} (${p.rentPct.toFixed(1)}%)`).join('\n')}\n\nCalculated using www.comrade.money`,'rent-entry')}
       </Layout>
     );
