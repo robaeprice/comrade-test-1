@@ -21,6 +21,7 @@
 
 
 
+
 const applyWeighting = (wealth, weighting) => {
   if (weighting === 'none') return 1;
   if (weighting === 'gentle') return Math.sqrt(wealth);
@@ -37,15 +38,15 @@ const EXAMPLE_DATA = {
   rent: { totalRent:'3600',totalUtilities:'240', people:[{id:1,name:'River',roomSize:'180',wealth:'42000'},{id:2,name:'Skyler',roomSize:'140',wealth:'125000'},{id:3,name:'Quinn',roomSize:'160',wealth:'68000'}] }
 };
 
-// ── ICONS ──
-const PersonIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 40 40" style={{flexShrink:0}}><circle cx="20" cy="20" r="18" fill="#333333"/><circle cx="20" cy="16" r="5" fill="white"/><path d="M 10 32 Q 10 24 20 24 Q 30 24 30 32" fill="white"/></svg>;
+const PersonIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 40 40" style={{flexShrink:0}}><circle cx="20" cy="20" r="18" fill="#333333"/><circle cx="20" cy="16" r="5" fill={BG_GREY}/><path d="M 10 32 Q 10 24 20 24 Q 30 24 30 32" fill={BG_GREY}/></svg>;
 const BillIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><text x="4" y="20" fontFamily="monospace" fontSize="22" fill="#333333" fontWeight="bold">$</text></svg>;
 const HouseIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z" fill="#333333"/></svg>;
-const TagIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><text x="4" y="20" fontFamily="monospace" fontSize="22" fill="#333333" fontWeight="bold">$</text></svg>;
+const TagIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z" fill="#333333"/></svg>;
+const ToteFilledIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><rect x="3" y="8" width="18" height="13" rx="1" fill="#333333"/><path d="M8 8V6a4 4 0 018 0v2" fill="none" stroke="#333333" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+const CheckCircleIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><circle cx="12" cy="12" r="11" fill="#333333"/><polyline points="7,12.5 10.5,16 17,9" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>;
 const QuestionIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><text x="6" y="19" fontFamily="monospace" fontSize="20" fill="#333333" fontWeight="bold">?</text></svg>;
-const CheckCircleIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><circle cx="12" cy="12" r="10" fill="none" stroke="#333333" strokeWidth="3"/><polyline points="7,12.5 10.5,16 17,9" fill="none" stroke="#333333" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg>;
-const ListIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><rect x="4" y="5" width="3" height="3" fill="#333333"/><rect x="4" y="10" width="3" height="3" fill="#333333"/><rect x="4" y="15" width="3" height="3" fill="#333333"/><line x1="9" y1="6.5" x2="20" y2="6.5" stroke="#333333" strokeWidth="2"/><line x1="9" y1="11.5" x2="20" y2="11.5" stroke="#333333" strokeWidth="2"/><line x1="9" y1="16.5" x2="20" y2="16.5" stroke="#333333" strokeWidth="2"/></svg>;
 const CalculateIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><line x1="4" y1="9" x2="20" y2="9" stroke="#333333" strokeWidth="3.5" strokeLinecap="round"/><line x1="4" y1="15" x2="20" y2="15" stroke="#333333" strokeWidth="3.5" strokeLinecap="round"/></svg>;
+const ListIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><rect x="4" y="5" width="3" height="3" fill="#333333"/><rect x="4" y="10" width="3" height="3" fill="#333333"/><rect x="4" y="15" width="3" height="3" fill="#333333"/><line x1="9" y1="6.5" x2="20" y2="6.5" stroke="#333333" strokeWidth="2"/><line x1="9" y1="11.5" x2="20" y2="11.5" stroke="#333333" strokeWidth="2"/><line x1="9" y1="16.5" x2="20" y2="16.5" stroke="#333333" strokeWidth="2"/></svg>;
 const ErrorIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><line x1="4" y1="4" x2="20" y2="20" stroke="#333333" strokeWidth="3"/><line x1="20" y1="4" x2="4" y2="20" stroke="#333333" strokeWidth="3"/></svg>;
 
 const AboutBanner = () => (
@@ -64,7 +65,7 @@ const AboutBanner = () => (
 const PeopleAvatars = () => (
   <div className="flex justify-center gap-2 py-2">
     {['#D1D5DB','#9CA3AF','#6B7280'].map((c,i) => (
-      <svg key={i} width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill={c}/><circle cx="20" cy="16" r="6" fill="white"/><path d="M 10 32 Q 10 24 20 24 Q 30 24 30 32" fill="white"/></svg>
+      <svg key={i} width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill={c}/><circle cx="20" cy="16" r="6" fill={BG_GREY}/><path d="M 10 32 Q 10 24 20 24 Q 30 24 30 32" fill={BG_GREY}/></svg>
     ))}
   </div>
 );
@@ -94,10 +95,7 @@ const ResultPieChart = () => (
   </div>
 );
 
-// ── SHARED UI ──
 const DashedDivider = () => <div className="border-t-2 border-dashed border-gray-400 my-6"/>;
-
-// sf = Sixtyfour display font class
 const CurrencyDivider = () => (
   <div className="flex items-center gap-4 my-6">
     <div className="flex-1 border-t-4 border-black"></div>
@@ -248,9 +246,7 @@ const Layout = ({children, onNavigate, showCopyToast}) => (
   <div style={{background:'#dc143c',backgroundImage:`linear-gradient(180deg, rgba(255,215,0,0.85) 0%, rgba(255,140,0,0.85) 50%, rgba(255,215,0,0.85) 100%), url("data:image/svg+xml,%3Csvg width='75' height='90' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='10' y='20' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E$%3C/text%3E%3Ctext x='35' y='20' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E€%3C/text%3E%3Ctext x='60' y='20' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E£%3C/text%3E%3Ctext x='3' y='50' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E€%3C/text%3E%3Ctext x='28' y='50' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E£%3C/text%3E%3Ctext x='53' y='50' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E$%3C/text%3E%3Ctext x='17' y='80' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E£%3C/text%3E%3Ctext x='42' y='80' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E$%3C/text%3E%3Ctext x='67' y='80' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E€%3C/text%3E%3C/svg%3E")`,backgroundSize:'100% 1400px, auto',backgroundRepeat:'repeat-y, repeat',minHeight:'100vh'}}>
     <style>{`
       @import url('https://fonts.googleapis.com/css2?family=Sixtyfour:wght@400&display=swap');
-
       * { font-family: 'Sixtyfour', monospace !important; word-wrap: break-word; overflow-wrap: break-word; }
-
       html, body { overflow-y: auto !important; height: auto !important; }
       .receipt-wrapper { border-left: 4px solid #333333; border-right: 4px solid #333333; filter: drop-shadow(6px 8px 18px rgba(0,0,0,0.45)); will-change: filter; transform: translateZ(0); }
       .receipt-container { position: relative; background: ${BG_GREY}; }
@@ -283,7 +279,7 @@ const Layout = ({children, onNavigate, showCopyToast}) => (
                 <svg width="100%" viewBox="0 0 100 24" style={{display:'block',overflow:'visible',marginBottom:'-6px',marginTop:'-2px'}}>
                   <text x="0" y="19" fontFamily="Sixtyfour,monospace" fontWeight="900" fill="#333333" textLength="100" lengthAdjust="spacingAndGlyphs" fontSize="19">COMRADE</text>
                 </svg>
-                <div className="currency-pattern text-xs text-black uppercase tracking-wider sf" style={{marginTop:'2px'}}>{'$ € £ $ € £ $ € £ $ € £ $ € £ $ © £ $ € £ $ € £ $ € £ $ € £ $ € £'}</div>
+                <div className="currency-pattern text-xs text-black uppercase tracking-wider sf" style={{marginTop:'2px'}}>{'$ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £'}</div>
               </div>
             </div>
             {children}
@@ -309,7 +305,6 @@ const Layout = ({children, onNavigate, showCopyToast}) => (
   </div>
 );
 
-// ── MAIN APP ──
 const Comrade = () => {
   useEffect(()=>{
     document.title="COMRADE";
@@ -714,10 +709,7 @@ const Comrade = () => {
 
   const L = ({children}) => <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>{children}</Layout>;
 
-  // ══════════════════════════════════
-  // PAGES
-  // ══════════════════════════════════
-
+  // ── HOME ──
   const HomeAccordion = () => {
     const [openSection, setOpenSection] = useState(null);
     const toggle = key => setOpenSection(prev => prev === key ? null : key);
@@ -741,8 +733,6 @@ const Comrade = () => {
     return (
       <div style={{display:'flex',flexDirection:'column',gap:'12px',maxWidth:'448px',margin:'0 auto'}}>
         <button onClick={()=>navigateTo('share-entry')} className="w-full bg-black text-white font-bold py-4 px-6 border-2 border-black hover:bg-gray-800 transition-all text-xl">GET STARTED</button>
-
-        {/* HOW IT WORKS */}
         <div>
           {sectionBtn('how','HOW IT WORKS')}
           {openSection==='how'&&(
@@ -765,29 +755,20 @@ const Comrade = () => {
                 <ResultPieChart />
               </div>
               <div className="mt-6 flex flex-col max-w-xs mx-auto" style={{gap:'12px'}}>
-                <button onClick={()=>navigateTo('share-entry')} className="w-full bg-black text-white font-bold py-4 px-8 border-2 border-black hover:bg-gray-800 transition-all text-lg">TRY IT NOW</button>
                 <button onClick={()=>navigateTo('about')} className="w-full font-bold py-4 px-8 border-2 border-black hover:bg-gray-100 transition-all text-lg" style={{background:BG_GREY,color:'#333'}}>LEARN MORE</button>
+                <button onClick={()=>navigateTo('share-entry')} className="w-full bg-black text-white font-bold py-4 px-8 border-2 border-black hover:bg-gray-800 transition-all text-lg">TRY IT NOW</button>
               </div>
             </div>
           )}
         </div>
-
-        {/* EXTRA TOOLS */}
-        <div>
-          {sectionBtn('extra','EXTRA TOOLS')}
-          {openSection==='extra'&&(
-            <div style={{border:'2px dashed #9CA3AF',borderTop:'none',padding:'20px'}}>
-              <p className="text-xs text-black mb-4">Comrade isn't just for bill-splitting...</p>
-              <div className="space-y-3">
-                <button onClick={()=>navigateTo('rent-entry')} className="w-full font-bold py-4 px-6 border-2 border-black hover:bg-gray-100 transition-all" style={{background:BG_GREY,color:'#333'}}>RENTING AN APARTMENT?</button>
-                <button onClick={()=>navigateTo('sale-entry')} className="w-full font-bold py-4 px-6 border-2 border-black hover:bg-gray-100 transition-all" style={{background:BG_GREY,color:'#333'}}>SELLING SOMETHING?</button>
-                <button onClick={()=>navigateTo('vote-entry')} className="w-full font-bold py-4 px-6 border-2 border-black hover:bg-gray-100 transition-all flex-col" style={{background:BG_GREY,color:'#333'}}>
-                  <div style={{fontSize:'11px',letterSpacing:'2px',color:'#9CA3AF',marginBottom:'4px'}}>EXPERIMENTAL</div>
-                  <div>VOTING ON A DECISION?</div>
-                </button>
-              </div>
-            </div>
-          )}
+        {/* SEE ALL TOOLS link */}
+        <div style={{textAlign:'center',marginTop:4}}>
+          <span
+            onClick={()=>navigateTo('tools')}
+            style={{fontSize:'14px',color:'#6B7280',letterSpacing:'1px',cursor:'pointer',borderBottom:'1px dashed #6B7280',paddingBottom:'1px'}}
+          >
+            SEE ALL TOOLS →
+          </span>
         </div>
       </div>
     );
@@ -801,6 +782,82 @@ const Comrade = () => {
     </L>
   );
 
+  // ── ICON PREVIEW ──
+  if(page==='icon-preview') {
+    const iconOptions = [
+      { key:'gavel', label:'GAVEL' },
+      { key:'box', label:'BOX' },
+      { key:'boxFilled', label:'BOX FILLED' },
+      { key:'boxOpen', label:'BOX OPEN' },
+      { key:'boxOpenFilled', label:'BOX OPEN FILLED' },
+      { key:'swap', label:'SWAP' },
+      { key:'storefront', label:'STOREFRONT' },
+      { key:'handshake', label:'HANDSHAKE' },
+      { key:'bag', label:'BAG' },
+      { key:'bagFilled', label:'BAG FILLED' },
+      { key:'bagTote', label:'TOTE' },
+      { key:'bagToteFilled', label:'TOTE FILLED' },
+      { key:'receipt', label:'RECEIPT' },
+      { key:'dollar', label:'DOLLAR' },
+    ];
+    return (
+      <L>
+        <p className="text-sm text-black text-center mb-1 font-bold">SELLING SOMETHING?</p>
+        <p className="text-xs text-center mb-6" style={{color:'#9CA3AF'}}>ICON OPTIONS</p>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,maxWidth:'448px',margin:'0 auto 24px'}}>
+          {iconOptions.map(({key,label})=>{
+            const Icon = SaleIcons[key];
+            return (
+              <div key={key} style={{border:'2px solid #333',background:BG_GREY,padding:'20px 12px',display:'flex',flexDirection:'column',alignItems:'center',gap:10}}>
+                <Icon size={28}/>
+                <span style={{fontSize:'10px',letterSpacing:'2px',color:'#333',fontWeight:900}}>{label}</span>
+              </div>
+            );
+          })}
+        </div>
+        <div style={{textAlign:'center'}}>
+          <span onClick={()=>navigateTo('home')} style={{fontSize:'14px',color:'#6B7280',letterSpacing:'1px',cursor:'pointer',borderBottom:'1px dashed #6B7280',paddingBottom:'1px'}}>← BACK HOME</span>
+        </div>
+      </L>
+    );
+  }
+
+  // ── TOOLS PAGE ──
+  if(page==='tools') {
+    const tools = [
+      { route:'share-entry', icon:<BillIcon size={22}/>, label:'SPLITTING BILLS?' },
+      { route:'rent-entry', icon:<HouseIcon size={22}/>, label:'SPLITTING RENT?' },
+      { route:'sale-entry', icon:<TagIcon size={22}/>, label:'SELLING SOMETHING?' },
+      { route:'vote-entry', icon:<CheckCircleIcon size={22}/>, label:'VOTING ON A DECISION?', experimental:true },
+    ];
+    return (
+      <L>
+        <div style={{display:'flex',justifyContent:'space-around',alignItems:'center',marginBottom:28,marginTop:28,padding:'0 8px'}}>
+          {tools.map(t=><div key={t.route}>{t.icon}</div>)}
+        </div>
+        <p className="text-sm text-black text-center mb-6">COMRADE BUILDS PRODUCTS THAT MAKE LIFE FAIRER. CHOOSE FROM OUR FULL LIST OF TOOLS BELOW.</p>
+        <div style={{maxWidth:'448px',margin:'0 auto'}}>
+          {tools.map(t=>(
+            <div key={t.route} style={{marginBottom:12}}>
+              <button
+                onClick={()=>navigateTo(t.route)}
+                className="w-full border-2 border-black hover:bg-gray-200 transition-all"
+                style={{background:BG_GREY,padding:'16px 20px',flexDirection:'column',gap:2}}
+              >
+                {t.experimental && (
+                  <span style={{fontSize:'10px',color:'#9CA3AF',letterSpacing:'2px',fontWeight:900,textAlign:'center',display:'block'}}>EXPERIMENTAL</span>
+                )}
+                <span style={{fontSize:'17px',letterSpacing:'1px',color:'#333',display:'block',textAlign:'center',fontWeight:900}}>{t.label}</span>
+              </button>
+            </div>
+          ))}
+        </div>
+        <div style={{textAlign:'center',marginTop:16}}>
+          <span onClick={()=>navigateTo('icon-preview')} style={{fontSize:'11px',color:'#9CA3AF',letterSpacing:'1px',cursor:'pointer',borderBottom:'1px dashed #9CA3AF',paddingBottom:'1px'}}>ICON PREVIEW</span>
+        </div>
+      </L>
+    );
+  }
   if(page==='about') return (
     <L>
       <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider text-center">ABOUT</h2>
@@ -865,6 +922,7 @@ const Comrade = () => {
     </L>
   );
 
+  // ── SHARE ENTRY ──
   if(page==='share-entry'){
     const steps=[{label:'SPLIT COSTS',icon:<BillIcon size={22}/>},{label:'PEOPLE',icon:<PersonIcon size={22}/>},{label:'BILLS',icon:<BillIcon size={22}/>},{label:'CALCULATE',icon:<CalculateIcon size={22}/>}];
     const jump=makeJump(setShareOpen);
@@ -903,6 +961,7 @@ const Comrade = () => {
     return <L><AccordionPage steps={steps} openIndices={shareOpen} onToggle={makeToggle(setShareOpen)} renderContent={renderContent}/></L>;
   }
 
+  // ── SHARE RESULTS ──
   if(page==='share-results'){
     const {total,peopleData,transactions}=shareCalculations;
     const hasOrphaned=shareBills.some(b=>b.paidBy&&!sharePeople.some(p=>p.name===b.paidBy));
@@ -911,7 +970,6 @@ const Comrade = () => {
       <L>
         {!hasData&&renderNoDataState('share-entry')}
         {hasData&&(<>
-          {/* Black results box — sf class applies Sixtyfour to all children */}
           <div className="bg-black text-white p-8 mb-4 border-4 border-black sf">
             <h3 className="text-xl font-black mb-4 uppercase tracking-wider border-b-2 border-white pb-2">YOUR SETTLEMENT</h3>
             {transactions.length===0?<p className="text-lg font-bold">ALL SETTLED! EVERYONE'S SQUARE.</p>:<div className="space-y-3">{transactions.map((t,i)=><div key={i} className="text-sm leading-relaxed border-b border-dashed border-white pb-2"><span className="font-semibold">{t.from.toUpperCase()}</span><span> PAYS </span><span className="font-semibold">{t.to.toUpperCase()}</span><br/><span className="font-black text-2xl">{formatCurrencySmart(t.amount,shareCurrency)}</span></div>)}</div>}
@@ -944,8 +1002,9 @@ const Comrade = () => {
     );
   }
 
+  // ── SALE ENTRY ──
   if(page==='sale-entry'){
-    const steps=[{label:'SELL',icon:<TagIcon size={22}/>},{label:'PRODUCT',icon:<TagIcon size={22}/>},{label:'BUYERS',icon:<PersonIcon size={22}/>},{label:'CALCULATE',icon:<CalculateIcon size={22}/>}];
+    const steps=[{label:'SELL',icon:<TagIcon size={22}/>},{label:'PRODUCT',icon:<ToteFilledIcon size={22}/>},{label:'BUYERS',icon:<PersonIcon size={22}/>},{label:'CALCULATE',icon:<CalculateIcon size={22}/>}];
     const jump=makeJump(setSaleOpen);
     const renderContent=i=>{
       if(i===0) return renderIntroSlide("If you're selling something, make sure it goes to the potential buyer who needs it the most — not just whoever offers to pay the most. Comrade takes into account prospective purchasers' financial resources to help you understand how much your product is truly worth to them.",'sale',()=>jump(1));
@@ -968,6 +1027,7 @@ const Comrade = () => {
     return <L><AccordionPage steps={steps} openIndices={saleOpen} onToggle={makeToggle(setSaleOpen)} renderContent={renderContent}/></L>;
   }
 
+  // ── SALE RESULTS ──
   if(page==='sale-results'){
     const {rankedBuyers,avgOffer}=saleCalculations;
     const numAvail=parseInt(numberAvailable)||1,winners=rankedBuyers.slice(0,numAvail);
@@ -997,6 +1057,7 @@ const Comrade = () => {
     );
   }
 
+  // ── VOTE ENTRY ──
   if(page==='vote-entry'){
     const steps=[{label:'VOTE',icon:<CheckCircleIcon size={22}/>},{label:'DECISION',icon:<QuestionIcon size={22}/>},{label:'OPTIONS',icon:<ListIcon size={22}/>},{label:'PEOPLE',icon:<PersonIcon size={22}/>},{label:'CALCULATE',icon:<CalculateIcon size={22}/>}];
     const jump=makeJump(setVoteOpen);
@@ -1025,6 +1086,7 @@ const Comrade = () => {
     return <L><AccordionPage steps={steps} openIndices={voteOpen} onToggle={makeToggle(setVoteOpen)} renderContent={renderContent}/></L>;
   }
 
+  // ── VOTE RESULTS ──
   if(page==='vote-results'){
     const {participantsData,totalVotingPower,voteBreakdown}=voteCalculations;
     const optTexts=voteOptions.map(o=>o.text);
@@ -1062,6 +1124,7 @@ const Comrade = () => {
     );
   }
 
+  // ── RENT ENTRY ──
   if(page==='rent-entry'){
     const steps=[{label:'SPLIT RENT',icon:<HouseIcon size={22}/>},{label:'COSTS',icon:<BillIcon size={22}/>},{label:'TENANTS',icon:<PersonIcon size={22}/>},{label:'CALCULATE',icon:<CalculateIcon size={22}/>}];
     const jump=makeJump(setRentOpen);
@@ -1086,6 +1149,7 @@ const Comrade = () => {
     return <L><AccordionPage steps={steps} openIndices={rentOpen} onToggle={makeToggle(setRentOpen)} renderContent={renderContent}/></L>;
   }
 
+  // ── RENT RESULTS ──
   if(page==='rent-results'){
     const {rentAmount,utilitiesAmount,total,totalRoomSize,rentData,totalRoomValue}=rentCalculations;
     const hasData=rentPeople.length>0&&parseFloat(totalRent)>0;
