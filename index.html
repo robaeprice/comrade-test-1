@@ -20,6 +20,7 @@
 
 
 
+
 const applyWeighting = (wealth, weighting) => {
   if (weighting === 'none') return 1;
   if (weighting === 'gentle') return Math.sqrt(wealth);
@@ -280,7 +281,7 @@ const Layout = ({children, onNavigate, showCopyToast}) => (
               <div className="cursor-pointer text-center" onClick={()=>onNavigate('home')}>
                 <div className="currency-pattern text-xs text-black uppercase tracking-wider sf" style={{marginBottom:'2px'}}>{'$ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £'}</div>
                 <svg width="100%" viewBox="0 0 100 24" style={{display:'block',overflow:'visible',marginBottom:'-6px',marginTop:'-2px'}}>
-                  <text x="0" y="19" fontFamily="Sixtyfour,monospace" fontWeight="400" fill="#333333" textLength="100" lengthAdjust="spacingAndGlyphs" fontSize="19">COMRADE</text>
+                  <text x="0" y="19" fontFamily="Sixtyfour,monospace" fontWeight="900" fill="#333333" textLength="100" lengthAdjust="spacingAndGlyphs" fontSize="19">COMRADE</text>
                 </svg>
                 <div className="currency-pattern text-xs text-black uppercase tracking-wider sf" style={{marginTop:'2px'}}>{'$ € £ $ € £ $ € £ $ € £ $ € £ $ © £ $ € £ $ € £ $ € £ $ € £ $ € £'}</div>
               </div>
