@@ -38,6 +38,8 @@ const EXAMPLE_DATA = {
   rent: { totalRent:'3600',totalUtilities:'240', people:[{id:1,name:'River',roomSize:'180',wealth:'42000'},{id:2,name:'Skyler',roomSize:'140',wealth:'125000'},{id:3,name:'Quinn',roomSize:'160',wealth:'68000'}] }
 };
 
+const BG_GREY = '#F3F4F6';
+
 const PersonIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 40 40" style={{flexShrink:0}}><circle cx="20" cy="20" r="18" fill="#333333"/><circle cx="20" cy="16" r="5" fill={BG_GREY}/><path d="M 10 32 Q 10 24 20 24 Q 30 24 30 32" fill={BG_GREY}/></svg>;
 const BillIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><text x="4" y="20" fontFamily="monospace" fontSize="22" fill="#333333" fontWeight="bold">$</text></svg>;
 const HouseIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z" fill="#333333"/></svg>;
@@ -81,9 +83,6 @@ const MockReceipt = () => (
     </div>
   </div>
 );
-
-const BG_GREY = '#F3F4F6';
-
 const ResultPieChart = () => (
   <div className="flex justify-center py-2">
     <svg width="80" height="80" viewBox="0 0 80 80">
@@ -201,15 +200,8 @@ const AccordionPage = ({steps,openIndices,onToggle,renderContent}) => (
       const isOpen = openIndices.includes(i);
       return (
         <div key={i} className={i>0?'border-t-2 border-dashed border-gray-400':''}>
-          <button
-            onClick={(e) => {
-              const opening = !isOpen;
-              onToggle(i);
-              if(opening) setTimeout(()=>e.currentTarget.scrollIntoView({behavior:'smooth',block:'start'}),0);
-            }}
-            className="w-full flex items-center justify-between py-4 px-1 text-left hover:opacity-60 transition-all"
-          >
-            <div className="flex items-center gap-3" style={{opacity: isOpen ? 1 : 0.5}}>
+          <button onClick={(e)=>{const opening=!isOpen;onToggle(i);if(opening)setTimeout(()=>e.currentTarget.scrollIntoView({behavior:'smooth',block:'start'}),0);}} className="w-full flex items-center justify-between py-4 px-1 text-left hover:opacity-60 transition-all">
+            <div className="flex items-center gap-3" style={{opacity:isOpen?1:0.5}}>
               {s.icon}
               <div>
                 {i>0&&<p className="text-xs text-gray-500 font-bold uppercase">STEP {i} OF {steps.length-1}</p>}
@@ -218,11 +210,7 @@ const AccordionPage = ({steps,openIndices,onToggle,renderContent}) => (
             </div>
             <span className="text-3xl font-black text-black ml-4 leading-none flex-shrink-0">{isOpen?'−':'+'}</span>
           </button>
-          {isOpen&&(
-            <div className="pb-8 px-1 animate-fadeIn">
-              {renderContent(i)}
-            </div>
-          )}
+          {isOpen&&<div className="pb-8 px-1 animate-fadeIn">{renderContent(i)}</div>}
         </div>
       );
     })}
@@ -242,7 +230,7 @@ const ReceiptBottom = () => (
   </svg>
 );
 
-const Layout = ({children, onNavigate, showCopyToast}) => (
+const Layout = ({children,onNavigate,showCopyToast}) => (
   <div style={{background:'#dc143c',backgroundImage:`linear-gradient(180deg, rgba(255,215,0,0.85) 0%, rgba(255,140,0,0.85) 50%, rgba(255,215,0,0.85) 100%), url("data:image/svg+xml,%3Csvg width='75' height='90' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='10' y='20' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E$%3C/text%3E%3Ctext x='35' y='20' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E€%3C/text%3E%3Ctext x='60' y='20' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E£%3C/text%3E%3Ctext x='3' y='50' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E€%3C/text%3E%3Ctext x='28' y='50' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E£%3C/text%3E%3Ctext x='53' y='50' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E$%3C/text%3E%3Ctext x='17' y='80' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E£%3C/text%3E%3Ctext x='42' y='80' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E$%3C/text%3E%3Ctext x='67' y='80' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E€%3C/text%3E%3C/svg%3E")`,backgroundSize:'100% 1400px, auto',backgroundRepeat:'repeat-y, repeat',minHeight:'100vh'}}>
     <style>{`
       @import url('https://fonts.googleapis.com/css2?family=Sixtyfour:wght@400&display=swap');
@@ -252,9 +240,6 @@ const Layout = ({children, onNavigate, showCopyToast}) => (
       .receipt-container { position: relative; background: ${BG_GREY}; }
       .bg-white { background-color: ${BG_GREY} !important; }
       .bg-gray-50 { background-color: #E5E7EB !important; }
-      h1 { font-size: clamp(1.5rem, 5vw, 2.5rem); }
-      h2 { font-size: clamp(1.25rem, 4vw, 1.5rem); }
-      h3 { font-size: clamp(1rem, 3vw, 1.25rem); }
       button { white-space: normal; text-align: center; word-wrap: break-word; overflow-wrap: break-word; word-break: keep-all; hyphens: none; overflow: visible; min-height: fit-content; display: flex; align-items: center; justify-content: center; line-height: 1.3; padding: 0.5rem 1rem; margin-left: auto; margin-right: auto; }
       button.calculate-btn { font-size: clamp(1rem, 4vw, 1.25rem); }
       .text-black { color: #333333 !important; }
@@ -299,9 +284,7 @@ const Layout = ({children, onNavigate, showCopyToast}) => (
         <ReceiptBottom />
       </div>
     </div>
-    {showCopyToast&&(
-      <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-black text-white px-6 py-3 font-bold z-50 border-2 border-black sf">COPIED TO CLIPBOARD!</div>
-    )}
+    {showCopyToast&&<div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-black text-white px-6 py-3 font-bold z-50 border-2 border-black sf">COPIED TO CLIPBOARD!</div>}
   </div>
 );
 
@@ -382,7 +365,7 @@ const Comrade = () => {
   const [rentOpen,setRentOpen] = useState([0]);
   const [showRentDetails,setShowRentDetails] = useState(false);
 
-  const makeToggle = setter => i => setter(prev => prev.includes(i) ? prev.filter(x=>x!==i) : [...prev, i]);
+  const makeToggle = setter => i => setter(prev => prev.includes(i)?prev.filter(x=>x!==i):[...prev,i]);
   const makeJump = setter => i => setter([i]);
   const makeCollapseToFirst = setter => () => setter([0]);
 
@@ -495,13 +478,13 @@ const Comrade = () => {
       <h3 className="text-lg font-bold text-black uppercase tracking-wider text-center mb-2">LIKE COMRADE?</h3>
       <p className="text-xs text-black text-center mb-4">Get updates and news from the team.</p>
       {signupStatus==='success'
-        ? <div className="bg-black text-white p-4 text-center font-bold border-2 border-black sf">THANKS FOR SIGNING UP!</div>
-        : signupStatus==='error'
-          ? <div className="bg-white text-black p-4 text-center font-bold border-2 border-black">ERROR - PLEASE TRY AGAIN</div>
-          : <div className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto">
-              <FormInput type="email" value={signupEmail} onChange={e=>setSignupEmail(e.target.value)} placeholder="YOUR EMAIL" className="flex-1"/>
-              <button onClick={handleEmailSignup} className="bg-black text-white px-6 py-2 font-bold border-2 border-black hover:bg-gray-800 transition-all">+ SIGN UP</button>
-            </div>
+        ?<div className="bg-black text-white p-4 text-center font-bold border-2 border-black sf">THANKS FOR SIGNING UP!</div>
+        :signupStatus==='error'
+          ?<div className="bg-white text-black p-4 text-center font-bold border-2 border-black">ERROR - PLEASE TRY AGAIN</div>
+          :<div className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto">
+            <FormInput type="email" value={signupEmail} onChange={e=>setSignupEmail(e.target.value)} placeholder="YOUR EMAIL" className="flex-1"/>
+            <button onClick={handleEmailSignup} className="bg-black text-white px-6 py-2 font-bold border-2 border-black hover:bg-gray-800 transition-all">+ SIGN UP</button>
+          </div>
       }
     </div>
   );
@@ -626,8 +609,8 @@ const Comrade = () => {
       <div className="bg-white p-6 border-2 border-gray-400">
         <div className="space-y-3 text-xs text-black">
           {weighting!=='none'
-            ? weightedSteps.map((step,i)=><React.Fragment key={i}>{i>0&&<div className="border-t-2 border-dashed border-gray-400 my-3"></div>}{step}</React.Fragment>)
-            : noWeightingContent
+            ?weightedSteps.map((step,i)=><React.Fragment key={i}>{i>0&&<div className="border-t-2 border-dashed border-gray-400 my-3"></div>}{step}</React.Fragment>)
+            :noWeightingContent
           }
         </div>
       </div>
@@ -642,8 +625,8 @@ const Comrade = () => {
           return(
             <div key={item.id||idx} className={cfg.cardClassName||"bg-white p-4 border-2 border-gray-400"}>
               {cfg.titleExtra
-                ? <div className="flex justify-between items-start mb-3 border-b border-dashed border-gray-400 pb-2"><p className="font-bold text-sm text-black uppercase">{cfg.name}</p>{cfg.titleExtra}</div>
-                : <p className="font-bold text-sm text-black mb-3 uppercase border-b border-dashed border-gray-400 pb-2">{cfg.name}</p>
+                ?<div className="flex justify-between items-start mb-3 border-b border-dashed border-gray-400 pb-2"><p className="font-bold text-sm text-black uppercase">{cfg.name}</p>{cfg.titleExtra}</div>
+                :<p className="font-bold text-sm text-black mb-3 uppercase border-b border-dashed border-gray-400 pb-2">{cfg.name}</p>
               }
               <div className="space-y-2 text-xs text-black">
                 {cfg.rows.map((r,i)=><div key={i} className="flex justify-between"><span className="text-black font-bold">{r.label}:</span><span className="font-semibold text-black">{r.value}</span></div>)}
@@ -711,21 +694,18 @@ const Comrade = () => {
 
   // ── HOME ──
   const HomeAccordion = () => {
-    const [openSection, setOpenSection] = useState(null);
-    const toggle = key => setOpenSection(prev => prev === key ? null : key);
+    const [openSection,setOpenSection] = useState(null);
+    const toggle = key => setOpenSection(prev=>prev===key?null:key);
     const Chevron = ({open}) => (
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{flexShrink:0,transition:'transform 0.2s',transform:open?'rotate(180deg)':'rotate(0deg)'}}>
         <polyline points="2,5 8,11 14,5" stroke={open?'#fff':'#9CA3AF'} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     );
-    const sectionBtn = (key, label) => {
-      const isOpen = openSection === key;
-      const btnStyle = isOpen
-        ? {background:'#333', border:'2px solid #333', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'16px', width:'100%', cursor:'pointer', transition:'background 0.15s'}
-        : {background:'transparent', border:'2px dashed #9CA3AF', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'16px', width:'100%', cursor:'pointer', transition:'background 0.15s'};
+    const sectionBtn = (key,label) => {
+      const isOpen=openSection===key;
       return (
-        <button onClick={()=>toggle(key)} style={btnStyle}>
-          <span style={{flex:1, textAlign:'center', fontWeight:900, fontSize:'1.25rem', textTransform:'uppercase', color: isOpen?'#fff':'#333', lineHeight:1.2}}>{label}</span>
+        <button onClick={()=>toggle(key)} style={{background:isOpen?'#333':'transparent',border:isOpen?'2px solid #333':'2px dashed #9CA3AF',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'16px',width:'100%',cursor:'pointer',transition:'background 0.15s'}}>
+          <span style={{flex:1,textAlign:'center',fontWeight:900,fontSize:'1.25rem',textTransform:'uppercase',color:isOpen?'#fff':'#333',lineHeight:1.2}}>{label}</span>
           <Chevron open={isOpen}/>
         </button>
       );
@@ -761,14 +741,8 @@ const Comrade = () => {
             </div>
           )}
         </div>
-        {/* SEE ALL TOOLS link */}
         <div style={{textAlign:'center',marginTop:4}}>
-          <span
-            onClick={()=>navigateTo('tools')}
-            style={{fontSize:'14px',color:'#6B7280',letterSpacing:'1px',cursor:'pointer',borderBottom:'1px dashed #6B7280',paddingBottom:'1px'}}
-          >
-            SEE ALL TOOLS →
-          </span>
+          <span onClick={()=>navigateTo('tools')} style={{fontSize:'14px',color:'#6B7280',letterSpacing:'1px',cursor:'pointer',borderBottom:'1px dashed #6B7280',paddingBottom:'1px'}}>SEE ALL TOOLS →</span>
         </div>
       </div>
     );
@@ -782,46 +756,6 @@ const Comrade = () => {
     </L>
   );
 
-  // ── ICON PREVIEW ──
-  if(page==='icon-preview') {
-    const iconOptions = [
-      { key:'gavel', label:'GAVEL' },
-      { key:'box', label:'BOX' },
-      { key:'boxFilled', label:'BOX FILLED' },
-      { key:'boxOpen', label:'BOX OPEN' },
-      { key:'boxOpenFilled', label:'BOX OPEN FILLED' },
-      { key:'swap', label:'SWAP' },
-      { key:'storefront', label:'STOREFRONT' },
-      { key:'handshake', label:'HANDSHAKE' },
-      { key:'bag', label:'BAG' },
-      { key:'bagFilled', label:'BAG FILLED' },
-      { key:'bagTote', label:'TOTE' },
-      { key:'bagToteFilled', label:'TOTE FILLED' },
-      { key:'receipt', label:'RECEIPT' },
-      { key:'dollar', label:'DOLLAR' },
-    ];
-    return (
-      <L>
-        <p className="text-sm text-black text-center mb-1 font-bold">SELLING SOMETHING?</p>
-        <p className="text-xs text-center mb-6" style={{color:'#9CA3AF'}}>ICON OPTIONS</p>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,maxWidth:'448px',margin:'0 auto 24px'}}>
-          {iconOptions.map(({key,label})=>{
-            const Icon = SaleIcons[key];
-            return (
-              <div key={key} style={{border:'2px solid #333',background:BG_GREY,padding:'20px 12px',display:'flex',flexDirection:'column',alignItems:'center',gap:10}}>
-                <Icon size={28}/>
-                <span style={{fontSize:'10px',letterSpacing:'2px',color:'#333',fontWeight:900}}>{label}</span>
-              </div>
-            );
-          })}
-        </div>
-        <div style={{textAlign:'center'}}>
-          <span onClick={()=>navigateTo('home')} style={{fontSize:'14px',color:'#6B7280',letterSpacing:'1px',cursor:'pointer',borderBottom:'1px dashed #6B7280',paddingBottom:'1px'}}>← BACK HOME</span>
-        </div>
-      </L>
-    );
-  }
-
   // ── TOOLS PAGE ──
   if(page==='tools') {
     const tools = [
@@ -832,32 +766,25 @@ const Comrade = () => {
     ];
     return (
       <L>
-        <div style={{display:'flex',justifyContent:'space-around',alignItems:'center',marginBottom:28,marginTop:28,padding:'0 8px'}}>
+        <div style={{display:'flex',justifyContent:'space-around',alignItems:'center',marginTop:28,marginBottom:28,padding:'0 8px'}}>
           {tools.map(t=><div key={t.route}>{t.icon}</div>)}
         </div>
         <p className="text-sm text-black text-center mb-6">COMRADE BUILDS PRODUCTS THAT MAKE LIFE FAIRER. CHOOSE FROM OUR FULL LIST OF TOOLS BELOW.</p>
         <div style={{maxWidth:'448px',margin:'0 auto'}}>
           {tools.map(t=>(
             <div key={t.route} style={{marginBottom:12}}>
-              <button
-                onClick={()=>navigateTo(t.route)}
-                className="w-full border-2 border-black hover:bg-gray-200 transition-all"
-                style={{background:BG_GREY,padding:'16px 20px',flexDirection:'column',gap:2}}
-              >
-                {t.experimental && (
-                  <span style={{fontSize:'10px',color:'#9CA3AF',letterSpacing:'2px',fontWeight:900,textAlign:'center',display:'block'}}>EXPERIMENTAL</span>
-                )}
+              <button onClick={()=>navigateTo(t.route)} className="w-full border-2 border-black hover:bg-gray-200 transition-all" style={{background:BG_GREY,padding:'16px 20px',flexDirection:'column',gap:2}}>
+                {t.experimental&&<span style={{fontSize:'10px',color:'#9CA3AF',letterSpacing:'2px',fontWeight:900,textAlign:'center',display:'block'}}>EXPERIMENTAL</span>}
                 <span style={{fontSize:'17px',letterSpacing:'1px',color:'#333',display:'block',textAlign:'center',fontWeight:900}}>{t.label}</span>
               </button>
             </div>
           ))}
         </div>
-        <div style={{textAlign:'center',marginTop:16}}>
-          <span onClick={()=>navigateTo('icon-preview')} style={{fontSize:'11px',color:'#9CA3AF',letterSpacing:'1px',cursor:'pointer',borderBottom:'1px dashed #9CA3AF',paddingBottom:'1px'}}>ICON PREVIEW</span>
-        </div>
       </L>
     );
   }
+
+  // ── ABOUT ──
   if(page==='about') return (
     <L>
       <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider text-center">ABOUT</h2>
@@ -884,7 +811,7 @@ const Comrade = () => {
           ].map(({q,a,render},i)=>(
             <div key={q}>
               <h3 className="font-bold mb-2 text-sm uppercase tracking-wider">{q}</h3>
-              {render ?? a.split('\n\n').map((para,j)=><p key={j} className="leading-relaxed text-xs mb-2">{para}</p>)}
+              {render??a.split('\n\n').map((para,j)=><p key={j} className="leading-relaxed text-xs mb-2">{para}</p>)}
               <div className="border-t border-dashed border-gray-400 mt-4"></div>
             </div>
           ))}
