@@ -18,6 +18,7 @@
 
 
 
+
 const applyWeighting = (wealth, weighting) => {
   if (weighting === 'none') return 1;
   if (weighting === 'gentle') return Math.sqrt(wealth);
@@ -249,7 +250,7 @@ const Layout = ({children, onNavigate, showCopyToast}) => (
       * { font-family: 'Sixtyfour', monospace !important; word-wrap: break-word; overflow-wrap: break-word; }
 
       html, body { overflow-y: auto !important; height: auto !important; }
-      .receipt-wrapper { border-left: 4px solid #333333; border-right: 4px solid #333333; filter: drop-shadow(6px 8px 18px rgba(0,0,0,0.45)); }
+      .receipt-wrapper { border-left: 4px solid #333333; border-right: 4px solid #333333; filter: drop-shadow(6px 8px 18px rgba(0,0,0,0.45)); will-change: filter; transform: translateZ(0); }
       .receipt-container { position: relative; background: ${BG_GREY}; }
       .bg-white { background-color: ${BG_GREY} !important; }
       .bg-gray-50 { background-color: #E5E7EB !important; }
@@ -713,53 +714,86 @@ const Comrade = () => {
   // PAGES
   // ══════════════════════════════════
 
+  const HomeAccordion = () => {
+    const [openSection, setOpenSection] = useState(null);
+    const toggle = key => setOpenSection(prev => prev === key ? null : key);
+    const Chevron = ({open}) => (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{flexShrink:0,transition:'transform 0.2s',transform:open?'rotate(180deg)':'rotate(0deg)'}}>
+        <polyline points="2,5 8,11 14,5" stroke={open?'#fff':'#9CA3AF'} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    );
+    const sectionBtn = (key, label) => {
+      const isOpen = openSection === key;
+      const btnStyle = isOpen
+        ? {background:'#333', border:'2px solid #333', borderBottom:'none', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'16px', width:'100%', cursor:'pointer', transition:'background 0.15s'}
+        : {background:'transparent', border:'2px dashed #9CA3AF', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'16px', width:'100%', cursor:'pointer', transition:'background 0.15s'};
+      return (
+        <button onClick={()=>toggle(key)} style={btnStyle}>
+          <span style={{flex:1, textAlign:'center', fontWeight:900, fontSize:'1.25rem', textTransform:'uppercase', color: isOpen?'#fff':'#333', lineHeight:1.2}}>{label}</span>
+          <Chevron open={isOpen}/>
+        </button>
+      );
+    };
+    return (
+      <div style={{display:'flex',flexDirection:'column',gap:'12px',maxWidth:'448px',margin:'0 auto'}}>
+        <button onClick={()=>navigateTo('share-entry')} className="w-full bg-black text-white font-bold py-4 px-6 border-2 border-black hover:bg-gray-800 transition-all text-xl">GET STARTED</button>
+
+        {/* HOW IT WORKS */}
+        <div>
+          {sectionBtn('how','HOW IT WORKS')}
+          {openSection==='how'&&(
+            <div style={{border:'2px dashed #9CA3AF',borderTop:'none',padding:'20px'}}>
+              <div className="space-y-6">
+                <div className="flex gap-4 items-start">
+                  <div className="bg-black text-white font-black text-4xl w-16 h-16 flex items-center justify-center border-2 border-black flex-shrink-0 sf">1</div>
+                  <div><h3 className="font-bold text-black uppercase mb-1">ADD YOUR GROUP</h3><p className="text-xs text-black">Enter everyone's names, and incomes or net worth</p></div>
+                </div>
+                <PeopleAvatars />
+                <div className="flex gap-4 items-start">
+                  <div className="bg-black text-white font-black text-4xl w-16 h-16 flex items-center justify-center border-2 border-black flex-shrink-0 sf">2</div>
+                  <div><h3 className="font-bold text-black uppercase mb-1">ENTER YOUR BILLS</h3><p className="text-xs text-black">List what was spent, and who paid</p></div>
+                </div>
+                <MockReceipt />
+                <div className="flex gap-4 items-start">
+                  <div className="bg-black text-white font-black text-4xl w-16 h-16 flex items-center justify-center border-2 border-black flex-shrink-0 sf">3</div>
+                  <div><h3 className="font-bold text-black uppercase mb-1">GET FAIR RESULTS</h3><p className="text-xs text-black">See who owes what, based on ability to pay</p></div>
+                </div>
+                <ResultPieChart />
+              </div>
+              <div className="mt-6 flex flex-col max-w-xs mx-auto" style={{gap:'12px'}}>
+                <button onClick={()=>navigateTo('share-entry')} className="w-full bg-black text-white font-bold py-4 px-8 border-2 border-black hover:bg-gray-800 transition-all text-lg">TRY IT NOW</button>
+                <button onClick={()=>navigateTo('about')} className="w-full font-bold py-4 px-8 border-2 border-black hover:bg-gray-100 transition-all text-lg" style={{background:BG_GREY,color:'#333'}}>LEARN MORE</button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* EXTRA TOOLS */}
+        <div>
+          {sectionBtn('extra','EXTRA TOOLS')}
+          {openSection==='extra'&&(
+            <div style={{border:'2px dashed #9CA3AF',borderTop:'none',padding:'20px'}}>
+              <p className="text-xs text-black mb-4">Comrade isn't just for bill-splitting...</p>
+              <div className="space-y-3">
+                <button onClick={()=>navigateTo('rent-entry')} className="w-full font-bold py-4 px-6 border-2 border-black hover:bg-gray-100 transition-all" style={{background:BG_GREY,color:'#333'}}>RENTING AN APARTMENT?</button>
+                <button onClick={()=>navigateTo('sale-entry')} className="w-full font-bold py-4 px-6 border-2 border-black hover:bg-gray-100 transition-all" style={{background:BG_GREY,color:'#333'}}>SELLING SOMETHING?</button>
+                <button onClick={()=>navigateTo('vote-entry')} className="w-full font-bold py-4 px-6 border-2 border-black hover:bg-gray-100 transition-all flex-col" style={{background:BG_GREY,color:'#333'}}>
+                  <div style={{fontSize:'11px',letterSpacing:'2px',color:'#9CA3AF',marginBottom:'4px'}}>EXPERIMENTAL</div>
+                  <div>VOTING ON A DECISION?</div>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   if(page==='home') return (
     <L>
       <p className="text-center text-sm mb-4 text-black leading-relaxed font-bold">THE FAIRER WAY TO SPLIT COSTS WITH FRIENDS.</p>
       <p className="text-center text-sm mb-4 text-black leading-relaxed">COMRADE COMBINES AND SIMPLIFIES GROUP BILLS — THEN DIVIDES THEM BASED ON WEALTH.</p>
-      <div className="space-y-4 max-w-md mx-auto mb-4">
-        <button onClick={()=>navigateTo('share-entry')} className="w-full bg-black text-white font-bold py-4 px-6 border-2 border-black hover:bg-gray-800 transition-all text-xl">GET STARTED</button>
-      </div>
-      <CurrencyDivider />
-      <div className="bg-white p-8 border-2 border-dashed border-gray-400 mb-4">
-        <h2 className="text-xl font-black mb-6 text-black uppercase tracking-wider text-center">HOW IT WORKS</h2>
-        <div className="space-y-6">
-          <div className="flex gap-4 items-start">
-            <div className="bg-black text-white font-black text-4xl w-16 h-16 flex items-center justify-center border-2 border-black flex-shrink-0 sf">1</div>
-            <div><h3 className="font-bold text-black uppercase mb-1">ADD YOUR GROUP</h3><p className="text-xs text-black">Enter everyone's names, and incomes or net worth</p></div>
-          </div>
-          <PeopleAvatars />
-          <div className="flex gap-4 items-start">
-            <div className="bg-black text-white font-black text-4xl w-16 h-16 flex items-center justify-center border-2 border-black flex-shrink-0 sf">2</div>
-            <div><h3 className="font-bold text-black uppercase mb-1">ENTER YOUR BILLS</h3><p className="text-xs text-black">List what was spent, and who paid</p></div>
-          </div>
-          <MockReceipt />
-          <div className="flex gap-4 items-start">
-            <div className="bg-black text-white font-black text-4xl w-16 h-16 flex items-center justify-center border-2 border-black flex-shrink-0 sf">3</div>
-            <div><h3 className="font-bold text-black uppercase mb-1">GET FAIR RESULTS</h3><p className="text-xs text-black">See who owes what, based on ability to pay</p></div>
-          </div>
-          <ResultPieChart />
-        </div>
-        <div className="mt-6">
-          <div className="flex flex-col gap-3 max-w-xs mx-auto">
-            <button onClick={()=>navigateTo('share-entry')} className="w-full bg-black text-white font-bold py-4 px-8 border-2 border-black hover:bg-gray-800 transition-all text-lg">TRY IT NOW</button>
-            <button onClick={()=>navigateTo('about')} className="w-full bg-white text-black font-bold py-4 px-8 border-2 border-black hover:bg-gray-100 transition-all text-lg">LEARN MORE</button>
-          </div>
-        </div>
-      </div>
-      <CurrencyDivider />
-      <div className="max-w-md mx-auto mb-4">
-        <p className="text-center text-xs font-bold text-gray-600 mb-3 uppercase tracking-wider sf">ADDITIONAL TOOLS</p>
-        <div className="space-y-3">
-          <button onClick={()=>navigateTo('rent-entry')} className="w-full bg-white text-black font-bold py-4 px-6 border-2 border-black hover:bg-gray-100 transition-all">RENTING AN APARTMENT?</button>
-          <button onClick={()=>navigateTo('sale-entry')} className="w-full bg-white text-black font-bold py-4 px-6 border-2 border-black hover:bg-gray-100 transition-all">SELLING SOMETHING?</button>
-        </div>
-      </div>
-      <div className="border-t-2 border-dashed border-gray-400 my-6"></div>
-      <div className="max-w-md mx-auto">
-        <p className="text-center text-xs font-bold text-gray-600 mb-3 uppercase tracking-wider sf">EXPERIMENTAL</p>
-        <button onClick={()=>navigateTo('vote-entry')} className="w-full bg-gray-200 text-black font-bold py-4 px-6 border-2 border-gray-400 hover:bg-gray-300 transition-all">VOTING ON A DECISION?</button>
-      </div>
+      <HomeAccordion />
     </L>
   );
 
@@ -1080,6 +1114,7 @@ const Comrade = () => {
 
   return null;
 };
+
 
 
 
