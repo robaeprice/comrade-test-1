@@ -23,6 +23,7 @@
 
 
 
+
 const applyWeighting = (wealth, weighting) => {
   if (weighting === 'none') return 1;
   if (weighting === 'gentle') return Math.sqrt(wealth);
@@ -328,6 +329,12 @@ const Layout = ({children,onNavigate,showCopyToast,bgStyle}) => (
               <span className="mx-3 sf">/</span>
               <span className="cursor-pointer hover:underline font-bold sf" onClick={()=>onNavigate('legal')}>LEGAL</span>
             </div>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 464 73" width="100%" style={{display:'block',marginBottom:'8px'}}>
+              <rect x="0" y="0" width="464" height="73" fill={BG_GREY}/>
+              <g transform="translate(10, 3)" fill={DARK}>
+                <rect x="0" y="0" width="4" height="67"/><rect x="6" y="0" width="2" height="67"/><rect x="12" y="0" width="2" height="67"/><rect x="22" y="0" width="8" height="67"/><rect x="34" y="0" width="2" height="67"/><rect x="38" y="0" width="2" height="67"/><rect x="44" y="0" width="8" height="67"/><rect x="56" y="0" width="2" height="67"/><rect x="60" y="0" width="2" height="67"/><rect x="66" y="0" width="8" height="67"/><rect x="78" y="0" width="2" height="67"/><rect x="82" y="0" width="2" height="67"/><rect x="88" y="0" width="2" height="67"/><rect x="94" y="0" width="4" height="67"/><rect x="102" y="0" width="6" height="67"/><rect x="110" y="0" width="2" height="67"/><rect x="120" y="0" width="2" height="67"/><rect x="124" y="0" width="4" height="67"/><rect x="132" y="0" width="2" height="67"/><rect x="140" y="0" width="8" height="67"/><rect x="150" y="0" width="2" height="67"/><rect x="154" y="0" width="8" height="67"/><rect x="164" y="0" width="6" height="67"/><rect x="172" y="0" width="2" height="67"/><rect x="176" y="0" width="2" height="67"/><rect x="182" y="0" width="2" height="67"/><rect x="188" y="0" width="8" height="67"/><rect x="198" y="0" width="2" height="67"/><rect x="204" y="0" width="2" height="67"/><rect x="208" y="0" width="4" height="67"/><rect x="220" y="0" width="2" height="67"/><rect x="230" y="0" width="2" height="67"/><rect x="236" y="0" width="4" height="67"/><rect x="242" y="0" width="2" height="67"/><rect x="246" y="0" width="4" height="67"/><rect x="254" y="0" width="2" height="67"/><rect x="264" y="0" width="2" height="67"/><rect x="270" y="0" width="4" height="67"/><rect x="278" y="0" width="6" height="67"/><rect x="286" y="0" width="8" height="67"/><rect x="296" y="0" width="6" height="67"/><rect x="304" y="0" width="2" height="67"/><rect x="308" y="0" width="2" height="67"/><rect x="316" y="0" width="8" height="67"/><rect x="326" y="0" width="2" height="67"/><rect x="330" y="0" width="4" height="67"/><rect x="342" y="0" width="2" height="67"/><rect x="346" y="0" width="2" height="67"/><rect x="352" y="0" width="2" height="67"/><rect x="356" y="0" width="4" height="67"/><rect x="364" y="0" width="2" height="67"/><rect x="374" y="0" width="4" height="67"/><rect x="380" y="0" width="4" height="67"/><rect x="386" y="0" width="8" height="67"/><rect x="396" y="0" width="6" height="67"/><rect x="404" y="0" width="8" height="67"/><rect x="414" y="0" width="2" height="67"/><rect x="418" y="0" width="4" height="67"/><rect x="428" y="0" width="6" height="67"/><rect x="436" y="0" width="2" height="67"/><rect x="440" y="0" width="4" height="67"/>
+              </g>
+            </svg>
             <div className="text-center text-xs text-gray-700 pb-3">
               <a href="mailto:hello@comrade.money" className="hover:underline">HELLO@COMRADE.MONEY</a>
             </div>
@@ -1164,6 +1171,7 @@ const Comrade = () => {
 
   return null;
 };
+
 
 
 
