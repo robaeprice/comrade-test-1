@@ -35,10 +35,53 @@ const EXAMPLE_DATA = {
   share: { people: [{id:1,name:'Lucy',wealth:'32000'},{id:2,name:'Susan',wealth:'180000'},{id:3,name:'Edmund',wealth:'45000'},{id:4,name:'Peter',wealth:'95000'}], bills: [{id:5,description:'Ski passes',amount:'1200',paidBy:'Susan'},{id:6,description:'Cabin rental',amount:'2400',paidBy:'Peter'},{id:7,description:'Gas',amount:'110',paidBy:'Lucy'},{id:8,description:'Groceries',amount:'520',paidBy:'Susan'},{id:9,description:'Gear rental',amount:'805',paidBy:'Edmund'}] },
   sale: { productName:'Used Honda Civic',numberAvailable:'1', buyers:[{id:1,name:'Riley',wealth:'28000',offer:'4800'},{id:2,name:'Casey',wealth:'75000',offer:'5200'},{id:3,name:'Taylor',wealth:'140000',offer:'5500'},{id:4,name:'Drew',wealth:'220000',offer:'6000'}] },
   vote: { decision:"What should the company's remote work policy be?", options:[{id:1,text:'Fully remote'},{id:2,text:'Hybrid'},{id:3,text:'100% in-office'}], participants:[{id:5,name:'Oscar',wealth:'250000',vote:'100% in-office'},{id:6,name:'Gerry',wealth:'120000',vote:'Hybrid'},{id:7,name:'Sarah',wealth:'65000',vote:'Fully remote'},{id:8,name:'Simone',wealth:'110000',vote:'Fully remote'},{id:9,name:'Thomas',wealth:'85000',vote:'Hybrid'}] },
-  rent: { totalRent:'3600',totalUtilities:'240', people:[{id:1,name:'River',roomSize:'180',wealth:'42000'},{id:2,name:'Skyler',roomSize:'140',wealth:'125000'},{id:3,name:'Quinn',roomSize:'160',wealth:'68000'}] }
+  rent: { totalRent:'3600',totalUtilities:'240', people:[{id:1,name:'Marie',roomSize:'180',wealth:'42000'},{id:2,name:'Toulouse',roomSize:'140',wealth:'125000'},{id:3,name:'Berlioz',roomSize:'160',wealth:'68000'}] }
 };
 
 const BG_GREY = '#F3F4F6';
+
+const DEFAULT_BG = {
+  symbolSpacing: 145,
+  symbolColor: '#ffffff',
+  symbolOpacity: 20,
+  gradientColor1: '#ffd700',
+  gradientColor2: '#ff8c00',
+  cycleLength: 1050,
+  gradientAngle: 135,
+};
+
+function buildBgStyle(cfg) {
+  const {
+    symbolSpacing: h = 75,
+    symbolColor = '#ffffff',
+    symbolOpacity = 100,
+    gradientColor1 = '#ffd700',
+    gradientColor2 = '#ff8c00',
+    gradientColor3 = '#ff4500',
+    gradientColor4 = '#cc2200',
+    gradientNumColors = 2,
+    gradientAngle = 135,
+    cycleLength = 700,
+  } = cfg;
+  const w = Math.round(h * 75 / 90);
+  const fs = Math.round(h * 18 / 90);
+  const op = (symbolOpacity / 100).toFixed(2);
+  const fracs = [[10/75,20/90],[35/75,20/90],[60/75,20/90],[3/75,50/90],[28/75,50/90],[53/75,50/90],[17/75,80/90],[42/75,80/90],[67/75,80/90]];
+  const syms = ['$','€','£','€','£','$','£','$','€'];
+  const textEls = fracs.map(([xf,yf],i) =>
+    `<text x="${Math.round(xf*w)}" y="${Math.round(yf*h)}" font-family="Sixtyfour,monospace" font-size="${fs}" fill="${symbolColor}" fill-opacity="${op}" font-weight="bold">${syms[i]}</text>`
+  ).join('');
+  const svg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">${textEls}</svg>`;
+  const half = cycleLength / 2;
+  const gradient = `repeating-linear-gradient(${gradientAngle}deg,${gradientColor1} 0px,${gradientColor2} ${half}px,${gradientColor1} ${cycleLength}px)`;
+  return {
+    backgroundImage: `url("data:image/svg+xml,${encodeURIComponent(svg)}"),${gradient}`,
+    backgroundSize: 'auto, auto',
+    backgroundRepeat: 'repeat, no-repeat',
+    backgroundAttachment: 'scroll, scroll',
+    minHeight: '100vh',
+  };
+}
 
 const PersonIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 40 40" style={{flexShrink:0}}><circle cx="20" cy="20" r="18" fill="#333333"/><circle cx="20" cy="16" r="5" fill={BG_GREY}/><path d="M 10 32 Q 10 24 20 24 Q 30 24 30 32" fill={BG_GREY}/></svg>;
 const BillIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><text x="4" y="20" fontFamily="monospace" fontSize="22" fill="#333333" fontWeight="bold">$</text></svg>;
@@ -50,6 +93,7 @@ const QuestionIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0
 const CalculateIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><line x1="4" y1="9" x2="20" y2="9" stroke="#333333" strokeWidth="3.5" strokeLinecap="round"/><line x1="4" y1="15" x2="20" y2="15" stroke="#333333" strokeWidth="3.5" strokeLinecap="round"/></svg>;
 const ListIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><rect x="4" y="5" width="3" height="3" fill="#333333"/><rect x="4" y="10" width="3" height="3" fill="#333333"/><rect x="4" y="15" width="3" height="3" fill="#333333"/><line x1="9" y1="6.5" x2="20" y2="6.5" stroke="#333333" strokeWidth="2"/><line x1="9" y1="11.5" x2="20" y2="11.5" stroke="#333333" strokeWidth="2"/><line x1="9" y1="16.5" x2="20" y2="16.5" stroke="#333333" strokeWidth="2"/></svg>;
 const ErrorIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><line x1="4" y1="4" x2="20" y2="20" stroke="#333333" strokeWidth="3"/><line x1="20" y1="4" x2="4" y2="20" stroke="#333333" strokeWidth="3"/></svg>;
+const PaintIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><path d="M7 14c-1.66 0-3 1.34-3 3 0 1.31-1.16 2-2 2 .92 1.22 2.49 2 4 2 2.21 0 4-1.79 4-4 0-1.66-1.34-3-3-3zm13.71-9.37l-1.34-1.34a1 1 0 00-1.41 0L9 12.25 11.75 15l8.96-8.96a1 1 0 000-1.41z" fill="#333333"/></svg>;
 
 const AboutBanner = () => (
   <div className="mb-6"><div className="bg-white p-4">
@@ -153,10 +197,17 @@ const CurrencyButtons = ({value,onChange}) => (
     </div>
   </div>
 );
+const numericKeyDown = e => {
+  const allowed = ['Backspace','Delete','Tab','Escape','Enter','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End','.'];
+  if (allowed.includes(e.key)) return;
+  if (e.ctrlKey || e.metaKey) return; // allow copy/paste/select-all
+  if (!/^\d$/.test(e.key)) e.preventDefault();
+};
+
 const FormInput = ({type='text',value,onChange,placeholder,className='',style,...props}) => {
   const base = "w-full p-2 border-2 border-gray-400 bg-white uppercase";
   if(type==='textarea') return <textarea value={value} onChange={onChange} placeholder={placeholder} className={`${base} ${className}`} style={{fontSize:'16px',...style}} {...props}/>;
-  return <input type={type} value={value} onChange={onChange} placeholder={placeholder} className={`${base} ${className}`} style={{fontSize:'16px',...style}} {...props}/>;
+  return <input type={type} value={value} onChange={onChange} onKeyDown={type==='number'?numericKeyDown:undefined} placeholder={placeholder} className={`${base} ${className}`} style={{fontSize:'16px',...style}} {...props}/>;
 };
 const ItemList = ({items,onDelete,renderItem,receiptStyle,formatTotal,getAmount}) => {
   if(!items.length) return null;
@@ -230,8 +281,8 @@ const ReceiptBottom = () => (
   </svg>
 );
 
-const Layout = ({children,onNavigate,showCopyToast}) => (
-  <div style={{background:'#dc143c',backgroundImage:`linear-gradient(180deg, rgba(255,215,0,0.85) 0%, rgba(255,140,0,0.85) 50%, rgba(255,215,0,0.85) 100%), url("data:image/svg+xml,%3Csvg width='75' height='90' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='10' y='20' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E$%3C/text%3E%3Ctext x='35' y='20' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E€%3C/text%3E%3Ctext x='60' y='20' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E£%3C/text%3E%3Ctext x='3' y='50' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E€%3C/text%3E%3Ctext x='28' y='50' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E£%3C/text%3E%3Ctext x='53' y='50' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E$%3C/text%3E%3Ctext x='17' y='80' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E£%3C/text%3E%3Ctext x='42' y='80' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E$%3C/text%3E%3Ctext x='67' y='80' font-family='Sixtyfour,monospace' font-size='18' fill='%23ffffff' font-weight='bold'%3E€%3C/text%3E%3C/svg%3E")`,backgroundSize:'100% 1400px, auto',backgroundRepeat:'repeat-y, repeat',minHeight:'100vh'}}>
+const Layout = ({children,onNavigate,showCopyToast,bgStyle}) => (
+  <div style={bgStyle}>
     <style>{`
       @import url('https://fonts.googleapis.com/css2?family=Sixtyfour:wght@400&display=swap');
       * { font-family: 'Sixtyfour', monospace !important; word-wrap: break-word; overflow-wrap: break-word; }
@@ -252,6 +303,8 @@ const Layout = ({children,onNavigate,showCopyToast}) => (
       @keyframes barGrow { from { width: 0; } }
       .bar-animate { animation: barGrow 0.8s ease-out forwards; }
       button:active { transform: scale(0.97); }
+      input[type=range] { accent-color: #333333; cursor: pointer; }
+      input[type=color] { cursor: pointer; padding: 2px; border: 2px solid #333333; background: none; }
     `}</style>
     <div className="max-w-xl mx-auto px-2 sm:px-0 py-5">
       <div className="receipt-wrapper">
@@ -313,6 +366,9 @@ const Comrade = () => {
   const [lastQuoteIndices,setLastQuoteIndices] = useState([]);
   const [signupEmail,setSignupEmail] = useState('');
   const [signupStatus,setSignupStatus] = useState('');
+
+  const [bgConfig, setBgConfig] = useState(DEFAULT_BG);
+  const bgStyle = useMemo(() => buildBgStyle({ ...DEFAULT_BG, ...bgConfig }), [bgConfig]);
 
   const [sharePeople,setSharePeople] = useState([]);
   const [shareBills,setShareBills] = useState([]);
@@ -690,7 +746,7 @@ const Comrade = () => {
     </div>
   );
 
-  const L = ({children}) => <Layout onNavigate={navigateTo} showCopyToast={showCopyToast}>{children}</Layout>;
+  const lp = {onNavigate: navigateTo, showCopyToast, bgStyle};
 
   // ── HOME ──
   const HomeAccordion = () => {
@@ -744,16 +800,17 @@ const Comrade = () => {
         <div style={{textAlign:'center',marginTop:4}}>
           <span onClick={()=>navigateTo('tools')} style={{fontSize:'14px',color:'#6B7280',letterSpacing:'1px',cursor:'pointer',borderBottom:'1px dashed #6B7280',paddingBottom:'1px'}}>SEE ALL TOOLS →</span>
         </div>
+
       </div>
     );
   };
 
   if(page==='home') return (
-    <L>
+    <Layout {...lp}>
       <p className="text-center text-sm mb-4 text-black leading-relaxed font-bold">THE FAIRER WAY TO SPLIT COSTS WITH FRIENDS.</p>
       <p className="text-center text-sm mb-4 text-black leading-relaxed">COMRADE COMBINES AND SIMPLIFIES GROUP BILLS — THEN DIVIDES THEM BASED ON WEALTH.</p>
       <HomeAccordion />
-    </L>
+    </Layout>
   );
 
   // ── TOOLS PAGE ──
@@ -765,7 +822,7 @@ const Comrade = () => {
       { route:'vote-entry', icon:<CheckCircleIcon size={22}/>, label:'VOTING ON A DECISION?', experimental:true },
     ];
     return (
-      <L>
+      <Layout {...lp}>
         <div style={{display:'flex',justifyContent:'space-around',alignItems:'center',marginTop:28,marginBottom:28,padding:'0 8px'}}>
           {tools.map(t=><div key={t.route}>{t.icon}</div>)}
         </div>
@@ -773,20 +830,20 @@ const Comrade = () => {
         <div style={{maxWidth:'448px',margin:'0 auto'}}>
           {tools.map(t=>(
             <div key={t.route} style={{marginBottom:12}}>
-              <button onClick={()=>navigateTo(t.route)} className="w-full border-2 border-black hover:bg-gray-200 transition-all" style={{background:BG_GREY,padding:'16px 20px',flexDirection:'column',gap:2}}>
-                {t.experimental&&<span style={{fontSize:'10px',color:'#9CA3AF',letterSpacing:'2px',fontWeight:900,textAlign:'center',display:'block'}}>EXPERIMENTAL</span>}
-                <span style={{fontSize:'17px',letterSpacing:'1px',color:'#333',display:'block',textAlign:'center',fontWeight:900}}>{t.label}</span>
+              <button onClick={()=>navigateTo(t.route)} className="w-full border-2 border-black hover:opacity-80 transition-all" style={{background:t.route==='share-entry'?'#333333':BG_GREY,padding:'16px 20px',flexDirection:'column',gap:2}}>
+                {t.experimental&&<span style={{fontSize:'10px',color:t.route==='share-entry'?'#ccc':'#9CA3AF',letterSpacing:'2px',fontWeight:900,textAlign:'center',display:'block'}}>EXPERIMENTAL</span>}
+                <span style={{fontSize:'17px',letterSpacing:'1px',color:t.route==='share-entry'?'#fff':'#333',display:'block',textAlign:'center',fontWeight:900}}>{t.label}</span>
               </button>
             </div>
           ))}
         </div>
-      </L>
+      </Layout>
     );
   }
 
   // ── ABOUT ──
   if(page==='about') return (
-    <L>
+    <Layout {...lp}>
       <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider text-center">ABOUT</h2>
       <AboutBanner />
       <div className="space-y-4 text-black mb-4">
@@ -796,8 +853,8 @@ const Comrade = () => {
         <p className="leading-relaxed text-xs">Wealth isn't evenly distributed. Costs shouldn't be either. So next time your friends, family, or coworkers need to split the check, use Comrade for a fairer way to settle up.</p>
         <p className="leading-relaxed text-xs">Beyond <span className="underline cursor-pointer hover:text-gray-600" onClick={()=>navigateTo('share-entry')}>bill-splitting</span>, Comrade offers a number of other features. There is a tool to help decide <span className="underline cursor-pointer hover:text-gray-600" onClick={()=>navigateTo('rent-entry')}>rent splits</span> in apartments more fairly, another to assist when <span className="underline cursor-pointer hover:text-gray-600" onClick={()=>navigateTo('sale-entry')}>selling</span> an item to ensure the buyer is the person who values it most highly, and an experimental tool for <span className="underline cursor-pointer hover:text-gray-600" onClick={()=>navigateTo('vote-entry')}>voting</span> on decisions.</p>
       </div>
-      <CurrencyDivider />
       <div className="mb-4">{renderEmailSignup()}</div>
+      <CurrencyDivider />
       <div className="bg-white p-6 border-2 border-dashed border-gray-400">
         <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider text-center">FAQ</h2>
         <div className="space-y-6 text-black">
@@ -826,11 +883,11 @@ const Comrade = () => {
           </div>
         </div>
       </div>
-    </L>
+    </Layout>
   );
 
   if(page==='legal') return (
-    <L>
+    <Layout {...lp}>
       <div className="bg-white p-6 border-2 border-dashed border-gray-400">
         <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider text-center">LEGAL</h2>
         <div className="text-black space-y-4">
@@ -846,7 +903,7 @@ const Comrade = () => {
           ))}
         </div>
       </div>
-    </L>
+    </Layout>
   );
 
   // ── SHARE ENTRY ──
@@ -885,16 +942,16 @@ const Comrade = () => {
       );
       return renderCalculateStep(shareWeighting,setShareWeighting,shareCurrency,setShareCurrency,shareWealthMetric,setShareWealthMetric,()=>navigateTo('share-results'));
     };
-    return <L><AccordionPage steps={steps} openIndices={shareOpen} onToggle={makeToggle(setShareOpen)} renderContent={renderContent}/></L>;
+    return <Layout {...lp}><AccordionPage steps={steps} openIndices={shareOpen} onToggle={makeToggle(setShareOpen)} renderContent={renderContent}/></Layout>;
   }
 
   // ── SHARE RESULTS ──
   if(page==='share-results'){
     const {total,peopleData,transactions}=shareCalculations;
-    const hasOrphaned=shareBills.some(b=>b.paidBy&&!sharePeople.some(p=>p.name===b.paidBy));
+    const hasOrphaned=shareBills.some(b=>!b.paidBy||!sharePeople.some(p=>p.name===b.paidBy));
     const hasData=sharePeople.length>0&&shareBills.length>0&&shareBills.some(b=>parseFloat(b.amount)>0)&&!hasOrphaned;
     return (
-      <L>
+      <Layout {...lp}>
         {!hasData&&renderNoDataState('share-entry')}
         {hasData&&(<>
           <div className="bg-black text-white p-8 mb-4 border-4 border-black sf">
@@ -925,7 +982,7 @@ const Comrade = () => {
           </div>}
         </>)}
         {renderResultsFooter(hasData,`Comrade | Bill-splitting results\n\nTotal: ${formatCurrency(total,2,shareCurrency)}\n\nBreakdown:\n${peopleData.map(p=>`${p.name}: Paid ${formatCurrency(p.paid,2,shareCurrency)}, fair share ${formatCurrencySmart(p.fairShare,shareCurrency)}`).join('\n')}\n\nSettlements:\n${transactions.length===0?'All settled!':transactions.map(t=>`${t.from} pays ${t.to} ${formatCurrencySmart(t.amount,shareCurrency)}`).join('\n')}\n\nCalculated using www.comrade.money, the fairer way to split costs with friends`,'share-entry')}
-      </L>
+      </Layout>
     );
   }
 
@@ -951,7 +1008,7 @@ const Comrade = () => {
       );
       return renderCalculateStep(saleWeighting,setSaleWeighting,saleCurrency,setSaleCurrency,saleWealthMetric,setSaleWealthMetric,()=>navigateTo('sale-results'));
     };
-    return <L><AccordionPage steps={steps} openIndices={saleOpen} onToggle={makeToggle(setSaleOpen)} renderContent={renderContent}/></L>;
+    return <Layout {...lp}><AccordionPage steps={steps} openIndices={saleOpen} onToggle={makeToggle(setSaleOpen)} renderContent={renderContent}/></Layout>;
   }
 
   // ── SALE RESULTS ──
@@ -961,7 +1018,7 @@ const Comrade = () => {
     const hasData=saleBuyers.length>0&&productName.trim();
     const isTie=hasData&&rankedBuyers.length>1&&rankedBuyers[0].needScore===rankedBuyers[1].needScore&&rankedBuyers[0].needScore>0;
     return (
-      <L>
+      <Layout {...lp}>
         {!hasData&&renderNoDataState('sale-entry')}
         {hasData&&(<>
           <div className="bg-black text-white p-8 mb-4 border-4 border-black sf">
@@ -980,7 +1037,7 @@ const Comrade = () => {
           </div>}
         </>)}
         {renderResultsFooter(hasData,`Comrade | Selling results\n\nProduct: ${productName||'Unnamed'}\nQuantity: ${numAvail}\n\nSelected buyer${winners.length>1?'s':''}:\n${winners.map(w=>`${w.name} - ${formatCurrency(w.offer,2,saleCurrency)}`).join('\n')}\n\nAll buyers ranked:\n${rankedBuyers.map((b,i)=>`${i+1}. ${b.name} - Offer: ${formatCurrency(b.offer,2,saleCurrency)}, need score: ${b.needScore.toFixed(4)}%`).join('\n')}\n\nCalculated using www.comrade.money, the fairer way to sell products`,'sale-entry')}
-      </L>
+      </Layout>
     );
   }
 
@@ -989,7 +1046,7 @@ const Comrade = () => {
     const steps=[{label:'VOTE',icon:<CheckCircleIcon size={22}/>},{label:'DECISION',icon:<QuestionIcon size={22}/>},{label:'OPTIONS',icon:<ListIcon size={22}/>},{label:'PEOPLE',icon:<PersonIcon size={22}/>},{label:'CALCULATE',icon:<CalculateIcon size={22}/>}];
     const jump=makeJump(setVoteOpen);
     const renderContent=i=>{
-      if(i===0) return renderIntroSlide("Make group decisions more equitably. If your friends, classmates, or coworkers are grappling with a dispute, give more voting power to those with less wealth.",'vote',()=>jump(1));
+      if(i===0) return renderIntroSlide("Make group decisions more equitably with Comrade. If your friends, classmates, or coworkers are grappling with a dispute, give more voting power to those with less wealth.",'vote',()=>jump(1));
       if(i===1) return (<div><p className="text-xs mb-4 text-black">Enter the question the group is voting on.</p><FormInput type="textarea" value={voteDecision} onChange={e=>setVoteDecision(e.target.value)} placeholder="DECISION TO BE MADE" rows={4} className="w-full"/><div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(2)}/></div></div>);
       if(i===2) return (<div><p className="text-xs mb-4 text-black">Add all the possible choices people can vote for.</p><FormInput value={curOptionText} onChange={e=>setCurOptionText(e.target.value)} placeholder="OPTION TEXT" className="w-full mb-3"/><button onClick={()=>{if(curOptionText.trim()){setVoteOptions([...voteOptions,{id:Date.now(),text:curOptionText}]);setCurOptionText('');}}} className="bg-black text-white px-4 py-2 font-bold border-2 border-black text-xs mb-4">+ ADD OPTION</button>{voteOptions.length>0?<div className="space-y-0">{voteOptions.map(opt=><div key={opt.id} className="flex justify-between items-center text-xs text-black border-b border-dashed border-gray-400 pb-2 pt-2"><p className="font-bold text-black uppercase flex-1">{opt.text}</p><button onClick={()=>setVoteOptions(voteOptions.filter(o=>o.id!==opt.id))} className="text-black font-bold text-xl ml-3 hover:text-gray-600 leading-none">×</button></div>)}</div>:<p className="text-center text-gray-600 uppercase tracking-wider font-bold mt-2" style={{fontSize:'10px'}}>— No options added yet —</p>}<div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(3)}/></div></div>);
       if(i===3) return (
@@ -1010,7 +1067,7 @@ const Comrade = () => {
       );
       return renderCalculateStep(voteWeighting,setVoteWeighting,voteCurrency,setVoteCurrency,voteWealthMetric,setVoteWealthMetric,()=>navigateTo('vote-results'));
     };
-    return <L><AccordionPage steps={steps} openIndices={voteOpen} onToggle={makeToggle(setVoteOpen)} renderContent={renderContent}/></L>;
+    return <Layout {...lp}><AccordionPage steps={steps} openIndices={voteOpen} onToggle={makeToggle(setVoteOpen)} renderContent={renderContent}/></Layout>;
   }
 
   // ── VOTE RESULTS ──
@@ -1022,7 +1079,7 @@ const Comrade = () => {
     const winner=voteBreakdown.length>0?voteBreakdown[0]:null;
     const isTie=hasData&&voteBreakdown.length>1&&voteBreakdown[0].percentage===voteBreakdown[1].percentage;
     return (
-      <L>
+      <Layout {...lp}>
         {!hasData&&renderNoDataState('vote-entry')}
         {hasData&&(<>
           <div className="bg-black text-white p-8 mb-4 border-4 border-black sf">
@@ -1047,7 +1104,7 @@ const Comrade = () => {
           </div>}
         </>)}
         {renderResultsFooter(hasData,`Comrade | Voting results\n\nDecision: ${voteDecision}\n\nWinner: ${winner?`${winner.option} (${winner.percentage.toFixed(1)}%)`:'None'}\n\nBreakdown:\n${voteBreakdown.map((b,i)=>`${i+1}. ${b.option}: ${b.percentage.toFixed(1)}% (${b.voters.length} voter${b.voters.length!==1?'s':''})`).join('\n')}\n\nCalculated using www.comrade.money, the fairer way to make decisions`,'vote-entry')}
-      </L>
+      </Layout>
     );
   }
 
@@ -1056,7 +1113,7 @@ const Comrade = () => {
     const steps=[{label:'SPLIT RENT',icon:<HouseIcon size={22}/>},{label:'COSTS',icon:<BillIcon size={22}/>},{label:'TENANTS',icon:<PersonIcon size={22}/>},{label:'CALCULATE',icon:<CalculateIcon size={22}/>}];
     const jump=makeJump(setRentOpen);
     const renderContent=i=>{
-      if(i===0) return renderIntroSlide("Figuring out rent splits with roommates is a fraught process. Decide it more fairly by accounting for both room size and tenants' financial resources. Larger rooms and higher earners both pay more.",'rent',()=>jump(1));
+      if(i===0) return renderIntroSlide("Figuring out rent splits with roommates is a fraught process. Decide it more fairly with Comrade by accounting for both room size and tenants' financial resources. Larger rooms and higher earners both pay more.",'rent',()=>jump(1));
       if(i===1) return (<div><p className="text-xs mb-4 text-black">List your total monthly rent, and monthly utility costs.</p><FormInput type="number" value={totalRent} onChange={e=>setTotalRent(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} MONTHLY RENT`} min="0" step="0.01" inputMode="decimal" className="w-full mb-2"/><FormInput type="number" value={totalUtilities} onChange={e=>setTotalUtilities(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} MONTHLY UTILITIES`} min="0" step="0.01" inputMode="decimal" className="w-full"/><div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(2)}/></div></div>);
       if(i===2) return (
         <div>
@@ -1073,7 +1130,7 @@ const Comrade = () => {
       );
       return renderCalculateStep(rentWeighting,setRentWeighting,rentCurrency,setRentCurrency,rentWealthMetric,setRentWealthMetric,()=>navigateTo('rent-results'),rentMeasurement,setRentMeasurement);
     };
-    return <L><AccordionPage steps={steps} openIndices={rentOpen} onToggle={makeToggle(setRentOpen)} renderContent={renderContent}/></L>;
+    return <Layout {...lp}><AccordionPage steps={steps} openIndices={rentOpen} onToggle={makeToggle(setRentOpen)} renderContent={renderContent}/></Layout>;
   }
 
   // ── RENT RESULTS ──
@@ -1081,7 +1138,7 @@ const Comrade = () => {
     const {rentAmount,utilitiesAmount,total,totalRoomSize,rentData,totalRoomValue}=rentCalculations;
     const hasData=rentPeople.length>0&&parseFloat(totalRent)>0;
     return (
-      <L>
+      <Layout {...lp}>
         {!hasData&&renderNoDataState('rent-entry')}
         {hasData&&(<>
           <div className="bg-black text-white p-8 mb-4 border-4 border-black sf">
@@ -1103,7 +1160,7 @@ const Comrade = () => {
           </div>}
         </>)}
         {renderResultsFooter(hasData,`Comrade | Rent-splitting results\n\nTotal: ${formatCurrency(total,2,rentCurrency)}/month\nRent: ${formatCurrency(rentAmount,2,rentCurrency)}\nUtilities: ${formatCurrency(utilitiesAmount,2,rentCurrency)}\n\nBreakdown:\n${rentData.map(p=>`${p.name}: ${formatCurrencySmart(p.fairRent,rentCurrency)} (${p.rentPct.toFixed(1)}%)`).join('\n')}\n\nCalculated using www.comrade.money, the fairer way to decide rent-splits`,'rent-entry')}
-      </L>
+      </Layout>
     );
   }
 
