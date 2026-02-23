@@ -275,7 +275,7 @@ const ReceiptTop = () => (
   </svg>
 );
 const ReceiptBottom = () => (
-  <svg width="100%" height="32" viewBox="0 0 600 32" preserveAspectRatio="none" style={{display:'block', marginBottom:'-1px'}}>
+  <svg width="100%" height="32" viewBox="0 0 600 32" preserveAspectRatio="none" style={{display:'block'}}>
     <polygon points="0,0 600,0 600,28 578.571,18 557.143,28 535.714,18 514.286,28 492.857,18 471.429,28 450,18 428.571,28 407.143,18 385.714,28 364.286,18 342.857,28 321.429,18 300,28 278.571,18 257.143,28 235.714,18 214.286,28 192.857,18 171.429,28 150,18 128.571,28 107.143,18 85.714,28 64.286,18 42.857,28 21.428,18 0,28" fill={BG_GREY}/>
     <polygon points="0,32 21.428,22 42.857,32 64.286,22 85.714,32 107.143,22 128.571,32 150,22 171.429,32 192.857,22 214.286,32 235.714,22 257.143,32 278.571,22 300,32 321.429,22 342.857,32 364.286,22 385.714,32 407.143,22 428.571,32 450,22 471.429,32 492.857,22 514.286,32 535.714,22 557.143,32 578.571,22 600,32 600,28 578.571,18 557.143,28 535.714,18 514.286,28 492.857,18 471.429,28 450,18 428.571,28 407.143,18 385.714,28 364.286,18 342.857,28 321.429,18 300,28 278.571,18 257.143,28 235.714,18 214.286,28 192.857,18 171.429,28 150,18 128.571,28 107.143,18 85.714,28 64.286,18 42.857,28 21.428,18 0,28" fill={DARK}/>
   </svg>
@@ -287,7 +287,7 @@ const Layout = ({children,onNavigate,showCopyToast,bgStyle}) => (
       @import url('https://fonts.googleapis.com/css2?family=Sixtyfour:wght@400&display=swap');
       * { font-family: 'Sixtyfour', monospace !important; word-wrap: break-word; overflow-wrap: break-word; }
       html, body { overflow-y: auto !important; height: auto !important; }
-      .receipt-wrapper { border-left: 4px solid ${DARK}; border-right: 4px solid ${DARK}; filter: drop-shadow(6px 8px 18px rgba(0,0,0,0.45)); will-change: filter; transform: translateZ(0); }
+      .receipt-wrapper { border-left: 4px solid ${DARK}; border-right: 4px solid ${DARK}; filter: drop-shadow(6px 8px 18px rgba(0,0,0,0.45)); will-change: filter; transform: translateZ(0); overflow: hidden; }
       .receipt-container { position: relative; background: ${BG_GREY}; }
       .bg-white { background-color: ${BG_GREY} !important; }
       .bg-gray-50 { background-color: #E5E7EB !important; }
