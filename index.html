@@ -22,6 +22,7 @@
 
 
 
+
 const applyWeighting = (wealth, weighting) => {
   if (weighting === 'none') return 1;
   if (weighting === 'gentle') return Math.sqrt(wealth);
@@ -39,10 +40,11 @@ const EXAMPLE_DATA = {
 };
 
 const BG_GREY = '#F3F4F6';
+const DARK = '#333333';
 
 const DEFAULT_BG = {
   symbolSpacing: 145,
-  symbolColor: '#ffffff',
+  symbolColor: BG_GREY,
   symbolOpacity: 20,
   gradientColor1: '#ffd700',
   gradientColor2: '#ff8c00',
@@ -52,16 +54,13 @@ const DEFAULT_BG = {
 
 function buildBgStyle(cfg) {
   const {
-    symbolSpacing: h = 75,
-    symbolColor = '#ffffff',
-    symbolOpacity = 100,
+    symbolSpacing: h = 145,
+    symbolColor = BG_GREY,
+    symbolOpacity = 20,
     gradientColor1 = '#ffd700',
     gradientColor2 = '#ff8c00',
-    gradientColor3 = '#ff4500',
-    gradientColor4 = '#cc2200',
-    gradientNumColors = 2,
     gradientAngle = 135,
-    cycleLength = 700,
+    cycleLength = 1050,
   } = cfg;
   const w = Math.round(h * 75 / 90);
   const fs = Math.round(h * 18 / 90);
@@ -83,27 +82,26 @@ function buildBgStyle(cfg) {
   };
 }
 
-const PersonIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 40 40" style={{flexShrink:0}}><circle cx="20" cy="20" r="18" fill="#333333"/><circle cx="20" cy="16" r="5" fill={BG_GREY}/><path d="M 10 32 Q 10 24 20 24 Q 30 24 30 32" fill={BG_GREY}/></svg>;
-const BillIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><text x="4" y="20" fontFamily="monospace" fontSize="22" fill="#333333" fontWeight="bold">$</text></svg>;
-const HouseIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z" fill="#333333"/></svg>;
-const TagIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z" fill="#333333"/></svg>;
-const ToteFilledIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><rect x="3" y="8" width="18" height="13" rx="1" fill="#333333"/><path d="M8 8V6a4 4 0 018 0v2" fill="none" stroke="#333333" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>;
-const CheckCircleIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><circle cx="12" cy="12" r="11" fill="#333333"/><polyline points="7,12.5 10.5,16 17,9" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>;
-const QuestionIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><text x="6" y="19" fontFamily="monospace" fontSize="20" fill="#333333" fontWeight="bold">?</text></svg>;
-const CalculateIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><line x1="4" y1="9" x2="20" y2="9" stroke="#333333" strokeWidth="3.5" strokeLinecap="round"/><line x1="4" y1="15" x2="20" y2="15" stroke="#333333" strokeWidth="3.5" strokeLinecap="round"/></svg>;
-const ListIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><rect x="4" y="5" width="3" height="3" fill="#333333"/><rect x="4" y="10" width="3" height="3" fill="#333333"/><rect x="4" y="15" width="3" height="3" fill="#333333"/><line x1="9" y1="6.5" x2="20" y2="6.5" stroke="#333333" strokeWidth="2"/><line x1="9" y1="11.5" x2="20" y2="11.5" stroke="#333333" strokeWidth="2"/><line x1="9" y1="16.5" x2="20" y2="16.5" stroke="#333333" strokeWidth="2"/></svg>;
-const ErrorIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><line x1="4" y1="4" x2="20" y2="20" stroke="#333333" strokeWidth="3"/><line x1="20" y1="4" x2="4" y2="20" stroke="#333333" strokeWidth="3"/></svg>;
-const PaintIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><path d="M7 14c-1.66 0-3 1.34-3 3 0 1.31-1.16 2-2 2 .92 1.22 2.49 2 4 2 2.21 0 4-1.79 4-4 0-1.66-1.34-3-3-3zm13.71-9.37l-1.34-1.34a1 1 0 00-1.41 0L9 12.25 11.75 15l8.96-8.96a1 1 0 000-1.41z" fill="#333333"/></svg>;
+const PersonIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 40 40" style={{flexShrink:0}}><circle cx="20" cy="20" r="18" fill={DARK}/><circle cx="20" cy="16" r="5" fill={BG_GREY}/><path d="M 10 32 Q 10 24 20 24 Q 30 24 30 32" fill={BG_GREY}/></svg>;
+const BillIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><text x="4" y="20" fontFamily="monospace" fontSize="22" fill={DARK} fontWeight="bold">$</text></svg>;
+const HouseIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z" fill={DARK}/></svg>;
+const TagIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z" fill={DARK}/></svg>;
+const ToteFilledIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><rect x="3" y="8" width="18" height="13" rx="1" fill={DARK}/><path d="M8 8V6a4 4 0 018 0v2" fill="none" stroke={DARK} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+const CheckCircleIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><circle cx="12" cy="12" r="11" fill={DARK}/><polyline points="7,12.5 10.5,16 17,9" fill="none" stroke={BG_GREY} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+const QuestionIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><text x="6" y="19" fontFamily="monospace" fontSize="20" fill={DARK} fontWeight="bold">?</text></svg>;
+const CalculateIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><line x1="4" y1="9" x2="20" y2="9" stroke={DARK} strokeWidth="3.5" strokeLinecap="round"/><line x1="4" y1="15" x2="20" y2="15" stroke={DARK} strokeWidth="3.5" strokeLinecap="round"/></svg>;
+const ListIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><rect x="4" y="5" width="3" height="3" fill={DARK}/><rect x="4" y="10" width="3" height="3" fill={DARK}/><rect x="4" y="15" width="3" height="3" fill={DARK}/><line x1="9" y1="6.5" x2="20" y2="6.5" stroke={DARK} strokeWidth="2"/><line x1="9" y1="11.5" x2="20" y2="11.5" stroke={DARK} strokeWidth="2"/><line x1="9" y1="16.5" x2="20" y2="16.5" stroke={DARK} strokeWidth="2"/></svg>;
+const ErrorIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><line x1="4" y1="4" x2="20" y2="20" stroke={DARK} strokeWidth="3"/><line x1="20" y1="4" x2="4" y2="20" stroke={DARK} strokeWidth="3"/></svg>;
 
 const AboutBanner = () => (
   <div className="mb-6"><div className="bg-white p-4">
     <svg width="100%" height="60" viewBox="0 0 600 60" preserveAspectRatio="xMidYMid meet">
-      <g transform="translate(50,30)"><text x="0" y="12" fontFamily="monospace" fontSize="32" fill="#333333" fontWeight="bold" textAnchor="middle">$</text></g>
-      <g transform="translate(150,30)"><rect x="-30" y="8" width="12" height="15" fill="#333333"/><rect x="-15" y="-3" width="12" height="26" fill="#666"/><rect x="0" y="5" width="12" height="18" fill="#999"/><rect x="15" y="-8" width="12" height="31" fill="#333333"/><line x1="-30" y1="23" x2="27" y2="23" stroke="#333333" strokeWidth="2"/></g>
-      <g transform="translate(250,30)"><text x="0" y="12" fontFamily="monospace" fontSize="32" fill="#333333" fontWeight="bold" textAnchor="middle">€</text></g>
-      <g transform="translate(350,30)"><circle cx="0" cy="0" r="18" fill="#666"/><circle cx="0" cy="-4" r="5" fill="white"/><path d="M -10 12 Q -10 4 0 4 Q 10 4 10 12" fill="white"/></g>
-      <g transform="translate(450,30)"><text x="0" y="12" fontFamily="monospace" fontSize="32" fill="#333333" fontWeight="bold" textAnchor="middle">£</text></g>
-      <g transform="translate(550,30)"><path d="M 0 0 L 0 -22 A 22 22 0 0 1 15.6 15.6 Z" fill="#333333"/><path d="M 0 0 L 15.6 15.6 A 22 22 0 0 1 -11 19 Z" fill="#666"/><path d="M 0 0 L -11 19 A 22 22 0 0 1 -21.1 -5.7 Z" fill="#999"/><path d="M 0 0 L -21.1 -5.7 A 22 22 0 0 1 0 -22 Z" fill="#CCC"/></g>
+      <g transform="translate(50,30)"><text x="0" y="12" fontFamily="monospace" fontSize="32" fill={DARK} fontWeight="bold" textAnchor="middle">$</text></g>
+      <g transform="translate(150,30)"><rect x="-30" y="8" width="12" height="15" fill={DARK}/><rect x="-15" y="-3" width="12" height="26" fill="#666"/><rect x="0" y="5" width="12" height="18" fill="#999"/><rect x="15" y="-8" width="12" height="31" fill={DARK}/><line x1="-30" y1="23" x2="27" y2="23" stroke={DARK} strokeWidth="2"/></g>
+      <g transform="translate(250,30)"><text x="0" y="12" fontFamily="monospace" fontSize="32" fill={DARK} fontWeight="bold" textAnchor="middle">€</text></g>
+      <g transform="translate(350,30)"><circle cx="0" cy="0" r="18" fill="#666"/><circle cx="0" cy="-4" r="5" fill={BG_GREY}/><path d="M -10 12 Q -10 4 0 4 Q 10 4 10 12" fill={BG_GREY}/></g>
+      <g transform="translate(450,30)"><text x="0" y="12" fontFamily="monospace" fontSize="32" fill={DARK} fontWeight="bold" textAnchor="middle">£</text></g>
+      <g transform="translate(550,30)"><path d="M 0 0 L 0 -22 A 22 22 0 0 1 15.6 15.6 Z" fill={DARK}/><path d="M 0 0 L 15.6 15.6 A 22 22 0 0 1 -11 19 Z" fill="#666"/><path d="M 0 0 L -11 19 A 22 22 0 0 1 -21.1 -5.7 Z" fill="#999"/><path d="M 0 0 L -21.1 -5.7 A 22 22 0 0 1 0 -22 Z" fill="#CCC"/></g>
     </svg>
   </div></div>
 );
@@ -141,15 +139,15 @@ const ResultPieChart = () => (
 const DashedDivider = () => <div className="border-t-2 border-dashed border-gray-400 my-6"/>;
 const CurrencyDivider = () => (
   <div className="flex items-center gap-4 my-6">
-    <div className="flex-1 border-t-4 border-black"></div>
+    <div className="flex-1 border-t-4" style={{borderColor:DARK}}></div>
     <span className="text-xs font-bold sf">$ € £</span>
-    <div className="flex-1 border-t-4 border-black"></div>
+    <div className="flex-1 border-t-4" style={{borderColor:DARK}}></div>
   </div>
 );
 
 const BlackBoxStats = ({stats}) => (
-  <div className="flex flex-wrap gap-x-5 gap-y-1 mt-4 pt-3 border-t-2 border-dashed border-white">
-    {stats.map(({label,value}) => <div key={label} className="text-xs text-white"><span>{label}: </span><span className="font-bold">{value}</span></div>)}
+  <div className="flex flex-wrap gap-x-5 gap-y-1 mt-4 pt-3 border-t-2 border-dashed" style={{borderColor:BG_GREY}}>
+    {stats.map(({label,value}) => <div key={label} className="text-xs" style={{color:BG_GREY}}><span>{label}: </span><span className="font-bold">{value}</span></div>)}
   </div>
 );
 
@@ -197,10 +195,11 @@ const CurrencyButtons = ({value,onChange}) => (
     </div>
   </div>
 );
+
 const numericKeyDown = e => {
   const allowed = ['Backspace','Delete','Tab','Escape','Enter','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End','.'];
   if (allowed.includes(e.key)) return;
-  if (e.ctrlKey || e.metaKey) return; // allow copy/paste/select-all
+  if (e.ctrlKey || e.metaKey) return;
   if (!/^\d$/.test(e.key)) e.preventDefault();
 };
 
@@ -209,6 +208,7 @@ const FormInput = ({type='text',value,onChange,placeholder,className='',style,..
   if(type==='textarea') return <textarea value={value} onChange={onChange} placeholder={placeholder} className={`${base} ${className}`} style={{fontSize:'16px',...style}} {...props}/>;
   return <input type={type} value={value} onChange={onChange} onKeyDown={type==='number'?numericKeyDown:undefined} placeholder={placeholder} className={`${base} ${className}`} style={{fontSize:'16px',...style}} {...props}/>;
 };
+
 const ItemList = ({items,onDelete,renderItem,receiptStyle,formatTotal,getAmount}) => {
   if(!items.length) return null;
   if(receiptStyle) {
@@ -271,13 +271,13 @@ const AccordionPage = ({steps,openIndices,onToggle,renderContent}) => (
 const ReceiptTop = () => (
   <svg width="100%" height="32" viewBox="0 0 600 32" preserveAspectRatio="none" style={{display:'block'}}>
     <polygon points="0,4 21.428,14 42.857,4 64.286,14 85.714,4 107.143,14 128.571,4 150,14 171.429,4 192.857,14 214.286,4 235.714,14 257.143,4 278.571,14 300,4 321.429,14 342.857,4 364.286,14 385.714,4 407.143,14 428.571,4 450,14 471.429,4 492.857,14 514.286,4 535.714,14 557.143,4 578.571,14 600,4 600,32 0,32" fill={BG_GREY}/>
-    <polygon points="0,0 21.428,10 42.857,0 64.286,10 85.714,0 107.143,10 128.571,0 150,10 171.429,0 192.857,10 214.286,0 235.714,10 257.143,0 278.571,10 300,0 321.429,10 342.857,0 364.286,10 385.714,0 407.143,10 428.571,0 450,10 471.429,0 492.857,10 514.286,0 535.714,10 557.143,0 578.571,10 600,0 600,4 578.571,14 557.143,4 535.714,14 514.286,4 492.857,14 471.429,4 450,14 428.571,4 407.143,14 385.714,4 364.286,14 342.857,4 321.429,14 300,4 278.571,14 257.143,4 235.714,14 214.286,4 192.857,14 171.429,4 150,14 128.571,4 107.143,14 85.714,4 64.286,14 42.857,4 21.428,14 0,4" fill="#333333"/>
+    <polygon points="0,0 21.428,10 42.857,0 64.286,10 85.714,0 107.143,10 128.571,0 150,10 171.429,0 192.857,10 214.286,0 235.714,10 257.143,0 278.571,10 300,0 321.429,10 342.857,0 364.286,10 385.714,0 407.143,10 428.571,0 450,10 471.429,0 492.857,10 514.286,0 535.714,10 557.143,0 578.571,10 600,0 600,4 578.571,14 557.143,4 535.714,14 514.286,4 492.857,14 471.429,4 450,14 428.571,4 407.143,14 385.714,4 364.286,14 342.857,4 321.429,14 300,4 278.571,14 257.143,4 235.714,14 214.286,4 192.857,14 171.429,4 150,14 128.571,4 107.143,14 85.714,4 64.286,14 42.857,4 21.428,14 0,4" fill={DARK}/>
   </svg>
 );
 const ReceiptBottom = () => (
   <svg width="100%" height="32" viewBox="0 0 600 32" preserveAspectRatio="none" style={{display:'block'}}>
     <polygon points="0,0 600,0 600,28 578.571,18 557.143,28 535.714,18 514.286,28 492.857,18 471.429,28 450,18 428.571,28 407.143,18 385.714,28 364.286,18 342.857,28 321.429,18 300,28 278.571,18 257.143,28 235.714,18 214.286,28 192.857,18 171.429,28 150,18 128.571,28 107.143,18 85.714,28 64.286,18 42.857,28 21.428,18 0,28" fill={BG_GREY}/>
-    <polygon points="0,32 21.428,22 42.857,32 64.286,22 85.714,32 107.143,22 128.571,32 150,22 171.429,32 192.857,22 214.286,32 235.714,22 257.143,32 278.571,22 300,32 321.429,22 342.857,32 364.286,22 385.714,32 407.143,22 428.571,32 450,22 471.429,32 492.857,22 514.286,32 535.714,22 557.143,32 578.571,22 600,32 600,28 578.571,18 557.143,28 535.714,18 514.286,28 492.857,18 471.429,28 450,18 428.571,28 407.143,18 385.714,28 364.286,18 342.857,28 321.429,18 300,28 278.571,18 257.143,28 235.714,18 214.286,28 192.857,18 171.429,28 150,18 128.571,28 107.143,18 85.714,28 64.286,18 42.857,28 21.428,18 0,28" fill="#333333"/>
+    <polygon points="0,32 21.428,22 42.857,32 64.286,22 85.714,32 107.143,22 128.571,32 150,22 171.429,32 192.857,22 214.286,32 235.714,22 257.143,32 278.571,22 300,32 321.429,22 342.857,32 364.286,22 385.714,32 407.143,22 428.571,32 450,22 471.429,32 492.857,22 514.286,32 535.714,22 557.143,32 578.571,22 600,32 600,28 578.571,18 557.143,28 535.714,18 514.286,28 492.857,18 471.429,28 450,18 428.571,28 407.143,18 385.714,28 364.286,18 342.857,28 321.429,18 300,28 278.571,18 257.143,28 235.714,18 214.286,28 192.857,18 171.429,28 150,18 128.571,28 107.143,18 85.714,28 64.286,18 42.857,28 21.428,18 0,28" fill={DARK}/>
   </svg>
 );
 
@@ -287,15 +287,16 @@ const Layout = ({children,onNavigate,showCopyToast,bgStyle}) => (
       @import url('https://fonts.googleapis.com/css2?family=Sixtyfour:wght@400&display=swap');
       * { font-family: 'Sixtyfour', monospace !important; word-wrap: break-word; overflow-wrap: break-word; }
       html, body { overflow-y: auto !important; height: auto !important; }
-      .receipt-wrapper { border-left: 4px solid #333333; border-right: 4px solid #333333; filter: drop-shadow(6px 8px 18px rgba(0,0,0,0.45)); will-change: filter; transform: translateZ(0); }
+      .receipt-wrapper { border-left: 4px solid ${DARK}; border-right: 4px solid ${DARK}; filter: drop-shadow(6px 8px 18px rgba(0,0,0,0.45)); will-change: filter; transform: translateZ(0); }
       .receipt-container { position: relative; background: ${BG_GREY}; }
       .bg-white { background-color: ${BG_GREY} !important; }
       .bg-gray-50 { background-color: #E5E7EB !important; }
       button { white-space: normal; text-align: center; word-wrap: break-word; overflow-wrap: break-word; word-break: keep-all; hyphens: none; overflow: visible; min-height: fit-content; display: flex; align-items: center; justify-content: center; line-height: 1.3; padding: 0.5rem 1rem; margin-left: auto; margin-right: auto; }
       button.calculate-btn { font-size: clamp(1rem, 4vw, 1.25rem); }
-      .text-black { color: #333333 !important; }
-      .bg-black { background-color: #333333 !important; }
-      .border-black { border-color: #333333 !important; }
+      .text-black { color: ${DARK} !important; }
+      .bg-black { background-color: ${DARK} !important; }
+      .border-black { border-color: ${DARK} !important; }
+      .text-white { color: ${BG_GREY} !important; }
       .hover\\:bg-gray-800:hover { background-color: #2a2a2a !important; }
       .currency-pattern { overflow: hidden; white-space: nowrap; text-align: center; }
       @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
@@ -303,8 +304,6 @@ const Layout = ({children,onNavigate,showCopyToast,bgStyle}) => (
       @keyframes barGrow { from { width: 0; } }
       .bar-animate { animation: barGrow 0.8s ease-out forwards; }
       button:active { transform: scale(0.97); }
-      input[type=range] { accent-color: #333333; cursor: pointer; }
-      input[type=color] { cursor: pointer; padding: 2px; border: 2px solid #333333; background: none; }
     `}</style>
     <div className="max-w-xl mx-auto px-2 sm:px-0 py-5">
       <div className="receipt-wrapper">
@@ -315,7 +314,7 @@ const Layout = ({children,onNavigate,showCopyToast,bgStyle}) => (
               <div className="cursor-pointer text-center" onClick={()=>onNavigate('home')}>
                 <div className="currency-pattern text-xs text-black uppercase tracking-wider sf" style={{marginBottom:'2px'}}>{'$ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £'}</div>
                 <svg width="100%" viewBox="0 0 100 24" style={{display:'block',overflow:'visible',marginBottom:'-6px',marginTop:'-2px'}}>
-                  <text x="0" y="19" fontFamily="Sixtyfour,monospace" fontWeight="900" fill="#333333" textLength="100" lengthAdjust="spacingAndGlyphs" fontSize="19">COMRADE</text>
+                  <text x="0" y="19" fontFamily="Sixtyfour,monospace" fontWeight="900" fill={DARK} textLength="100" lengthAdjust="spacingAndGlyphs" fontSize="19">COMRADE</text>
                 </svg>
                 <div className="currency-pattern text-xs text-black uppercase tracking-wider sf" style={{marginTop:'2px'}}>{'$ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £'}</div>
               </div>
@@ -337,7 +336,7 @@ const Layout = ({children,onNavigate,showCopyToast,bgStyle}) => (
         <ReceiptBottom />
       </div>
     </div>
-    {showCopyToast&&<div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-black text-white px-6 py-3 font-bold z-50 border-2 border-black sf">COPIED TO CLIPBOARD!</div>}
+    {showCopyToast&&<div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 px-6 py-3 font-bold z-50 border-2 sf" style={{backgroundColor:DARK,color:BG_GREY,borderColor:DARK}}>COPIED TO CLIPBOARD!</div>}
   </div>
 );
 
@@ -367,8 +366,7 @@ const Comrade = () => {
   const [signupEmail,setSignupEmail] = useState('');
   const [signupStatus,setSignupStatus] = useState('');
 
-  const [bgConfig, setBgConfig] = useState(DEFAULT_BG);
-  const bgStyle = useMemo(() => buildBgStyle({ ...DEFAULT_BG, ...bgConfig }), [bgConfig]);
+  const bgStyle = useMemo(() => buildBgStyle(DEFAULT_BG), []);
 
   const [sharePeople,setSharePeople] = useState([]);
   const [shareBills,setShareBills] = useState([]);
@@ -534,7 +532,7 @@ const Comrade = () => {
       <h3 className="text-lg font-bold text-black uppercase tracking-wider text-center mb-2">LIKE COMRADE?</h3>
       <p className="text-xs text-black text-center mb-4">Get updates and news from the team.</p>
       {signupStatus==='success'
-        ?<div className="bg-black text-white p-4 text-center font-bold border-2 border-black sf">THANKS FOR SIGNING UP!</div>
+        ?<div className="p-4 text-center font-bold border-2 sf" style={{backgroundColor:DARK,color:BG_GREY,borderColor:DARK}}>THANKS FOR SIGNING UP!</div>
         :signupStatus==='error'
           ?<div className="bg-white text-black p-4 text-center font-bold border-2 border-black">ERROR - PLEASE TRY AGAIN</div>
           :<div className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto">
@@ -581,6 +579,7 @@ const Comrade = () => {
   const renderWealthPieChart = data => {
     const sorted=[...data].sort((a,b)=>b.wealth-a.wealth);
     const total=sorted.reduce((s,p)=>s+p.wealth,0);
+    // pie chart is the one place we use true black/white
     const colors=['#000000','#1F2937','#475569','#64748B','#94A3B8','#CBD5E1','#E2E8F0','#F1F5F9'];
     return(
       <>
@@ -629,8 +628,8 @@ const Comrade = () => {
                     <div key={bi} className="flex items-center gap-2">
                       {bar.label&&<span className="text-xs text-black w-20 font-bold">{bar.label}:</span>}
                       <div className="flex-1 bg-gray-200 h-6 relative overflow-hidden border border-gray-400">
-                        <div className="h-6 bar-animate flex items-center justify-end pr-2 bg-black sf" style={{width:`${w}%`,animationDelay:`${idx*0.1+bi*0.05}s`}}>
-                          {w>15&&<span className="text-xs font-bold text-white">{bar.displayValue(item)}</span>}
+                        <div className="h-6 bar-animate flex items-center justify-end pr-2 sf" style={{width:`${w}%`,animationDelay:`${idx*0.1+bi*0.05}s`,backgroundColor:DARK}}>
+                          {w>15&&<span className="text-xs font-bold" style={{color:BG_GREY}}>{bar.displayValue(item)}</span>}
                         </div>
                       </div>
                       <span className="text-xs font-bold text-black w-24 text-right">{bar.rightLabel(item,idx)}</span>
@@ -754,14 +753,14 @@ const Comrade = () => {
     const toggle = key => setOpenSection(prev=>prev===key?null:key);
     const Chevron = ({open}) => (
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{flexShrink:0,transition:'transform 0.2s',transform:open?'rotate(180deg)':'rotate(0deg)'}}>
-        <polyline points="2,5 8,11 14,5" stroke={open?'#fff':'#9CA3AF'} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+        <polyline points="2,5 8,11 14,5" stroke={open?BG_GREY:'#9CA3AF'} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     );
     const sectionBtn = (key,label) => {
       const isOpen=openSection===key;
       return (
-        <button onClick={()=>toggle(key)} style={{background:isOpen?'#333':'transparent',border:isOpen?'2px solid #333':'2px dashed #9CA3AF',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'16px',width:'100%',cursor:'pointer',transition:'background 0.15s'}}>
-          <span style={{flex:1,textAlign:'center',fontWeight:900,fontSize:'1.25rem',textTransform:'uppercase',color:isOpen?'#fff':'#333',lineHeight:1.2}}>{label}</span>
+        <button onClick={()=>toggle(key)} style={{background:isOpen?DARK:'transparent',border:isOpen?`2px solid ${DARK}`:'2px dashed #9CA3AF',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'16px',width:'100%',cursor:'pointer',transition:'background 0.15s'}}>
+          <span style={{flex:1,textAlign:'center',fontWeight:900,fontSize:'1.25rem',textTransform:'uppercase',color:isOpen?BG_GREY:DARK,lineHeight:1.2}}>{label}</span>
           <Chevron open={isOpen}/>
         </button>
       );
@@ -775,23 +774,23 @@ const Comrade = () => {
             <div style={{border:'2px dashed #9CA3AF',borderTop:'none',padding:'20px'}}>
               <div className="space-y-6">
                 <div className="flex gap-4 items-start">
-                  <div className="bg-black text-white font-black text-4xl w-16 h-16 flex items-center justify-center border-2 border-black flex-shrink-0 sf">1</div>
+                  <div className="font-black text-4xl w-16 h-16 flex items-center justify-center border-2 flex-shrink-0 sf" style={{backgroundColor:DARK,color:BG_GREY,borderColor:DARK}}>1</div>
                   <div><h3 className="font-bold text-black uppercase mb-1">ADD YOUR GROUP</h3><p className="text-xs text-black">Enter everyone's names, and incomes or net worth</p></div>
                 </div>
                 <PeopleAvatars />
                 <div className="flex gap-4 items-start">
-                  <div className="bg-black text-white font-black text-4xl w-16 h-16 flex items-center justify-center border-2 border-black flex-shrink-0 sf">2</div>
+                  <div className="font-black text-4xl w-16 h-16 flex items-center justify-center border-2 flex-shrink-0 sf" style={{backgroundColor:DARK,color:BG_GREY,borderColor:DARK}}>2</div>
                   <div><h3 className="font-bold text-black uppercase mb-1">ENTER YOUR BILLS</h3><p className="text-xs text-black">List what was spent, and who paid</p></div>
                 </div>
                 <MockReceipt />
                 <div className="flex gap-4 items-start">
-                  <div className="bg-black text-white font-black text-4xl w-16 h-16 flex items-center justify-center border-2 border-black flex-shrink-0 sf">3</div>
+                  <div className="font-black text-4xl w-16 h-16 flex items-center justify-center border-2 flex-shrink-0 sf" style={{backgroundColor:DARK,color:BG_GREY,borderColor:DARK}}>3</div>
                   <div><h3 className="font-bold text-black uppercase mb-1">GET FAIR RESULTS</h3><p className="text-xs text-black">See who owes what, based on ability to pay</p></div>
                 </div>
                 <ResultPieChart />
               </div>
               <div className="mt-6 flex flex-col max-w-xs mx-auto" style={{gap:'12px'}}>
-                <button onClick={()=>navigateTo('about')} className="w-full font-bold py-4 px-8 border-2 border-black hover:bg-gray-100 transition-all text-lg" style={{background:BG_GREY,color:'#333'}}>LEARN MORE</button>
+                <button onClick={()=>navigateTo('about')} className="w-full font-bold py-4 px-8 border-2 border-black hover:bg-gray-100 transition-all text-lg" style={{background:BG_GREY,color:DARK}}>LEARN MORE</button>
                 <button onClick={()=>navigateTo('share-entry')} className="w-full bg-black text-white font-bold py-4 px-8 border-2 border-black hover:bg-gray-800 transition-all text-lg">TRY IT NOW</button>
               </div>
             </div>
@@ -800,7 +799,6 @@ const Comrade = () => {
         <div style={{textAlign:'center',marginTop:4}}>
           <span onClick={()=>navigateTo('tools')} style={{fontSize:'14px',color:'#6B7280',letterSpacing:'1px',cursor:'pointer',borderBottom:'1px dashed #6B7280',paddingBottom:'1px'}}>SEE ALL TOOLS →</span>
         </div>
-
       </div>
     );
   };
@@ -830,9 +828,9 @@ const Comrade = () => {
         <div style={{maxWidth:'448px',margin:'0 auto'}}>
           {tools.map(t=>(
             <div key={t.route} style={{marginBottom:12}}>
-              <button onClick={()=>navigateTo(t.route)} className="w-full border-2 border-black hover:opacity-80 transition-all" style={{background:t.route==='share-entry'?'#333333':BG_GREY,padding:'16px 20px',flexDirection:'column',gap:2}}>
+              <button onClick={()=>navigateTo(t.route)} className="w-full border-2 border-black hover:opacity-80 transition-all" style={{background:t.route==='share-entry'?DARK:BG_GREY,padding:'16px 20px',flexDirection:'column',gap:2}}>
                 {t.experimental&&<span style={{fontSize:'10px',color:t.route==='share-entry'?'#ccc':'#9CA3AF',letterSpacing:'2px',fontWeight:900,textAlign:'center',display:'block'}}>EXPERIMENTAL</span>}
-                <span style={{fontSize:'17px',letterSpacing:'1px',color:t.route==='share-entry'?'#fff':'#333',display:'block',textAlign:'center',fontWeight:900}}>{t.label}</span>
+                <span style={{fontSize:'17px',letterSpacing:'1px',color:t.route==='share-entry'?BG_GREY:DARK,display:'block',textAlign:'center',fontWeight:900}}>{t.label}</span>
               </button>
             </div>
           ))}
@@ -954,9 +952,9 @@ const Comrade = () => {
       <Layout {...lp}>
         {!hasData&&renderNoDataState('share-entry')}
         {hasData&&(<>
-          <div className="bg-black text-white p-8 mb-4 border-4 border-black sf">
-            <h3 className="text-xl font-black mb-4 uppercase tracking-wider border-b-2 border-white pb-2">YOUR SETTLEMENT</h3>
-            {transactions.length===0?<p className="text-lg font-bold">ALL SETTLED! EVERYONE'S SQUARE.</p>:<div className="space-y-3">{transactions.map((t,i)=><div key={i} className="text-sm leading-relaxed border-b border-dashed border-white pb-2"><span className="font-semibold">{t.from.toUpperCase()}</span><span> PAYS </span><span className="font-semibold">{t.to.toUpperCase()}</span><br/><span className="font-black text-2xl">{formatCurrencySmart(t.amount,shareCurrency)}</span></div>)}</div>}
+          <div className="p-8 mb-4 border-4 sf" style={{backgroundColor:DARK,color:BG_GREY,borderColor:DARK}}>
+            <h3 className="text-xl font-black mb-4 uppercase tracking-wider pb-2" style={{borderBottom:`2px solid ${BG_GREY}`}}>YOUR SETTLEMENT</h3>
+            {transactions.length===0?<p className="text-lg font-bold">ALL SETTLED! EVERYONE'S SQUARE.</p>:<div className="space-y-3">{transactions.map((t,i)=><div key={i} className="text-sm leading-relaxed pb-2" style={{borderBottom:`1px dashed ${BG_GREY}`}}><span className="font-semibold">{t.from.toUpperCase()}</span><span> PAYS </span><span className="font-semibold">{t.to.toUpperCase()}</span><br/><span className="font-black text-2xl">{formatCurrencySmart(t.amount,shareCurrency)}</span></div>)}</div>}
             <BlackBoxStats stats={[{label:'TOTAL BILLS',value:shareBills.length},{label:'TOTAL',value:formatCurrency(total,2,shareCurrency)},{label:'PEOPLE',value:sharePeople.length},{label:'WEIGHTING',value:getWeightingLabel(shareWeighting)}]}/>
           </div>
           <DetailToggleButton show={showShareDetails} onClick={()=>setShowShareDetails(!showShareDetails)}/>
@@ -1021,9 +1019,9 @@ const Comrade = () => {
       <Layout {...lp}>
         {!hasData&&renderNoDataState('sale-entry')}
         {hasData&&(<>
-          <div className="bg-black text-white p-8 mb-4 border-4 border-black sf">
-            <h3 className="text-xl font-black mb-4 uppercase tracking-wider border-b-2 border-white pb-2">SELECTED BUYER{winners.length>1?'S':''}</h3>
-            {isTie?<p className="text-lg font-bold">PERFECT TIE. EVERYONE HAS EQUAL CLAIM.</p>:winners.map((w,i)=><div key={w.id} className="mb-3 border-b border-dashed border-white pb-3"><p className="text-3xl font-black mb-2">{w.name.toUpperCase()}</p><p className="text-xl font-semibold">OFFER: {formatCurrency(w.offer,2,saleCurrency)}</p><p className="text-xs text-white">NEED SCORE: {w.needScore<0.01?w.needScore.toExponential(4):w.needScore.toFixed(2)}%</p></div>)}
+          <div className="p-8 mb-4 border-4 sf" style={{backgroundColor:DARK,color:BG_GREY,borderColor:DARK}}>
+            <h3 className="text-xl font-black mb-4 uppercase tracking-wider pb-2" style={{borderBottom:`2px solid ${BG_GREY}`}}>SELECTED BUYER{winners.length>1?'S':''}</h3>
+            {isTie?<p className="text-lg font-bold">PERFECT TIE. EVERYONE HAS EQUAL CLAIM.</p>:winners.map((w,i)=><div key={w.id} className="mb-3 pb-3" style={{borderBottom:`1px dashed ${BG_GREY}`}}><p className="text-3xl font-black mb-2">{w.name.toUpperCase()}</p><p className="text-xl font-semibold">OFFER: {formatCurrency(w.offer,2,saleCurrency)}</p><p className="text-xs" style={{color:BG_GREY}}>NEED SCORE: {w.needScore<0.01?w.needScore.toExponential(4):w.needScore.toFixed(2)}%</p></div>)}
             <BlackBoxStats stats={[{label:'PRODUCT',value:productName.toUpperCase()||'N/A'},{label:'AVAILABLE',value:numAvail},{label:'AVG OFFER',value:formatCurrency(avgOffer,2,saleCurrency)},{label:'WEIGHTING',value:getWeightingLabel(saleWeighting)}]}/>
           </div>
           <DetailToggleButton show={showSaleDetails} onClick={()=>setShowSaleDetails(!showSaleDetails)}/>
@@ -1082,8 +1080,8 @@ const Comrade = () => {
       <Layout {...lp}>
         {!hasData&&renderNoDataState('vote-entry')}
         {hasData&&(<>
-          <div className="bg-black text-white p-8 mb-4 border-4 border-black sf">
-            <h3 className="text-xl font-black mb-4 uppercase tracking-wider border-b-2 border-white pb-2">DECISION</h3>
+          <div className="p-8 mb-4 border-4 sf" style={{backgroundColor:DARK,color:BG_GREY,borderColor:DARK}}>
+            <h3 className="text-xl font-black mb-4 uppercase tracking-wider pb-2" style={{borderBottom:`2px solid ${BG_GREY}`}}>DECISION</h3>
             <p className="text-lg mb-6 font-semibold">{voteDecision.toUpperCase()}</p>
             {isTie?<p className="text-xl font-bold">PERFECT TIE. NO CLEAR WINNER.</p>:winner?<><p className="text-sm mb-2">WINNING OPTION:</p><p className="text-3xl font-black mb-2">{winner.option.toUpperCase()}</p><p className="text-xl font-semibold">{winner.percentage.toFixed(1)}% OF VOTING POWER</p></>:<p className="text-lg font-bold">NO VOTES CAST</p>}
             <BlackBoxStats stats={[{label:'PARTICIPANTS',value:voteParticipants.length},{label:'OPTIONS',value:voteOptions.length},{label:'WEIGHTING',value:getWeightingLabel(voteWeighting)}]}/>
@@ -1091,11 +1089,11 @@ const Comrade = () => {
           <DetailToggleButton show={showVoteDetails} onClick={()=>setShowVoteDetails(!showVoteDetails)}/>
           {showVoteDetails&&<div className="animate-fadeIn">
             <DashedDivider/>
-            <div className="mb-6"><h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">VOTE BREAKDOWN</h3><div className="space-y-4">{voteBreakdown.map((item,i)=><div key={i} className="border-2 border-gray-400 p-4"><div className="flex justify-between items-start mb-3 border-b border-dashed border-gray-400 pb-2"><p className="font-bold text-sm text-black uppercase">{item.option}</p><span className="px-2 py-1 text-xs font-bold bg-black text-white border border-black sf">{item.percentage.toFixed(1)}%</span></div><p className="text-xs text-black mb-2 font-bold">VOTERS ({item.voters.length}):</p><div className="space-y-1">{item.voters.map(v=><p key={v.name} className="text-xs text-black">• {v.name} (Power: {v.votingPower.toFixed(2)})</p>)}</div></div>)}</div></div>
+            <div className="mb-6"><h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">VOTE BREAKDOWN</h3><div className="space-y-4">{voteBreakdown.map((item,i)=><div key={i} className="border-2 border-gray-400 p-4"><div className="flex justify-between items-start mb-3 border-b border-dashed border-gray-400 pb-2"><p className="font-bold text-sm text-black uppercase">{item.option}</p><span className="px-2 py-1 text-xs font-bold border sf" style={{backgroundColor:DARK,color:BG_GREY,borderColor:DARK}}>{item.percentage.toFixed(1)}%</span></div><p className="text-xs text-black mb-2 font-bold">VOTERS ({item.voters.length}):</p><div className="space-y-1">{item.voters.map(v=><p key={v.name} className="text-xs text-black">• {v.name} (Power: {v.votingPower.toFixed(2)})</p>)}</div></div>)}</div></div>
             <DashedDivider/>
             {renderDetailCards('PARTICIPANT DATA',[...participantsData].sort((a,b)=>b.wealth-a.wealth),p=>({name:p.name,rows:[{label:'WEALTH',value:formatCurrency(p.wealth,2,voteCurrency)},{label:'VOTE',value:p.vote||'NO VOTE'}],summaryRows:[{label:'VOTING POWER',value:p.votingPower.toFixed(2)}]}))}
             <DashedDivider/>
-            <div className="mb-6"><h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">VOTE DISTRIBUTION</h3><div className="space-y-3">{voteBreakdown.map((item,idx)=>{const up=participantsData.length>0?(participantsData.filter(p=>p.vote===item.option).length/participantsData.length)*100:0;const mx=Math.max(...voteBreakdown.map(b=>b.percentage));return<div key={idx} className="mb-4"><p className="font-bold text-black mb-1 text-xs uppercase">{item.option}</p><div className="space-y-1">{[{lbl:'WEIGHTED',pct:item.percentage},{lbl:'UNWEIGHTED',pct:up}].map(({lbl,pct},bi)=><div key={bi} className="flex items-center gap-2"><span className="text-xs text-black w-24 font-bold">{lbl}:</span><div className="flex-1 bg-gray-200 h-6 relative overflow-hidden border border-gray-400"><div className="h-6 bar-animate flex items-center justify-end pr-2 bg-black sf" style={{width:`${mx>0?(pct/mx)*100:0}%`,animationDelay:`${idx*0.1+bi*0.05}s`}}>{mx>0&&(pct/mx)*100>15&&<span className="text-xs font-bold text-white">{pct.toFixed(1)}%</span>}</div></div><span className="text-xs font-bold text-black w-16 text-right">{pct.toFixed(1)}%</span></div>)}</div></div>;})}
+            <div className="mb-6"><h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">VOTE DISTRIBUTION</h3><div className="space-y-3">{voteBreakdown.map((item,idx)=>{const up=participantsData.length>0?(participantsData.filter(p=>p.vote===item.option).length/participantsData.length)*100:0;const mx=Math.max(...voteBreakdown.map(b=>b.percentage));return<div key={idx} className="mb-4"><p className="font-bold text-black mb-1 text-xs uppercase">{item.option}</p><div className="space-y-1">{[{lbl:'WEIGHTED',pct:item.percentage},{lbl:'UNWEIGHTED',pct:up}].map(({lbl,pct},bi)=><div key={bi} className="flex items-center gap-2"><span className="text-xs text-black w-24 font-bold">{lbl}:</span><div className="flex-1 bg-gray-200 h-6 relative overflow-hidden border border-gray-400"><div className="h-6 bar-animate flex items-center justify-end pr-2 sf" style={{width:`${mx>0?(pct/mx)*100:0}%`,animationDelay:`${idx*0.1+bi*0.05}s`,backgroundColor:DARK}}>{mx>0&&(pct/mx)*100>15&&<span className="text-xs font-bold" style={{color:BG_GREY}}>{pct.toFixed(1)}%</span>}</div></div><span className="text-xs font-bold text-black w-16 text-right">{pct.toFixed(1)}%</span></div>)}</div></div>;})}
             </div></div>
             <DashedDivider/>
             <div className="mb-6"><h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">WEALTH VISUALIZATION</h3>{renderWealthPieChart(participantsData)}</div>
@@ -1141,9 +1139,9 @@ const Comrade = () => {
       <Layout {...lp}>
         {!hasData&&renderNoDataState('rent-entry')}
         {hasData&&(<>
-          <div className="bg-black text-white p-8 mb-4 border-4 border-black sf">
-            <h3 className="text-xl font-black mb-4 uppercase tracking-wider border-b-2 border-white pb-2">MONTHLY PAYMENTS</h3>
-            <div className="space-y-3">{rentData.map(p=><div key={p.id} className="border-b border-dashed border-white pb-2"><p className="text-lg font-semibold">{p.name.toUpperCase()}</p><p className="text-2xl font-black">{formatCurrencySmart(p.fairRent,rentCurrency)}</p><p className="text-xs text-white">{p.rentPct.toFixed(1)}% of total</p></div>)}</div>
+          <div className="p-8 mb-4 border-4 sf" style={{backgroundColor:DARK,color:BG_GREY,borderColor:DARK}}>
+            <h3 className="text-xl font-black mb-4 uppercase tracking-wider pb-2" style={{borderBottom:`2px solid ${BG_GREY}`}}>MONTHLY PAYMENTS</h3>
+            <div className="space-y-3">{rentData.map(p=><div key={p.id} className="pb-2" style={{borderBottom:`1px dashed ${BG_GREY}`}}><p className="text-lg font-semibold">{p.name.toUpperCase()}</p><p className="text-2xl font-black">{formatCurrencySmart(p.fairRent,rentCurrency)}</p><p className="text-xs" style={{color:BG_GREY}}>{p.rentPct.toFixed(1)}% of total</p></div>)}</div>
             <BlackBoxStats stats={[{label:'RENT',value:formatCurrency(rentAmount,2,rentCurrency)},{label:'UTILITIES',value:formatCurrency(utilitiesAmount,2,rentCurrency)},{label:'TOTAL',value:formatCurrency(total,2,rentCurrency)},{label:'TENANTS',value:rentPeople.length},{label:'WEIGHTING',value:getWeightingLabel(rentWeighting)}]}/>
           </div>
           <DetailToggleButton show={showRentDetails} onClick={()=>setShowRentDetails(!showRentDetails)}/>
@@ -1151,7 +1149,7 @@ const Comrade = () => {
             <DashedDivider/>
             {renderDetailCards('ROOMMATE DATA',rentData,p=>({name:p.name,rows:[{label:'ROOM SIZE',value:`${formatNumber(p.roomSize.toFixed(0))} ${getMeasurementLabel(rentMeasurement).toLowerCase()}`},{label:'WEALTH',value:formatCurrency(p.wealth,2,rentCurrency)}],summaryRows:[{label:'MONTHLY RENT',value:formatCurrencySmart(p.fairRent,rentCurrency)},{label:'% OF TOTAL',value:`${p.rentPct.toFixed(1)}%`}]}))}
             <DashedDivider/>
-            <div className="mb-6"><h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">RENT AND ROOM SIZE BREAKDOWN</h3><div className="space-y-3">{rentData.map((p,idx)=>{const mxR=Math.max(...rentData.map(d=>d.fairRent));return<div key={p.id||idx} className="mb-4"><p className="font-bold text-black mb-1 text-xs uppercase">{p.name}</p><div className="space-y-1">{[{lbl:'RENT',v:p.fairRent,mx:mxR,disp:`${p.rentPct.toFixed(0)}%`,right:formatCurrencySmart(p.fairRent,rentCurrency)},{lbl:'ROOM',v:p.roomSize,mx:totalRoomSize,disp:`${p.roomPct.toFixed(0)}%`,right:`${formatNumber(p.roomSize.toFixed(0))} ${getMeasurementLabel(rentMeasurement).toLowerCase()}`}].map(({lbl,v,mx,disp,right},bi)=><div key={bi} className="flex items-center gap-2"><span className="text-xs text-black w-20 font-bold">{lbl}:</span><div className="flex-1 bg-gray-200 h-6 relative overflow-hidden border border-gray-400"><div className="h-6 bar-animate flex items-center justify-end pr-2 bg-black sf" style={{width:`${mx>0?(v/mx)*100:0}%`,animationDelay:`${idx*0.1+bi*0.05}s`}}>{mx>0&&(v/mx)*100>15&&<span className="text-xs font-bold text-white">{disp}</span>}</div></div><span className="text-xs font-bold text-black w-24 text-right">{right}</span></div>)}</div></div>;})}
+            <div className="mb-6"><h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">RENT AND ROOM SIZE BREAKDOWN</h3><div className="space-y-3">{rentData.map((p,idx)=>{const mxR=Math.max(...rentData.map(d=>d.fairRent));return<div key={p.id||idx} className="mb-4"><p className="font-bold text-black mb-1 text-xs uppercase">{p.name}</p><div className="space-y-1">{[{lbl:'RENT',v:p.fairRent,mx:mxR,disp:`${p.rentPct.toFixed(0)}%`,right:formatCurrencySmart(p.fairRent,rentCurrency)},{lbl:'ROOM',v:p.roomSize,mx:totalRoomSize,disp:`${p.roomPct.toFixed(0)}%`,right:`${formatNumber(p.roomSize.toFixed(0))} ${getMeasurementLabel(rentMeasurement).toLowerCase()}`}].map(({lbl,v,mx,disp,right},bi)=><div key={bi} className="flex items-center gap-2"><span className="text-xs text-black w-20 font-bold">{lbl}:</span><div className="flex-1 bg-gray-200 h-6 relative overflow-hidden border border-gray-400"><div className="h-6 bar-animate flex items-center justify-end pr-2 sf" style={{width:`${mx>0?(v/mx)*100:0}%`,animationDelay:`${idx*0.1+bi*0.05}s`,backgroundColor:DARK}}>{mx>0&&(v/mx)*100>15&&<span className="text-xs font-bold" style={{color:BG_GREY}}>{disp}</span>}</div></div><span className="text-xs font-bold text-black w-24 text-right">{right}</span></div>)}</div></div>;})}
             </div></div>
             <DashedDivider/>
             <div className="mb-6"><h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">WEALTH VISUALIZATION</h3>{renderWealthPieChart(rentData)}</div>
