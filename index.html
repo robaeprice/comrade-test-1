@@ -24,6 +24,7 @@
 
 
 
+
 const applyWeighting = (wealth, weighting) => {
   if (weighting === 'none') return 1;
   if (weighting === 'gentle') return Math.sqrt(wealth);
@@ -276,13 +277,13 @@ const ReceiptTop = () => (
   </svg>
 );
 const ReceiptBottom = () => (
-  <svg width="100%" height="32" viewBox="0 0 600 32" preserveAspectRatio="none" style={{display:'block', marginTop:'-2px'}}>
+  <svg width="100%" height="32" viewBox="0 0 600 32" preserveAspectRatio="none" style={{display:'block',marginTop:'-2px'}}>
     <polygon points="0,0 600,0 600,28 578.571,18 557.143,28 535.714,18 514.286,28 492.857,18 471.429,28 450,18 428.571,28 407.143,18 385.714,28 364.286,18 342.857,28 321.429,18 300,28 278.571,18 257.143,28 235.714,18 214.286,28 192.857,18 171.429,28 150,18 128.571,28 107.143,18 85.714,28 64.286,18 42.857,28 21.428,18 0,28" fill={BG_GREY}/>
     <polygon points="0,32 21.428,22 42.857,32 64.286,22 85.714,32 107.143,22 128.571,32 150,22 171.429,32 192.857,22 214.286,32 235.714,22 257.143,32 278.571,22 300,32 321.429,22 342.857,32 364.286,22 385.714,32 407.143,22 428.571,32 450,22 471.429,32 492.857,22 514.286,32 535.714,22 557.143,32 578.571,22 600,32 600,28 578.571,18 557.143,28 535.714,18 514.286,28 492.857,18 471.429,28 450,18 428.571,28 407.143,18 385.714,28 364.286,18 342.857,28 321.429,18 300,28 278.571,18 257.143,28 235.714,18 214.286,28 192.857,18 171.429,28 150,18 128.571,28 107.143,18 85.714,28 64.286,18 42.857,28 21.428,18 0,28" fill={DARK}/>
   </svg>
 );
 
-const Layout = ({children,onNavigate,showCopyToast,bgStyle}) => (
+const Layout = ({children,onNavigate,showCopyToast,bgStyle,loadedAt}) => (
   <div style={bgStyle}>
     <style>{`
       @import url('https://fonts.googleapis.com/css2?family=Sixtyfour:wght@400&display=swap');
@@ -319,6 +320,7 @@ const Layout = ({children,onNavigate,showCopyToast,bgStyle}) => (
                 </svg>
                 <div className="currency-pattern text-xs text-black uppercase tracking-wider sf" style={{marginTop:'2px'}}>{'$ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £'}</div>
               </div>
+              <p className="text-center text-black font-bold mt-2" style={{fontSize:'10px',letterSpacing:'1px'}}>{loadedAt}</p>
             </div>
             {children}
             <CurrencyDivider />
@@ -366,6 +368,14 @@ const Comrade = () => {
   const copyToClipboard = useCallback(t=>{navigator.clipboard.writeText(t);setShowCopyToast(true);},[]);
   const navigateTo = useCallback(p=>setPage(p),[]);
 
+  const formatTimestamp = () => {
+    const d = new Date();
+    const date = d.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+    const time = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    return `${date} ${time}`;
+  };
+  const [loadedAt, setLoadedAt] = useState(formatTimestamp);
+
   const [page,setPage] = useState('home');
   const [showCopyToast,setShowCopyToast] = useState(false);
   const [randomQuote,setRandomQuote] = useState('');
@@ -386,7 +396,6 @@ const Comrade = () => {
   const [shareCurrency,setShareCurrency] = useState('USD');
   const [shareWealthMetric,setShareWealthMetric] = useState('salary');
   const [shareOpen,setShareOpen] = useState([0]);
-  const [showShareDetails,setShowShareDetails] = useState(false);
 
   const [productName,setProductName] = useState('');
   const [numberAvailable,setNumberAvailable] = useState('');
@@ -398,7 +407,6 @@ const Comrade = () => {
   const [saleCurrency,setSaleCurrency] = useState('USD');
   const [saleWealthMetric,setSaleWealthMetric] = useState('salary');
   const [saleOpen,setSaleOpen] = useState([0]);
-  const [showSaleDetails,setShowSaleDetails] = useState(false);
 
   const [voteDecision,setVoteDecision] = useState('');
   const [voteOptions,setVoteOptions] = useState([]);
@@ -411,7 +419,6 @@ const Comrade = () => {
   const [voteCurrency,setVoteCurrency] = useState('USD');
   const [voteWealthMetric,setVoteWealthMetric] = useState('salary');
   const [voteOpen,setVoteOpen] = useState([0]);
-  const [showVoteDetails,setShowVoteDetails] = useState(false);
 
   const [totalRent,setTotalRent] = useState('');
   const [totalUtilities,setTotalUtilities] = useState('');
@@ -424,6 +431,10 @@ const Comrade = () => {
   const [rentWealthMetric,setRentWealthMetric] = useState('salary');
   const [rentMeasurement,setRentMeasurement] = useState('sqft');
   const [rentOpen,setRentOpen] = useState([0]);
+
+  const [showShareDetails,setShowShareDetails] = useState(false);
+  const [showSaleDetails,setShowSaleDetails] = useState(false);
+  const [showVoteDetails,setShowVoteDetails] = useState(false);
   const [showRentDetails,setShowRentDetails] = useState(false);
 
   const makeToggle = setter => i => setter(prev => prev.includes(i)?prev.filter(x=>x!==i):[...prev,i]);
@@ -432,6 +443,7 @@ const Comrade = () => {
 
   useEffect(()=>{
     window.scrollTo({top:0,behavior:'instant'});
+    setLoadedAt(formatTimestamp());
     setShowShareDetails(false);setShowVoteDetails(false);setShowSaleDetails(false);setShowRentDetails(false);
     if(['share-results','sale-results','vote-results','rent-results'].includes(page)){
       setLastQuoteIndices(prev=>{
@@ -586,7 +598,6 @@ const Comrade = () => {
   const renderWealthPieChart = data => {
     const sorted=[...data].sort((a,b)=>b.wealth-a.wealth);
     const total=sorted.reduce((s,p)=>s+p.wealth,0);
-    // pie chart is the one place we use true black/white
     const colors=['#000000','#1F2937','#475569','#64748B','#94A3B8','#CBD5E1','#E2E8F0','#F1F5F9'];
     return(
       <>
@@ -752,7 +763,7 @@ const Comrade = () => {
     </div>
   );
 
-  const lp = {onNavigate: navigateTo, showCopyToast, bgStyle};
+  const lp = {onNavigate: navigateTo, showCopyToast, bgStyle, loadedAt};
 
   // ── HOME ──
   const HomeAccordion = () => {
@@ -818,7 +829,6 @@ const Comrade = () => {
     </Layout>
   );
 
-  // ── TOOLS PAGE ──
   if(page==='tools') {
     const tools = [
       { route:'share-entry', icon:<BillIcon size={22}/>, label:'SPLITTING BILLS?' },
@@ -846,7 +856,6 @@ const Comrade = () => {
     );
   }
 
-  // ── ABOUT ──
   if(page==='about') return (
     <Layout {...lp}>
       <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider text-center">ABOUT</h2>
@@ -911,7 +920,6 @@ const Comrade = () => {
     </Layout>
   );
 
-  // ── SHARE ENTRY ──
   if(page==='share-entry'){
     const steps=[{label:'SPLIT COSTS',icon:<BillIcon size={22}/>},{label:'PEOPLE',icon:<PersonIcon size={22}/>},{label:'BILLS',icon:<BillIcon size={22}/>},{label:'CALCULATE',icon:<CalculateIcon size={22}/>}];
     const jump=makeJump(setShareOpen);
@@ -950,7 +958,6 @@ const Comrade = () => {
     return <Layout {...lp}><AccordionPage steps={steps} openIndices={shareOpen} onToggle={makeToggle(setShareOpen)} renderContent={renderContent}/></Layout>;
   }
 
-  // ── SHARE RESULTS ──
   if(page==='share-results'){
     const {total,peopleData,transactions}=shareCalculations;
     const hasOrphaned=shareBills.some(b=>!b.paidBy||!sharePeople.some(p=>p.name===b.paidBy));
@@ -991,7 +998,6 @@ const Comrade = () => {
     );
   }
 
-  // ── SALE ENTRY ──
   if(page==='sale-entry'){
     const steps=[{label:'SELL',icon:<TagIcon size={22}/>},{label:'PRODUCT',icon:<ToteFilledIcon size={22}/>},{label:'BUYERS',icon:<PersonIcon size={22}/>},{label:'CALCULATE',icon:<CalculateIcon size={22}/>}];
     const jump=makeJump(setSaleOpen);
@@ -1016,7 +1022,6 @@ const Comrade = () => {
     return <Layout {...lp}><AccordionPage steps={steps} openIndices={saleOpen} onToggle={makeToggle(setSaleOpen)} renderContent={renderContent}/></Layout>;
   }
 
-  // ── SALE RESULTS ──
   if(page==='sale-results'){
     const {rankedBuyers,avgOffer}=saleCalculations;
     const numAvail=parseInt(numberAvailable)||1,winners=rankedBuyers.slice(0,numAvail);
@@ -1046,7 +1051,6 @@ const Comrade = () => {
     );
   }
 
-  // ── VOTE ENTRY ──
   if(page==='vote-entry'){
     const steps=[{label:'VOTE',icon:<CheckCircleIcon size={22}/>},{label:'DECISION',icon:<QuestionIcon size={22}/>},{label:'OPTIONS',icon:<ListIcon size={22}/>},{label:'PEOPLE',icon:<PersonIcon size={22}/>},{label:'CALCULATE',icon:<CalculateIcon size={22}/>}];
     const jump=makeJump(setVoteOpen);
@@ -1075,7 +1079,6 @@ const Comrade = () => {
     return <Layout {...lp}><AccordionPage steps={steps} openIndices={voteOpen} onToggle={makeToggle(setVoteOpen)} renderContent={renderContent}/></Layout>;
   }
 
-  // ── VOTE RESULTS ──
   if(page==='vote-results'){
     const {participantsData,totalVotingPower,voteBreakdown}=voteCalculations;
     const optTexts=voteOptions.map(o=>o.text);
@@ -1113,7 +1116,6 @@ const Comrade = () => {
     );
   }
 
-  // ── RENT ENTRY ──
   if(page==='rent-entry'){
     const steps=[{label:'SPLIT RENT',icon:<HouseIcon size={22}/>},{label:'COSTS',icon:<BillIcon size={22}/>},{label:'TENANTS',icon:<PersonIcon size={22}/>},{label:'CALCULATE',icon:<CalculateIcon size={22}/>}];
     const jump=makeJump(setRentOpen);
@@ -1138,7 +1140,6 @@ const Comrade = () => {
     return <Layout {...lp}><AccordionPage steps={steps} openIndices={rentOpen} onToggle={makeToggle(setRentOpen)} renderContent={renderContent}/></Layout>;
   }
 
-  // ── RENT RESULTS ──
   if(page==='rent-results'){
     const {rentAmount,utilitiesAmount,total,totalRoomSize,rentData,totalRoomValue}=rentCalculations;
     const hasData=rentPeople.length>0&&parseFloat(totalRent)>0;
