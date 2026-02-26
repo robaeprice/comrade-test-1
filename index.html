@@ -21,8 +21,6 @@
 
 
 
-
-
 const applyWeighting = (wealth, weighting) => {
   if (weighting === 'none') return 1;
   if (weighting === 'gentle') return Math.sqrt(wealth);
@@ -348,6 +346,7 @@ const Comrade = () => {
   const [signupEmail,setSignupEmail] = useState('');
   const [signupStatus,setSignupStatus] = useState('');
   const [hasSavedData,setHasSavedData] = useState(false);
+  const isMounted = React.useRef(false);
   const [sharePeople,setSharePeople] = useState([]);
   const [shareBills,setShareBills] = useState([]);
   const [curPersonName,setCurPersonName] = useState('');
@@ -401,6 +400,7 @@ const Comrade = () => {
   const [showRentDetails,setShowRentDetails] = useState(false);
 
   useEffect(()=>{
+    if(!isMounted.current){ isMounted.current=true; return; }
     try {
       const saved=localStorage.getItem('comrade_share');
       if(saved){ const d=JSON.parse(saved); if(d.sharePeople?.length||d.shareBills?.length) setHasSavedData(true); }
@@ -1292,6 +1292,7 @@ const Comrade = () => {
 
   return null;
 };
+
 
 
 
