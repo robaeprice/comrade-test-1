@@ -23,8 +23,6 @@
 
 
 
-
-
 const applyWeighting = (wealth, weighting) => {
   if (weighting === 'none') return 1;
   if (weighting === 'gentle') return Math.sqrt(wealth);
@@ -32,7 +30,7 @@ const applyWeighting = (wealth, weighting) => {
   return wealth;
 };
 
-const QUOTES = ['BREAD AND ROSES','NO MAN IS AN ISLAND','BE EXCELLENT TO EACH OTHER','WHICH SIDE ARE YOU ON?','SALUS POPULI SUPREMA LEX','WHAT GOES AROUND COMES AROUND','IT TAKES A VILLAGE','A COMMON TREASURY OF RELIEF FOR ALL, BOTH BEASTS AND MEN','E PLURIBUS UNUM','VIVE LA COMMUNE','SHARE THE LOAD','YOU GET WHAT YOU GIVE','WE\'RE ALL IN THIS TOGETHER','FOR WHAT SHALL IT PROFIT A MAN, IF HE SHALL GAIN THE WORLD, AND LOSE HIS OWN SOUL?','THANKS FOR SHARING','REND DOWN THE HEDGES','ALL TOGETHER NOW','WHAT\'S MINE IS YOURS, AND WHAT IS YOURS IS MINE','I DON\'T WANT YOUR MILLIONS, MISTER','AM I MY BROTHER\'S KEEPER?','WHO BUILT THEBES OF THE SEVEN GATES?','JEDER NACH SEINEN FÄHIGKEITEN, JEDEM NACH SEINEN BEDÜRFNISSEN','A RISING TIDE LIFTS ALL BOATS','ONE HAND WASHES THE OTHER','FAIR\'S FAIR','WHEN ADAM DELVED AND EVE SPAN, WHO WAS THEN THE GENTLEMAN?','ALL FOR ONE AND ONE FOR ALL','LIBERTÉ, ÉGALITÉ, FRATERNITÉ','GIVE US THIS DAY OUR DAILY BREAD','NO ONE LEFT BEHIND','THE WISDOM OF THE CROWD','AND ALL THAT BELIEVED WERE TOGETHER, AND HAD ALL THINGS IN COMMON','SO THE LAST SHALL BE FIRST, AND THE FIRST LAST','SHARE AND SHARE ALIKE','MANY HANDS MAKE LIGHT WORK'];
+const QUOTES = ['BREAD AND ROSES','NO MAN IS AN ISLAND','BE EXCELLENT TO EACH OTHER','WHICH SIDE ARE YOU ON?','SALUS POPULI SUPREMA LEX','WHAT GOES AROUND COMES AROUND','IT TAKES A VILLAGE','A COMMON TREASURY OF RELIEF FOR ALL, BOTH BEASTS AND MEN','E PLURIBUS UNUM','VIVE LA COMMUNE','SHARE THE LOAD','YOU GET WHAT YOU GIVE','WE\'RE ALL IN THIS TOGETHER','FOR WHAT SHALL IT PROFIT A MAN, IF HE SHALL GAIN THE WORLD, AND LOSE HIS OWN SOUL?','THANKS FOR SHARING','REND DOWN THE HEDGES','ALL TOGETHER NOW','WHAT\'S MINE IS YOURS, AND WHAT IS YOURS IS MINE','I DON\'T WANT YOUR MILLIONS, MISTER','AM I MY BROTHER\'S KEEPER?','WHO BUILT THEBES OF THE SEVEN GATES?','JEDER NACH SEINEN FÄHIGKEITEN, JEDEM NACH SEINEN BEDÜRFNISSEN','A RISING TIDE LIFTS ALL BOATS','ONE HAND WASHES THE OTHER','FAIR\'S FAIR','WHEN ADAM DELVED AND EVE SPAN, WHO WAS THEN THE GENTLEMAN?','ALL FOR ONE AND ONE FOR ALL','LIBERTÉ, ÉGALITÉ, FRATERNITÉ','GIVE US THIS DAY OUR DAILY BREAD','NO ONE LEFT BEHIND','THE WISDOM OF THE CROWD','AND ALL THAT BELIEVED WERE TOGETHER, AND HAD ALL THINGS IN COMMON','SO THE LAST SHALL BE FIRST, AND THE FIRST LAST','SHARE AND SHARE ALIKE','MANY HANDS MAKE LIGHT WORK','IN CHEAPSIDE SHALL MY PALFREY GO TO GRASS'];
 
 const EXAMPLE_DATA = {
   share: { people: [{id:1,name:'Lucy',wealth:'32000'},{id:2,name:'Susan',wealth:'180000'},{id:3,name:'Edmund',wealth:'45000'},{id:4,name:'Peter',wealth:'95000'}], bills: [{id:5,description:'Ski passes',amount:'1200',paidBy:'Susan'},{id:6,description:'Cabin rental',amount:'2400',paidBy:'Peter'},{id:7,description:'Gas',amount:'110',paidBy:'Lucy'},{id:8,description:'Groceries',amount:'520',paidBy:'Susan'},{id:9,description:'Gear rental',amount:'805',paidBy:'Edmund'}] },
@@ -44,45 +42,21 @@ const EXAMPLE_DATA = {
 const BG_GREY = '#F3F4F6';
 const DARK = '#333333';
 
-const DEFAULT_BG = {
-  symbolSpacing: 145,
-  symbolColor: BG_GREY,
-  symbolOpacity: 20,
-  gradientColor1: '#ffd700',
-  gradientColor2: '#ff8c00',
-  cycleLength: 1050,
-  gradientAngle: 135,
-};
+const su = svg => `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
 
-function buildBgStyle(cfg) {
-  const {
-    symbolSpacing: h = 145,
-    symbolColor = BG_GREY,
-    symbolOpacity = 20,
-    gradientColor1 = '#ffd700',
-    gradientColor2 = '#ff8c00',
-    gradientAngle = 135,
-    cycleLength = 1050,
-  } = cfg;
-  const w = Math.round(h * 75 / 90);
-  const fs = Math.round(h * 18 / 90);
-  const op = (symbolOpacity / 100).toFixed(2);
-  const fracs = [[10/75,20/90],[35/75,20/90],[60/75,20/90],[3/75,50/90],[28/75,50/90],[53/75,50/90],[17/75,80/90],[42/75,80/90],[67/75,80/90]];
-  const syms = ['$','€','£','€','£','$','£','$','€'];
-  const textEls = fracs.map(([xf,yf],i) =>
-    `<text x="${Math.round(xf*w)}" y="${Math.round(yf*h)}" font-family="Sixtyfour,monospace" font-size="${fs}" fill="${symbolColor}" fill-opacity="${op}" font-weight="bold">${syms[i]}</text>`
-  ).join('');
-  const svg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">${textEls}</svg>`;
-  const half = cycleLength / 2;
-  const gradient = `repeating-linear-gradient(${gradientAngle}deg,${gradientColor1} 0px,${gradientColor2} ${half}px,${gradientColor1} ${cycleLength}px)`;
+const BG_STYLE = (() => {
+  const h=145, w=Math.round(h*75/90), fs=Math.round(h*18/90), op=(20/100).toFixed(2);
+  const fracs=[[10/75,20/90],[35/75,20/90],[60/75,20/90],[3/75,50/90],[28/75,50/90],[53/75,50/90],[17/75,80/90],[42/75,80/90],[67/75,80/90]];
+  const syms=['$','€','£','€','£','$','£','$','€'];
+  const textEls=fracs.map(([xf,yf],i)=>`<text x="${Math.round(xf*w)}" y="${Math.round(yf*h)}" font-family="Sixtyfour,monospace" font-size="${fs}" fill="${BG_GREY}" fill-opacity="${op}" font-weight="bold">${syms[i]}</text>`).join('');
+  const svg=`<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">${textEls}</svg>`;
+  const cycleLength=1050, half=cycleLength/2;
   return {
-    backgroundImage: `url("data:image/svg+xml,${encodeURIComponent(svg)}"),${gradient}`,
-    backgroundSize: 'auto, auto',
-    backgroundRepeat: 'repeat, no-repeat',
-    backgroundAttachment: 'scroll, scroll',
-    minHeight: '100vh',
+    backgroundImage:`url("data:image/svg+xml,${encodeURIComponent(svg)}"),repeating-linear-gradient(135deg,#ffd700 0px,#ff8c00 ${half}px,#ffd700 ${cycleLength}px)`,
+    backgroundSize:'auto, auto', backgroundRepeat:'repeat, no-repeat',
+    backgroundAttachment:'scroll, scroll', minHeight:'100vh',
   };
-}
+})();
 
 const PersonIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 40 40" style={{flexShrink:0}}><circle cx="20" cy="20" r="18" fill={DARK}/><circle cx="20" cy="16" r="5" fill={BG_GREY}/><path d="M 10 32 Q 10 24 20 24 Q 30 24 30 32" fill={BG_GREY}/></svg>;
 const BillIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><text x="4" y="20" fontFamily="monospace" fontSize="22" fill={DARK} fontWeight="bold">$</text></svg>;
@@ -94,6 +68,25 @@ const QuestionIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0
 const CalculateIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><line x1="4" y1="9" x2="20" y2="9" stroke={DARK} strokeWidth="3.5" strokeLinecap="round"/><line x1="4" y1="15" x2="20" y2="15" stroke={DARK} strokeWidth="3.5" strokeLinecap="round"/></svg>;
 const ListIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><rect x="4" y="5" width="3" height="3" fill={DARK}/><rect x="4" y="10" width="3" height="3" fill={DARK}/><rect x="4" y="15" width="3" height="3" fill={DARK}/><line x1="9" y1="6.5" x2="20" y2="6.5" stroke={DARK} strokeWidth="2"/><line x1="9" y1="11.5" x2="20" y2="11.5" stroke={DARK} strokeWidth="2"/><line x1="9" y1="16.5" x2="20" y2="16.5" stroke={DARK} strokeWidth="2"/></svg>;
 const ErrorIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><line x1="4" y1="4" x2="20" y2="20" stroke={DARK} strokeWidth="3"/><line x1="20" y1="4" x2="4" y2="20" stroke={DARK} strokeWidth="3"/></svg>;
+
+const scrollToStep = i => setTimeout(() => {
+  const el = document.getElementById(`accordion-step-${i}`);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}, 80);
+
+const FaqItem = ({q,a,render,border}) => {
+  const [open,setOpen] = useState(false);
+  return (
+    <div className={border?'border-b-2 border-dashed border-gray-400':''}>
+      <button onClick={()=>setOpen(o=>!o)} className="w-full flex items-center gap-3 p-5 text-left hover:opacity-60 transition-all">
+        <QuestionIcon size={18}/>
+        <span className="flex-1 font-bold text-sm text-black uppercase tracking-wide leading-snug">{q}</span>
+        <span className="text-2xl font-black text-black ml-2 leading-none flex-shrink-0">{open?'−':'+'}</span>
+      </button>
+      {open&&<div className="px-5 pb-5 animate-fadeIn">{render??a.split('\n\n').map((para,j)=><p key={j} className="leading-relaxed text-xs mb-2 text-black">{para}</p>)}</div>}
+    </div>
+  );
+};
 
 const AboutBanner = () => (
   <div className="mb-6"><div className="bg-white p-4">
@@ -110,15 +103,13 @@ const AboutBanner = () => (
 
 const PeopleAvatars = () => (
   <div className="flex justify-center gap-2 py-2">
-    {['#D1D5DB','#9CA3AF','#6B7280'].map((c,i) => (
-      <svg key={i} width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill={c}/><circle cx="20" cy="16" r="6" fill={BG_GREY}/><path d="M 10 32 Q 10 24 20 24 Q 30 24 30 32" fill={BG_GREY}/></svg>
-    ))}
+    {['#D1D5DB','#9CA3AF','#6B7280'].map((c,i)=>(<svg key={i} width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill={c}/><circle cx="20" cy="16" r="6" fill={BG_GREY}/><path d="M 10 32 Q 10 24 20 24 Q 30 24 30 32" fill={BG_GREY}/></svg>))}
   </div>
 );
 const MockReceipt = () => (
   <div className="flex justify-center py-2 px-16">
     <div className="space-y-2 w-full">
-      {[['#D1D5DB','MEAL','$95'],['#9CA3AF','GAS','$45'],['#6B7280','HOTEL','$300']].map(([color,label,amount]) => (
+      {[['#D1D5DB','MEAL','$95'],['#9CA3AF','GAS','$45'],['#6B7280','HOTEL','$300']].map(([color,label,amount])=>(
         <div key={label} className="flex justify-between items-center text-xs font-bold text-gray-500 border-b-2 border-dashed border-gray-400 pb-1">
           <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full" style={{backgroundColor:color}}></div><span>{label}</span></div>
           <span>{amount}</span>
@@ -146,10 +137,9 @@ const CurrencyDivider = () => (
     <div className="flex-1 border-t-4" style={{borderColor:DARK}}></div>
   </div>
 );
-
 const BlackBoxStats = ({stats}) => (
   <div className="flex flex-wrap gap-x-5 gap-y-1 mt-4 pt-3 border-t-2 border-dashed" style={{borderColor:BG_GREY}}>
-    {stats.map(({label,value}) => <div key={label} className="text-xs" style={{color:BG_GREY}}><span>{label}: </span><span className="font-bold">{value}</span></div>)}
+    {stats.map(({label,value})=><div key={label} className="text-xs" style={{color:BG_GREY}}><span>{label}: </span><span className="font-bold">{value}</span></div>)}
   </div>
 );
 
@@ -157,41 +147,8 @@ const WeightingButtons = ({value,onChange}) => (
   <div className="flex justify-center">
     <div className="bg-gray-100 p-2 border-2 border-dotted border-black inline-block">
       <div className="flex flex-wrap gap-2">
-        {[{value:'gentle',label:'LOW'},{value:'standard',label:'MID'},{value:'strong',label:'HIGH'},{value:'none',label:'OFF'}].map(w => (
+        {[{value:'none',label:'OFF'},{value:'gentle',label:'LOW'},{value:'standard',label:'MID'},{value:'strong',label:'HIGH'}].map(w=>(
           <button key={w.value} onClick={()=>onChange(w.value)} className={`flex-1 min-w-[100px] p-3 font-bold text-xs border-2 ${value===w.value?'bg-black text-white border-black':w.value==='none'?'bg-gray-200 text-gray-500 border-gray-400':'bg-white text-black border-gray-400'}`}>{w.label}</button>
-        ))}
-      </div>
-    </div>
-  </div>
-);
-const WealthMetricButtons = ({value,onChange}) => (
-  <div className="flex justify-center">
-    <div className="bg-gray-100 p-2 border-2 border-dotted border-black inline-block">
-      <div className="flex gap-2">
-        {[{value:'salary',label:'SALARY'},{value:'networth',label:'NET WORTH'}].map(w => (
-          <button key={w.value} onClick={()=>onChange(w.value)} className={`px-4 py-3 font-bold text-xs border-2 ${value===w.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{w.label}</button>
-        ))}
-      </div>
-    </div>
-  </div>
-);
-const MeasurementButtons = ({value,onChange}) => (
-  <div className="flex justify-center">
-    <div className="bg-gray-100 p-2 border-2 border-dotted border-black inline-block">
-      <div className="flex gap-2">
-        {[{value:'sqft',label:'SQ FT'},{value:'sqm',label:'SQ M'}].map(m => (
-          <button key={m.value} onClick={()=>onChange(m.value)} className={`px-4 py-3 font-bold text-xs border-2 ${value===m.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{m.label}</button>
-        ))}
-      </div>
-    </div>
-  </div>
-);
-const CurrencyButtons = ({value,onChange}) => (
-  <div className="flex justify-center">
-    <div className="bg-gray-100 p-2 border-2 border-dotted border-black inline-block">
-      <div className="flex gap-2">
-        {[{value:'USD',label:'$'},{value:'EUR',label:'€'},{value:'GBP',label:'£'}].map(c => (
-          <button key={c.value} onClick={()=>onChange(c.value)} className={`px-6 py-3 font-bold text-xs border-2 ${value===c.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{c.label}</button>
         ))}
       </div>
     </div>
@@ -199,14 +156,13 @@ const CurrencyButtons = ({value,onChange}) => (
 );
 
 const numericKeyDown = e => {
-  const allowed = ['Backspace','Delete','Tab','Escape','Enter','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End','.'];
-  if (allowed.includes(e.key)) return;
-  if (e.ctrlKey || e.metaKey) return;
-  if (!/^\d$/.test(e.key)) e.preventDefault();
+  const allowed=['Backspace','Delete','Tab','Escape','Enter','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End','.'];
+  if(allowed.includes(e.key)||e.ctrlKey||e.metaKey) return;
+  if(!/^\d$/.test(e.key)) e.preventDefault();
 };
 
 const FormInput = ({type='text',value,onChange,placeholder,className='',style,...props}) => {
-  const base = "w-full p-2 border-2 border-gray-400 bg-white uppercase";
+  const base="w-full p-2 border-2 border-gray-400 bg-white uppercase";
   if(type==='textarea') return <textarea value={value} onChange={onChange} placeholder={placeholder} className={`${base} ${className}`} style={{fontSize:'16px',...style}} {...props}/>;
   return <input type={type} value={value} onChange={onChange} onKeyDown={type==='number'?numericKeyDown:undefined} placeholder={placeholder} className={`${base} ${className}`} style={{fontSize:'16px',...style}} {...props}/>;
 };
@@ -218,7 +174,7 @@ const ItemList = ({items,onDelete,renderItem,receiptStyle,formatTotal,getAmount}
     return (
       <div className="mt-4">
         <div className="space-y-0 mb-4">
-          {items.map(item => (
+          {items.map(item=>(
             <div key={item.id} className="flex justify-between items-start text-xs text-black border-b border-dashed border-gray-400 pb-2 pt-2">
               <div className="flex-1">{renderItem(item)}</div>
               <div className="flex items-center gap-3">
@@ -237,7 +193,7 @@ const ItemList = ({items,onDelete,renderItem,receiptStyle,formatTotal,getAmount}
   }
   return (
     <div className="mt-4 space-y-2">
-      {items.map(item => (
+      {items.map(item=>(
         <div key={item.id} className="bg-white p-3 border-2 border-black flex justify-between items-center">
           <div className="flex-1">{renderItem(item)}</div>
           <button onClick={()=>onDelete(item.id)} className="text-black font-bold text-xl ml-3 hover:text-gray-600">×</button>
@@ -249,10 +205,10 @@ const ItemList = ({items,onDelete,renderItem,receiptStyle,formatTotal,getAmount}
 
 const AccordionPage = ({steps,openIndices,onToggle,renderContent}) => (
   <div>
-    {steps.map((s,i) => {
-      const isOpen = openIndices.includes(i);
+    {steps.map((s,i)=>{
+      const isOpen=openIndices.includes(i);
       return (
-        <div key={i} className={i>0?'border-t-2 border-dashed border-gray-400':''}>
+        <div key={i} id={`accordion-step-${i}`} className={i>0?'border-t-2 border-dashed border-gray-400':''}>
           <button onClick={(e)=>{const opening=!isOpen;onToggle(i);if(opening)setTimeout(()=>e.currentTarget.scrollIntoView({behavior:'smooth',block:'start'}),0);}} className="w-full flex items-center justify-between py-4 px-1 text-left hover:opacity-60 transition-all">
             <div className="flex items-center gap-3" style={{opacity:isOpen?1:0.5}}>
               {s.icon}
@@ -263,7 +219,7 @@ const AccordionPage = ({steps,openIndices,onToggle,renderContent}) => (
             </div>
             <span className="text-3xl font-black text-black ml-4 leading-none flex-shrink-0">{isOpen?'−':'+'}</span>
           </button>
-          {isOpen&&<div className="pb-8 px-1 animate-fadeIn">{renderContent(i)}</div>}
+          {isOpen&&<div className="pb-4 px-1 animate-fadeIn">{renderContent(i)}</div>}
         </div>
       );
     })}
@@ -283,8 +239,8 @@ const ReceiptBottom = () => (
   </svg>
 );
 
-const Layout = ({children,onNavigate,showCopyToast,bgStyle,loadedAt}) => (
-  <div style={bgStyle}>
+const Layout = ({children,onNavigate,showCopyToast,loadedAt}) => (
+  <div style={BG_STYLE}>
     <style>{`
       @import url('https://fonts.googleapis.com/css2?family=Sixtyfour:wght@400&display=swap');
       * { font-family: 'Sixtyfour', monospace !important; word-wrap: break-word; overflow-wrap: break-word; }
@@ -301,7 +257,7 @@ const Layout = ({children,onNavigate,showCopyToast,bgStyle,loadedAt}) => (
       .text-white { color: ${BG_GREY} !important; }
       .hover\\:bg-gray-800:hover { background-color: #2a2a2a !important; }
       .currency-pattern { overflow: hidden; white-space: nowrap; text-align: center; }
-      @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+      @keyframes fadeIn { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
       .animate-fadeIn { animation: fadeIn 0.3s ease-in-out; }
       @keyframes barGrow { from { width: 0; } }
       .bar-animate { animation: barGrow 0.8s ease-out forwards; }
@@ -366,25 +322,32 @@ const Comrade = () => {
   const getWealthMetricLabel = useCallback(m=>m==='networth'?'NET WORTH':'SALARY',[]);
   const getMeasurementLabel = useCallback(m=>m==='sqm'?'SQ M':'SQ FT',[]);
   const copyToClipboard = useCallback(t=>{navigator.clipboard.writeText(t);setShowCopyToast(true);},[]);
-  const navigateTo = useCallback(p=>setPage(p),[]);
+  const navigateTo = useCallback(p=>{
+    window.history.pushState({page:p},'',`#${p}`);
+    setPage(p);
+  },[]);
+
+  useEffect(()=>{
+    window.history.replaceState({page:'home'},'','#home');
+    const onPop = e=>{ const p=e.state?.page||'home'; setPage(p); };
+    window.addEventListener('popstate',onPop);
+    return()=>window.removeEventListener('popstate',onPop);
+  },[]);
 
   const formatTimestamp = () => {
-    const d = new Date();
-    const date = d.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
-    const time = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    const d=new Date();
+    const date=d.toLocaleDateString('en-US',{month:'2-digit',day:'2-digit',year:'numeric'});
+    const time=d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
     return `${date} ${time}`;
   };
-  const [loadedAt, setLoadedAt] = useState(formatTimestamp);
-
+  const [loadedAt,setLoadedAt] = useState(formatTimestamp);
   const [page,setPage] = useState('home');
   const [showCopyToast,setShowCopyToast] = useState(false);
   const [randomQuote,setRandomQuote] = useState('');
   const [lastQuoteIndices,setLastQuoteIndices] = useState([]);
   const [signupEmail,setSignupEmail] = useState('');
   const [signupStatus,setSignupStatus] = useState('');
-
-  const bgStyle = useMemo(() => buildBgStyle(DEFAULT_BG), []);
-
+  const [hasSavedData,setHasSavedData] = useState(false);
   const [sharePeople,setSharePeople] = useState([]);
   const [shareBills,setShareBills] = useState([]);
   const [curPersonName,setCurPersonName] = useState('');
@@ -393,10 +356,11 @@ const Comrade = () => {
   const [curBillAmt,setCurBillAmt] = useState('');
   const [curBillPaidBy,setCurBillPaidBy] = useState('');
   const [shareWeighting,setShareWeighting] = useState('standard');
+  const [shareFloor,setShareFloor] = useState('off');
+  const [shareAdvancedOpen,setShareAdvancedOpen] = useState(false);
   const [shareCurrency,setShareCurrency] = useState('USD');
   const [shareWealthMetric,setShareWealthMetric] = useState('salary');
   const [shareOpen,setShareOpen] = useState([0]);
-
   const [productName,setProductName] = useState('');
   const [numberAvailable,setNumberAvailable] = useState('');
   const [saleBuyers,setSaleBuyers] = useState([]);
@@ -407,7 +371,6 @@ const Comrade = () => {
   const [saleCurrency,setSaleCurrency] = useState('USD');
   const [saleWealthMetric,setSaleWealthMetric] = useState('salary');
   const [saleOpen,setSaleOpen] = useState([0]);
-
   const [voteDecision,setVoteDecision] = useState('');
   const [voteOptions,setVoteOptions] = useState([]);
   const [curOptionText,setCurOptionText] = useState('');
@@ -419,7 +382,6 @@ const Comrade = () => {
   const [voteCurrency,setVoteCurrency] = useState('USD');
   const [voteWealthMetric,setVoteWealthMetric] = useState('salary');
   const [voteOpen,setVoteOpen] = useState([0]);
-
   const [totalRent,setTotalRent] = useState('');
   const [totalUtilities,setTotalUtilities] = useState('');
   const [rentPeople,setRentPeople] = useState([]);
@@ -427,18 +389,40 @@ const Comrade = () => {
   const [curRoommateRoomSize,setCurRoommateRoomSize] = useState('');
   const [curRoommateWealth,setCurRoommateWealth] = useState('');
   const [rentWeighting,setRentWeighting] = useState('standard');
+  const [rentFloor,setRentFloor] = useState('off');
+  const [rentAdvancedOpen,setRentAdvancedOpen] = useState(false);
   const [rentCurrency,setRentCurrency] = useState('USD');
   const [rentWealthMetric,setRentWealthMetric] = useState('salary');
   const [rentMeasurement,setRentMeasurement] = useState('sqft');
   const [rentOpen,setRentOpen] = useState([0]);
-
   const [showShareDetails,setShowShareDetails] = useState(false);
   const [showSaleDetails,setShowSaleDetails] = useState(false);
   const [showVoteDetails,setShowVoteDetails] = useState(false);
   const [showRentDetails,setShowRentDetails] = useState(false);
 
-  const makeToggle = setter => i => setter(prev => prev.includes(i)?prev.filter(x=>x!==i):[...prev,i]);
-  const makeJump = setter => i => setter([i]);
+  useEffect(()=>{
+    try {
+      const saved=localStorage.getItem('comrade_share');
+      if(saved){ const d=JSON.parse(saved); if(d.sharePeople?.length||d.shareBills?.length) setHasSavedData(true); }
+    } catch{}
+  },[]);
+
+  useEffect(()=>{
+    try {
+      localStorage.setItem('comrade_share',JSON.stringify({sharePeople,shareBills,shareCurrency,shareWealthMetric,shareWeighting,shareFloor}));
+      if(sharePeople.length||shareBills.length) setHasSavedData(true);
+    } catch{}
+  },[sharePeople,shareBills,shareCurrency,shareWealthMetric,shareWeighting,shareFloor]);
+
+  const loadSavedShare = useCallback(()=>{
+    try {
+      const saved=localStorage.getItem('comrade_share');
+      if(saved){ const d=JSON.parse(saved); if(d.sharePeople)setSharePeople(d.sharePeople); if(d.shareBills)setShareBills(d.shareBills); if(d.shareCurrency)setShareCurrency(d.shareCurrency); if(d.shareWealthMetric)setShareWealthMetric(d.shareWealthMetric); if(d.shareWeighting)setShareWeighting(d.shareWeighting); if(d.shareFloor)setShareFloor(d.shareFloor); }
+    } catch{}
+  },[]);
+
+  const makeToggle = setter => i => setter(prev=>prev.includes(i)?prev.filter(x=>x!==i):[...prev,i]);
+  const makeJump = setter => i => { setter([i]); scrollToStep(i); };
   const makeCollapseToFirst = setter => () => setter([0]);
 
   useEffect(()=>{
@@ -466,11 +450,10 @@ const Comrade = () => {
 
   const loadExample = useCallback(type=>{
     const data=EXAMPLE_DATA[type];const base=Date.now();
-    if(type==='share'){setSharePeople(data.people.map((p,i)=>({...p,id:base+i})));setShareBills(data.bills.map((b,i)=>({...b,id:base+100+i})));setCurPersonName('');setCurPersonWealth('');setCurBillDesc('');setCurBillAmt('');setCurBillPaidBy('');setShareOpen([0,1,2,3]);}
-    if(type==='sale'){setProductName(data.productName);setNumberAvailable(data.numberAvailable);setSaleBuyers(data.buyers.map((b,i)=>({...b,id:base+i})));setCurBuyerName('');setCurBuyerWealth('');setCurBuyerOffer('');setSaleOpen([0,1,2,3]);}
-    if(type==='vote'){setVoteDecision(data.decision);setVoteOptions(data.options.map((o,i)=>({...o,id:base+i})));setVoteParticipants(data.participants.map((p,i)=>({...p,id:base+100+i})));setCurParticipantName('');setCurParticipantWealth('');setCurParticipantVote('');setCurOptionText('');setVoteOpen([0,1,2,3,4]);}
-    if(type==='rent'){setTotalRent(data.totalRent);setTotalUtilities(data.totalUtilities);setRentPeople(data.people.map((p,i)=>({...p,id:base+i})));setCurRoommateName('');setCurRoommateRoomSize('');setCurRoommateWealth('');setRentOpen([0,1,2,3]);}
-    setTimeout(()=>window.scrollTo({top:0,behavior:'smooth'}),0);
+    if(type==='share'){setSharePeople(data.people.map((p,i)=>({...p,id:base+i})));setShareBills(data.bills.map((b,i)=>({...b,id:base+100+i})));setCurPersonName('');setCurPersonWealth('');setCurBillDesc('');setCurBillAmt('');setCurBillPaidBy('');setShareOpen([0,1,2,3]);scrollToStep(1);}
+    if(type==='sale'){setProductName(data.productName);setNumberAvailable(data.numberAvailable);setSaleBuyers(data.buyers.map((b,i)=>({...b,id:base+i})));setCurBuyerName('');setCurBuyerWealth('');setCurBuyerOffer('');setSaleOpen([0,1,2,3]);scrollToStep(1);}
+    if(type==='vote'){setVoteDecision(data.decision);setVoteOptions(data.options.map((o,i)=>({...o,id:base+i})));setVoteParticipants(data.participants.map((p,i)=>({...p,id:base+100+i})));setCurParticipantName('');setCurParticipantWealth('');setCurParticipantVote('');setCurOptionText('');setVoteOpen([0,1,2,3,4]);scrollToStep(1);}
+    if(type==='rent'){setTotalRent(data.totalRent);setTotalUtilities(data.totalUtilities);setRentPeople(data.people.map((p,i)=>({...p,id:base+i})));setCurRoommateName('');setCurRoommateRoomSize('');setCurRoommateWealth('');setRentOpen([0,1,2,3]);scrollToStep(1);}
   },[]);
 
   const handleEmailSignup = useCallback(e=>{
@@ -486,12 +469,28 @@ const Comrade = () => {
   const shareCalculations = useMemo(()=>{
     if(page!=='share-results'||!sharePeople.length) return{total:0,peopleData:[],transactions:[]};
     const total=shareBills.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
-    const peopleData=sharePeople.map(p=>{
+    const taw=sharePeople.reduce((s,pp)=>s+applyWeighting(parseFloat(pp.wealth)||0,shareWeighting),0);
+    let shares=sharePeople.map(p=>{
       const w=parseFloat(p.wealth)||0,paid=shareBills.filter(b=>b.paidBy===p.name).reduce((s,b)=>s+(parseFloat(b.amount)||0),0),aw=applyWeighting(w,shareWeighting);
-      const taw=sharePeople.reduce((s,pp)=>s+applyWeighting(parseFloat(pp.wealth)||0,shareWeighting),0);
       const fs=taw>0?(aw/taw)*total:total/sharePeople.length;
-      return{...p,wealth:w,paid,fairShare:fs,adjustedWealth:aw,paidPct:total>0?(paid/total)*100:0,fairPct:total>0?(fs/total)*100:0};
+      return{...p,wealth:w,paid,fairShare:fs,adjustedWealth:aw};
     });
+    if(shareFloor!=='off'){
+      const minPayment=(parseFloat(shareFloor)/100)*(total/sharePeople.length);
+      let changed=true;
+      while(changed){
+        changed=false;
+        const below=shares.filter(p=>p.fairShare<minPayment-0.001);
+        if(!below.length) break;
+        changed=true;
+        const deficit=below.reduce((s,p)=>s+(minPayment-p.fairShare),0);
+        below.forEach(p=>{p.fairShare=minPayment;});
+        const above=shares.filter(p=>p.fairShare>minPayment+0.001);
+        const totalAW=above.reduce((s,p)=>s+p.adjustedWealth,0);
+        above.forEach(p=>{p.fairShare+=totalAW>0?(p.adjustedWealth/totalAW)*deficit:deficit/above.length;});
+      }
+    }
+    const peopleData=shares.map(p=>({...p,paidPct:total>0?(p.paid/total)*100:0,fairPct:total>0?(p.fairShare/total)*100:0}));
     const settlements=peopleData.map(p=>({name:p.name,balance:p.paid-p.fairShare})).filter(s=>Math.abs(s.balance)>0.01);
     const payers=settlements.filter(s=>s.balance<0).sort((a,b)=>a.balance-b.balance);
     const receivers=settlements.filter(s=>s.balance>0).sort((a,b)=>b.balance-a.balance);
@@ -504,7 +503,7 @@ const Comrade = () => {
       if(Math.abs(pc[pi].balance)<0.01)pi++;if(Math.abs(rc[ri].balance)<0.01)ri++;
     }
     return{total,peopleData,transactions};
-  },[sharePeople,shareBills,shareWeighting,page]);
+  },[sharePeople,shareBills,shareWeighting,shareFloor,page]);
 
   const saleCalculations = useMemo(()=>{
     if(page!=='sale-results'||!saleBuyers.length) return{rankedBuyers:[],avgOffer:0};
@@ -540,9 +539,25 @@ const Comrade = () => {
       return{...p,roomSize:rs,wealth:w,roomPct:rp,adjustedWealth:aw,roomValue:rp*aw};
     });
     const trv=pd.reduce((s,p)=>s+p.roomValue,0);
-    const rentData=pd.map(p=>({...p,fairRent:trv>0?(p.roomValue/trv)*total:total/rentPeople.length,rentPct:trv>0?(p.roomValue/trv)*100:100/rentPeople.length})).sort((a,b)=>b.fairRent-a.fairRent);
+    let shares=pd.map(p=>({...p,fairRent:trv>0?(p.roomValue/trv)*total:total/rentPeople.length}));
+    if(rentFloor!=='off'){
+      const minPayment=(parseFloat(rentFloor)/100)*(total/rentPeople.length);
+      let changed=true;
+      while(changed){
+        changed=false;
+        const below=shares.filter(p=>p.fairRent<minPayment-0.001);
+        if(!below.length) break;
+        changed=true;
+        const deficit=below.reduce((s,p)=>s+(minPayment-p.fairRent),0);
+        below.forEach(p=>{p.fairRent=minPayment;});
+        const above=shares.filter(p=>p.fairRent>minPayment+0.001);
+        const totalRV=above.reduce((s,p)=>s+p.roomValue,0);
+        above.forEach(p=>{p.fairRent+=totalRV>0?(p.roomValue/totalRV)*deficit:deficit/above.length;});
+      }
+    }
+    const rentData=shares.map(p=>({...p,rentPct:total>0?(p.fairRent/total)*100:100/rentPeople.length})).sort((a,b)=>b.fairRent-a.fairRent);
     return{rentAmount,utilitiesAmount,total,totalRoomSize:trs,rentData,totalRoomValue:trv};
-  },[rentPeople,totalRent,totalUtilities,rentWeighting,page]);
+  },[rentPeople,totalRent,totalUtilities,rentWeighting,rentFloor,page]);
 
   const MotivationalQuote = () => <p className="text-center text-gray-700 leading-relaxed text-xs">{randomQuote}</p>;
 
@@ -716,42 +731,11 @@ const Comrade = () => {
       </div>
     </div>
   );
-  const renderCalculateStep = (weighting,setWeighting,currency,setCurrency,wealthMetric,setWealthMetric,onCalculate,measurement,setMeasurement) => (
-    <div>
-      <p className="text-xs mb-5 text-black">Adjust any settings, and see your results.</p>
-      <div className="mb-5">
-        <h4 className="text-sm font-bold mb-1 text-black uppercase tracking-wider">CURRENCY</h4>
-        <p className="text-xs mb-3 text-black">Choose your preferred currency.</p>
-        <CurrencyButtons value={currency} onChange={setCurrency}/>
-      </div>
-      <div className="border-t border-dashed border-gray-400 my-4"></div>
-      {measurement!==undefined&&(<>
-        <div className="mb-5">
-          <h4 className="text-sm font-bold mb-1 text-black uppercase tracking-wider">MEASUREMENTS</h4>
-          <p className="text-xs mb-3 text-black">Pick what unit room size should be measured in.</p>
-          <MeasurementButtons value={measurement} onChange={setMeasurement}/>
-        </div>
-        <div className="border-t border-dashed border-gray-400 my-4"></div>
-      </>)}
-      <div className="mb-5">
-        <h4 className="text-sm font-bold mb-1 text-black uppercase tracking-wider">WEALTH</h4>
-        <p className="text-xs mb-3 text-black">Select your preferred financial metric of wealth.</p>
-        <WealthMetricButtons value={wealthMetric} onChange={setWealthMetric}/>
-      </div>
-      <div className="border-t border-dashed border-gray-400 my-4"></div>
-      <div className="mb-6">
-        <h4 className="text-sm font-bold mb-1 text-black uppercase tracking-wider">WEIGHTING</h4>
-        <p className="text-xs mb-3 text-black">Decide how much wealth should affect Comrade's calculations. (For a detailed explanation of weighting, <span className="underline cursor-pointer hover:text-gray-600" onClick={()=>navigateTo('about')}>read our FAQ</span>. If in doubt, choose Mid.)</p>
-        <WeightingButtons value={weighting} onChange={setWeighting}/>
-      </div>
-      <div className="border-t border-dashed border-gray-400 my-4"></div>
-      <button onClick={onCalculate} className="bg-black text-white w-full py-4 font-black text-xl border-4 border-black hover:bg-gray-800 transition-all uppercase calculate-btn">CALCULATE</button>
-    </div>
-  );
 
   const NavButton = ({label,onClick}) => (
     <button onClick={onClick} className="bg-black text-white w-full py-3 font-bold border-2 border-black text-sm hover:bg-gray-800 transition-all mt-2">{label}</button>
   );
+
   const renderIntroSlide = (description,exampleType,onBegin) => (
     <div>
       <p className="mb-4 text-black leading-relaxed text-xs">{description}</p>
@@ -763,7 +747,7 @@ const Comrade = () => {
     </div>
   );
 
-  const lp = {onNavigate: navigateTo, showCopyToast, bgStyle, loadedAt};
+  const lp = {onNavigate:navigateTo, showCopyToast, loadedAt};
 
   // ── HOME ──
   const HomeAccordion = () => {
@@ -815,7 +799,7 @@ const Comrade = () => {
           )}
         </div>
         <div style={{textAlign:'center',marginTop:4}}>
-          <span onClick={()=>navigateTo('tools')} style={{fontSize:'14px',color:'#6B7280',letterSpacing:'1px',cursor:'pointer',borderBottom:'1px dashed #6B7280',paddingBottom:'1px'}}>SEE ALL TOOLS →</span>
+          <span onClick={()=>navigateTo('tools')} style={{fontSize:'14px',color:'#6B7280',letterSpacing:'1px',cursor:'pointer',borderBottom:'1px dashed #6B7280',paddingBottom:'1px',display:'inline-block'}}>SEE ALL TOOLS →</span>
         </div>
       </div>
     );
@@ -830,11 +814,11 @@ const Comrade = () => {
   );
 
   if(page==='tools') {
-    const tools = [
-      { route:'share-entry', icon:<BillIcon size={22}/>, label:'SPLITTING BILLS?' },
-      { route:'rent-entry', icon:<HouseIcon size={22}/>, label:'SPLITTING RENT?' },
-      { route:'sale-entry', icon:<TagIcon size={22}/>, label:'SELLING SOMETHING?' },
-      { route:'vote-entry', icon:<CheckCircleIcon size={22}/>, label:'VOTING ON A DECISION?', experimental:true },
+    const tools=[
+      {route:'share-entry',icon:<BillIcon size={22}/>,label:'SPLITTING BILLS?'},
+      {route:'rent-entry',icon:<HouseIcon size={22}/>,label:'SPLITTING RENT?'},
+      {route:'sale-entry',icon:<TagIcon size={22}/>,label:'SELLING SOMETHING?'},
+      {route:'vote-entry',icon:<CheckCircleIcon size={22}/>,label:'VOTING ON A DECISION?',experimental:true},
     ];
     return (
       <Layout {...lp}>
@@ -869,33 +853,17 @@ const Comrade = () => {
       </div>
       <div className="mb-4">{renderEmailSignup()}</div>
       <CurrencyDivider />
-      <div className="bg-white p-6 border-2 border-dashed border-gray-400">
-        <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider text-center">FAQ</h2>
-        <div className="space-y-6 text-black">
-          {[
-            {q:'HOW DOES THIS WORK?',a:'Comrade uses wealth data to decide how much each person should pay. It combines all the bills and the amounts already paid, then looks at each person\'s wealth in relation to others in the group to establish what proportion of the total amount each person should actually be responsible for.'},
-            {q:'WHAT IS "WEIGHTING"?',a:'Weighting is the level of emphasis placed on each user\'s relative wealth (salary/net worth). By default, each person\'s responsibility is directly correlated with their wealth.\n\nFor example, let\'s say Fred and George each paid $100 on shared bills. Fred earns $50,000 a year, while George brings in $100,000. With regular ("Mid") weighting, because George makes twice as much money as Fred, he should pay twice as much. So far, he only paid 50% — $100 — meaning he owes Fred another $33.33.\n\nIn settings, you can also select "High" weighting, which emphasizes wealth differences even more by using squared wealth values for calculations; or "Low" weighting, which uses square-root values for more gentle adjustments. There is also an option to forego weighting entirely.'},
-            {q:'WHAT DO YOU DO WITH MY FINANCIAL INFORMATION?',a:'Nothing.'},
-            {q:'NOTHING?',a:'Nothing. All calculations are performed on the user\'s device. Comrade does not receive or save user data.\n\nIf a user signs up for email updates, their email is shared with Comrade only, and is not associated with any financial data.'},
-            {q:'WHO BUILT THIS?',render:<p className="leading-relaxed text-xs mb-2">Comrade is a startup based in Brooklyn, New York. Get in touch at <a href="mailto:hello@comrade.money" className="underline hover:text-gray-600">hello@comrade.money</a>.</p>},
-            {q:'IS COMRADE AVAILABLE ON THE APP STORE?',render:<p className="leading-relaxed text-xs mb-2">Not yet! For now, Comrade is fully functional on mobile and desktop via our website, <a href="https://www.comrade.money" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">www.comrade.money</a>. If you'd like to use a standalone app, or have other feedback or feature requests, please get in touch.</p>},
-          ].map(({q,a,render},i)=>(
-            <div key={q}>
-              <h3 className="font-bold mb-2 text-sm uppercase tracking-wider">{q}</h3>
-              {render??a.split('\n\n').map((para,j)=><p key={j} className="leading-relaxed text-xs mb-2">{para}</p>)}
-              <div className="border-t border-dashed border-gray-400 mt-4"></div>
-            </div>
-          ))}
-          <div>
-            <h3 className="font-bold mb-2 text-sm uppercase tracking-wider">IT'S AWKWARD ASKING MY FRIENDS HOW MUCH MONEY THEY HAVE. WHAT SHOULD I DO?</h3>
-            <p className="leading-relaxed text-xs">Do it anyway.{' '}<a href="https://www.hbs.edu/ris/Publication%20Files/23-039_f20d86a0-a1cf-4bd6-8066-74ccc6f2c3cf.pdf" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">Studies</a>{' '}have found{' '}<a href="https://www.nytimes.com/interactive/2020/02/19/magazine/salary-sharing.html" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">breaking</a>{' '}the{' '}<a href="https://www.businessinsider.com/salary-pay-transparency-jobs-income-taboo-equity-2023-1" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">taboos</a>{' '}around sharing information about wealth makes society better.</p>
-            <div className="border-t border-dashed border-gray-400 mt-4"></div>
-          </div>
-          <div>
-            <h3 className="font-bold mb-2 text-sm uppercase tracking-wider">IS THIS SERIOUS?</h3>
-            <p className="leading-relaxed text-xs">What do you think?</p>
-          </div>
-        </div>
+      <div>
+        <h2 className="text-2xl font-black py-4 text-black uppercase tracking-wider text-center border-b-2 border-dashed border-gray-400">FAQ</h2>
+        {[
+          {q:'HOW DOES THIS WORK?',a:'Comrade uses wealth data to decide how much each person should pay. It combines all the bills and the amounts already paid, then looks at each person\'s wealth in relation to others in the group to establish what proportion of the total amount each person should actually be responsible for.'},
+          {q:'WHAT IS "WEIGHTING"?',a:'Weighting is the level of emphasis placed on each user\'s relative wealth (salary/net worth). By default, each person\'s responsibility is directly correlated with their wealth.\n\nFor example, let\'s say Fred and George each paid $100 on shared bills. Fred earns $50,000 a year, while George brings in $100,000. With regular ("Mid") weighting, because George makes twice as much money as Fred, he should pay twice as much. So far, he only paid 50% — $100 — meaning he owes Fred another $33.33.\n\nIn settings, you can also select "High" weighting, which emphasizes wealth differences even more by using squared wealth values for calculations; or "Low" weighting, which uses square-root values for more gentle adjustments. There is also an option to forego weighting entirely.'},
+          {q:'WHAT DO YOU DO WITH MY FINANCIAL INFORMATION?',render:<><p className="leading-relaxed text-xs mb-3">Nothing. All calculations are performed on the user's device. Comrade does not receive or save user data.</p><p className="leading-relaxed text-xs">If a user signs up for email updates, their email is shared with Comrade only, and is not associated with any financial data.</p></>},
+          {q:'WHO BUILT THIS?',render:<p className="leading-relaxed text-xs">Comrade is a startup based in Brooklyn, New York. Get in touch at <a href="mailto:hello@comrade.money" className="underline hover:text-gray-600">hello@comrade.money</a>.</p>},
+          {q:'IS COMRADE AVAILABLE ON THE APP STORE?',render:<p className="leading-relaxed text-xs">Not yet! For now, Comrade is fully functional on mobile and desktop via our website, <a href="https://www.comrade.money" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">www.comrade.money</a>. If you'd like to use a standalone app, or have other feedback or feature requests, please get in touch.</p>},
+          {q:"IT'S AWKWARD ASKING MY FRIENDS HOW MUCH MONEY THEY HAVE. WHAT SHOULD I DO?",render:<p className="leading-relaxed text-xs">Do it anyway.{' '}<a href="https://www.hbs.edu/ris/Publication%20Files/23-039_f20d86a0-a1cf-4bd6-8066-74ccc6f2c3cf.pdf" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">Studies</a>{' '}have found{' '}<a href="https://www.nytimes.com/interactive/2020/02/19/magazine/salary-sharing.html" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">breaking</a>{' '}the{' '}<a href="https://www.businessinsider.com/salary-pay-transparency-jobs-income-taboo-equity-2023-1" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">taboos</a>{' '}around sharing information about wealth makes society better.</p>},
+          {q:'IS THIS SERIOUS?',a:'What do you think?'},
+        ].map((item,i,arr)=><FaqItem key={item.q} {...item} border={i<arr.length-1}/>)}
       </div>
     </Layout>
   );
@@ -924,16 +892,62 @@ const Comrade = () => {
     const steps=[{label:'SPLIT COSTS',icon:<BillIcon size={22}/>},{label:'PEOPLE',icon:<PersonIcon size={22}/>},{label:'BILLS',icon:<BillIcon size={22}/>},{label:'CALCULATE',icon:<CalculateIcon size={22}/>}];
     const jump=makeJump(setShareOpen);
     const renderContent=i=>{
-      if(i===0) return renderIntroSlide('From meals to vacations, taxis to tickets, handle your shared expenses with friends more fairly. Comrade combines and simplifies group bills, while using information about group members\' finances to decide how much everyone should pay.','share',()=>jump(1));
+      if(i===0) return (
+        <div>
+          <p className="text-xs mb-5 text-black">From meals to vacations, taxis to tickets, handle your shared expenses with friends more fairly. Comrade combines and simplifies group bills, while using information about group members' finances to decide how much everyone should pay.</p>
+          <div className="flex flex-col gap-3">
+            {hasSavedData ? (
+              <>
+                <button onClick={()=>{loadSavedShare();jump(1);}} className="w-full bg-black text-white py-3 font-bold text-sm border-2 border-black hover:bg-gray-800 transition-all">RESUME SPLIT →</button>
+                <div className="flex gap-3">
+                  <button onClick={()=>loadExample('share')} className="flex-1 bg-white text-black font-bold py-2 px-4 border-2 border-black text-xs hover:bg-gray-100 transition-all">EXAMPLE DATA</button>
+                  <button onClick={()=>{handleClearAll('share');jump(1);}} className="flex-1 bg-white text-black font-bold py-2 px-4 border-2 border-black text-xs hover:bg-gray-100 transition-all">NEW SPLIT</button>
+                </div>
+              </>
+            ) : (
+              <>
+                <button onClick={()=>{handleClearAll('share');jump(1);}} className="w-full bg-black text-white py-3 font-bold text-sm border-2 border-black hover:bg-gray-800 transition-all">NEW SPLIT →</button>
+                <button onClick={()=>loadExample('share')} className="w-full bg-white text-black font-bold py-2 px-4 border-2 border-black text-xs hover:bg-gray-100 transition-all">EXAMPLE DATA</button>
+              </>
+            )}
+          </div>
+        </div>
+      );
       if(i===1) return (
         <div>
           <p className="text-xs mb-4 text-black">List the people splitting the costs, including their financial resources.</p>
+          <div className="border-2 border-dashed border-gray-400 p-4 mb-5">
+            <p className="text-xs font-bold mb-2 text-black uppercase tracking-wider">CURRENCY:</p>
+            <div className="flex justify-center mb-4">
+              <div className="bg-gray-100 p-1 border-2 border-dotted border-black inline-block">
+                <div className="flex gap-1">
+                  {[{value:'USD',label:'$'},{value:'EUR',label:'€'},{value:'GBP',label:'£'}].map(c=>(
+                    <button key={c.value} onClick={()=>setShareCurrency(c.value)} className={`px-4 py-2 font-bold text-xs border-2 ${shareCurrency===c.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{c.label}</button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="border-t border-dashed border-gray-400 my-3"></div>
+            <p className="text-xs font-bold mb-2 text-black uppercase tracking-wider">WEALTH METRIC:</p>
+            <div className="flex justify-center">
+              <div className="bg-gray-100 p-1 border-2 border-dotted border-black inline-block">
+                <div className="flex gap-1">
+                  {[{value:'salary',label:'SALARY'},{value:'networth',label:'NET WORTH'}].map(w=>(
+                    <button key={w.value} onClick={()=>setShareWealthMetric(w.value)} className={`px-3 py-2 font-bold text-xs border-2 ${shareWealthMetric===w.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{w.label}</button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
           <div className="flex flex-col sm:flex-row gap-2 mb-3">
             <FormInput value={curPersonName} onChange={e=>setCurPersonName(e.target.value)} placeholder="NAME" className="flex-1" style={{minWidth:'140px'}}/>
             <FormInput type="number" value={curPersonWealth} onChange={e=>setCurPersonWealth(e.target.value)} placeholder={`${getCurrencySymbol(shareCurrency)} ${getWealthMetricLabel(shareWealthMetric)}`} min="0" step="0.01" inputMode="decimal" className="flex-1" style={{minWidth:'180px'}}/>
           </div>
           <button onClick={()=>{if(curPersonName.trim()){setSharePeople([...sharePeople,{id:Date.now(),name:curPersonName,wealth:curPersonWealth}]);setCurPersonName('');setCurPersonWealth('');}}} className="bg-black text-white px-4 py-2 font-bold border-2 border-black text-xs mb-4">+ ADD PERSON</button>
-          {sharePeople.length>0?<ItemList items={sharePeople} onDelete={id=>setSharePeople(sharePeople.filter(p=>p.id!==id))} renderItem={p=><><p className="text-xs text-black font-bold uppercase">{p.name}</p><p className="text-xs text-black">{getWealthMetricLabel(shareWealthMetric)}: {formatCurrency(p.wealth,2,shareCurrency)}</p></>}/>:<p className="text-center text-gray-600 uppercase tracking-wider font-bold mt-2" style={{fontSize:'10px'}}>— No people added yet —</p>}
+          {sharePeople.length>0
+            ?<ItemList items={sharePeople} onDelete={id=>setSharePeople(sharePeople.filter(p=>p.id!==id))} renderItem={p=><><p className="text-xs text-black font-bold uppercase">{p.name}</p><p className="text-xs text-black">{getWealthMetricLabel(shareWealthMetric)}: {formatCurrency(p.wealth,2,shareCurrency)}</p></>}/>
+            :<p className="text-center text-gray-600 uppercase tracking-wider font-bold mt-2" style={{fontSize:'10px'}}>— No people added yet —</p>
+          }
           <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(2)}/></div>
         </div>
       );
@@ -949,11 +963,47 @@ const Comrade = () => {
             </select>
           </div>
           <button onClick={()=>{if(curBillDesc.trim()){setShareBills([...shareBills,{id:Date.now(),description:curBillDesc,amount:curBillAmt,paidBy:curBillPaidBy}]);setCurBillDesc('');setCurBillAmt('');setCurBillPaidBy('');}}} className="bg-black text-white px-4 py-2 font-bold border-2 border-black text-xs mb-4">+ ADD BILL</button>
-          {shareBills.length>0?<ItemList items={shareBills} onDelete={id=>setShareBills(shareBills.filter(b=>b.id!==id))} renderItem={b=><><p className="text-black font-bold uppercase">{b.description}</p><p className="text-black text-xs">{b.paidBy||'Unknown'}</p></>} receiptStyle formatTotal={t=>formatCurrency(t,2,shareCurrency)} getAmount={b=>b.amount}/>:<><p className="text-center text-gray-600 uppercase tracking-wider font-bold mb-4" style={{fontSize:'10px'}}>— No bills added yet —</p><div className="flex justify-between items-center pt-3 border-t-2 border-black"><span className="font-black text-black uppercase sf">TOTAL</span><span className="font-black text-black text-lg sf">{formatCurrency(0,2,shareCurrency)}</span></div></>}
+          {shareBills.length>0
+            ?<ItemList items={shareBills} onDelete={id=>setShareBills(shareBills.filter(b=>b.id!==id))} renderItem={b=><><p className="text-black font-bold uppercase">{b.description}</p><p className="text-black text-xs">{b.paidBy||'Unknown'}</p></>} receiptStyle formatTotal={t=>formatCurrency(t,2,shareCurrency)} getAmount={b=>b.amount}/>
+            :<><p className="text-center text-gray-600 uppercase tracking-wider font-bold mb-4" style={{fontSize:'10px'}}>— No bills added yet —</p><div className="flex justify-between items-center pt-3 border-t-2 border-black"><span className="font-black text-black uppercase sf">TOTAL</span><span className="font-black text-black text-lg sf">{formatCurrency(0,2,shareCurrency)}</span></div></>
+          }
           <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(3)}/></div>
         </div>
       );
-      return renderCalculateStep(shareWeighting,setShareWeighting,shareCurrency,setShareCurrency,shareWealthMetric,setShareWealthMetric,()=>navigateTo('share-results'));
+      return (
+        <div>
+          <p className="text-xs mb-5 text-black">Tweak any settings, or just see your results.</p>
+          <div className="mb-3">
+            <button onClick={()=>setShareAdvancedOpen(o=>!o)} style={{background:shareAdvancedOpen?DARK:'transparent',border:shareAdvancedOpen?`2px solid ${DARK}`:'2px dashed #9CA3AF',display:'flex',alignItems:'center',padding:'16px',width:'100%',cursor:'pointer',transition:'background 0.15s'}}>
+              <span style={{width:16,flexShrink:0}}/>
+              <span style={{flex:1,textAlign:'center',fontWeight:900,fontSize:'1.25rem',textTransform:'uppercase',color:shareAdvancedOpen?BG_GREY:DARK,lineHeight:1.2}}>ADVANCED SETTINGS</span>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{flexShrink:0,transition:'transform 0.2s',transform:shareAdvancedOpen?'rotate(180deg)':'rotate(0deg)'}}>
+                <polyline points="2,5 8,11 14,5" stroke={shareAdvancedOpen?BG_GREY:'#9CA3AF'} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+            {shareAdvancedOpen&&(
+              <div style={{border:`2px dashed #9CA3AF`,borderTop:'none',padding:'20px'}} className="animate-fadeIn">
+                <h4 className="text-sm font-bold mb-1 text-black uppercase tracking-wider">WEIGHTING</h4>
+                <p className="text-xs mb-3 text-black">Decide how much wealth should affect Comrade's calculations. (For a detailed explanation, <span className="underline cursor-pointer hover:text-gray-600" onClick={()=>navigateTo('about')}>read our FAQ</span>. If in doubt, choose Mid.)</p>
+                <WeightingButtons value={shareWeighting} onChange={setShareWeighting}/>
+                <div className="border-t border-dashed border-gray-400 my-5"></div>
+                <h4 className="text-sm font-bold mb-1 text-black uppercase tracking-wider">CONTRIBUTION FLOOR</h4>
+                <p className="text-xs mb-3 text-black">Prevents anyone from paying too little. When enabled, no group member will pay less than the selected percentage of what they'd owe in an even split — regardless of their wealth.</p>
+                <div className="flex justify-center">
+                  <div className="bg-gray-100 p-2 border-2 border-dotted border-black inline-block">
+                    <div className="flex flex-wrap gap-2">
+                      {[{value:'off',label:'OFF'},{value:'10',label:'10%'},{value:'25',label:'25%'},{value:'50',label:'50%'}].map(f=>(
+                        <button key={f.value} onClick={()=>setShareFloor(f.value)} className={`flex-1 min-w-[100px] p-3 font-bold text-xs border-2 ${shareFloor===f.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{f.label}</button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+          <button onClick={()=>navigateTo('share-results')} className="bg-black text-white w-full py-4 font-black text-xl border-4 border-black hover:bg-gray-800 transition-all uppercase calculate-btn">CALCULATE</button>
+        </div>
+      );
     };
     return <Layout {...lp}><AccordionPage steps={steps} openIndices={shareOpen} onToggle={makeToggle(setShareOpen)} renderContent={renderContent}/></Layout>;
   }
@@ -993,7 +1043,7 @@ const Comrade = () => {
             ],<div><p className="font-bold mb-2">EQUAL SPLIT (NO WEIGHTING):</p>{renderMathRow(peopleData,p=>`${formatCurrency(total,2,shareCurrency)} ÷ ${peopleData.length} = ${formatCurrencySmart(p.fairShare,shareCurrency)}`)}</div>)}
           </div>}
         </>)}
-        {renderResultsFooter(hasData,`Comrade | Bill-splitting results\n\nTotal: ${formatCurrency(total,2,shareCurrency)}\n\nBreakdown:\n${peopleData.map(p=>`${p.name}: Paid ${formatCurrency(p.paid,2,shareCurrency)}, fair share ${formatCurrencySmart(p.fairShare,shareCurrency)}`).join('\n')}\n\nSettlements:\n${transactions.length===0?'All settled!':transactions.map(t=>`${t.from} pays ${t.to} ${formatCurrencySmart(t.amount,shareCurrency)}`).join('\n')}\n\nCalculated using www.comrade.money, the fairer way to split costs with friends`,'share-entry')}
+        {renderResultsFooter(hasData,`Comrade | Bill-splitting results\n\nTotal: ${formatCurrency(total,2,shareCurrency)}\n\nBreakdown:\n${peopleData.map(p=>`${p.name}: Paid ${formatCurrency(p.paid,2,shareCurrency)}, fair share ${formatCurrencySmart(p.fairShare,shareCurrency)}`).join('\n')}\n\nSettlements:\n${transactions.length===0?'All settled!':transactions.map(t=>`${t.from} pays ${t.to} ${formatCurrencySmart(t.amount,shareCurrency)}`).join('\n')}\n\nCalculated using www.comrade.money`,'share-entry')}
       </Layout>
     );
   }
@@ -1007,6 +1057,11 @@ const Comrade = () => {
       if(i===2) return (
         <div>
           <p className="text-xs mb-4 text-black">Add all the people interested in buying, along with their financial information.</p>
+          <div className="border-2 border-dashed border-gray-400 p-3 mb-5">
+            <div className="mb-3"><p className="text-xs font-bold mb-2 text-black uppercase tracking-wider">CURRENCY:</p><div className="flex justify-center"><div className="bg-gray-100 p-1 border-2 border-dotted border-black inline-block"><div className="flex gap-1">{[{value:'USD',label:'$'},{value:'EUR',label:'€'},{value:'GBP',label:'£'}].map(c=><button key={c.value} onClick={()=>setSaleCurrency(c.value)} className={`px-4 py-2 font-bold text-xs border-2 ${saleCurrency===c.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{c.label}</button>)}</div></div></div></div>
+            <div className="border-t border-dashed border-gray-400 my-3"></div>
+            <div><p className="text-xs font-bold mb-2 text-black uppercase tracking-wider">WEALTH METRIC:</p><div className="flex justify-center"><div className="bg-gray-100 p-1 border-2 border-dotted border-black inline-block"><div className="flex gap-1">{[{value:'salary',label:'SALARY'},{value:'networth',label:'NET WORTH'}].map(w=><button key={w.value} onClick={()=>setSaleWealthMetric(w.value)} className={`px-3 py-2 font-bold text-xs border-2 ${saleWealthMetric===w.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{w.label}</button>)}</div></div></div></div>
+          </div>
           <div className="flex flex-col sm:flex-row gap-2 mb-2">
             <FormInput value={curBuyerName} onChange={e=>setCurBuyerName(e.target.value)} placeholder="NAME" className="flex-1" style={{minWidth:'120px'}}/>
             <FormInput type="number" value={curBuyerOffer} onChange={e=>setCurBuyerOffer(e.target.value)} placeholder={`${getCurrencySymbol(saleCurrency)} OFFER`} min="0" step="0.01" inputMode="decimal" className="flex-1" style={{minWidth:'120px'}}/>
@@ -1017,7 +1072,14 @@ const Comrade = () => {
           <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(3)}/></div>
         </div>
       );
-      return renderCalculateStep(saleWeighting,setSaleWeighting,saleCurrency,setSaleCurrency,saleWealthMetric,setSaleWealthMetric,()=>navigateTo('sale-results'));
+      return (
+        <div>
+          <p className="text-xs mb-5 text-black">Tweak any settings, or just see your results.</p>
+          <div className="mb-5"><h4 className="text-sm font-bold mb-2 text-black uppercase tracking-wider">WEIGHTING:</h4><p className="text-xs mb-3 text-black">Decide how much wealth should affect Comrade's calculations. (For a detailed explanation, <span className="underline cursor-pointer hover:text-gray-600" onClick={()=>navigateTo('about')}>read our FAQ</span>. If in doubt, choose Mid.)</p><WeightingButtons value={saleWeighting} onChange={setSaleWeighting}/></div>
+          <div className="border-t border-dashed border-gray-400 my-4"></div>
+          <button onClick={()=>navigateTo('sale-results')} className="bg-black text-white w-full py-4 font-black text-xl border-4 border-black hover:bg-gray-800 transition-all uppercase calculate-btn">CALCULATE</button>
+        </div>
+      );
     };
     return <Layout {...lp}><AccordionPage steps={steps} openIndices={saleOpen} onToggle={makeToggle(setSaleOpen)} renderContent={renderContent}/></Layout>;
   }
@@ -1046,7 +1108,7 @@ const Comrade = () => {
             {renderMathSection(saleWeighting,[renderAdjustedWealthStep(1,rankedBuyers,saleWeighting),<div key="s2"><p className="font-bold mb-2">2. NEED SCORE (OFFER ÷ ADJUSTED WEALTH × 100):</p>{renderMathRow(rankedBuyers,b=>`${formatCurrency(b.offer,2,saleCurrency)} ÷ ${formatSmartNumber(b.adjustedWealth)} × 100 = ${b.needScore<0.01?b.needScore.toExponential(2):b.needScore.toFixed(2)}%`)}</div>],<div><p className="font-bold mb-2">NO WEIGHTING - RANKED BY OFFER AMOUNT:</p>{rankedBuyers.map((b,i)=><div key={b.id} className="flex justify-between mb-1"><span>#{i+1} {b.name}:</span><span className="font-mono">{formatCurrency(b.offer,2,saleCurrency)}</span></div>)}</div>)}
           </div>}
         </>)}
-        {renderResultsFooter(hasData,`Comrade | Selling results\n\nProduct: ${productName||'Unnamed'}\nQuantity: ${numAvail}\n\nSelected buyer${winners.length>1?'s':''}:\n${winners.map(w=>`${w.name} - ${formatCurrency(w.offer,2,saleCurrency)}`).join('\n')}\n\nAll buyers ranked:\n${rankedBuyers.map((b,i)=>`${i+1}. ${b.name} - Offer: ${formatCurrency(b.offer,2,saleCurrency)}, need score: ${b.needScore.toFixed(4)}%`).join('\n')}\n\nCalculated using www.comrade.money, the fairer way to sell products`,'sale-entry')}
+        {renderResultsFooter(hasData,`Comrade | Selling results\n\nProduct: ${productName||'Unnamed'}\nQuantity: ${numAvail}\n\nSelected buyer${winners.length>1?'s':''}:\n${winners.map(w=>`${w.name} - ${formatCurrency(w.offer,2,saleCurrency)}`).join('\n')}\n\nAll buyers ranked:\n${rankedBuyers.map((b,i)=>`${i+1}. ${b.name} - Offer: ${formatCurrency(b.offer,2,saleCurrency)}, need score: ${b.needScore.toFixed(4)}%`).join('\n')}\n\nCalculated using www.comrade.money`,'sale-entry')}
       </Layout>
     );
   }
@@ -1061,6 +1123,11 @@ const Comrade = () => {
       if(i===3) return (
         <div>
           <p className="text-xs mb-4 text-black">List the people in the group, their financial resources, and how they chose to vote.</p>
+          <div className="border-2 border-dashed border-gray-400 p-3 mb-5">
+            <div className="mb-3"><p className="text-xs font-bold mb-2 text-black uppercase tracking-wider">CURRENCY:</p><div className="flex justify-center"><div className="bg-gray-100 p-1 border-2 border-dotted border-black inline-block"><div className="flex gap-1">{[{value:'USD',label:'$'},{value:'EUR',label:'€'},{value:'GBP',label:'£'}].map(c=><button key={c.value} onClick={()=>setVoteCurrency(c.value)} className={`px-4 py-2 font-bold text-xs border-2 ${voteCurrency===c.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{c.label}</button>)}</div></div></div></div>
+            <div className="border-t border-dashed border-gray-400 my-3"></div>
+            <div><p className="text-xs font-bold mb-2 text-black uppercase tracking-wider">WEALTH METRIC:</p><div className="flex justify-center"><div className="bg-gray-100 p-1 border-2 border-dotted border-black inline-block"><div className="flex gap-1">{[{value:'salary',label:'SALARY'},{value:'networth',label:'NET WORTH'}].map(w=><button key={w.value} onClick={()=>setVoteWealthMetric(w.value)} className={`px-3 py-2 font-bold text-xs border-2 ${voteWealthMetric===w.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{w.label}</button>)}</div></div></div></div>
+          </div>
           <div className="flex flex-col sm:flex-row gap-2 mb-2">
             <FormInput value={curParticipantName} onChange={e=>setCurParticipantName(e.target.value)} placeholder="NAME" className="flex-1" style={{minWidth:'120px'}}/>
             <select value={curParticipantVote} onChange={e=>setCurParticipantVote(e.target.value)} className="flex-1 p-2 border-2 border-gray-400 bg-white uppercase" style={{minWidth:'120px',height:'42px',fontSize:'16px'}}>
@@ -1074,7 +1141,14 @@ const Comrade = () => {
           <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(4)}/></div>
         </div>
       );
-      return renderCalculateStep(voteWeighting,setVoteWeighting,voteCurrency,setVoteCurrency,voteWealthMetric,setVoteWealthMetric,()=>navigateTo('vote-results'));
+      return (
+        <div>
+          <p className="text-xs mb-5 text-black">Tweak any settings, or just see your results.</p>
+          <div className="mb-5"><h4 className="text-sm font-bold mb-2 text-black uppercase tracking-wider">WEIGHTING:</h4><p className="text-xs mb-3 text-black">Decide how much wealth should affect Comrade's calculations. (For a detailed explanation, <span className="underline cursor-pointer hover:text-gray-600" onClick={()=>navigateTo('about')}>read our FAQ</span>. If in doubt, choose Mid.)</p><WeightingButtons value={voteWeighting} onChange={setVoteWeighting}/></div>
+          <div className="border-t border-dashed border-gray-400 my-4"></div>
+          <button onClick={()=>navigateTo('vote-results')} className="bg-black text-white w-full py-4 font-black text-xl border-4 border-black hover:bg-gray-800 transition-all uppercase calculate-btn">CALCULATE</button>
+        </div>
+      );
     };
     return <Layout {...lp}><AccordionPage steps={steps} openIndices={voteOpen} onToggle={makeToggle(setVoteOpen)} renderContent={renderContent}/></Layout>;
   }
@@ -1111,7 +1185,7 @@ const Comrade = () => {
             {renderMathSection(voteWeighting,[renderAdjustedWealthStep(1,participantsData,voteWeighting),<div key="v2"><p className="font-bold mb-2">2. AVERAGE WEALTH:</p><div className="flex justify-between mb-1"><span>TOTAL:</span><span className="font-mono">{formatSmartNumber(participantsData.reduce((s,p)=>s+p.wealth,0))}</span></div><div className="flex justify-between mb-1"><span>AVERAGE:</span><span className="font-mono">{formatSmartNumber(participantsData.reduce((s,p)=>s+p.wealth,0)/participantsData.length)}</span></div></div>,<div key="v3"><p className="font-bold mb-2">3. VOTING POWER (AVG ÷ ADJUSTED):</p>{renderMathRow(participantsData,p=>{const avg=participantsData.reduce((s,pp)=>s+pp.wealth,0)/participantsData.length;return`${formatSmartNumber(avg)} ÷ ${formatSmartNumber(p.adjustedWealth)} = ${p.votingPower.toFixed(2)}`;})}<div className="flex justify-between mt-2 pt-2 border-t border-dashed border-gray-400 font-bold"><span>TOTAL POWER:</span><span className="font-mono">{totalVotingPower.toFixed(2)}</span></div></div>],<div><p className="font-bold mb-2">EQUAL VOTING POWER (NO WEIGHTING):</p>{renderMathRow(participantsData,()=>'1 vote')}</div>)}
           </div>}
         </>)}
-        {renderResultsFooter(hasData,`Comrade | Voting results\n\nDecision: ${voteDecision}\n\nWinner: ${winner?`${winner.option} (${winner.percentage.toFixed(1)}%)`:'None'}\n\nBreakdown:\n${voteBreakdown.map((b,i)=>`${i+1}. ${b.option}: ${b.percentage.toFixed(1)}% (${b.voters.length} voter${b.voters.length!==1?'s':''})`).join('\n')}\n\nCalculated using www.comrade.money, the fairer way to make decisions`,'vote-entry')}
+        {renderResultsFooter(hasData,`Comrade | Voting results\n\nDecision: ${voteDecision}\n\nWinner: ${winner?`${winner.option} (${winner.percentage.toFixed(1)}%)`:'None'}\n\nBreakdown:\n${voteBreakdown.map((b,i)=>`${i+1}. ${b.option}: ${b.percentage.toFixed(1)}% (${b.voters.length} voter${b.voters.length!==1?'s':''})`).join('\n')}\n\nCalculated using www.comrade.money`,'vote-entry')}
       </Layout>
     );
   }
@@ -1121,10 +1195,23 @@ const Comrade = () => {
     const jump=makeJump(setRentOpen);
     const renderContent=i=>{
       if(i===0) return renderIntroSlide("Figuring out rent splits with roommates is a fraught process. Decide it more fairly with Comrade by accounting for both room size and tenants' financial resources. Larger rooms and higher earners both pay more.",'rent',()=>jump(1));
-      if(i===1) return (<div><p className="text-xs mb-4 text-black">List your total monthly rent, and monthly utility costs.</p><FormInput type="number" value={totalRent} onChange={e=>setTotalRent(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} MONTHLY RENT`} min="0" step="0.01" inputMode="decimal" className="w-full mb-2"/><FormInput type="number" value={totalUtilities} onChange={e=>setTotalUtilities(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} MONTHLY UTILITIES`} min="0" step="0.01" inputMode="decimal" className="w-full"/><div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(2)}/></div></div>);
+      if(i===1) return (
+        <div>
+          <p className="text-xs mb-4 text-black">List your total monthly rent, and monthly utility costs.</p>
+          <div className="border-2 border-dashed border-gray-400 p-3 mb-5"><p className="text-xs font-bold mb-2 text-black uppercase tracking-wider">CURRENCY:</p><div className="flex justify-center"><div className="bg-gray-100 p-1 border-2 border-dotted border-black inline-block"><div className="flex gap-1">{[{value:'USD',label:'$'},{value:'EUR',label:'€'},{value:'GBP',label:'£'}].map(c=><button key={c.value} onClick={()=>setRentCurrency(c.value)} className={`px-4 py-2 font-bold text-xs border-2 ${rentCurrency===c.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{c.label}</button>)}</div></div></div></div>
+          <FormInput type="number" value={totalRent} onChange={e=>setTotalRent(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} MONTHLY RENT`} min="0" step="0.01" inputMode="decimal" className="w-full mb-2"/>
+          <FormInput type="number" value={totalUtilities} onChange={e=>setTotalUtilities(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} MONTHLY UTILITIES`} min="0" step="0.01" inputMode="decimal" className="w-full"/>
+          <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(2)}/></div>
+        </div>
+      );
       if(i===2) return (
         <div>
           <p className="text-xs mb-4 text-black">Add the names and details of each person sharing the property.</p>
+          <div className="border-2 border-dashed border-gray-400 p-3 mb-5">
+            <div className="mb-3"><p className="text-xs font-bold mb-2 text-black uppercase tracking-wider">MEASUREMENTS:</p><div className="flex justify-center"><div className="bg-gray-100 p-1 border-2 border-dotted border-black inline-block"><div className="flex gap-1">{[{value:'sqft',label:'SQ FT'},{value:'sqm',label:'SQ M'}].map(m=><button key={m.value} onClick={()=>setRentMeasurement(m.value)} className={`px-4 py-2 font-bold text-xs border-2 ${rentMeasurement===m.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{m.label}</button>)}</div></div></div></div>
+            <div className="border-t border-dashed border-gray-400 my-3"></div>
+            <div><p className="text-xs font-bold mb-2 text-black uppercase tracking-wider">WEALTH METRIC:</p><div className="flex justify-center"><div className="bg-gray-100 p-1 border-2 border-dotted border-black inline-block"><div className="flex gap-1">{[{value:'salary',label:'SALARY'},{value:'networth',label:'NET WORTH'}].map(w=><button key={w.value} onClick={()=>setRentWealthMetric(w.value)} className={`px-3 py-2 font-bold text-xs border-2 ${rentWealthMetric===w.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{w.label}</button>)}</div></div></div></div>
+          </div>
           <div className="flex flex-col sm:flex-row gap-2 mb-2">
             <FormInput value={curRoommateName} onChange={e=>setCurRoommateName(e.target.value)} placeholder="NAME" className="flex-1" style={{minWidth:'120px'}}/>
             <FormInput type="number" value={curRoommateRoomSize} onChange={e=>setCurRoommateRoomSize(e.target.value)} placeholder={`ROOM SIZE (${getMeasurementLabel(rentMeasurement)})`} min="0" step="0.01" inputMode="decimal" className="flex-1" style={{minWidth:'150px'}}/>
@@ -1135,7 +1222,40 @@ const Comrade = () => {
           <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(3)}/></div>
         </div>
       );
-      return renderCalculateStep(rentWeighting,setRentWeighting,rentCurrency,setRentCurrency,rentWealthMetric,setRentWealthMetric,()=>navigateTo('rent-results'),rentMeasurement,setRentMeasurement);
+      return (
+        <div>
+          <p className="text-xs mb-5 text-black">Tweak any settings, or just see your results.</p>
+          <div className="mb-3">
+            <button onClick={()=>setRentAdvancedOpen(o=>!o)} style={{background:rentAdvancedOpen?DARK:'transparent',border:rentAdvancedOpen?`2px solid ${DARK}`:'2px dashed #9CA3AF',display:'flex',alignItems:'center',padding:'16px',width:'100%',cursor:'pointer',transition:'background 0.15s'}}>
+              <span style={{width:16,flexShrink:0}}/>
+              <span style={{flex:1,textAlign:'center',fontWeight:900,fontSize:'1.25rem',textTransform:'uppercase',color:rentAdvancedOpen?BG_GREY:DARK,lineHeight:1.2}}>ADVANCED SETTINGS</span>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{flexShrink:0,transition:'transform 0.2s',transform:rentAdvancedOpen?'rotate(180deg)':'rotate(0deg)'}}>
+                <polyline points="2,5 8,11 14,5" stroke={rentAdvancedOpen?BG_GREY:'#9CA3AF'} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+            {rentAdvancedOpen&&(
+              <div style={{border:`2px dashed #9CA3AF`,borderTop:'none',padding:'20px'}} className="animate-fadeIn">
+                <h4 className="text-sm font-bold mb-1 text-black uppercase tracking-wider">WEIGHTING</h4>
+                <p className="text-xs mb-3 text-black">Decide how much wealth should affect Comrade's calculations. (For a detailed explanation, <span className="underline cursor-pointer hover:text-gray-600" onClick={()=>navigateTo('about')}>read our FAQ</span>. If in doubt, choose Mid.)</p>
+                <WeightingButtons value={rentWeighting} onChange={setRentWeighting}/>
+                <div className="border-t border-dashed border-gray-400 my-5"></div>
+                <h4 className="text-sm font-bold mb-1 text-black uppercase tracking-wider">CONTRIBUTION FLOOR</h4>
+                <p className="text-xs mb-3 text-black">Prevents anyone from paying too little. When enabled, no tenant will pay less than the selected percentage of what they'd owe in an even split — regardless of their wealth.</p>
+                <div className="flex justify-center">
+                  <div className="bg-gray-100 p-2 border-2 border-dotted border-black inline-block">
+                    <div className="flex flex-wrap gap-2">
+                      {[{value:'off',label:'OFF'},{value:'10',label:'10%'},{value:'25',label:'25%'},{value:'50',label:'50%'}].map(f=>(
+                        <button key={f.value} onClick={()=>setRentFloor(f.value)} className={`flex-1 min-w-[100px] p-3 font-bold text-xs border-2 ${rentFloor===f.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{f.label}</button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+          <button onClick={()=>navigateTo('rent-results')} className="bg-black text-white w-full py-4 font-black text-xl border-4 border-black hover:bg-gray-800 transition-all uppercase calculate-btn">CALCULATE</button>
+        </div>
+      );
     };
     return <Layout {...lp}><AccordionPage steps={steps} openIndices={rentOpen} onToggle={makeToggle(setRentOpen)} renderContent={renderContent}/></Layout>;
   }
@@ -1165,14 +1285,13 @@ const Comrade = () => {
             {renderMathSection(rentWeighting,[<div key="r1"><p className="font-bold mb-2">1. ROOM SIZE %:</p>{renderMathRow(rentData,p=>`${formatNumber(p.roomSize.toFixed(0))} ÷ ${formatNumber(totalRoomSize.toFixed(0))} = ${p.roomPct.toFixed(1)}%`)}</div>,renderAdjustedWealthStep(2,rentData,rentWeighting),<div key="r3"><p className="font-bold mb-2">3. ROOM VALUE (ROOM % × ADJUSTED WEALTH):</p>{renderMathRow(rentData,p=>`${p.roomPct.toFixed(1)}% × ${formatSmartNumber(p.adjustedWealth)} = ${formatSmartNumber(p.roomValue)}`)}<div className="flex justify-between mt-2 pt-2 border-t border-dashed border-gray-400 font-bold"><span>TOTAL VALUE:</span><span className="font-mono">{formatSmartNumber(totalRoomValue)}</span></div></div>,<div key="r4"><p className="font-bold mb-2">4. RENT OWED (VALUE % × TOTAL):</p>{renderMathRow(rentData,p=>`${p.rentPct.toFixed(1)}% × ${formatCurrency(total,2,rentCurrency)} = ${formatCurrencySmart(p.fairRent,rentCurrency)}`)}</div>],<><div><p className="font-bold mb-2">1. ROOM SIZE % (NO WEALTH WEIGHTING):</p>{renderMathRow(rentData,p=>`${formatNumber(p.roomSize.toFixed(0))} ÷ ${formatNumber(totalRoomSize.toFixed(0))} = ${p.roomPct.toFixed(1)}%`)}</div><div className="border-t-2 border-dashed border-gray-400 my-3"></div><div><p className="font-bold mb-2">2. RENT OWED (ROOM % × TOTAL):</p>{renderMathRow(rentData,p=>`${p.rentPct.toFixed(1)}% × ${formatCurrency(total,2,rentCurrency)} = ${formatCurrencySmart(p.fairRent,rentCurrency)}`)}</div></>)}
           </div>}
         </>)}
-        {renderResultsFooter(hasData,`Comrade | Rent-splitting results\n\nTotal: ${formatCurrency(total,2,rentCurrency)}/month\nRent: ${formatCurrency(rentAmount,2,rentCurrency)}\nUtilities: ${formatCurrency(utilitiesAmount,2,rentCurrency)}\n\nBreakdown:\n${rentData.map(p=>`${p.name}: ${formatCurrencySmart(p.fairRent,rentCurrency)} (${p.rentPct.toFixed(1)}%)`).join('\n')}\n\nCalculated using www.comrade.money, the fairer way to decide rent-splits`,'rent-entry')}
+        {renderResultsFooter(hasData,`Comrade | Rent-splitting results\n\nTotal: ${formatCurrency(total,2,rentCurrency)}/month\nRent: ${formatCurrency(rentAmount,2,rentCurrency)}\nUtilities: ${formatCurrency(utilitiesAmount,2,rentCurrency)}\n\nBreakdown:\n${rentData.map(p=>`${p.name}: ${formatCurrencySmart(p.fairRent,rentCurrency)} (${p.rentPct.toFixed(1)}%)`).join('\n')}\n\nCalculated using www.comrade.money`,'rent-entry')}
       </Layout>
     );
   }
 
   return null;
 };
-
 
 
 
