@@ -20,6 +20,7 @@
 
 
 
+
 const applyWeighting = (wealth, weighting) => {
   if (weighting === 'none') return 1;
   if (weighting === 'gentle') return Math.sqrt(wealth);
@@ -310,7 +311,7 @@ const Layout = ({children,onNavigate,showCopyToast,loadedAt,onClearStorage}) => 
     <style>{`
       @import url('https://fonts.googleapis.com/css2?family=Sixtyfour:wght@400&display=swap');
       * { font-family: 'Sixtyfour', monospace !important; word-wrap: break-word; overflow-wrap: break-word; }
-      html { background-color: #ff8c00; }
+      html { background-color: #ffb200; }
       html, body { overflow-y: auto !important; height: auto !important; }
       .receipt-wrapper { border-left: 4px solid ${DARK}; border-right: 4px solid ${DARK}; filter: drop-shadow(6px 8px 18px rgba(0,0,0,0.45)); will-change: filter; transform: translateZ(0); }
       .receipt-container { position: relative; background: ${BG_GREY}; }
@@ -374,7 +375,7 @@ const Comrade = () => {
     m.content='The fairer way to split costs with friends.';
     let t=document.querySelector('meta[name="theme-color"]');
     if(!t){t=document.createElement('meta');t.name='theme-color';document.head.appendChild(t);}
-    t.content='#ff8c00';
+    t.content='#ffb200';
   },[]);
 
   const formatNumber = useCallback(n=>n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,","),[]);
@@ -1443,6 +1444,7 @@ const Comrade = () => {
 
   return null;
 };
+
 
 
 
