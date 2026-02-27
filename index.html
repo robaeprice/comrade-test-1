@@ -21,7 +21,6 @@
 
 
 
-
 const applyWeighting = (wealth, weighting) => {
   if (weighting === 'none') return 1;
   if (weighting === 'gentle') return Math.sqrt(wealth);
@@ -73,6 +72,58 @@ const readStorage = (key) => {
   } catch { return null; }
 };
 
+const saveToStorage = (key, data) => {
+  try { localStorage.setItem(key, JSON.stringify({...data, lastUpdated:Date.now()})); } catch {}
+};
+
+// ── Reusable selectors ──
+const CurrencySelector = ({value, onChange}) => (
+  <div className="flex justify-center">
+    <div className="bg-gray-100 p-1 border-2 border-dotted border-black inline-block">
+      <div className="flex gap-1">
+        {[{value:'USD',label:'$'},{value:'EUR',label:'€'},{value:'GBP',label:'£'}].map(c=>(
+          <button key={c.value} onClick={()=>onChange(c.value)} className={`px-4 py-2 font-bold text-xs border-2 ${value===c.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{c.label}</button>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+const WealthMetricSelector = ({value, onChange}) => (
+  <div className="flex justify-center">
+    <div className="bg-gray-100 p-1 border-2 border-dotted border-black inline-block">
+      <div className="flex gap-1">
+        {[{value:'salary',label:'SALARY'},{value:'networth',label:'NET WORTH'}].map(w=>(
+          <button key={w.value} onClick={()=>onChange(w.value)} className={`px-3 py-2 font-bold text-xs border-2 ${value===w.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{w.label}</button>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+// ── Step-0 intro pattern ──
+const EntryIntro = ({description, hasSavedData, noun, onResume, onNew, onLoadExample}) => (
+  <div>
+    <p className="text-xs mb-5 text-black">{description}</p>
+    <div className="flex flex-col gap-3">
+      {hasSavedData ? (
+        <>
+          <button onClick={onResume} className="w-full bg-black text-white py-3 font-bold text-sm border-2 border-black hover:bg-gray-800 transition-all">RESUME {noun} →</button>
+          <div className="flex gap-3">
+            <button onClick={onLoadExample} className="flex-1 bg-white text-black font-bold py-2 px-4 border-2 border-black text-xs hover:bg-gray-100 transition-all">EXAMPLE DATA</button>
+            <button onClick={onNew} className="flex-1 bg-white text-black font-bold py-2 px-4 border-2 border-black text-xs hover:bg-gray-100 transition-all">NEW {noun}</button>
+          </div>
+        </>
+      ) : (
+        <>
+          <button onClick={onNew} className="w-full bg-black text-white py-3 font-bold text-sm border-2 border-black hover:bg-gray-800 transition-all">NEW {noun} →</button>
+          <button onClick={onLoadExample} className="w-full bg-white text-black font-bold py-2 px-4 border-2 border-black text-xs hover:bg-gray-100 transition-all">EXAMPLE DATA</button>
+        </>
+      )}
+    </div>
+  </div>
+);
+
 const PersonIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 40 40" style={{flexShrink:0}}><circle cx="20" cy="20" r="18" fill={DARK}/><circle cx="20" cy="16" r="5" fill={BG_GREY}/><path d="M 10 32 Q 10 24 20 24 Q 30 24 30 32" fill={BG_GREY}/></svg>;
 const BillIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><text x="4" y="20" fontFamily="monospace" fontSize="22" fill={DARK} fontWeight="bold">$</text></svg>;
 const HouseIcon = ({size=20}) => <svg width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z" fill={DARK}/></svg>;
@@ -105,14 +156,8 @@ const FaqItem = ({q,a,render,border}) => {
 
 const DetailToggleButton = ({show, onClick}) => (
   <div style={{borderTop:'2px dashed #9CA3AF', borderBottom:'2px dashed #9CA3AF', marginBottom:'24px'}}>
-    <button
-      onClick={onClick}
-      style={{background:'transparent', border:'0', width:'100%', display:'flex', alignItems:'center', gap:'12px', padding:'20px', cursor:'pointer', textAlign:'left'}}
-      className="hover:opacity-60 transition-all"
-    >
-      <span style={{flex:1, fontWeight:900, fontSize:'14px', color:DARK, textTransform:'uppercase', letterSpacing:'0.05em', lineHeight:1.3}}>
-        {show ? 'HIDE BREAKDOWN' : 'SHOW BREAKDOWN'}
-      </span>
+    <button onClick={onClick} style={{background:'transparent', border:'0', width:'100%', display:'flex', alignItems:'center', gap:'12px', padding:'20px', cursor:'pointer', textAlign:'left'}} className="hover:opacity-60 transition-all">
+      <span style={{flex:1, fontWeight:900, fontSize:'14px', color:DARK, textTransform:'uppercase', letterSpacing:'0.05em', lineHeight:1.3}}>{show ? 'HIDE BREAKDOWN' : 'SHOW BREAKDOWN'}</span>
       <span style={{fontSize:'24px', fontWeight:900, color:DARK, lineHeight:1, flexShrink:0}}>{show ? '−' : '+'}</span>
     </button>
   </div>
@@ -274,7 +319,6 @@ let _legalTimer = null;
 
 const FooterNav = ({onNavigate, onClearStorage}) => {
   const [toast, setToast] = useState(false);
-
   const handleLegalClick = () => {
     _legalCount++;
     clearTimeout(_legalTimer);
@@ -288,9 +332,7 @@ const FooterNav = ({onNavigate, onClearStorage}) => {
       onNavigate('legal');
     }
   };
-
   const resetCount = dest => { _legalCount = 0; clearTimeout(_legalTimer); onNavigate(dest); };
-
   return (
     <div className="text-center mt-4 mb-4 text-black text-xs">
       <span className="cursor-pointer hover:underline font-bold sf" onClick={()=>resetCount('home')}>HOME</span>
@@ -368,6 +410,13 @@ const Layout = ({children,onNavigate,showCopyToast,loadedAt,onClearStorage}) => 
   </div>
 );
 
+const formatTimestamp = () => {
+  const d=new Date();
+  const date=d.toLocaleDateString('en-US',{month:'2-digit',day:'2-digit',year:'numeric'});
+  const time=d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
+  return `${date} ${time}`;
+};
+
 const Comrade = () => {
   useEffect(()=>{
     document.title="COMRADE";
@@ -408,13 +457,6 @@ const Comrade = () => {
     return()=>window.removeEventListener('popstate',onPop);
   },[]);
 
-  const formatTimestamp = () => {
-    const d=new Date();
-    const date=d.toLocaleDateString('en-US',{month:'2-digit',day:'2-digit',year:'numeric'});
-    const time=d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
-    return `${date} ${time}`;
-  };
-
   const [loadedAt,setLoadedAt] = useState(formatTimestamp);
   const [page,setPage] = useState('home');
   const [showCopyToast,setShowCopyToast] = useState(false);
@@ -429,7 +471,6 @@ const Comrade = () => {
   const [shareFloor,setShareFloor] = useState(()=>readStorage(SHARE_KEY)?.shareFloor||'off');
   const [shareCurrency,setShareCurrency] = useState(()=>readStorage(SHARE_KEY)?.shareCurrency||'USD');
   const [shareWealthMetric,setShareWealthMetric] = useState(()=>readStorage(SHARE_KEY)?.shareWealthMetric||'salary');
-  const [hasSavedData,setHasSavedData] = useState(()=>{ const s=readStorage(SHARE_KEY); return !!(s?.sharePeople?.length||s?.shareBills?.length); });
 
   const [productName,setProductName] = useState(()=>readStorage(SALE_KEY)?.productName||'');
   const [numberAvailable,setNumberAvailable] = useState(()=>readStorage(SALE_KEY)?.numberAvailable||'');
@@ -437,7 +478,6 @@ const Comrade = () => {
   const [saleWeighting,setSaleWeighting] = useState(()=>readStorage(SALE_KEY)?.saleWeighting||'standard');
   const [saleCurrency,setSaleCurrency] = useState(()=>readStorage(SALE_KEY)?.saleCurrency||'USD');
   const [saleWealthMetric,setSaleWealthMetric] = useState(()=>readStorage(SALE_KEY)?.saleWealthMetric||'salary');
-  const [hasSaleSavedData,setHasSaleSavedData] = useState(()=>{ const s=readStorage(SALE_KEY); return !!(s?.saleBuyers?.length||s?.productName); });
 
   const [voteDecision,setVoteDecision] = useState(()=>readStorage(VOTE_KEY)?.voteDecision||'');
   const [voteOptions,setVoteOptions] = useState(()=>readStorage(VOTE_KEY)?.voteOptions||[]);
@@ -445,7 +485,6 @@ const Comrade = () => {
   const [voteWeighting,setVoteWeighting] = useState(()=>readStorage(VOTE_KEY)?.voteWeighting||'standard');
   const [voteCurrency,setVoteCurrency] = useState(()=>readStorage(VOTE_KEY)?.voteCurrency||'USD');
   const [voteWealthMetric,setVoteWealthMetric] = useState(()=>readStorage(VOTE_KEY)?.voteWealthMetric||'salary');
-  const [hasVoteSavedData,setHasVoteSavedData] = useState(()=>{ const s=readStorage(VOTE_KEY); return !!(s?.voteParticipants?.length||s?.voteDecision); });
 
   const [totalRent,setTotalRent] = useState(()=>readStorage(RENT_KEY)?.totalRent||'');
   const [totalUtilities,setTotalUtilities] = useState(()=>readStorage(RENT_KEY)?.totalUtilities||'');
@@ -455,7 +494,12 @@ const Comrade = () => {
   const [rentCurrency,setRentCurrency] = useState(()=>readStorage(RENT_KEY)?.rentCurrency||'USD');
   const [rentWealthMetric,setRentWealthMetric] = useState(()=>readStorage(RENT_KEY)?.rentWealthMetric||'salary');
   const [rentMeasurement,setRentMeasurement] = useState(()=>readStorage(RENT_KEY)?.rentMeasurement||'sqft');
-  const [hasRentSavedData,setHasRentSavedData] = useState(()=>{ const s=readStorage(RENT_KEY); return !!(s?.rentPeople?.length||s?.totalRent); });
+
+  // ── Derived saved-data flags ──
+  const hasSavedData     = sharePeople.length>0 || shareBills.length>0;
+  const hasSaleSavedData = saleBuyers.length>0  || !!productName;
+  const hasVoteSavedData = voteParticipants.length>0 || !!voteDecision;
+  const hasRentSavedData = rentPeople.length>0  || !!totalRent;
 
   const [curPersonName,setCurPersonName] = useState('');
   const [curPersonWealth,setCurPersonWealth] = useState('');
@@ -482,49 +526,24 @@ const Comrade = () => {
   const [rentAdvancedOpen,setRentAdvancedOpen] = useState(false);
   const [rentOpen,setRentOpen] = useState([0]);
 
-  const [showShareDetails,setShowShareDetails] = useState(false);
-  const [showSaleDetails,setShowSaleDetails] = useState(false);
-  const [showVoteDetails,setShowVoteDetails] = useState(false);
-  const [showRentDetails,setShowRentDetails] = useState(false);
+  const [showDetails,setShowDetails] = useState(false);
 
-  useEffect(()=>{
-    try {
-      localStorage.setItem(SHARE_KEY,JSON.stringify({sharePeople,shareBills,shareCurrency,shareWealthMetric,shareWeighting,shareFloor,lastUpdated:Date.now()}));
-      if(sharePeople.length||shareBills.length) setHasSavedData(true);
-    } catch{}
-  },[sharePeople,shareBills,shareCurrency,shareWealthMetric,shareWeighting,shareFloor]);
-
-  useEffect(()=>{
-    try {
-      localStorage.setItem(VOTE_KEY,JSON.stringify({voteDecision,voteOptions,voteParticipants,voteCurrency,voteWealthMetric,voteWeighting,lastUpdated:Date.now()}));
-      if(voteParticipants.length||voteDecision) setHasVoteSavedData(true);
-    } catch{}
-  },[voteDecision,voteOptions,voteParticipants,voteCurrency,voteWealthMetric,voteWeighting]);
-
-  useEffect(()=>{
-    try {
-      localStorage.setItem(SALE_KEY,JSON.stringify({productName,numberAvailable,saleBuyers,saleCurrency,saleWealthMetric,saleWeighting,lastUpdated:Date.now()}));
-      if(saleBuyers.length||productName) setHasSaleSavedData(true);
-    } catch{}
-  },[productName,numberAvailable,saleBuyers,saleCurrency,saleWealthMetric,saleWeighting]);
-
-  useEffect(()=>{
-    try {
-      localStorage.setItem(RENT_KEY,JSON.stringify({totalRent,totalUtilities,rentPeople,rentCurrency,rentWealthMetric,rentWeighting,rentFloor,rentMeasurement,lastUpdated:Date.now()}));
-      if(rentPeople.length||totalRent) setHasRentSavedData(true);
-    } catch{}
-  },[totalRent,totalUtilities,rentPeople,rentCurrency,rentWealthMetric,rentWeighting,rentFloor,rentMeasurement]);
+  // ── Consolidated storage saves ──
+  useEffect(()=>saveToStorage(SHARE_KEY,{sharePeople,shareBills,shareCurrency,shareWealthMetric,shareWeighting,shareFloor}),[sharePeople,shareBills,shareCurrency,shareWealthMetric,shareWeighting,shareFloor]);
+  useEffect(()=>saveToStorage(VOTE_KEY,{voteDecision,voteOptions,voteParticipants,voteCurrency,voteWealthMetric,voteWeighting}),[voteDecision,voteOptions,voteParticipants,voteCurrency,voteWealthMetric,voteWeighting]);
+  useEffect(()=>saveToStorage(SALE_KEY,{productName,numberAvailable,saleBuyers,saleCurrency,saleWealthMetric,saleWeighting}),[productName,numberAvailable,saleBuyers,saleCurrency,saleWealthMetric,saleWeighting]);
+  useEffect(()=>saveToStorage(RENT_KEY,{totalRent,totalUtilities,rentPeople,rentCurrency,rentWealthMetric,rentWeighting,rentFloor,rentMeasurement}),[totalRent,totalUtilities,rentPeople,rentCurrency,rentWealthMetric,rentWeighting,rentFloor,rentMeasurement]);
 
   const makeToggle = setter => i => setter(prev=>prev.includes(i)?prev.filter(x=>x!==i):[...prev,i]);
   const makeJump = setter => i => { setter([i]); scrollToStep(i); };
   const makeCollapseToFirst = setter => () => setter([0]);
 
-  const editModeRef = React.useRef(false);
+  const editModeRef = useRef(false);
 
   useEffect(()=>{
     window.scrollTo({top:0,behavior:'instant'});
     setLoadedAt(formatTimestamp());
-    setShowShareDetails(false);setShowVoteDetails(false);setShowSaleDetails(false);setShowRentDetails(false);
+    setShowDetails(false);
     if(page==='share-entry') setShareOpen(editModeRef.current ? [0,1,2,3] : [0]);
     if(page==='sale-entry') setSaleOpen(editModeRef.current ? [0,1,2,3] : [0]);
     if(page==='vote-entry') setVoteOpen(editModeRef.current ? [0,1,2,3,4] : [0]);
@@ -543,9 +562,9 @@ const Comrade = () => {
 
   const handleClearAll = useCallback(type=>{
     if(type==='share'){setSharePeople([]);setShareBills([]);setCurPersonName('');setCurPersonWealth('');setCurBillDesc('');setCurBillAmt('');setCurBillPaidBy('');makeCollapseToFirst(setShareOpen)();}
-    if(type==='sale'){setProductName('');setNumberAvailable('');setSaleBuyers([]);setCurBuyerName('');setCurBuyerWealth('');setCurBuyerOffer('');setHasSaleSavedData(false);try{localStorage.removeItem(SALE_KEY);}catch{}makeCollapseToFirst(setSaleOpen)();}
-    if(type==='vote'){setVoteDecision('');setVoteOptions([]);setVoteParticipants([]);setCurParticipantName('');setCurParticipantWealth('');setCurParticipantVote('');setCurOptionText('');setHasVoteSavedData(false);try{localStorage.removeItem(VOTE_KEY);}catch{}makeCollapseToFirst(setVoteOpen)();}
-    if(type==='rent'){setTotalRent('');setTotalUtilities('');setRentPeople([]);setCurRoommateName('');setCurRoommateRoomSize('');setCurRoommateWealth('');setHasRentSavedData(false);try{localStorage.removeItem(RENT_KEY);}catch{}makeCollapseToFirst(setRentOpen)();}
+    if(type==='sale'){setProductName('');setNumberAvailable('');setSaleBuyers([]);setCurBuyerName('');setCurBuyerWealth('');setCurBuyerOffer('');try{localStorage.removeItem(SALE_KEY);}catch{}makeCollapseToFirst(setSaleOpen)();}
+    if(type==='vote'){setVoteDecision('');setVoteOptions([]);setVoteParticipants([]);setCurParticipantName('');setCurParticipantWealth('');setCurParticipantVote('');setCurOptionText('');try{localStorage.removeItem(VOTE_KEY);}catch{}makeCollapseToFirst(setVoteOpen)();}
+    if(type==='rent'){setTotalRent('');setTotalUtilities('');setRentPeople([]);setCurRoommateName('');setCurRoommateRoomSize('');setCurRoommateWealth('');try{localStorage.removeItem(RENT_KEY);}catch{}makeCollapseToFirst(setRentOpen)();}
     setTimeout(()=>window.scrollTo({top:0,behavior:'smooth'}),0);
   },[]);
 
@@ -571,20 +590,16 @@ const Comrade = () => {
     try { localStorage.removeItem(SHARE_KEY); } catch {}
     setSharePeople([]); setShareBills([]); setShareWeighting('standard');
     setShareFloor('off'); setShareCurrency('USD'); setShareWealthMetric('salary');
-    setHasSavedData(false);
     try { localStorage.removeItem(VOTE_KEY); } catch {}
     setVoteDecision(''); setVoteOptions([]); setVoteParticipants([]);
     setVoteWeighting('standard'); setVoteCurrency('USD'); setVoteWealthMetric('salary');
-    setHasVoteSavedData(false);
     try { localStorage.removeItem(SALE_KEY); } catch {}
     setProductName(''); setNumberAvailable(''); setSaleBuyers([]);
     setSaleWeighting('standard'); setSaleCurrency('USD'); setSaleWealthMetric('salary');
-    setHasSaleSavedData(false);
     try { localStorage.removeItem(RENT_KEY); } catch {}
     setTotalRent(''); setTotalUtilities(''); setRentPeople([]);
     setRentWeighting('standard'); setRentFloor('off'); setRentCurrency('USD');
     setRentWealthMetric('salary'); setRentMeasurement('sqft');
-    setHasRentSavedData(false);
   },[]);
 
   const renderAdvancedSettingsContent = ({weighting, onWeightingChange, floor, onFloorChange}) => (
@@ -739,18 +754,13 @@ const Comrade = () => {
     </div>
   );
 
-  const renderResultsNavigation = (copyText, entryPage) => (
-    <div className="flex flex-col gap-3 max-w-xs mx-auto">
-      <button onClick={()=>copyToClipboard(copyText)} className="bg-black text-white px-6 py-2 font-bold border-2 border-black hover:bg-gray-800 transition-all w-full">COPY RESULTS</button>
-      <button onClick={()=>{editModeRef.current=true;navigateTo(entryPage);}} className="bg-black text-white px-6 py-2 font-bold border-2 border-black hover:bg-gray-800 transition-all w-full">EDIT DETAILS</button>
-      <button onClick={()=>navigateTo('home')} className="bg-gray-200 text-black px-6 py-2 font-bold border-2 border-gray-400 hover:bg-gray-300 transition-all w-full">RETURN HOME</button>
-    </div>
-  );
-
   const renderResultsFooter = (hasData, copyText, entryPage) => hasData && (
     <>
-      {renderResultsNavigation(copyText, entryPage)}
-
+      <div className="flex flex-col gap-3 max-w-xs mx-auto">
+        <button onClick={()=>copyToClipboard(copyText)} className="bg-black text-white px-6 py-2 font-bold border-2 border-black hover:bg-gray-800 transition-all w-full">COPY RESULTS</button>
+        <button onClick={()=>{editModeRef.current=true;navigateTo(entryPage);}} className="bg-black text-white px-6 py-2 font-bold border-2 border-black hover:bg-gray-800 transition-all w-full">EDIT DETAILS</button>
+        <button onClick={()=>navigateTo('home')} className="bg-gray-200 text-black px-6 py-2 font-bold border-2 border-gray-400 hover:bg-gray-300 transition-all w-full">RETURN HOME</button>
+      </div>
       <div className="my-4 text-center py-6"><MotivationalQuote /></div>
       <div className="mt-4">{renderEmailSignup()}</div>
     </>
@@ -1019,7 +1029,7 @@ const Comrade = () => {
           'This application is provided for informational purposes only. Users are solely responsible for their own actions. The creators of Comrade are not liable for any outcomes, disputes, unintended consequences, or bad decisions resulting from the use of Comrade and its calculations. Sorry!',
           'By entering your email address, you consent to Comrade and its team contacting you about updates to the app, news, and other projects they may be working on. Comrade will not sell your personal information to third parties.',
           'This application is available under a Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0).'
-        ].map((t,i,arr)=>(
+        ].map((t,i)=>(
           <React.Fragment key={i}>
             {i>0&&<div className="border-t-2 border-dashed border-gray-400 my-4"/>}
             <p className="leading-relaxed text-xs">{t}</p>
@@ -1034,51 +1044,24 @@ const Comrade = () => {
     const jump=makeJump(setShareOpen);
     const renderContent=i=>{
       if(i===0) return (
-        <div>
-          <p className="text-xs mb-5 text-black">From meals to vacations, taxis to tickets, handle your shared expenses with friends more fairly. Comrade combines and simplifies group bills, while using information about group members' finances to decide how much everyone should pay.</p>
-          <div className="flex flex-col gap-3">
-            {hasSavedData ? (
-              <>
-                <button onClick={()=>jump(1)} className="w-full bg-black text-white py-3 font-bold text-sm border-2 border-black hover:bg-gray-800 transition-all">RESUME SPLIT →</button>
-                <div className="flex gap-3">
-                  <button onClick={()=>loadExample('share')} className="flex-1 bg-white text-black font-bold py-2 px-4 border-2 border-black text-xs hover:bg-gray-100 transition-all">EXAMPLE DATA</button>
-                  <button onClick={()=>{handleClearAll('share');jump(1);}} className="flex-1 bg-white text-black font-bold py-2 px-4 border-2 border-black text-xs hover:bg-gray-100 transition-all">NEW SPLIT</button>
-                </div>
-              </>
-            ) : (
-              <>
-                <button onClick={()=>{handleClearAll('share');jump(1);}} className="w-full bg-black text-white py-3 font-bold text-sm border-2 border-black hover:bg-gray-800 transition-all">NEW SPLIT →</button>
-                <button onClick={()=>loadExample('share')} className="w-full bg-white text-black font-bold py-2 px-4 border-2 border-black text-xs hover:bg-gray-100 transition-all">EXAMPLE DATA</button>
-              </>
-            )}
-          </div>
-        </div>
+        <EntryIntro
+          description="From meals to vacations, taxis to tickets, handle your shared expenses with friends more fairly. Comrade combines and simplifies group bills, while using information about group members' finances to decide how much everyone should pay."
+          hasSavedData={hasSavedData}
+          noun="SPLIT"
+          onResume={()=>jump(1)}
+          onNew={()=>{handleClearAll('share');jump(1);}}
+          onLoadExample={()=>loadExample('share')}
+        />
       );
       if(i===1) return (
         <div>
           <p className="text-xs mb-4 text-black">List the people splitting the costs, including their financial resources.</p>
           <div className="border-2 border-dashed border-gray-400 p-4 mb-5">
             <p className="text-xs font-bold mb-2 text-black uppercase tracking-wider">CURRENCY:</p>
-            <div className="flex justify-center mb-4">
-              <div className="bg-gray-100 p-1 border-2 border-dotted border-black inline-block">
-                <div className="flex gap-1">
-                  {[{value:'USD',label:'$'},{value:'EUR',label:'€'},{value:'GBP',label:'£'}].map(c=>(
-                    <button key={c.value} onClick={()=>setShareCurrency(c.value)} className={`px-4 py-2 font-bold text-xs border-2 ${shareCurrency===c.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{c.label}</button>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <CurrencySelector value={shareCurrency} onChange={setShareCurrency}/>
             <div className="border-t border-dashed border-gray-400 my-3"></div>
             <p className="text-xs font-bold mb-2 text-black uppercase tracking-wider">WEALTH METRIC:</p>
-            <div className="flex justify-center">
-              <div className="bg-gray-100 p-1 border-2 border-dotted border-black inline-block">
-                <div className="flex gap-1">
-                  {[{value:'salary',label:'SALARY'},{value:'networth',label:'NET WORTH'}].map(w=>(
-                    <button key={w.value} onClick={()=>setShareWealthMetric(w.value)} className={`px-3 py-2 font-bold text-xs border-2 ${shareWealthMetric===w.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{w.label}</button>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <WealthMetricSelector value={shareWealthMetric} onChange={setShareWealthMetric}/>
           </div>
           <div className="flex flex-col sm:flex-row gap-2 mb-3">
             <FormInput value={curPersonName} onChange={e=>setCurPersonName(e.target.value)} placeholder="NAME" className="flex-1" style={{minWidth:'140px'}}/>
@@ -1138,8 +1121,8 @@ const Comrade = () => {
             {transactions.length===0?<p className="text-lg font-bold">ALL SETTLED! EVERYONE'S SQUARE.</p>:<div className="space-y-3">{transactions.map((t,i)=><div key={i} className="text-sm leading-relaxed pb-2" style={{borderBottom:`1px dashed ${BG_GREY}`}}><span className="font-semibold">{t.from.toUpperCase()}</span><span> PAYS </span><span className="font-semibold">{t.to.toUpperCase()}</span><br/><span className="font-black text-2xl">{formatCurrencySmart(t.amount,shareCurrency)}</span></div>)}</div>}
             <BlackBoxStats stats={[{label:'TOTAL BILLS',value:shareBills.length},{label:'TOTAL',value:formatCurrency(total,2,shareCurrency)},{label:'PEOPLE',value:sharePeople.length},{label:'WEIGHTING',value:getWeightingLabel(shareWeighting)}]}/>
           </div>
-          <DetailToggleButton show={showShareDetails} onClick={()=>setShowShareDetails(!showShareDetails)}/>
-          {showShareDetails&&<div className="animate-fadeIn">
+          <DetailToggleButton show={showDetails} onClick={()=>setShowDetails(!showDetails)}/>
+          {showDetails&&<div className="animate-fadeIn">
             {renderDetailCards('PARTICIPANT DATA',[...peopleData].sort((a,b)=>b.wealth-a.wealth),p=>{const bal=p.paid-p.fairShare;return{name:p.name,rows:[{label:'WEALTH',value:formatCurrency(p.wealth,2,shareCurrency)},{label:'PAID',value:`${formatCurrency(p.paid,2,shareCurrency)} (${p.paidPct.toFixed(1)}%)`},{label:'FAIR SHARE',value:`${formatCurrencySmart(p.fairShare,shareCurrency)} (${p.fairPct.toFixed(1)}%)`}],summaryRows:[{label:'BALANCE',value:`${bal>0.01?'+':''}${formatCurrencySmart(bal,shareCurrency)}`}]};})}
             <DashedDivider/>
             <div className="mb-6">
@@ -1170,34 +1153,25 @@ const Comrade = () => {
     const jump=makeJump(setSaleOpen);
     const renderContent=i=>{
       if(i===0) return (
-        <div>
-          <p className="text-xs mb-5 text-black">If you're selling something, make sure it goes to the potential buyer who needs it the most — not just whoever offers to pay the most. Comrade takes into account prospective purchasers' financial resources to help you understand how much your product is truly worth to them.</p>
-          <div className="flex flex-col gap-3">
-            {hasSaleSavedData ? (
-              <>
-                <button onClick={()=>jump(1)} className="w-full bg-black text-white py-3 font-bold text-sm border-2 border-black hover:bg-gray-800 transition-all">RESUME SALE →</button>
-                <div className="flex gap-3">
-                  <button onClick={()=>loadExample('sale')} className="flex-1 bg-white text-black font-bold py-2 px-4 border-2 border-black text-xs hover:bg-gray-100 transition-all">EXAMPLE DATA</button>
-                  <button onClick={()=>{handleClearAll('sale');jump(1);}} className="flex-1 bg-white text-black font-bold py-2 px-4 border-2 border-black text-xs hover:bg-gray-100 transition-all">NEW SALE</button>
-                </div>
-              </>
-            ) : (
-              <>
-                <button onClick={()=>{handleClearAll('sale');jump(1);}} className="w-full bg-black text-white py-3 font-bold text-sm border-2 border-black hover:bg-gray-800 transition-all">NEW SALE →</button>
-                <button onClick={()=>loadExample('sale')} className="w-full bg-white text-black font-bold py-2 px-4 border-2 border-black text-xs hover:bg-gray-100 transition-all">EXAMPLE DATA</button>
-              </>
-            )}
-          </div>
-        </div>
+        <EntryIntro
+          description="If you're selling something, make sure it goes to the potential buyer who needs it the most — not just whoever offers to pay the most. Comrade takes into account prospective purchasers' financial resources to help you understand how much your product is truly worth to them."
+          hasSavedData={hasSaleSavedData}
+          noun="SALE"
+          onResume={()=>jump(1)}
+          onNew={()=>{handleClearAll('sale');jump(1);}}
+          onLoadExample={()=>loadExample('sale')}
+        />
       );
       if(i===1) return (<div><p className="text-xs mb-4 text-black">List what you're selling, and how many items are available.</p><FormInput value={productName} onChange={e=>setProductName(e.target.value)} placeholder="PRODUCT NAME" className="w-full mb-2"/><FormInput type="number" value={numberAvailable} onChange={e=>setNumberAvailable(e.target.value)} placeholder="NUMBER AVAILABLE" min="1" step="1" inputMode="numeric" className="w-full"/><div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(2)}/></div></div>);
       if(i===2) return (
         <div>
           <p className="text-xs mb-4 text-black">Add all the people interested in buying, along with their financial information.</p>
           <div className="border-2 border-dashed border-gray-400 p-3 mb-5">
-            <div className="mb-3"><p className="text-xs font-bold mb-2 text-black uppercase tracking-wider">CURRENCY:</p><div className="flex justify-center"><div className="bg-gray-100 p-1 border-2 border-dotted border-black inline-block"><div className="flex gap-1">{[{value:'USD',label:'$'},{value:'EUR',label:'€'},{value:'GBP',label:'£'}].map(c=><button key={c.value} onClick={()=>setSaleCurrency(c.value)} className={`px-4 py-2 font-bold text-xs border-2 ${saleCurrency===c.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{c.label}</button>)}</div></div></div></div>
+            <p className="text-xs font-bold mb-2 text-black uppercase tracking-wider">CURRENCY:</p>
+            <CurrencySelector value={saleCurrency} onChange={setSaleCurrency}/>
             <div className="border-t border-dashed border-gray-400 my-3"></div>
-            <div><p className="text-xs font-bold mb-2 text-black uppercase tracking-wider">WEALTH METRIC:</p><div className="flex justify-center"><div className="bg-gray-100 p-1 border-2 border-dotted border-black inline-block"><div className="flex gap-1">{[{value:'salary',label:'SALARY'},{value:'networth',label:'NET WORTH'}].map(w=><button key={w.value} onClick={()=>setSaleWealthMetric(w.value)} className={`px-3 py-2 font-bold text-xs border-2 ${saleWealthMetric===w.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{w.label}</button>)}</div></div></div></div>
+            <p className="text-xs font-bold mb-2 text-black uppercase tracking-wider">WEALTH METRIC:</p>
+            <WealthMetricSelector value={saleWealthMetric} onChange={setSaleWealthMetric}/>
           </div>
           <div className="flex flex-col sm:flex-row gap-2 mb-2">
             <FormInput value={curBuyerName} onChange={e=>setCurBuyerName(e.target.value)} placeholder="NAME" className="flex-1" style={{minWidth:'120px'}}/>
@@ -1235,8 +1209,8 @@ const Comrade = () => {
             {isTie?<p className="text-lg font-bold">PERFECT TIE. EVERYONE HAS EQUAL CLAIM.</p>:winners.map((w,i)=><div key={w.id} className="mb-3 pb-3" style={{borderBottom:`1px dashed ${BG_GREY}`}}><p className="text-3xl font-black mb-2">{w.name.toUpperCase()}</p><p className="text-xl font-semibold">OFFER: {formatCurrency(w.offer,2,saleCurrency)}</p><p className="text-xs" style={{color:BG_GREY}}>NEED SCORE: {w.needScore<0.01?w.needScore.toExponential(4):w.needScore.toFixed(2)}%</p></div>)}
             <BlackBoxStats stats={[{label:'PRODUCT',value:productName.toUpperCase()||'N/A'},{label:'AVAILABLE',value:numAvail},{label:'AVG OFFER',value:formatCurrency(avgOffer,2,saleCurrency)},{label:'WEIGHTING',value:getWeightingLabel(saleWeighting)}]}/>
           </div>
-          <DetailToggleButton show={showSaleDetails} onClick={()=>setShowSaleDetails(!showSaleDetails)}/>
-          {showSaleDetails&&<div className="animate-fadeIn">
+          <DetailToggleButton show={showDetails} onClick={()=>setShowDetails(!showDetails)}/>
+          {showDetails&&<div className="animate-fadeIn">
             {renderDetailCards('BUYER DATA',rankedBuyers,(b,i)=>({name:`#${i+1} ${b.name}`,cardClassName:`p-4 border-2 ${i<numAvail?'border-black bg-gray-100':'border-gray-400 bg-white'}`,titleExtra:<span className={`px-2 py-1 text-xs font-bold border sf ${i<numAvail?'bg-black text-white border-black':'bg-white text-black border-black'}`}>{i<numAvail?'SELECTED':'NOT SELECTED'}</span>,rows:[{label:'WEALTH',value:formatCurrency(b.wealth,2,saleCurrency)},{label:'OFFER',value:formatCurrency(b.offer,2,saleCurrency)}],summaryRows:[{label:'NEED SCORE',value:`${b.needScore<0.01?b.needScore.toExponential(4):b.needScore.toFixed(2)}%`}]}))}
             <DashedDivider/>
             {renderBarVisualization('NEED SCORE VISUALIZATION',rankedBuyers,[{getValue:b=>b.needScore,displayValue:b=>`${b.needScore<0.01?b.needScore.toExponential(2):b.needScore.toFixed(1)}%`,rightLabel:(_,i)=>`#${i+1}`}],b=>b.name)}
@@ -1255,25 +1229,14 @@ const Comrade = () => {
     const jump=makeJump(setVoteOpen);
     const renderContent=i=>{
       if(i===0) return (
-        <div>
-          <p className="text-xs mb-5 text-black">Make group decisions more equitably with Comrade. If your friends, classmates, or coworkers are grappling with a dispute, give more voting power to those with less wealth.</p>
-          <div className="flex flex-col gap-3">
-            {hasVoteSavedData ? (
-              <>
-                <button onClick={()=>jump(1)} className="w-full bg-black text-white py-3 font-bold text-sm border-2 border-black hover:bg-gray-800 transition-all">RESUME VOTE →</button>
-                <div className="flex gap-3">
-                  <button onClick={()=>loadExample('vote')} className="flex-1 bg-white text-black font-bold py-2 px-4 border-2 border-black text-xs hover:bg-gray-100 transition-all">EXAMPLE DATA</button>
-                  <button onClick={()=>{handleClearAll('vote');jump(1);}} className="flex-1 bg-white text-black font-bold py-2 px-4 border-2 border-black text-xs hover:bg-gray-100 transition-all">NEW VOTE</button>
-                </div>
-              </>
-            ) : (
-              <>
-                <button onClick={()=>{handleClearAll('vote');jump(1);}} className="w-full bg-black text-white py-3 font-bold text-sm border-2 border-black hover:bg-gray-800 transition-all">NEW VOTE →</button>
-                <button onClick={()=>loadExample('vote')} className="w-full bg-white text-black font-bold py-2 px-4 border-2 border-black text-xs hover:bg-gray-100 transition-all">EXAMPLE DATA</button>
-              </>
-            )}
-          </div>
-        </div>
+        <EntryIntro
+          description="Make group decisions more equitably with Comrade. If your friends, classmates, or coworkers are grappling with a dispute, give more voting power to those with less wealth."
+          hasSavedData={hasVoteSavedData}
+          noun="VOTE"
+          onResume={()=>jump(1)}
+          onNew={()=>{handleClearAll('vote');jump(1);}}
+          onLoadExample={()=>loadExample('vote')}
+        />
       );
       if(i===1) return (<div><p className="text-xs mb-4 text-black">Enter the question the group is voting on.</p><FormInput type="textarea" value={voteDecision} onChange={e=>setVoteDecision(e.target.value)} placeholder="DECISION TO BE MADE" rows={4} className="w-full"/><div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(2)}/></div></div>);
       if(i===2) return (<div><p className="text-xs mb-4 text-black">Add all the possible choices people can vote for.</p><FormInput value={curOptionText} onChange={e=>setCurOptionText(e.target.value)} placeholder="OPTION TEXT" className="w-full mb-3"/><button onClick={()=>{if(curOptionText.trim()){setVoteOptions([...voteOptions,{id:Date.now(),text:curOptionText}]);setCurOptionText('');}}} className="bg-black text-white px-4 py-2 font-bold border-2 border-black text-xs mb-4">+ ADD OPTION</button>{voteOptions.length>0?<div className="space-y-0">{voteOptions.map(opt=><div key={opt.id} className="flex justify-between items-center text-xs text-black border-b border-dashed border-gray-400 pb-2 pt-2"><p className="font-bold text-black uppercase flex-1">{opt.text}</p><button onClick={()=>setVoteOptions(voteOptions.filter(o=>o.id!==opt.id))} className="text-black font-bold text-xl ml-3 hover:text-gray-600 leading-none">×</button></div>)}</div>:<p className="text-center text-gray-600 uppercase tracking-wider font-bold mt-2" style={{fontSize:'10px'}}>— No options added yet —</p>}<div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(3)}/></div></div>);
@@ -1281,9 +1244,11 @@ const Comrade = () => {
         <div>
           <p className="text-xs mb-4 text-black">List the people in the group, their financial resources, and how they chose to vote.</p>
           <div className="border-2 border-dashed border-gray-400 p-3 mb-5">
-            <div className="mb-3"><p className="text-xs font-bold mb-2 text-black uppercase tracking-wider">CURRENCY:</p><div className="flex justify-center"><div className="bg-gray-100 p-1 border-2 border-dotted border-black inline-block"><div className="flex gap-1">{[{value:'USD',label:'$'},{value:'EUR',label:'€'},{value:'GBP',label:'£'}].map(c=><button key={c.value} onClick={()=>setVoteCurrency(c.value)} className={`px-4 py-2 font-bold text-xs border-2 ${voteCurrency===c.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{c.label}</button>)}</div></div></div></div>
+            <p className="text-xs font-bold mb-2 text-black uppercase tracking-wider">CURRENCY:</p>
+            <CurrencySelector value={voteCurrency} onChange={setVoteCurrency}/>
             <div className="border-t border-dashed border-gray-400 my-3"></div>
-            <div><p className="text-xs font-bold mb-2 text-black uppercase tracking-wider">WEALTH METRIC:</p><div className="flex justify-center"><div className="bg-gray-100 p-1 border-2 border-dotted border-black inline-block"><div className="flex gap-1">{[{value:'salary',label:'SALARY'},{value:'networth',label:'NET WORTH'}].map(w=><button key={w.value} onClick={()=>setVoteWealthMetric(w.value)} className={`px-3 py-2 font-bold text-xs border-2 ${voteWealthMetric===w.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{w.label}</button>)}</div></div></div></div>
+            <p className="text-xs font-bold mb-2 text-black uppercase tracking-wider">WEALTH METRIC:</p>
+            <WealthMetricSelector value={voteWealthMetric} onChange={setVoteWealthMetric}/>
           </div>
           <div className="flex flex-col sm:flex-row gap-2 mb-2">
             <FormInput value={curParticipantName} onChange={e=>setCurParticipantName(e.target.value)} placeholder="NAME" className="flex-1" style={{minWidth:'120px'}}/>
@@ -1327,8 +1292,8 @@ const Comrade = () => {
             {isTie?<p className="text-xl font-bold">PERFECT TIE. NO CLEAR WINNER.</p>:winner?<><p className="text-sm mb-2">WINNING OPTION:</p><p className="text-3xl font-black mb-2">{winner.option.toUpperCase()}</p><p className="text-xl font-semibold">{winner.percentage.toFixed(1)}% OF VOTING POWER</p></>:<p className="text-lg font-bold">NO VOTES CAST</p>}
             <BlackBoxStats stats={[{label:'PARTICIPANTS',value:voteParticipants.length},{label:'OPTIONS',value:voteOptions.length},{label:'WEIGHTING',value:getWeightingLabel(voteWeighting)}]}/>
           </div>
-          <DetailToggleButton show={showVoteDetails} onClick={()=>setShowVoteDetails(!showVoteDetails)}/>
-          {showVoteDetails&&<div className="animate-fadeIn">
+          <DetailToggleButton show={showDetails} onClick={()=>setShowDetails(!showDetails)}/>
+          {showDetails&&<div className="animate-fadeIn">
             <div className="mb-6"><h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">VOTE BREAKDOWN</h3><div className="space-y-4">{voteBreakdown.map((item,i)=><div key={i} className="border-2 border-gray-400 p-4"><div className="flex justify-between items-start mb-3 border-b border-dashed border-gray-400 pb-2"><p className="font-bold text-sm text-black uppercase">{item.option}</p><span className="px-2 py-1 text-xs font-bold border sf" style={{backgroundColor:DARK,color:BG_GREY,borderColor:DARK}}>{item.percentage.toFixed(1)}%</span></div><p className="text-xs text-black mb-2 font-bold">VOTERS ({item.voters.length}):</p><div className="space-y-1">{item.voters.map(v=><p key={v.name} className="text-xs text-black">• {v.name} (Power: {v.votingPower.toFixed(2)})</p>)}</div></div>)}</div></div>
             <DashedDivider/>
             {renderDetailCards('PARTICIPANT DATA',[...participantsData].sort((a,b)=>b.wealth-a.wealth),p=>({name:p.name,rows:[{label:'WEALTH',value:formatCurrency(p.wealth,2,voteCurrency)},{label:'VOTE',value:p.vote||'NO VOTE'}],summaryRows:[{label:'VOTING POWER',value:p.votingPower.toFixed(2)}]}))}
@@ -1352,30 +1317,22 @@ const Comrade = () => {
     const jump=makeJump(setRentOpen);
     const renderContent=i=>{
       if(i===0) return (
-        <div>
-          <p className="text-xs mb-5 text-black">Figuring out rent splits with roommates is a fraught process. Decide it more fairly with Comrade by accounting for both room size and tenants' financial resources. Larger rooms and higher earners both pay more.</p>
-          <div className="flex flex-col gap-3">
-            {hasRentSavedData ? (
-              <>
-                <button onClick={()=>jump(1)} className="w-full bg-black text-white py-3 font-bold text-sm border-2 border-black hover:bg-gray-800 transition-all">RESUME SPLIT →</button>
-                <div className="flex gap-3">
-                  <button onClick={()=>loadExample('rent')} className="flex-1 bg-white text-black font-bold py-2 px-4 border-2 border-black text-xs hover:bg-gray-100 transition-all">EXAMPLE DATA</button>
-                  <button onClick={()=>{handleClearAll('rent');jump(1);}} className="flex-1 bg-white text-black font-bold py-2 px-4 border-2 border-black text-xs hover:bg-gray-100 transition-all">NEW SPLIT</button>
-                </div>
-              </>
-            ) : (
-              <>
-                <button onClick={()=>{handleClearAll('rent');jump(1);}} className="w-full bg-black text-white py-3 font-bold text-sm border-2 border-black hover:bg-gray-800 transition-all">NEW SPLIT →</button>
-                <button onClick={()=>loadExample('rent')} className="w-full bg-white text-black font-bold py-2 px-4 border-2 border-black text-xs hover:bg-gray-100 transition-all">EXAMPLE DATA</button>
-              </>
-            )}
-          </div>
-        </div>
+        <EntryIntro
+          description="Figuring out rent splits with roommates is a fraught process. Decide it more fairly with Comrade by accounting for both room size and tenants' financial resources. Larger rooms and higher earners both pay more."
+          hasSavedData={hasRentSavedData}
+          noun="SPLIT"
+          onResume={()=>jump(1)}
+          onNew={()=>{handleClearAll('rent');jump(1);}}
+          onLoadExample={()=>loadExample('rent')}
+        />
       );
       if(i===1) return (
         <div>
           <p className="text-xs mb-4 text-black">List your total monthly rent, and monthly utility costs.</p>
-          <div className="border-2 border-dashed border-gray-400 p-3 mb-5"><p className="text-xs font-bold mb-2 text-black uppercase tracking-wider">CURRENCY:</p><div className="flex justify-center"><div className="bg-gray-100 p-1 border-2 border-dotted border-black inline-block"><div className="flex gap-1">{[{value:'USD',label:'$'},{value:'EUR',label:'€'},{value:'GBP',label:'£'}].map(c=><button key={c.value} onClick={()=>setRentCurrency(c.value)} className={`px-4 py-2 font-bold text-xs border-2 ${rentCurrency===c.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{c.label}</button>)}</div></div></div></div>
+          <div className="border-2 border-dashed border-gray-400 p-3 mb-5">
+            <p className="text-xs font-bold mb-2 text-black uppercase tracking-wider">CURRENCY:</p>
+            <CurrencySelector value={rentCurrency} onChange={setRentCurrency}/>
+          </div>
           <FormInput type="number" value={totalRent} onChange={e=>setTotalRent(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} MONTHLY RENT`} min="0" step="0.01" inputMode="decimal" className="w-full mb-2"/>
           <FormInput type="number" value={totalUtilities} onChange={e=>setTotalUtilities(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} MONTHLY UTILITIES`} min="0" step="0.01" inputMode="decimal" className="w-full"/>
           <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(2)}/></div>
@@ -1387,7 +1344,8 @@ const Comrade = () => {
           <div className="border-2 border-dashed border-gray-400 p-3 mb-5">
             <div className="mb-3"><p className="text-xs font-bold mb-2 text-black uppercase tracking-wider">MEASUREMENTS:</p><div className="flex justify-center"><div className="bg-gray-100 p-1 border-2 border-dotted border-black inline-block"><div className="flex gap-1">{[{value:'sqft',label:'SQ FT'},{value:'sqm',label:'SQ M'}].map(m=><button key={m.value} onClick={()=>setRentMeasurement(m.value)} className={`px-4 py-2 font-bold text-xs border-2 ${rentMeasurement===m.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{m.label}</button>)}</div></div></div></div>
             <div className="border-t border-dashed border-gray-400 my-3"></div>
-            <div><p className="text-xs font-bold mb-2 text-black uppercase tracking-wider">WEALTH METRIC:</p><div className="flex justify-center"><div className="bg-gray-100 p-1 border-2 border-dotted border-black inline-block"><div className="flex gap-1">{[{value:'salary',label:'SALARY'},{value:'networth',label:'NET WORTH'}].map(w=><button key={w.value} onClick={()=>setRentWealthMetric(w.value)} className={`px-3 py-2 font-bold text-xs border-2 ${rentWealthMetric===w.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{w.label}</button>)}</div></div></div></div>
+            <p className="text-xs font-bold mb-2 text-black uppercase tracking-wider">WEALTH METRIC:</p>
+            <WealthMetricSelector value={rentWealthMetric} onChange={setRentWealthMetric}/>
           </div>
           <div className="flex flex-col sm:flex-row gap-2 mb-2">
             <FormInput value={curRoommateName} onChange={e=>setCurRoommateName(e.target.value)} placeholder="NAME" className="flex-1" style={{minWidth:'120px'}}/>
@@ -1425,8 +1383,8 @@ const Comrade = () => {
             <div className="space-y-3">{rentData.map(p=><div key={p.id} className="pb-2" style={{borderBottom:`1px dashed ${BG_GREY}`}}><p className="text-lg font-semibold">{p.name.toUpperCase()}</p><p className="text-2xl font-black">{formatCurrencySmart(p.fairRent,rentCurrency)}</p><p className="text-xs" style={{color:BG_GREY}}>{p.rentPct.toFixed(1)}% of total</p></div>)}</div>
             <BlackBoxStats stats={[{label:'RENT',value:formatCurrency(rentAmount,2,rentCurrency)},{label:'UTILITIES',value:formatCurrency(utilitiesAmount,2,rentCurrency)},{label:'TOTAL',value:formatCurrency(total,2,rentCurrency)},{label:'TENANTS',value:rentPeople.length},{label:'WEIGHTING',value:getWeightingLabel(rentWeighting)}]}/>
           </div>
-          <DetailToggleButton show={showRentDetails} onClick={()=>setShowRentDetails(!showRentDetails)}/>
-          {showRentDetails&&<div className="animate-fadeIn">
+          <DetailToggleButton show={showDetails} onClick={()=>setShowDetails(!showDetails)}/>
+          {showDetails&&<div className="animate-fadeIn">
             {renderDetailCards('ROOMMATE DATA',rentData,p=>({name:p.name,rows:[{label:'ROOM SIZE',value:`${formatNumber(p.roomSize.toFixed(0))} ${getMeasurementLabel(rentMeasurement).toLowerCase()}`},{label:'WEALTH',value:formatCurrency(p.wealth,2,rentCurrency)}],summaryRows:[{label:'MONTHLY RENT',value:formatCurrencySmart(p.fairRent,rentCurrency)},{label:'% OF TOTAL',value:`${p.rentPct.toFixed(1)}%`}]}))}
             <DashedDivider/>
             <div className="mb-6"><h3 className="text-lg font-bold mb-4 text-black uppercase tracking-wider">RENT AND ROOM SIZE BREAKDOWN</h3><div className="space-y-3">{rentData.map((p,idx)=>{const mxR=Math.max(...rentData.map(d=>d.fairRent));return<div key={p.id||idx} className="mb-4"><p className="font-bold text-black mb-1 text-xs uppercase">{p.name}</p><div className="space-y-1">{[{lbl:'RENT',v:p.fairRent,mx:mxR,disp:`${p.rentPct.toFixed(0)}%`,right:formatCurrencySmart(p.fairRent,rentCurrency)},{lbl:'ROOM',v:p.roomSize,mx:totalRoomSize,disp:`${p.roomPct.toFixed(0)}%`,right:`${formatNumber(p.roomSize.toFixed(0))} ${getMeasurementLabel(rentMeasurement).toLowerCase()}`}].map(({lbl,v,mx,disp,right},bi)=><div key={bi} className="flex items-center gap-2"><span className="text-xs text-black w-20 font-bold">{lbl}:</span><div className="flex-1 bg-gray-200 h-6 relative overflow-hidden border border-gray-400"><div className="h-6 bar-animate flex items-center justify-end pr-2 sf" style={{width:`${mx>0?(v/mx)*100:0}%`,animationDelay:`${idx*0.1+bi*0.05}s`,backgroundColor:DARK}}>{mx>0&&(v/mx)*100>15&&<span className="text-xs font-bold" style={{color:BG_GREY}}>{disp}</span>}</div></div><span className="text-xs font-bold text-black w-24 text-right">{right}</span></div>)}</div></div>;})}
@@ -1445,7 +1403,6 @@ const Comrade = () => {
 
   return null;
 };
-
 
 
 
