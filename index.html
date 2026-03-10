@@ -1379,14 +1379,17 @@ const Comrade = () => {
     <Layout {...lp}>
       <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider text-center">LEGAL</h2>
       <div className="text-black">
-        {['This application is provided for informational purposes only. Users are solely responsible for their own actions. The creators of Comrade are not liable for any outcomes, disputes, unintended consequences, or bad decisions resulting from the use of Comrade and its calculations. Sorry!',
-          'Any financial information entered into the app is stored only on your device, and all calculations are performed locally — nothing is sent to Comrade. Share link URLs are generated algorithmically and do not transmit any data to Comrade. Comrade loses access to your data after 30 days of inactivity.',
-          'By entering your email address, you consent to Comrade and its team contacting you about updates to the app, news, and other projects they may be working on. Comrade will not sell your personal information to third parties.',
-          '© 2026 Comrade. All rights reserved.'
-        ].map((t,i)=>(
+        {[{heading:'TERMS OF USE',text:'This application is provided for informational purposes only, on an "as is" basis, without warranty of any kind. Users are solely responsible for their own actions. The creators of Comrade are not liable for any outcomes, disputes, unintended consequences, or bad decisions resulting from the use of Comrade and its calculations. Sorry!'},
+          {heading:'PRIVACY POLICY',text:'Any financial information entered into the app is stored only on your device, and all calculations are performed locally — nothing is sent to Comrade. Share link URLs are generated algorithmically and do not transmit any data to Comrade. Comrade loses access to your data after 30 days of inactivity.'},
+          {heading:null,text:'Comrade uses Vercel Analytics to collect anonymous, aggregated data about site visits, including page views and unique visitor counts. No personal or financial information is collected through analytics, and no cookies are used.'},
+          {heading:null,text:'By entering your email address, you consent to Comrade and its team contacting you about updates to the app, news, and other projects they may be working on. Comrade will not sell your personal information to third parties. You can unsubscribe at any time.'},
+          {heading:null,text:'© 2026 Comrade. All rights reserved.'},
+        ].map((item,i)=>(
           <React.Fragment key={i}>
-            {i>0&&<div className={`${CLS_DASHED_T} my-4`}/>}
-            <p className="leading-relaxed text-xs">{t}</p>
+            {(i===1||i===4)&&<div className={`${CLS_DASHED_T} my-4`}/>}
+            {i>0&&i!==1&&i!==4&&<div className="my-3"/>}
+            {item.heading&&<p className="font-bold text-xs uppercase tracking-wider mb-2">{item.heading}</p>}
+            <p className="leading-relaxed text-xs">{item.text}</p>
           </React.Fragment>
         ))}
       </div>
@@ -1654,6 +1657,7 @@ const Comrade = () => {
 
   return null;
 };
+
 
 
 
