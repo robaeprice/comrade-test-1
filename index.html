@@ -23,6 +23,8 @@
 
 
 
+import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
+
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -238,6 +240,40 @@ const CLS_BAR     = 'h-6 bar-animate flex items-center justify-end pr-2 sf';
 const CLS_PILL    = 'bg-gray-100 p-1 border-2 border-dotted border-black inline-block';
 const CLS_TOTAL   = 'flex justify-between items-center pt-3 border-t-2 border-black';
 const CLS_NAME    = 'text-xs text-black font-bold uppercase';
+const S_DARK  = {backgroundColor:DARK,color:BG_GREY,borderColor:DARK};
+const CLS_FB  = 'font-bold mb-2';
+const S_PANEL = {border:'2px dashed #9CA3AF',borderTop:'none',padding:'20px'};
+const NP = {min:'0',step:'0.01',inputMode:'decimal'};
+const CLS_JBH   = 'flex justify-between items-start mb-3 border-b border-dashed border-gray-400 pb-2';
+const CLS_H2C   = 'text-2xl font-black mb-4 text-black uppercase tracking-wider text-center';
+const CLS_DEL   = 'text-black font-bold text-xl ml-3 hover:text-gray-600 leading-none';
+const CLS_CUR   = 'cursor-pointer hover:underline font-bold sf';
+const CLS_CP    = 'currency-pattern text-xs text-black uppercase tracking-wider sf';
+const CLS_I1    = 'flex-1 p-2 border-2 border-gray-400 bg-white uppercase';
+const CLS_FBU   = 'font-bold text-black uppercase mb-1';
+const CLS_FIG   = 'flex items-center gap-2';
+const CLS_P3    = 'text-xs mb-3 text-black';
+const CLS_BR    = 'text-xs font-bold text-black w-24 text-right';
+const CLS_PARA3 = 'leading-relaxed text-xs mb-3';
+const CLS_FBSM  = 'font-bold text-sm text-black uppercase';
+const CLS_ROW3  = 'flex flex-col sm:flex-row gap-2 mb-3';
+const CLS_FBS   = 'font-black text-black uppercase sf';
+const CLS_BL    = 'text-xs text-black w-20 font-bold';
+const CLS_FG4   = 'flex gap-4 items-start';
+const CLS_FBT   = 'font-black text-black text-xs sf';
+const CLS_PARA   = 'leading-relaxed text-xs';
+const CLS_STEP_P = 'text-xs mb-4 text-black leading-relaxed';
+const CLS_XS     = 'text-xs text-black';
+const CLS_JBM    = 'flex justify-between mb-1';
+const CLS_SH     = 'text-sm font-bold mb-1 text-black uppercase tracking-wider';
+const CLS_NUM    = 'font-black text-4xl w-16 h-16 flex items-center justify-center border-2 flex-shrink-0 sf';
+const CLS_LNK    = 'underline cursor-pointer hover:text-gray-600';
+const CLS_A      = 'underline hover:text-gray-600';
+const CLS_P5     = 'text-xs mb-5 text-black leading-relaxed';
+const CLS_ROW    = 'flex flex-col sm:flex-row gap-2 mb-2';
+const CLS_FBTXU  = 'font-bold text-black mb-1 text-xs uppercase';
+const FLOOR_OPTIONS = [{value:'off',label:'OFF'},{value:'10',label:'10%'},{value:'25',label:'25%'},{value:'50',label:'50%'}];
+const _errs=c=>c.flatMap(([t,m])=>t?[m]:[]);
 
 const BG_STYLE = {
   backgroundImage:'repeating-linear-gradient(135deg,#ffd700 0px,#ff8c00 525px,#ffd700 1050px)',
@@ -329,13 +365,14 @@ const CheckCircleIcon = ({size=20}) => <Icon size={size}><circle cx="12" cy="12"
 const QuestionIcon = ({size=20}) => <Icon size={size}><text x="6" y="19" fontFamily="monospace" fontSize="20" fill={DARK} fontWeight="bold">?</text></Icon>;
 const CalculateIcon = ({size=20}) => <Icon size={size}><line x1="4" y1="9" x2="20" y2="9" stroke={DARK} strokeWidth="3.5" strokeLinecap="round"/><line x1="4" y1="15" x2="20" y2="15" stroke={DARK} strokeWidth="3.5" strokeLinecap="round"/></Icon>;
 const ListIcon = ({size=20}) => <Icon size={size}><rect x="4" y="5" width="3" height="3" fill={DARK}/><rect x="4" y="10" width="3" height="3" fill={DARK}/><rect x="4" y="15" width="3" height="3" fill={DARK}/><line x1="9" y1="6.5" x2="20" y2="6.5" stroke={DARK} strokeWidth="2"/><line x1="9" y1="11.5" x2="20" y2="11.5" stroke={DARK} strokeWidth="2"/><line x1="9" y1="16.5" x2="20" y2="16.5" stroke={DARK} strokeWidth="2"/></Icon>;
+const ReceiptLineIcon = ({size=20}) => <Icon size={size}><rect x="4" y="2" width="16" height="20" rx="1" fill={DARK}/><line x1="7" y1="7" x2="17" y2="7" stroke={BG_GREY} strokeWidth="1.5" strokeLinecap="round"/><line x1="7" y1="11" x2="17" y2="11" stroke={BG_GREY} strokeWidth="1.5" strokeLinecap="round"/><line x1="7" y1="15" x2="13" y2="15" stroke={BG_GREY} strokeWidth="1.5" strokeLinecap="round"/></Icon>;
 const ErrorIcon = ({size=20}) => <Icon size={size}><line x1="4" y1="4" x2="20" y2="20" stroke={DARK} strokeWidth="3"/><line x1="20" y1="4" x2="4" y2="20" stroke={DARK} strokeWidth="3"/></Icon>;
 const ShareIcon = ({size=20}) => <svg aria-hidden="true" width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><circle cx="18" cy="5" r="3" fill="none" stroke="currentColor" strokeWidth="2"/><circle cx="6" cy="12" r="3" fill="none" stroke="currentColor" strokeWidth="2"/><circle cx="18" cy="19" r="3" fill="none" stroke="currentColor" strokeWidth="2"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" stroke="currentColor" strokeWidth="2"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" stroke="currentColor" strokeWidth="2"/></svg>;
 
 const BILL_STEPS = [
   {label:'SPLIT COSTS',icon:<BillIcon size={22}/>},
   {label:'PEOPLE',     icon:<PersonIcon size={22}/>},
-  {label:'BILLS',      icon:<BillIcon size={22}/>},
+  {label:'BILLS',      icon:<ReceiptLineIcon size={22}/>},
   {label:'CALCULATE',  icon:<CalculateIcon size={22}/>},
 ];
 const SALE_STEPS = [
@@ -363,8 +400,9 @@ const scrollToStep = i => setTimeout(() => {
   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }, 80);
 
-const FaqItem = ({q,a,render,border}) => {
+const FaqItem = ({q,a,render,border,forceOpen}) => {
   const [open,setOpen] = useState(false);
+  useEffect(()=>{ if(forceOpen) setOpen(true); },[forceOpen]);
   return (
     <div className={border?'border-b-2 border-dashed border-gray-400':''}>
       <button onClick={()=>setOpen(o=>!o)} className="w-full flex items-center gap-3 p-5 text-left hover:opacity-60 transition-all">
@@ -409,7 +447,7 @@ const MockReceipt = () => (
     <div className="space-y-2 w-full">
       {[['#D1D5DB','MEAL','$95'],['#9CA3AF','GAS','$45'],['#6B7280','HOTEL','$300']].map(([color,label,amount])=>(
         <div key={label} className="flex justify-between items-center text-xs font-bold text-gray-500 border-b-2 border-dashed border-gray-400 pb-1">
-          <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full" style={{backgroundColor:color}}></div><span>{label}</span></div>
+          <div className={CLS_FIG}><div className="w-2 h-2 rounded-full" style={{backgroundColor:color}}></div><span>{label}</span></div>
           <span>{amount}</span>
         </div>
       ))}
@@ -427,32 +465,30 @@ const ResultPieChart = () => (
   </div>
 );
 
-const CurrencySelector = ({value, onChange}) => (
-  <div className="flex justify-center">
-    <div className={CLS_PILL}>
-      <div className="flex gap-1">
-        {[{value:'USD',label:'$'},{value:'EUR',label:'€'},{value:'GBP',label:'£'}].map(c=>(
-          <button key={c.value} onClick={()=>onChange(c.value)} aria-pressed={value===c.value} className={`px-4 py-2 font-bold text-xs border-2 ${value===c.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{c.label}</button>
-        ))}
-      </div>
+const ToggleGroup = ({options, value, onChange, minWidth='60px', justify='center', fontSize='11px'}) => (
+  <div style={{display:'flex',justifyContent:justify}}>
+    <div style={{display:'flex',flexWrap:'wrap',margin:'1px'}}>
+      {options.map(o=>(
+        <button key={o.value} onClick={()=>onChange(o.value)} aria-pressed={value===o.value}
+          style={{flex:'1',minWidth,padding:'10px 18px',fontWeight:900,fontSize,border:`2px solid ${DARK}`,margin:'-1px',background:value===o.value?DARK:'white',color:value===o.value?'white':DARK,transition:'all 0.15s',position:'relative',zIndex:value===o.value?1:0,whiteSpace:'nowrap'}}>
+          {o.label}
+        </button>
+      ))}
     </div>
   </div>
+);
+
+const CurrencySelector = ({value, onChange}) => (
+  <ToggleGroup options={[{value:'USD',label:'$'},{value:'EUR',label:'€'},{value:'GBP',label:'£'}]} value={value} onChange={onChange} minWidth="50px" fontSize="15px"/>
 );
 
 const WealthMetricSelector = ({value, onChange}) => (
-  <div className="flex justify-center">
-    <div className={CLS_PILL}>
-      <div className="flex gap-1">
-        {[{value:'salary',label:'SALARY'},{value:'networth',label:'NET WORTH'}].map(w=>(
-          <button key={w.value} onClick={()=>onChange(w.value)} aria-pressed={value===w.value} className={`px-3 py-2 font-bold text-xs border-2 ${value===w.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{w.label}</button>
-        ))}
-      </div>
-    </div>
-  </div>
+  <ToggleGroup options={[{value:'salary',label:'SALARY'},{value:'networth',label:'NET WORTH'}]} value={value} onChange={onChange} minWidth="100px"/>
 );
 
+
 const CurrencyWealthSettings = ({currency, onCurrency, wealth, onWealth, pad='p-3'}) => (
-  <div className={`${CLS_DASHED} ${pad} mb-5`} style={{backgroundColor:'#E5E7EB'}}>
+  <div className={`${CLS_DASHED} ${pad} mb-5 bg-gray-50`}>
     <p className={CLS_LABEL}>CURRENCY:</p>
     <CurrencySelector value={currency} onChange={onCurrency}/>
     <div className={`${CLS_DASHED_T} my-3`}></div>
@@ -469,7 +505,7 @@ const LoadSplitPanel = ({tool, loadPanel, setLoadPanel, onLoad, label='LOAD SPLI
     <button onClick={()=>setLoadPanel({tool, input:'', error:false})} className={`w-full ${CLS_BTN_WHT}`}>{label}</button>
   ) : (
     <div className={`${CLS_DASHED} p-4 animate-fadeIn`}>
-      <p className="text-xs mb-3 text-black">Enter a share link from a previous {tool==='sale'?'sale':tool==='vote'?'vote':'split'}.</p>
+      <p className={CLS_P3}>Enter a share link from a previous {tool==='sale'?'sale':tool==='vote'?'vote':'split'}.</p>
       <input value={loadPanel.input} onChange={e=>setLoadPanel(p=>({...p,input:e.target.value,error:false}))} placeholder="PASTE URL HERE" className="w-full p-2 border-2 border-gray-400 bg-white mb-2" style={{fontSize:'16px',textTransform:'none'}}/>
       {loadPanel.error&&(
         <div className="flex items-center gap-2 mb-3 p-3 border-2 border-black bg-white">
@@ -485,19 +521,23 @@ const LoadSplitPanel = ({tool, loadPanel, setLoadPanel, onLoad, label='LOAD SPLI
   );
 };
 
-const IntroStep = ({desc, hasSaved, resumeLabel, newLabel, tool, loadLabel, onJump, onClear, onExample, loadPanel, setLoadPanel, onLoad}) => (
+const IntroStep = ({desc, hasSaved, resumeLabel, newLabel, tool, loadLabel, onJump, onClear, onExample, loadPanel, setLoadPanel, onLoad, onPrivacyFaq}) => (
   <div>
-    <p className="text-xs mb-5 text-black leading-relaxed">{desc}</p>
+    <p className={CLS_P5}>{desc}</p>
     <div className="flex flex-col gap-3">
       {hasSaved&&<button onClick={onJump} className="w-full bg-black text-white py-3 font-bold text-sm border-2 border-black hover:bg-gray-800 transition-all">{resumeLabel}</button>}
       <button onClick={onClear} className={`w-full font-bold border-2 border-black transition-all ${hasSaved?'bg-white text-black py-2 px-4 text-xs hover:bg-gray-100':'bg-black text-white py-3 text-sm hover:bg-gray-800'}`}>{hasSaved?newLabel:`${newLabel} →`}</button>
       <LoadSplitPanel tool={tool} loadPanel={loadPanel} setLoadPanel={setLoadPanel} onLoad={onLoad} label={loadLabel}/>
-      <button onClick={onExample} className={`w-full ${CLS_BTN_WHT}`}>EXAMPLE DATA</button>
+      <button onClick={onExample} className={`w-full ${CLS_BTN_WHT}`}>TRY AN EXAMPLE</button>
     </div>
+    {onPrivacyFaq&&<PrivacyNote onFaq={onPrivacyFaq}/>}
   </div>
 );
 
 const DashedDivider = () => <div className="border-t-2 border-dashed border-gray-400 my-6"/>;
+const PrivacyNote = ({onFaq}) => (
+  <p className="text-xs mt-4 leading-relaxed" style={{color:'#9CA3AF',fontSize:'10px'}}>Your data never leaves your device. <span className="underline cursor-pointer hover:text-gray-500" onClick={onFaq}>Learn more</span></p>
+);
 const CurrencyDivider = () => (
   <div className="flex items-center gap-4 my-6">
     <div className="flex-1 border-t-4" style={{borderColor:DARK}}></div>
@@ -512,15 +552,7 @@ const BlackBoxStats = ({stats}) => (
 );
 
 const WeightingButtons = ({value,onChange}) => (
-  <div className="flex justify-center">
-    <div className="bg-gray-100 p-2 border-2 border-dotted border-black inline-block">
-      <div className="flex flex-wrap gap-2">
-        {[{value:'none',label:'OFF'},{value:'gentle',label:'LOW'},{value:'standard',label:'MID'},{value:'strong',label:'HIGH'}].map(w=>(
-          <button key={w.value} onClick={()=>onChange(w.value)} aria-pressed={value===w.value} className={`flex-1 min-w-[100px] p-3 font-bold text-xs border-2 ${value===w.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{w.label}</button>
-        ))}
-      </div>
-    </div>
-  </div>
+  <ToggleGroup options={[{value:'none',label:'OFF'},{value:'gentle',label:'LOW'},{value:'standard',label:'MID'},{value:'strong',label:'HIGH'}]} value={value} onChange={onChange} minWidth="80px"/>
 );
 
 const numericChange = (onChange) => (e) => {
@@ -552,18 +584,18 @@ const ItemList = ({items,onDelete,renderItem,receiptStyle,formatTotal,getAmount}
           ))}
         </div>
         <div className={CLS_TOTAL}>
-          <span className="font-black text-black uppercase sf">TOTAL</span>
-          <span className="font-black text-black text-lg sf">{formatTotal?formatTotal(total):total.toFixed(2)}</span>
+          <span className={CLS_FBS}>TOTAL</span>
+          <span className={CLS_FBT}>{formatTotal?formatTotal(total):total.toFixed(2)}</span>
         </div>
       </div>
     );
   }
   return (
-    <div className="mt-4 space-y-2">
-      {items.map(item=>(
-        <div key={item.id} className="bg-white p-3 border-2 border-black flex justify-between items-center">
+    <div className="mt-4">
+      {items.map((item,i)=>(
+        <div key={item.id} className="flex justify-between items-center py-2" style={{borderTop:i>0?'1px dashed #9CA3AF':'none'}}>
           <div className="flex-1">{renderItem(item)}</div>
-          <button onClick={()=>onDelete(item.id)} aria-label="Remove" className="text-black font-bold text-xl ml-3 hover:text-gray-600">×</button>
+          <button onClick={()=>onDelete(item.id)} aria-label="Remove" className={CLS_DEL}>×</button>
         </div>
       ))}
     </div>
@@ -603,46 +635,63 @@ const AdvancedSettingsToggle = ({isOpen, onToggle}) => (
   </button>
 );
 
-const CalcStep = ({onCalculate, weighting, onWeighting, navigateToFaq, hasFloor=false, floor, onFloor, hasAdvanced=false}) => {
+const CalcStep = ({onCalculate, weighting, onWeighting, navigateToFaq, hasFloor=false, floor, onFloor, hasAdvanced=false, validate}) => {
   const [advOpen, setAdvOpen] = useState(false);
+  const [attempted, setAttempted] = useState(false);
+  const errors = validate ? validate() : [];
+  const showErrors = attempted && errors.length > 0;
+  const handleCalculate = () => {
+    if (validate) {
+      const errs = validate();
+      if (errs.length > 0) { setAttempted(true); return; }
+    }
+    onCalculate();
+  };
   return (
     <div>
-      <p className="text-xs mb-5 text-black leading-relaxed">Tweak any settings, or just see your results.</p>
+      <p className={CLS_P5}>Tweak any settings, or just see your results.</p>
       {(hasFloor || hasAdvanced) ? (
         <div className="mb-3">
           <AdvancedSettingsToggle isOpen={advOpen} onToggle={()=>setAdvOpen(o=>!o)}/>
           {advOpen&&(
-            <div style={{border:'2px dashed #9CA3AF',borderTop:'none',padding:'20px'}} className="animate-fadeIn">
-              <p className="text-xs mb-5 text-black leading-relaxed">For more information on these controls, please <span className="underline cursor-pointer hover:text-gray-600" onClick={navigateToFaq}>read our FAQ</span>. If in doubt, keep the default settings.</p>
-              <h4 className="text-sm font-bold mb-1 text-black uppercase tracking-wider">WEIGHTING</h4>
-              <p className="text-xs mb-3 text-black">Decide how much wealth should affect Comrade's calculations.</p>
+            <div style={S_PANEL} className="animate-fadeIn">
+              <p className={CLS_P5}>For more information on these controls, please <span className={CLS_LNK} onClick={navigateToFaq}>read our FAQ</span>. If in doubt, keep the default settings.</p>
+              <h4 className={CLS_SH}>WEIGHTING</h4>
+              <p className={CLS_P3}>Decide how much wealth should affect Comrade's calculations.</p>
               <WeightingButtons value={weighting} onChange={onWeighting}/>
               {hasFloor&&<><div className={`${CLS_DASHED_T} my-5`}></div>
-              <h4 className="text-sm font-bold mb-1 text-black uppercase tracking-wider">CONTRIBUTION FLOOR</h4>
-              <p className="text-xs mb-3 text-black">If enabled, no group member pays less than the selected percentage of what they'd owe in an even split, regardless of their wealth.</p>
-              <div className="flex justify-center">
-                <div className="bg-gray-100 p-2 border-2 border-dotted border-black inline-block">
-                  <div className="flex flex-wrap gap-2">
-                    {[{value:'off',label:'OFF'},{value:'10',label:'10%'},{value:'25',label:'25%'},{value:'50',label:'50%'}].map(f=>(
-                      <button key={f.value} onClick={()=>onFloor(f.value)} aria-pressed={floor===f.value} className={`flex-1 min-w-[100px] p-3 font-bold text-xs border-2 ${floor===f.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{f.label}</button>
-                    ))}
-                  </div>
-                </div>
-              </div></>}
+              <h4 className={CLS_SH}>CONTRIBUTION FLOOR</h4>
+              <p className={CLS_P3}>If enabled, no group member pays less than the selected percentage of what they'd owe in an even split, regardless of their wealth.</p>
+              <ToggleGroup options={FLOOR_OPTIONS} value={floor} onChange={onFloor} minWidth="80px"/></>}
             </div>
           )}
         </div>
       ) : (
         <>
           <div className="mb-5">
-            <h4 className="text-sm font-bold mb-1 text-black uppercase tracking-wider">WEIGHTING</h4>
-            <p className="text-xs mb-3 text-black">Decide how much wealth should affect Comrade's calculations. For more information, <span className="underline cursor-pointer hover:text-gray-600" onClick={navigateToFaq}>read our FAQ</span>.</p>
+            <h4 className={CLS_SH}>WEIGHTING</h4>
+            <p className={CLS_P3}>Decide how much wealth should affect Comrade's calculations. For more information, <span className={CLS_LNK} onClick={navigateToFaq}>read our FAQ</span>.</p>
             <WeightingButtons value={weighting} onChange={onWeighting}/>
           </div>
           <div className={`${CLS_DASHED_T} my-4`}></div>
         </>
       )}
-      <button onClick={onCalculate} className="bg-black text-white w-full py-4 font-black text-xl border-4 border-black hover:bg-gray-800 transition-all uppercase calculate-btn">CALCULATE</button>
+      {showErrors&&(
+        <div className="animate-fadeIn bg-gray-50" style={{border:'2px dashed #9CA3AF',borderBottom:'none',padding:'14px 16px 16px'}}>
+          <div className="flex items-start gap-3">
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" style={{flexShrink:0,marginTop:'1px'}}>
+              <circle cx="8" cy="8" r="7.5" stroke={DARK} strokeWidth="1.5"/>
+              <line x1="8" y1="4.5" x2="8" y2="9" stroke={DARK} strokeWidth="1.5" strokeLinecap="round"/>
+              <circle cx="8" cy="11.5" r="1" fill={DARK}/>
+            </svg>
+            <div>
+              <p className="text-xs font-bold uppercase mb-2 text-black">ERROR</p>
+              {errors.map((e,i)=><p key={i} className="text-xs uppercase text-black" style={{marginBottom: i<errors.length-1?'4px':0}}>— {e}</p>)}
+            </div>
+          </div>
+        </div>
+      )}
+      <button onClick={handleCalculate} className="bg-black text-white w-full py-4 font-black text-xl border-4 border-black hover:bg-gray-800 transition-all uppercase calculate-btn">CALCULATE</button>
     </div>
   );
 };
@@ -690,19 +739,19 @@ const renderBarVisualization = (title,data,bars,getItemName) => (
         const maxV=Math.max(...data.map(d=>Math.max(...bars.map(b=>b.getValue(d)))));
         return(
           <div key={item.id||idx} className="mb-4">
-            <p className="font-bold text-black mb-1 text-xs uppercase">{getItemName(item)}</p>
+            <p className={CLS_FBTXU}>{getItemName(item)}</p>
             <div className="space-y-1">
               {bars.map((bar,bi)=>{
                 const v=bar.getValue(item),w=maxV>0?(v/maxV)*100:0;
                 return(
-                  <div key={bi} className="flex items-center gap-2">
-                    {bar.label&&<span className="text-xs text-black w-20 font-bold">{bar.label}:</span>}
+                  <div key={bi} className={CLS_FIG}>
+                    {bar.label&&<span className={CLS_BL}>{bar.label}:</span>}
                     <div className={CLS_BAR_BG}>
                       <div className={CLS_BAR} style={{width:`${w}%`,animationDelay:`${idx*0.1+bi*0.05}s`,backgroundColor:DARK}}>
                         {w>15&&<span className="text-xs font-bold" style={{color:BG_GREY}}>{bar.displayValue(item)}</span>}
                       </div>
                     </div>
-                    <span className="text-xs font-bold text-black w-24 text-right">{bar.rightLabel(item,idx)}</span>
+                    <span className={CLS_BR}>{bar.rightLabel(item,idx)}</span>
                   </div>
                 );
               })}
@@ -715,12 +764,12 @@ const renderBarVisualization = (title,data,bars,getItemName) => (
 );
 
 const renderMathRow = (data,getFormula) => data.map(p=>(
-  <div key={p.id} className="flex justify-between mb-1"><span>{p.name}:</span><span className="font-mono">{getFormula(p)}</span></div>
+  <div key={p.id} className={CLS_JBM}><span>{p.name}:</span><span className="font-mono">{getFormula(p)}</span></div>
 ));
 
 const renderAdjustedWealthStep = (num,data,weighting) => (
   <div>
-    <p className="font-bold mb-2">{num}. ADJUSTED WEALTH ({getWeightingLabel(weighting).toUpperCase()}):</p>
+    <p className={CLS_FB}>{num}. ADJUSTED WEALTH ({getWeightingLabel(weighting).toUpperCase()}):</p>
     {renderMathRow(data,p=>{
       if(weighting==='gentle') return `√${formatNumber(p.wealth.toFixed(0))} = ${formatNumber(p.adjustedWealth.toFixed(2))}`;
       if(weighting==='standard') return formatNumber(p.wealth.toFixed(2));
@@ -756,7 +805,7 @@ const renderDetailCards = (title,data,getCardConfig) => (
         return(
           <div key={item.id||idx} className={cfg.cardClassName||"bg-white p-4 border-2 border-gray-400"}>
             {cfg.titleExtra
-              ?<div className="flex justify-between items-start mb-3 border-b border-dashed border-gray-400 pb-2"><p className="font-bold text-sm text-black uppercase">{cfg.name}</p>{cfg.titleExtra}</div>
+              ?<div className={CLS_JBH}><p className={CLS_FBSM}>{cfg.name}</p>{cfg.titleExtra}</div>
               :<p className="font-bold text-sm text-black mb-3 uppercase border-b border-dashed border-gray-400 pb-2">{cfg.name}</p>
             }
             <div className="space-y-2 text-xs text-black">
@@ -801,21 +850,21 @@ const HomeAccordion = ({navigateTo}) => {
       <div>
         {sectionBtn('how','HOW IT WORKS')}
         {openSection==='how'&&(
-          <div style={{border:'2px dashed #9CA3AF',borderTop:'none',padding:'20px'}}>
+          <div style={S_PANEL}>
             <div className="space-y-6">
-              <div className="flex gap-4 items-start">
-                <div className="font-black text-4xl w-16 h-16 flex items-center justify-center border-2 flex-shrink-0 sf" style={{backgroundColor:DARK,color:BG_GREY,borderColor:DARK}}>1</div>
-                <div><h3 className="font-bold text-black uppercase mb-1">ADD YOUR GROUP</h3><p className="text-xs text-black">Enter everyone's names, and incomes or net worth</p></div>
+              <div className={CLS_FG4}>
+                <div className={CLS_NUM} style={S_DARK}>1</div>
+                <div><h3 className={CLS_FBU}>ADD YOUR GROUP</h3><p className={CLS_XS}>Enter everyone's names, and incomes or net worth</p></div>
               </div>
               <PeopleAvatars />
-              <div className="flex gap-4 items-start">
-                <div className="font-black text-4xl w-16 h-16 flex items-center justify-center border-2 flex-shrink-0 sf" style={{backgroundColor:DARK,color:BG_GREY,borderColor:DARK}}>2</div>
-                <div><h3 className="font-bold text-black uppercase mb-1">ENTER YOUR BILLS</h3><p className="text-xs text-black">List what was spent, and who paid</p></div>
+              <div className={CLS_FG4}>
+                <div className={CLS_NUM} style={S_DARK}>2</div>
+                <div><h3 className={CLS_FBU}>ENTER YOUR BILLS</h3><p className={CLS_XS}>List what was spent, and who paid</p></div>
               </div>
               <MockReceipt />
-              <div className="flex gap-4 items-start">
-                <div className="font-black text-4xl w-16 h-16 flex items-center justify-center border-2 flex-shrink-0 sf" style={{backgroundColor:DARK,color:BG_GREY,borderColor:DARK}}>3</div>
-                <div><h3 className="font-bold text-black uppercase mb-1">GET FAIR RESULTS</h3><p className="text-xs text-black">See who owes what, based on ability to pay</p></div>
+              <div className={CLS_FG4}>
+                <div className={CLS_NUM} style={S_DARK}>3</div>
+                <div><h3 className={CLS_FBU}>GET FAIR RESULTS</h3><p className={CLS_XS}>See who owes what, based on ability to pay</p></div>
               </div>
               <ResultPieChart />
             </div>
@@ -854,11 +903,11 @@ const FooterNav = ({onNavigate, onClearStorage}) => {
   const resetCount = dest => { _legalCount = 0; clearTimeout(_legalTimer); onNavigate(dest); };
   return (
     <div className="text-center mt-4 mb-4 text-black text-xs">
-      <span className="cursor-pointer hover:underline font-bold sf" onClick={()=>resetCount('home')}>HOME</span>
+      <span className={CLS_CUR} onClick={()=>resetCount('home')}>HOME</span>
       <span className="mx-3 sf">/</span>
-      <span className="cursor-pointer hover:underline font-bold sf" onClick={()=>resetCount('about')}>ABOUT</span>
+      <span className={CLS_CUR} onClick={()=>resetCount('about')}>ABOUT</span>
       <span className="mx-3 sf">/</span>
-      <span className="cursor-pointer hover:underline font-bold sf" onClick={handleLegalClick}>LEGAL</span>
+      <span className={CLS_CUR} onClick={handleLegalClick}>LEGAL</span>
       {toast && (
         <div className="animate-fadeIn" style={{position:'fixed',bottom:32,left:'50%',transform:'translateX(-50%)',padding:'10px 24px',fontWeight:'bold',zIndex:9999,border:`2px solid ${DARK}`,backgroundColor:DARK,color:BG_GREY,fontSize:'12px',whiteSpace:'nowrap'}}>
           🧹 STORAGE CLEARED
@@ -920,11 +969,11 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
           <div className="pt-0 px-6 pb-0">
             <div className="bg-white mb-4 pt-3 pb-3 border-b-2 border-dashed border-gray-400">
               <div role="button" tabIndex={0} aria-label="Go to home" className="cursor-pointer text-center" onClick={()=>onNavigate('home')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&onNavigate('home')}>
-                <div className="currency-pattern text-xs text-black uppercase tracking-wider sf" style={{marginBottom:'2px'}}>{'$ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £'}</div>
+                <div className={CLS_CP} style={{marginBottom:'2px'}}>{'$ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £'}</div>
                 <svg aria-hidden="true" width="100%" viewBox="0 0 100 24" style={{display:'block',overflow:'visible',marginBottom:'-6px',marginTop:'-2px'}}>
                   <text x="0" y="19" fontFamily="Sixtyfour,monospace" fontWeight="900" fill={DARK} textLength="100" lengthAdjust="spacingAndGlyphs" fontSize="19">COMRADE</text>
                 </svg>
-                <div className="currency-pattern text-xs text-black uppercase tracking-wider sf" style={{marginTop:'2px'}}>{'$ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £'}</div>
+                <div className={CLS_CP} style={{marginTop:'2px'}}>{'$ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £'}</div>
               </div>
               <p className="text-center text-black font-bold mt-2" style={{fontSize:'10px',letterSpacing:'1px'}}>{loadedAt}</p>
             </div>
@@ -946,11 +995,13 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
       </div>
     </div>
     </div>
-    {showCopyToast&&<div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 px-6 py-3 font-bold z-50 border-2 sf" style={{backgroundColor:DARK,color:BG_GREY,borderColor:DARK}}>{copyToastMsg}</div>}
+    {showCopyToast&&<div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 px-6 py-3 font-bold z-50 border-2 sf" style={S_DARK}>{copyToastMsg}</div>}
   </div>
 );
 
+
 const _fc=(v,c)=>formatCurrency(v,2,c),_fcs=(v,c)=>formatCurrencySmart(v,c);
+
 const Comrade = () => {
   useEffect(()=>{
     document.title="COMRADE";
@@ -972,6 +1023,15 @@ const Comrade = () => {
     navigateTo('about');
     setTimeout(()=>{
       const el=document.getElementById('faq-section');
+      if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+    },100);
+  },[navigateTo]);
+  const [faqAutoOpen,setFaqAutoOpen] = useState(null);
+  const navigateToPrivacyFaq = useCallback(()=>{
+    setFaqAutoOpen('WHAT DO YOU DO WITH MY FINANCIAL INFORMATION?');
+    navigateTo('about');
+    setTimeout(()=>{
+      const el=document.getElementById('faq-privacy');
       if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
     },100);
   },[navigateTo]);
@@ -1255,7 +1315,7 @@ const Comrade = () => {
       <h3 className="text-lg font-bold text-black uppercase tracking-wider text-center mb-2">LIKE COMRADE?</h3>
       <p className="text-xs text-black text-center mb-4">Get updates and news from the team.</p>
       {signupStatus==='success'
-        ?<div className="p-4 text-center font-bold border-2 sf" style={{backgroundColor:DARK,color:BG_GREY,borderColor:DARK}}>THANKS FOR SIGNING UP!</div>
+        ?<div className="p-4 text-center font-bold border-2 sf" style={S_DARK}>THANKS FOR SIGNING UP!</div>
         :signupStatus==='error'
           ?<div className="bg-white text-black p-4 text-center font-bold border-2 border-black">ERROR - PLEASE TRY AGAIN</div>
           :<div className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto">
@@ -1266,15 +1326,7 @@ const Comrade = () => {
     </div>
   );
 
-  const renderNoDataState = entryPage => (
-    <div className="bg-white p-6 border-2 border-solid border-black mb-6">
-      <div className="flex items-center gap-2 mb-2"><ErrorIcon/><p className="text-black font-bold sf">ERROR!</p></div>
-      <p className="text-black text-xs mt-1">Missing or incomplete data. Go back and check your information.</p>
-      <div className="mt-4"><button onClick={()=>navigateTo(entryPage)} className="bg-black text-white px-6 py-2 font-bold border-2 border-black w-full max-w-xs">GO BACK</button></div>
-    </div>
-  );
-
-  const renderResultsFooter = (hasData, copyText, entryPage) => hasData && (
+  const renderResultsFooter = (copyText, entryPage) => (
     <>
       <div className="flex flex-col gap-3 max-w-xs mx-auto">
         <button onClick={()=>copyToClipboard(getShareUrl(),'SHARE LINK COPIED!')} className={CLS_BTN_ACT} style={{gap:'8px'}}><ShareIcon size={16}/>SHARE LINK</button>
@@ -1301,19 +1353,16 @@ const Comrade = () => {
     <button onClick={onClick} className="bg-black text-white w-full py-3 font-bold border-2 border-black text-sm hover:bg-gray-800 transition-all mt-2">{label}</button>
   );
 
-  const ResultsPage = ({hasData, entryPage, title, summary, stats, details, copyText}) => (
+  const ResultsPage = ({entryPage, title, summary, stats, details, copyText}) => (
     <Layout {...lp}>
-      {!hasData && renderNoDataState(entryPage)}
-      {hasData && (<>
-        <div className="p-8 mb-4 border-4 sf" style={{backgroundColor:DARK,color:BG_GREY,borderColor:DARK}}>
-          <h3 className="text-xl font-black mb-4 uppercase tracking-wider pb-2" style={{borderBottom:`2px solid ${BG_GREY}`}}>{title}</h3>
-          {summary}
-          <BlackBoxStats stats={stats}/>
-        </div>
-        <DetailToggleButton show={showDetails} onClick={()=>setShowDetails(!showDetails)}/>
-        {showDetails&&<div className="animate-fadeIn">{details}</div>}
-      </>)}
-      {renderResultsFooter(hasData, copyText, entryPage)}
+      <div className="p-8 mb-4 border-4 sf" style={S_DARK}>
+        <h3 className="text-xl font-black mb-4 uppercase tracking-wider pb-2" style={{borderBottom:`2px solid ${BG_GREY}`}}>{title}</h3>
+        {summary}
+        <BlackBoxStats stats={stats}/>
+      </div>
+      <DetailToggleButton show={showDetails} onClick={()=>setShowDetails(!showDetails)}/>
+      {showDetails&&<div className="animate-fadeIn">{details}</div>}
+      {renderResultsFooter(copyText, entryPage)}
     </Layout>
   );
 
@@ -1363,16 +1412,17 @@ const Comrade = () => {
 
   if(page==='about') return (
     <Layout {...lp}>
-      <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider text-center">ABOUT</h2>
+      <h2 className={CLS_H2C}>ABOUT</h2>
       <AboutBanner />
       <div className="space-y-4 text-black mb-4">
-        <p className="leading-relaxed text-xs">If a banker, a nurse, and a student go out for dinner, how should they split the bill?</p>
-        <p className="leading-relaxed text-xs">Just ask Comrade.</p>
-        <p className="leading-relaxed text-xs">Comrade is an app that takes the awkwardness out of group expenses. From vacations to household purchases to work drinks, it simplifies shared bills and divides them fairly — by taking into account people's wealth (salaries or net worth) to decide the split. Those who have more, pay more.</p>
-        <p className="leading-relaxed text-xs">Data automatically saves to your device so it's easy to track ongoing expenses, and Comrade lets you share bill-split results with friends using custom links. And it's all done in a way that protects your privacy — Comrade never sees your financial information.</p>
-        <p className="leading-relaxed text-xs">Wealth isn't evenly distributed. Costs shouldn't be either. So next time your friends, family, or coworkers need to split the check, use Comrade for a fairer way to settle up.</p>
+        <p className={CLS_PARA}>If a banker, a nurse, and a student go out for dinner, how should they split the bill?</p>
+        <p className={CLS_PARA}>Just ask Comrade.</p>
+        <p className={CLS_PARA}>Comrade is an app that takes the awkwardness out of group expenses. From vacations to household purchases to work drinks, it simplifies shared bills and divides them fairly — by taking into account people's wealth (salaries or net worth) to decide the split. Those who have more, pay more.</p>
+        <p className={CLS_PARA}>Privacy and security is Comrade's top priority. All calculations are performed locally on your smartphone or computer, and your personal and financial information is never transmitted to Comrade's servers — or anywhere else.</p>
+        <p className={CLS_PARA}>Because your data is automatically saved to your device, Comrade works just as well for tracking ongoing expenses as it does for one-off bills. And you can share your results with custom links — letting your friends see who owes what.</p>
+        <p className={CLS_PARA}>Wealth isn't evenly distributed. Costs shouldn't be either. So next time your friends, family, or coworkers need to split the check, use Comrade for a fairer way to settle up.</p>
         <div className={`${CLS_DASHED_T} my-4`}/>
-        <p className="leading-relaxed text-xs">Comrade is built with care in Brooklyn, New York. Got questions, feedback, feature requests, or partnership inquiries? Reach out at <a href="mailto:hello@comrade.money" className="underline hover:text-gray-600">hello@comrade.money</a></p>
+        <p className={CLS_PARA}>Comrade is built with care in Brooklyn, New York. Got questions, feedback, or partnership inquiries? Reach out at <a href="mailto:hello@comrade.money" className={CLS_A}>hello@comrade.money</a></p>
       </div>
       <div className="mb-4">{renderEmailSignup()}</div>
       <CurrencyDivider />
@@ -1380,34 +1430,41 @@ const Comrade = () => {
         <h2 id="faq-section" className="text-2xl font-black py-4 text-black uppercase tracking-wider text-center border-b-2 border-dashed border-gray-400">FAQ</h2>
         {[
           {q:'HOW DOES THIS WORK?',a:'Comrade uses wealth data to decide how much each person should pay. It combines all the bills and the amounts already paid, then looks at each person\'s wealth in relation to others in the group to establish what proportion of the total amount each person should actually be responsible for.'},
-          {q:'WHAT ELSE CAN COMRADE DO?',render:<p className="leading-relaxed text-xs">Beyond <span className="underline cursor-pointer hover:text-gray-600" onClick={()=>navigateTo('bill-entry')}>bill-splitting</span>, Comrade offers a number of other features. There is a tool to help decide <span className="underline cursor-pointer hover:text-gray-600" onClick={()=>navigateTo('rent-entry')}>rent splits</span> in apartments more fairly, another to assist when <span className="underline cursor-pointer hover:text-gray-600" onClick={()=>navigateTo('sale-entry')}>selling</span> an item to ensure the buyer is the person who values it most highly, and an experimental tool for <span className="underline cursor-pointer hover:text-gray-600" onClick={()=>navigateTo('vote-entry')}>voting</span> on decisions.</p>},
-          {q:'WHAT DO YOU DO WITH MY FINANCIAL INFORMATION?',render:<><p className="leading-relaxed text-xs mb-3">Nothing.</p><p className="leading-relaxed text-xs mb-3">Calculations are performed by your device, and your data is only stored locally. It is never sent to Comrade, and is automatically wiped after 30 days of inactivity.</p><p className="leading-relaxed text-xs">If a user signs up for email updates, their email is shared with Comrade only, and is not associated with any financial data.</p></>},
-          {q:'HOW DOES SHARING WORK?',render:<><p className="leading-relaxed text-xs mb-3">When you calculate a split, Comrade generates a shareable link you can send to your group. Clicking it loads the full split — people, bills, settings, and results — instantly, with no account required.</p><p className="leading-relaxed text-xs">All of the split's information is encoded directly into the URL itself, so your data never touches Comrade's servers. The link is entirely self-contained.</p></>},
+          {q:'CAN I USE COMRADE FOR ONGOING EXPENSES?',render:<p className={CLS_PARA}>Yes. Comrade automatically saves data to your device as you go, so you can simply add bills as they occur, then hit calculate when it's finally time to settle up.</p>},
+          {q:'WHAT DO YOU DO WITH MY FINANCIAL INFORMATION?',render:<><p className={CLS_PARA3}>Nothing.</p><p className={CLS_PARA3}>Calculations are performed by your device, and your data is only stored locally. It is never sent to Comrade, and is automatically wiped after 30 days of inactivity.</p><p className={CLS_PARA}>If a user signs up for email updates, their email is shared with Comrade only, and is not associated with any financial data.</p></>},
+          {q:'WHAT ELSE CAN COMRADE DO?',render:<p className={CLS_PARA}>Beyond <span className={CLS_LNK} onClick={()=>navigateTo('bill-entry')}>bill-splitting</span>, Comrade offers a number of other features. There is a tool to help decide <span className={CLS_LNK} onClick={()=>navigateTo('rent-entry')}>rent splits</span> in apartments more fairly, another to assist when <span className={CLS_LNK} onClick={()=>navigateTo('sale-entry')}>selling</span> an item to ensure the buyer is the person who values it most highly, and an experimental tool for <span className={CLS_LNK} onClick={()=>navigateTo('vote-entry')}>voting</span> on decisions.</p>},
+          {q:'HOW DOES SHARING WORK?',render:<><p className={CLS_PARA3}>When you calculate a split, Comrade generates a shareable link you can send to your group. Clicking it loads the full split — people, bills, settings, and results — instantly, with no account required.</p><p className={CLS_PARA}>All of the split's information is encoded directly into the URL itself, so your data never touches Comrade's servers. The link is entirely self-contained.</p></>},
           {q:'WHAT IS "WEIGHTING"?',a:'Weighting is the level of emphasis placed on each user\'s relative wealth (salary/net worth). By default, each person\'s responsibility is directly correlated with their wealth.\n\nFor example, let\'s say Fred and George each paid $100 on shared bills. Fred earns $50,000 a year, while George brings in $100,000. With regular ("Mid") weighting, because George makes twice as much money as Fred, he should pay twice as much. So far, he only paid 50% — $100 — meaning he owes Fred another $33.33.\n\nIn settings, you can also select "High" weighting, which emphasizes wealth differences even more by using squared wealth values for calculations; or "Low" weighting, which uses square-root values for more gentle adjustments. There is also an option to forego weighting entirely.'},
           {q:'WHAT IS A "CONTRIBUTION FLOOR"?',a:'A contribution floor sets a minimum amount that any group member must pay, regardless of their wealth. It\'s expressed as a percentage of what they\'d owe in an even split.\n\nFor example, if three people are splitting $300 and the floor is set to 25%, no one pays less than $25 — that\'s 25% of an equal $100 share.\n\nBy default, the contribution floor is deactivated.'},
-          {q:'IS COMRADE AVAILABLE ON THE APP STORE?',render:<p className="leading-relaxed text-xs">Not yet! For now, Comrade is fully functional on mobile and desktop via our website, <a href="https://www.comrade.money" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">www.comrade.money</a>. If you'd like to use a standalone app, or have other feedback or feature requests, please get in touch.</p>},
-          {q:"IT'S AWKWARD ASKING MY FRIENDS HOW MUCH MONEY THEY HAVE. WHAT SHOULD I DO?",render:<p className="leading-relaxed text-xs">Do it anyway.{' '}<a href="https://www.hbs.edu/ris/Publication%20Files/23-039_f20d86a0-a1cf-4bd6-8066-74ccc6f2c3cf.pdf" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">Studies</a>{' '}have found{' '}<a href="https://www.nytimes.com/interactive/2020/02/19/magazine/salary-sharing.html" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">breaking</a>{' '}the{' '}<a href="https://www.businessinsider.com/salary-pay-transparency-jobs-income-taboo-equity-2023-1" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">taboos</a>{' '}around sharing information about wealth makes society better.</p>},
+          {q:'IS COMRADE AVAILABLE ON THE APP STORE?',render:<p className={CLS_PARA}>Not yet! For now, Comrade is fully functional on mobile and desktop via our website, <a href="https://www.comrade.money" target="_blank" rel="noopener noreferrer" className={CLS_A}>www.comrade.money</a>. If you'd like to use a standalone app, or have other feedback or feature requests, please get in touch.</p>},
+          {q:"IT'S AWKWARD ASKING MY FRIENDS HOW MUCH MONEY THEY HAVE. WHAT SHOULD I DO?",render:<p className={CLS_PARA}>Do it anyway.{' '}<a href="https://www.hbs.edu/ris/Publication%20Files/23-039_f20d86a0-a1cf-4bd6-8066-74ccc6f2c3cf.pdf" target="_blank" rel="noopener noreferrer" className={CLS_A}>Studies</a>{' '}have found{' '}<a href="https://www.nytimes.com/interactive/2020/02/19/magazine/salary-sharing.html" target="_blank" rel="noopener noreferrer" className={CLS_A}>breaking</a>{' '}the{' '}<a href="https://www.businessinsider.com/salary-pay-transparency-jobs-income-taboo-equity-2023-1" target="_blank" rel="noopener noreferrer" className={CLS_A}>taboos</a>{' '}around sharing information about wealth makes society better.</p>},
           {q:'IS THIS SERIOUS?',a:'What do you think?'},
-        ].map((item,i,arr)=><FaqItem key={item.q} {...item} border={i<arr.length-1}/>)}
+        ].map((item,i,arr)=>{
+          const isPrivacy = item.q==='WHAT DO YOU DO WITH MY FINANCIAL INFORMATION?';
+          const el = <FaqItem key={item.q} {...item} border={i<arr.length-1} forceOpen={isPrivacy&&faqAutoOpen===item.q} />;
+          if(isPrivacy) return <div key={item.q} id="faq-privacy">{el}</div>;
+          return el;
+        })}
       </div>
     </Layout>
   );
 
   if(page==='legal') return (
     <Layout {...lp}>
-      <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider text-center">LEGAL</h2>
+      <h2 className={CLS_H2C}>LEGAL</h2>
       <div className="text-black">
-        {[{heading:'TERMS OF USE',text:'This application is provided for informational purposes only, on an "as is" basis, without warranty of any kind. Users are solely responsible for their own actions. The creators of Comrade are not liable for any outcomes, disputes, unintended consequences, or bad decisions resulting from the use of Comrade and its calculations. Sorry!'},
+        {[{heading:'TERMS OF USE',text:'This application is provided for informational purposes only, on an "as is" basis, without warranty of any kind.'},
+          {heading:null,text:'Users are solely responsible for their own actions. The creators of Comrade are not liable for any outcomes, disputes, unintended consequences, or bad decisions resulting from the use of Comrade and its calculations. Sorry!'},
           {heading:'PRIVACY POLICY',text:'Any financial information entered into the app is stored only on your device, and all calculations are performed locally — nothing is sent to Comrade. Share link URLs are generated algorithmically and do not transmit any data to Comrade. Comrade loses access to your data after 30 days of inactivity.'},
           {heading:null,text:'Comrade uses Vercel Analytics to collect anonymous, aggregated data about site visits, including page views and unique visitor counts. No personal or financial information is collected through analytics, and no cookies are used.'},
           {heading:null,text:'By entering your email address, you consent to Comrade and its team contacting you about updates to the app, news, and other projects they may be working on. Comrade will not sell your personal information to third parties. You can unsubscribe at any time.'},
           {heading:null,text:'© 2026 Comrade. All rights reserved.'},
         ].map((item,i)=>(
           <React.Fragment key={i}>
-            {(i===1||i===4)&&<div className={`${CLS_DASHED_T} my-4`}/>}
-            {i>0&&i!==1&&i!==4&&<div className="my-3"/>}
+            {(i===2||i===5)&&<div className={`${CLS_DASHED_T} my-4`}/>}
+            {i>0&&i!==2&&i!==5&&<div className="my-3"/>}
             {item.heading&&<p className="font-bold text-xs uppercase tracking-wider mb-2">{item.heading}</p>}
-            <p className="leading-relaxed text-xs">{item.text}</p>
+            <p className={CLS_PARA}>{item.text}</p>
           </React.Fragment>
         ))}
       </div>
@@ -1416,20 +1473,26 @@ const Comrade = () => {
 
   if(page==='bill-entry') return EntryPage({
     steps:BILL_STEPS,
-    intro:{desc:"From meals to vacations, taxis to tickets, handle your shared expenses with friends more fairly. Comrade combines and simplifies group bills, while using information about group members' finances to decide how much everyone should pay.",hasSaved:hasBillSavedData,resumeLabel:"RESUME SPLIT →",newLabel:"NEW SPLIT",tool:"bill",loadLabel:"LOAD SPLIT",onJump:()=>jump(1),onClear:()=>{handleClearAll('bill');jump(1);},onExample:()=>loadExample('bill')},
-    calc:{onCalculate:()=>navigateTo('bill-results'),weighting:billWeighting,onWeighting:setBillWeighting,navigateToFaq,hasFloor:true,floor:billFloor,onFloor:setBillFloor},
+    intro:{desc:"From meals to vacations, taxis to tickets, handle your shared expenses with friends more fairly. Comrade combines and simplifies group bills, while using information about group members' finances to decide how much everyone should pay.",hasSaved:hasBillSavedData,resumeLabel:"RESUME SPLIT →",newLabel:"NEW SPLIT",tool:"bill",loadLabel:"LOAD SPLIT",onJump:()=>jump(1),onClear:()=>{handleClearAll('bill');jump(1);},onExample:()=>loadExample('bill'),onPrivacyFaq:navigateToPrivacyFaq},
+    calc:{onCalculate:()=>navigateTo('bill-results'),weighting:billWeighting,onWeighting:setBillWeighting,navigateToFaq,hasFloor:true,floor:billFloor,onFloor:setBillFloor,validate:()=>_errs([
+      [billPeople.length===0,'No people added'],
+      [billBills.length===0,'No bills added'],
+      [billBills.length>0&&!billBills.some(b=>parseFloat(b.amount)>0),'No bills have a valid amount'],
+      [billBills.some(b=>!b.paidBy),'Some bills have no payer assigned'],
+      [billBills.some(b=>b.paidBy&&!billPeople.some(p=>p.name===b.paidBy)),'Some bills are assigned to people who have been removed'],
+    ])},
     midSteps:[
       ()=>(
         <div>
-          <p className="text-xs mb-4 text-black leading-relaxed">List the people splitting the costs, including their financial resources.</p>
+          <p className={CLS_STEP_P}>List the people splitting the costs, including their financial resources.</p>
           <CurrencyWealthSettings currency={billCurrency} onCurrency={setBillCurrency} wealth={billWealthMetric} onWealth={setBillWealthMetric} pad="p-4"/>
-          <div className="flex flex-col sm:flex-row gap-2 mb-3">
+          <div className={CLS_ROW3}>
             <FormInput value={curPersonName} onChange={e=>setCurPersonName(e.target.value)} placeholder="NAME" className="flex-1" style={{minWidth:'140px'}}/>
-            <FormInput type="number" value={curPersonWealth} onChange={e=>setCurPersonWealth(e.target.value)} placeholder={`${getCurrencySymbol(billCurrency)} ${getWealthMetricLabel(billWealthMetric)}`} min="0" step="0.01" inputMode="decimal" className="flex-1" style={{minWidth:'180px'}}/>
+            <FormInput type="number" value={curPersonWealth} onChange={e=>setCurPersonWealth(e.target.value)} placeholder={`${getCurrencySymbol(billCurrency)} ${getWealthMetricLabel(billWealthMetric)}`} {...NP} className="flex-1" style={{minWidth:'180px'}}/>
           </div>
           <button onClick={()=>{if(curPersonName.trim()){setBillPeople([...billPeople,{id:Date.now(),name:curPersonName,wealth:curPersonWealth}]);setCurPersonName('');setCurPersonWealth('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD PERSON</button>
           {billPeople.length>0
-            ?<ItemList items={billPeople} onDelete={id=>setBillPeople(billPeople.filter(p=>p.id!==id))} renderItem={p=><><p className={CLS_NAME}>{p.name}</p><p className="text-xs text-black">{getWealthMetricLabel(billWealthMetric)}: {formatCurrency(p.wealth,2,billCurrency)}</p></>}/>
+            ?<ItemList items={billPeople} onDelete={id=>setBillPeople(billPeople.filter(p=>p.id!==id))} renderItem={p=><><p className={CLS_NAME}>{p.name}</p><p className={CLS_XS}>{getWealthMetricLabel(billWealthMetric)}: {formatCurrency(p.wealth,2,billCurrency)}</p></>}/>
             :<EmptyState msg="No people added yet"/>
           }
           <div className="mt-6">{NavButton({label:"CONTINUE →", onClick:()=>jump(2)})}</div>
@@ -1437,11 +1500,11 @@ const Comrade = () => {
       ),
       ()=>(
         <div>
-          <p className="text-xs mb-4 text-black leading-relaxed">Add all the expenses the group is splitting, along with who already paid for what.</p>
+          <p className={CLS_STEP_P}>Add all the expenses the group is splitting, along with who already paid for what.</p>
           <FormInput value={curBillDesc} onChange={e=>setCurBillDesc(e.target.value)} placeholder="DESCRIPTION" className="mb-2"/>
-          <div className="flex flex-col sm:flex-row gap-2 mb-3">
-            <FormInput type="number" value={curBillAmt} onChange={e=>setCurBillAmt(e.target.value)} placeholder={`${getCurrencySymbol(billCurrency)} AMOUNT`} min="0" step="0.01" inputMode="decimal" className="flex-1" style={{minWidth:'150px'}}/>
-            <select value={curBillPaidBy} onChange={e=>setCurBillPaidBy(e.target.value)} className="flex-1 p-2 border-2 border-gray-400 bg-white uppercase" style={{minWidth:'150px',fontSize:'16px',height:'42px'}}>
+          <div className={CLS_ROW3}>
+            <FormInput type="number" value={curBillAmt} onChange={e=>setCurBillAmt(e.target.value)} placeholder={`${getCurrencySymbol(billCurrency)} AMOUNT`} {...NP} className="flex-1" style={{minWidth:'150px'}}/>
+            <select value={curBillPaidBy} onChange={e=>setCurBillPaidBy(e.target.value)} className={CLS_I1} style={{minWidth:'150px',fontSize:'16px'}}>
               <option value="">WHO PAID?</option>
               {billPeople.map((p,j)=><option key={p.id||j} value={p.name}>{p.name}</option>)}
             </select>
@@ -1449,7 +1512,7 @@ const Comrade = () => {
           <button onClick={()=>{if(curBillDesc.trim()){setBillBills([...billBills,{id:Date.now(),description:curBillDesc,amount:curBillAmt,paidBy:curBillPaidBy}]);setCurBillDesc('');setCurBillAmt('');setCurBillPaidBy('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD BILL</button>
           {billBills.length>0
             ?<ItemList items={billBills} onDelete={id=>setBillBills(billBills.filter(b=>b.id!==id))} renderItem={b=><><p className="text-black font-bold uppercase">{b.description}</p><p className="text-black text-xs">{b.paidBy||'Unknown'}</p></>} receiptStyle formatTotal={t=>formatCurrency(t,2,billCurrency)} getAmount={b=>b.amount}/>
-            :<><EmptyState msg="No bills added yet" cls="mb-4"/><div className={CLS_TOTAL}><span className="font-black text-black uppercase sf">TOTAL</span><span className="font-black text-black text-lg sf">{formatCurrency(0,2,billCurrency)}</span></div></>
+            :<EmptyState msg="No bills added yet" cls="mb-4"/>
           }
           <div className="mt-6">{NavButton({label:"CONTINUE →", onClick:()=>jump(3)})}</div>
         </div>
@@ -1459,11 +1522,9 @@ const Comrade = () => {
 
   if(page==='bill-results'){
     const {total,peopleData,transactions}=billCalculations;
-    const hasOrphaned=billBills.some(b=>!b.paidBy||!billPeople.some(p=>p.name===b.paidBy));
-    const hasData=billPeople.length>0&&billBills.length>0&&billBills.some(b=>parseFloat(b.amount)>0)&&!hasOrphaned;
     const copyText=`Comrade | Bill-splitting results\n\nTotal: ${_fc(total,billCurrency)}\n\nSettlements:\n${transactions.length===0?'All settled!':transactions.map(t=>`${t.from} pays ${t.to} ${_fcs(t.amount,billCurrency)}`).join('\n')}\n\nBreakdown:\n${peopleData.map(p=>`${p.name}: Paid ${_fc(p.paid,billCurrency)}, fair share ${_fcs(p.fairShare,billCurrency)}`).join('\n')}\n\nCalculated using www.comrade.money, the fairer way to split costs with friends`;
     return ResultsPage({
-      hasData:hasData, entryPage:"bill-entry", title:"YOUR SETTLEMENT",
+      entryPage:"bill-entry", title:"YOUR SETTLEMENT",
       summary:transactions.length===0
         ?<p className="text-lg font-bold">ALL SETTLED! EVERYONE'S SQUARE.</p>
         :<div className="space-y-3">{transactions.map((t,i)=><div key={i} className="text-sm leading-relaxed pb-2" style={{borderBottom:`1px dashed ${BG_GREY}`}}><span className="font-semibold">{t.from.toUpperCase()}</span><span> PAYS </span><span className="font-semibold">{t.to.toUpperCase()}</span><br/><span className="font-black text-2xl">{_fcs(t.amount,billCurrency)}</span></div>)}</div>,
@@ -1475,7 +1536,7 @@ const Comrade = () => {
         <div className="mb-6">
           <h3 className={CLS_H3}>BILL RECAP</h3>
           <div className="space-y-3 mb-4">{billBills.map((b,i)=><div key={b.id||i} className="flex justify-between items-start text-xs text-black border-b border-dashed border-gray-400 pb-2"><div className="flex-1"><p className="font-bold text-black uppercase">{b.description}</p><p className="text-black text-xs">{b.paidBy||'Unknown'}</p></div><span className="font-bold text-black ml-4">{_fc(b.amount,billCurrency)}</span></div>)}</div>
-          <div className={CLS_TOTAL}><span className="font-black text-black uppercase sf">TOTAL</span><span className="font-black text-black text-lg sf">{_fc(total,billCurrency)}</span></div>
+          <div className={CLS_TOTAL}><span className={CLS_FBS}>TOTAL</span><span className={CLS_FBT}>{_fc(total,billCurrency)}</span></div>
         </div>
         <DashedDivider/>
         <div className="mb-6"><h3 className={CLS_H3}>WEALTH VISUALIZATION</h3>{renderWealthPieChart(peopleData)}</div>
@@ -1484,21 +1545,24 @@ const Comrade = () => {
         <DashedDivider/>
         {renderMathSection(billWeighting,[
           <div key="s1">{renderAdjustedWealthStep(1,peopleData,billWeighting)}<div className={`flex justify-between mt-2 pt-2 ${CLS_DASHED_T} font-bold`}><span>TOTAL:</span><span className="font-mono">{formatSmartNumber(peopleData.reduce((s,p)=>s+p.adjustedWealth,0))}</span></div></div>,
-          <div key="s2"><p className="font-bold mb-2">2. FAIR SHARE %:</p>{renderMathRow(peopleData,p=>{const ta=peopleData.reduce((s,pp)=>s+pp.adjustedWealth,0);return`${formatSmartNumber(p.adjustedWealth)} ÷ ${formatSmartNumber(ta)} = ${p.fairPct.toFixed(1)}%`;})}</div>,
-          <div key="s3"><p className="font-bold mb-2">3. AMOUNT OWED:</p>{renderMathRow(peopleData,p=>`${p.fairPct.toFixed(1)}% × ${_fc(total,billCurrency)} = ${_fcs(p.fairShare,billCurrency)}`)}</div>
-        ],<div><p className="font-bold mb-2">EQUAL SPLIT (NO WEIGHTING):</p>{renderMathRow(peopleData,p=>`${_fc(total,billCurrency)} ÷ ${peopleData.length} = ${_fcs(p.fairShare,billCurrency)}`)}</div>)}
+          <div key="s2"><p className={CLS_FB}>2. FAIR SHARE %:</p>{renderMathRow(peopleData,p=>{const ta=peopleData.reduce((s,pp)=>s+pp.adjustedWealth,0);return`${formatSmartNumber(p.adjustedWealth)} ÷ ${formatSmartNumber(ta)} = ${p.fairPct.toFixed(1)}%`;})}</div>,
+          <div key="s3"><p className={CLS_FB}>3. AMOUNT OWED:</p>{renderMathRow(peopleData,p=>`${p.fairPct.toFixed(1)}% × ${_fc(total,billCurrency)} = ${_fcs(p.fairShare,billCurrency)}`)}</div>
+        ],<div><p className={CLS_FB}>EQUAL SPLIT (NO WEIGHTING):</p>{renderMathRow(peopleData,p=>`${_fc(total,billCurrency)} ÷ ${peopleData.length} = ${_fcs(p.fairShare,billCurrency)}`)}</div>)}
       </>
     });
   }
 
   if(page==='sale-entry') return EntryPage({
     steps:SALE_STEPS,
-    intro:{desc:"If you're selling something, make sure it goes to the potential buyer who needs it the most — not just whoever offers to pay the most. Comrade takes into account prospective purchasers' financial resources to help you understand how much your product is truly worth to them.",hasSaved:hasSaleSavedData,resumeLabel:"RESUME SALE →",newLabel:"NEW SALE",tool:"sale",loadLabel:"LOAD SALE",onJump:()=>jump(1),onClear:()=>{handleClearAll('sale');jump(1);},onExample:()=>loadExample('sale')},
-    calc:{onCalculate:()=>navigateTo('sale-results'),weighting:saleWeighting,onWeighting:setSaleWeighting,navigateToFaq,hasAdvanced:true},
+    intro:{desc:"If you're selling something, make sure it goes to the potential buyer who needs it the most — not just whoever offers to pay the most. Comrade takes into account prospective purchasers' financial resources to help you understand how much your product is truly worth to them.",hasSaved:hasSaleSavedData,resumeLabel:"RESUME SALE →",newLabel:"NEW SALE",tool:"sale",loadLabel:"LOAD SALE",onJump:()=>jump(1),onClear:()=>{handleClearAll('sale');jump(1);},onExample:()=>loadExample('sale'),onPrivacyFaq:navigateToPrivacyFaq},
+    calc:{onCalculate:()=>navigateTo('sale-results'),weighting:saleWeighting,onWeighting:setSaleWeighting,navigateToFaq,hasAdvanced:true,validate:()=>_errs([
+      [!productName.trim(),'No product name entered'],
+      [saleBuyers.length===0,'No buyers added'],
+    ])},
     midSteps:[
       ()=>(
         <div>
-          <p className="text-xs mb-4 text-black leading-relaxed">List what you're selling, and how many items are available.</p>
+          <p className={CLS_STEP_P}>List what you're selling, and how many items are available.</p>
           <FormInput value={productName} onChange={e=>setProductName(e.target.value)} placeholder="PRODUCT NAME" className="mb-2"/>
           <FormInput type="number" value={numberAvailable} onChange={e=>setNumberAvailable(e.target.value)} placeholder="NUMBER AVAILABLE" min="1" step="1" inputMode="numeric"/>
           <div className="mt-6">{NavButton({label:"CONTINUE →", onClick:()=>jump(2)})}</div>
@@ -1506,15 +1570,15 @@ const Comrade = () => {
       ),
       ()=>(
         <div>
-          <p className="text-xs mb-4 text-black leading-relaxed">Add all the people interested in buying, along with their financial information.</p>
+          <p className={CLS_STEP_P}>Add all the people interested in buying, along with their financial information.</p>
           <CurrencyWealthSettings currency={saleCurrency} onCurrency={setSaleCurrency} wealth={saleWealthMetric} onWealth={setSaleWealthMetric}/>
-          <div className="flex flex-col sm:flex-row gap-2 mb-2">
+          <div className={CLS_ROW}>
             <FormInput value={curBuyerName} onChange={e=>setCurBuyerName(e.target.value)} placeholder="NAME" className="flex-1" style={{minWidth:'120px'}}/>
-            <FormInput type="number" value={curBuyerOffer} onChange={e=>setCurBuyerOffer(e.target.value)} placeholder={`${getCurrencySymbol(saleCurrency)} OFFER`} min="0" step="0.01" inputMode="decimal" className="flex-1" style={{minWidth:'120px'}}/>
+            <FormInput type="number" value={curBuyerOffer} onChange={e=>setCurBuyerOffer(e.target.value)} placeholder={`${getCurrencySymbol(saleCurrency)} OFFER`} {...NP} className="flex-1" style={{minWidth:'120px'}}/>
           </div>
-          <FormInput type="number" value={curBuyerWealth} onChange={e=>setCurBuyerWealth(e.target.value)} placeholder={`${getCurrencySymbol(saleCurrency)} ${getWealthMetricLabel(saleWealthMetric)}`} min="0" step="0.01" inputMode="decimal" className="mb-3"/>
+          <FormInput type="number" value={curBuyerWealth} onChange={e=>setCurBuyerWealth(e.target.value)} placeholder={`${getCurrencySymbol(saleCurrency)} ${getWealthMetricLabel(saleWealthMetric)}`} {...NP} className="mb-3"/>
           <button onClick={()=>{if(curBuyerName.trim()){setSaleBuyers([...saleBuyers,{id:Date.now(),name:curBuyerName,wealth:curBuyerWealth,offer:curBuyerOffer}]);setCurBuyerName('');setCurBuyerWealth('');setCurBuyerOffer('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD BUYER</button>
-          {saleBuyers.length>0?<ItemList items={saleBuyers} onDelete={id=>setSaleBuyers(saleBuyers.filter(b=>b.id!==id))} renderItem={b=><><p className={CLS_NAME}>{b.name}</p><p className="text-xs text-black">{getWealthMetricLabel(saleWealthMetric)}: {formatCurrency(b.wealth,2,saleCurrency)}</p><p className="text-xs text-black">Offer: {formatCurrency(b.offer,2,saleCurrency)}</p></>}/>:<EmptyState msg="No buyers added yet"/>}
+          {saleBuyers.length>0?<ItemList items={saleBuyers} onDelete={id=>setSaleBuyers(saleBuyers.filter(b=>b.id!==id))} renderItem={b=><><p className={CLS_NAME}>{b.name}</p><p className={CLS_XS}>{getWealthMetricLabel(saleWealthMetric)}: {formatCurrency(b.wealth,2,saleCurrency)}</p><p className={CLS_XS}>Offer: {formatCurrency(b.offer,2,saleCurrency)}</p></>}/>:<EmptyState msg="No buyers added yet"/>}
           <div className="mt-6">{NavButton({label:"CONTINUE →", onClick:()=>jump(3)})}</div>
         </div>
       ),
@@ -1524,11 +1588,10 @@ const Comrade = () => {
   if(page==='sale-results'){
     const {rankedBuyers,avgOffer}=saleCalculations;
     const numAvail=parseInt(numberAvailable)||1,winners=rankedBuyers.slice(0,numAvail);
-    const hasData=saleBuyers.length>0&&productName.trim();
-    const isTie=hasData&&rankedBuyers.length>1&&rankedBuyers[0].needScore===rankedBuyers[1].needScore&&rankedBuyers[0].needScore>0;
+    const isTie=rankedBuyers.length>1&&rankedBuyers[0].needScore===rankedBuyers[1].needScore&&rankedBuyers[0].needScore>0;
     const copyText=`Comrade | Selling results\n\nProduct: ${productName||'Unnamed'}\nQuantity: ${numAvail}\n\nSelected buyer${winners.length>1?'s':''}:\n${winners.map(w=>`${w.name} - ${_fc(w.offer,saleCurrency)}`).join('\n')}\n\nAll buyers ranked:\n${rankedBuyers.map((b,i)=>`${i+1}. ${b.name} - Offer: ${_fc(b.offer,saleCurrency)}, need score: ${b.needScore.toFixed(4)}%`).join('\n')}\n\nCalculated using www.comrade.money, the fairer way to handle selling things`;
     return ResultsPage({
-      hasData:hasData, entryPage:"sale-entry", title:`SELECTED BUYER${winners.length>1?'S':''}`,
+      entryPage:"sale-entry", title:`SELECTED BUYER${winners.length>1?'S':''}`,
       summary:isTie
         ?<p className="text-lg font-bold">PERFECT TIE. EVERYONE HAS EQUAL CLAIM.</p>
         :<>{winners.map((w,i)=><div key={w.id} className="mb-3 pb-3" style={{borderBottom:`1px dashed ${BG_GREY}`}}><p className="text-3xl font-black mb-2">{w.name.toUpperCase()}</p><p className="text-xl font-semibold">OFFER: {_fc(w.offer,saleCurrency)}</p><p className="text-xs" style={{color:BG_GREY}}>NEED SCORE: {w.needScore<0.01?w.needScore.toExponential(4):w.needScore.toFixed(2)}%</p></div>)}</>,
@@ -1539,46 +1602,51 @@ const Comrade = () => {
         <DashedDivider/>
         {renderBarVisualization('NEED SCORE VISUALIZATION',rankedBuyers,[{getValue:b=>b.needScore,displayValue:b=>`${b.needScore<0.01?b.needScore.toExponential(2):b.needScore.toFixed(1)}%`,rightLabel:(_,i)=>`#${i+1}`}],b=>b.name)}
         <DashedDivider/>
-        {renderMathSection(saleWeighting,[renderAdjustedWealthStep(1,rankedBuyers,saleWeighting),<div key="s2"><p className="font-bold mb-2">2. NEED SCORE (OFFER ÷ ADJUSTED WEALTH × 100):</p>{renderMathRow(rankedBuyers,b=>`${_fc(b.offer,saleCurrency)} ÷ ${formatSmartNumber(b.adjustedWealth)} × 100 = ${b.needScore<0.01?b.needScore.toExponential(2):b.needScore.toFixed(2)}%`)}</div>],<div><p className="font-bold mb-2">NO WEIGHTING - RANKED BY OFFER AMOUNT:</p>{rankedBuyers.map((b,i)=><div key={b.id} className="flex justify-between mb-1"><span>#{i+1} {b.name}:</span><span className="font-mono">{_fc(b.offer,saleCurrency)}</span></div>)}</div>)}
+        {renderMathSection(saleWeighting,[renderAdjustedWealthStep(1,rankedBuyers,saleWeighting),<div key="s2"><p className={CLS_FB}>2. NEED SCORE (OFFER ÷ ADJUSTED WEALTH × 100):</p>{renderMathRow(rankedBuyers,b=>`${_fc(b.offer,saleCurrency)} ÷ ${formatSmartNumber(b.adjustedWealth)} × 100 = ${b.needScore<0.01?b.needScore.toExponential(2):b.needScore.toFixed(2)}%`)}</div>],<div><p className={CLS_FB}>NO WEIGHTING - RANKED BY OFFER AMOUNT:</p>{rankedBuyers.map((b,i)=><div key={b.id} className={CLS_JBM}><span>#{i+1} {b.name}:</span><span className="font-mono">{_fc(b.offer,saleCurrency)}</span></div>)}</div>)}
       </>
     });
   }
 
   if(page==='vote-entry') return EntryPage({
     steps:VOTE_STEPS,
-    intro:{desc:"Make group decisions more equitably with Comrade. If your friends, classmates, or coworkers are grappling with a dispute, give more voting power to those with less wealth.",hasSaved:hasVoteSavedData,resumeLabel:"RESUME VOTE →",newLabel:"NEW VOTE",tool:"vote",loadLabel:"LOAD VOTE",onJump:()=>jump(1),onClear:()=>{handleClearAll('vote');jump(1);},onExample:()=>loadExample('vote')},
-    calc:{onCalculate:()=>navigateTo('vote-results'),weighting:voteWeighting,onWeighting:setVoteWeighting,navigateToFaq,hasAdvanced:true},
+    intro:{desc:"Make group decisions more equitably with Comrade. If your friends, classmates, or coworkers are grappling with a dispute, give more voting power to those with less wealth.",hasSaved:hasVoteSavedData,resumeLabel:"RESUME VOTE →",newLabel:"NEW VOTE",tool:"vote",loadLabel:"LOAD VOTE",onJump:()=>jump(1),onClear:()=>{handleClearAll('vote');jump(1);},onExample:()=>loadExample('vote'),onPrivacyFaq:navigateToPrivacyFaq},
+    calc:{onCalculate:()=>navigateTo('vote-results'),weighting:voteWeighting,onWeighting:setVoteWeighting,navigateToFaq,hasAdvanced:true,validate:()=>_errs([
+      [!voteDecision.trim(),'No decision or question entered'],
+      [voteOptions.length===0,'No voting options added'],
+      [voteParticipants.length===0,'No participants added'],
+      [voteParticipants.some(p=>p.vote&&!voteOptions.map(o=>o.text).includes(p.vote)),'Some participants have votes for options that no longer exist'],
+    ])},
     midSteps:[
       ()=>(
         <div>
-          <p className="text-xs mb-4 text-black leading-relaxed">Enter the question the group is voting on.</p>
+          <p className={CLS_STEP_P}>Enter the question the group is voting on.</p>
           <FormInput type="textarea" value={voteDecision} onChange={e=>setVoteDecision(e.target.value)} placeholder="DECISION TO BE MADE" rows={4}/>
           <div className="mt-6">{NavButton({label:"CONTINUE →", onClick:()=>jump(2)})}</div>
         </div>
       ),
       ()=>(
         <div>
-          <p className="text-xs mb-4 text-black leading-relaxed">Add all the possible choices people can vote for.</p>
+          <p className={CLS_STEP_P}>Add all the possible choices people can vote for.</p>
           <FormInput value={curOptionText} onChange={e=>setCurOptionText(e.target.value)} placeholder="OPTION TEXT" className="mb-3"/>
           <button onClick={()=>{if(curOptionText.trim()){setVoteOptions([...voteOptions,{id:Date.now(),text:curOptionText}]);setCurOptionText('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD OPTION</button>
-          {voteOptions.length>0?<div className="space-y-0">{voteOptions.map(opt=><div key={opt.id} className="flex justify-between items-center text-xs text-black border-b border-dashed border-gray-400 pb-2 pt-2"><p className="font-bold text-black uppercase flex-1">{opt.text}</p><button onClick={()=>setVoteOptions(voteOptions.filter(o=>o.id!==opt.id))} className="text-black font-bold text-xl ml-3 hover:text-gray-600 leading-none">×</button></div>)}</div>:<EmptyState msg="No options added yet"/>}
+          {voteOptions.length>0?<div className="space-y-0">{voteOptions.map(opt=><div key={opt.id} className="flex justify-between items-center text-xs text-black border-b border-dashed border-gray-400 pb-2 pt-2"><p className="font-bold text-black uppercase flex-1">{opt.text}</p><button onClick={()=>setVoteOptions(voteOptions.filter(o=>o.id!==opt.id))} className={CLS_DEL}>×</button></div>)}</div>:<EmptyState msg="No options added yet"/>}
           <div className="mt-6">{NavButton({label:"CONTINUE →", onClick:()=>jump(3)})}</div>
         </div>
       ),
       ()=>(
         <div>
-          <p className="text-xs mb-4 text-black leading-relaxed">List the people in the group, their financial resources, and how they chose to vote.</p>
+          <p className={CLS_STEP_P}>List the people in the group, their financial resources, and how they chose to vote.</p>
           <CurrencyWealthSettings currency={voteCurrency} onCurrency={setVoteCurrency} wealth={voteWealthMetric} onWealth={setVoteWealthMetric}/>
-          <div className="flex flex-col sm:flex-row gap-2 mb-2">
+          <div className={CLS_ROW}>
             <FormInput value={curParticipantName} onChange={e=>setCurParticipantName(e.target.value)} placeholder="NAME" className="flex-1" style={{minWidth:'120px'}}/>
-            <select value={curParticipantVote} onChange={e=>setCurParticipantVote(e.target.value)} className="flex-1 p-2 border-2 border-gray-400 bg-white uppercase" style={{minWidth:'120px',height:'42px',fontSize:'16px'}}>
+            <select value={curParticipantVote} onChange={e=>setCurParticipantVote(e.target.value)} className={CLS_I1} style={{minWidth:'120px',fontSize:'16px'}}>
               <option value="">VOTE</option>
               {voteOptions.map((opt,j)=><option key={opt.id||j} value={opt.text}>{opt.text}</option>)}
             </select>
           </div>
-          <FormInput type="number" value={curParticipantWealth} onChange={e=>setCurParticipantWealth(e.target.value)} placeholder={`${getCurrencySymbol(voteCurrency)} ${getWealthMetricLabel(voteWealthMetric)}`} min="0" step="0.01" inputMode="decimal" className="mb-3"/>
+          <FormInput type="number" value={curParticipantWealth} onChange={e=>setCurParticipantWealth(e.target.value)} placeholder={`${getCurrencySymbol(voteCurrency)} ${getWealthMetricLabel(voteWealthMetric)}`} {...NP} className="mb-3"/>
           <button onClick={()=>{if(curParticipantName.trim()){setVoteParticipants([...voteParticipants,{id:Date.now(),name:curParticipantName,wealth:curParticipantWealth,vote:curParticipantVote}]);setCurParticipantName('');setCurParticipantWealth('');setCurParticipantVote('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD PERSON</button>
-          {voteParticipants.length>0?<ItemList items={voteParticipants} onDelete={id=>setVoteParticipants(voteParticipants.filter(p=>p.id!==id))} renderItem={p=><><p className={CLS_NAME}>{p.name}</p><p className="text-xs text-black">{getWealthMetricLabel(voteWealthMetric)}: {formatCurrency(p.wealth,2,voteCurrency)}</p><p className="text-xs text-black">Vote: {p.vote||'Not selected'}</p></>}/>:<EmptyState msg="No people added yet"/>}
+          {voteParticipants.length>0?<ItemList items={voteParticipants} onDelete={id=>setVoteParticipants(voteParticipants.filter(p=>p.id!==id))} renderItem={p=><><p className={CLS_NAME}>{p.name}</p><p className={CLS_XS}>{getWealthMetricLabel(voteWealthMetric)}: {formatCurrency(p.wealth,2,voteCurrency)}</p><p className={CLS_XS}>Vote: {p.vote||'Not selected'}</p></>}/>:<EmptyState msg="No people added yet"/>}
           <div className="mt-6">{NavButton({label:"CONTINUE →", onClick:()=>jump(4)})}</div>
         </div>
       ),
@@ -1588,63 +1656,65 @@ const Comrade = () => {
   if(page==='vote-results'){
     const {participantsData,totalVotingPower,voteBreakdown}=voteCalculations;
     const optTexts=voteOptions.map(o=>o.text);
-    const hasOrphaned=voteParticipants.some(p=>p.vote&&!optTexts.includes(p.vote));
-    const hasData=voteParticipants.length>0&&voteDecision.trim()&&voteOptions.length>0&&!hasOrphaned;
     const winner=voteBreakdown.length>0?voteBreakdown[0]:null;
-    const isTie=hasData&&voteBreakdown.length>1&&voteBreakdown[0].percentage===voteBreakdown[1].percentage;
+    const isTie=voteBreakdown.length>1&&voteBreakdown[0].percentage===voteBreakdown[1].percentage;
     const copyText=`Comrade | Voting results\n\nDecision: ${voteDecision}\n\nWinner: ${winner?`${winner.option} (${winner.percentage.toFixed(1)}%)`:'None'}\n\nBreakdown:\n${voteBreakdown.map((b,i)=>`${i+1}. ${b.option}: ${b.percentage.toFixed(1)}% (${b.voters.length} voter${b.voters.length!==1?'s':''})`).join('\n')}\n\nCalculated using www.comrade.money, the fairer way to make group decisions`;
     return ResultsPage({
-      hasData:hasData, entryPage:"vote-entry", title:"DECISION",
+      entryPage:"vote-entry", title:"DECISION",
       summary:<><p className="text-lg mb-6 font-semibold">{voteDecision.toUpperCase()}</p>{isTie?<p className="text-xl font-bold">PERFECT TIE. NO CLEAR WINNER.</p>:winner?<><p className="text-sm mb-2">WINNING OPTION:</p><p className="text-3xl font-black mb-2">{winner.option.toUpperCase()}</p><p className="text-xl font-semibold">{winner.percentage.toFixed(1)}% OF VOTING POWER</p></>:<p className="text-lg font-bold">NO VOTES CAST</p>}</>,
       stats:[{label:'PARTICIPANTS',value:voteParticipants.length},{label:'OPTIONS',value:voteOptions.length}],
       copyText:copyText,
       details:<>
-        <div className="mb-6"><h3 className={CLS_H3}>VOTE BREAKDOWN</h3><div className="space-y-4">{voteBreakdown.map((item,i)=><div key={i} className="border-2 border-gray-400 p-4"><div className="flex justify-between items-start mb-3 border-b border-dashed border-gray-400 pb-2"><p className="font-bold text-sm text-black uppercase">{item.option}</p><span className="px-2 py-1 text-xs font-bold border sf" style={{backgroundColor:DARK,color:BG_GREY,borderColor:DARK}}>{item.percentage.toFixed(1)}%</span></div><p className="text-xs text-black mb-2 font-bold">VOTERS ({item.voters.length}):</p><div className="space-y-1">{item.voters.map(v=><p key={v.name} className="text-xs text-black">• {v.name} (Power: {v.votingPower.toFixed(2)})</p>)}</div></div>)}</div></div>
+        <div className="mb-6"><h3 className={CLS_H3}>VOTE BREAKDOWN</h3><div className="space-y-4">{voteBreakdown.map((item,i)=><div key={i} className="border-2 border-gray-400 p-4"><div className={CLS_JBH}><p className={CLS_FBSM}>{item.option}</p><span className="px-2 py-1 text-xs font-bold border sf" style={S_DARK}>{item.percentage.toFixed(1)}%</span></div><p className="text-xs text-black mb-2 font-bold">VOTERS ({item.voters.length}):</p><div className="space-y-1">{item.voters.map(v=><p key={v.name} className={CLS_XS}>• {v.name} (Power: {v.votingPower.toFixed(2)})</p>)}</div></div>)}</div></div>
         <DashedDivider/>
         {renderDetailCards('PARTICIPANT DATA',[...participantsData].sort((a,b)=>b.wealth-a.wealth),p=>({name:p.name,rows:[{label:'WEALTH',value:formatCurrency(p.wealth,2,voteCurrency)},{label:'VOTE',value:p.vote||'NO VOTE'}],summaryRows:[{label:'VOTING POWER',value:p.votingPower.toFixed(2)}]}))}
         <DashedDivider/>
-        <div className="mb-6"><h3 className={CLS_H3}>VOTE DISTRIBUTION</h3><div className="space-y-3">{(()=>{const mx=Math.max(...voteBreakdown.map(b=>b.percentage));return voteBreakdown.map((item,idx)=>{const up=participantsData.length>0?(participantsData.filter(p=>p.vote===item.option).length/participantsData.length)*100:0;const rows=[{lbl:'WEIGHTED',pct:item.percentage},{lbl:'UNWEIGHTED',pct:up}];return(<div key={idx} className="mb-4"><p className="font-bold text-black mb-1 text-xs uppercase">{item.option}</p><div className="space-y-1">{rows.map(({lbl,pct},bi)=>{const barW=mx>0?(pct/mx)*100:0;return(<div key={bi} className="flex items-center gap-2"><span className="text-xs text-black w-24 font-bold">{lbl}:</span><div className={CLS_BAR_BG}><div className={CLS_BAR} style={{width:`${barW}%`,animationDelay:`${idx*0.1+bi*0.05}s`,backgroundColor:DARK}}>{barW>15&&<span className="text-xs font-bold" style={{color:BG_GREY}}>{pct.toFixed(1)}%</span>}</div></div><span className="text-xs font-bold text-black w-16 text-right">{pct.toFixed(1)}%</span></div>);})}</div></div>);});})()}</div></div>
+        <div className="mb-6"><h3 className={CLS_H3}>VOTE DISTRIBUTION</h3><div className="space-y-3">{(()=>{const mx=Math.max(...voteBreakdown.map(b=>b.percentage));return voteBreakdown.map((item,idx)=>{const up=participantsData.length>0?(participantsData.filter(p=>p.vote===item.option).length/participantsData.length)*100:0;const rows=[{lbl:'WEIGHTED',pct:item.percentage},{lbl:'UNWEIGHTED',pct:up}];return(<div key={idx} className="mb-4"><p className={CLS_FBTXU}>{item.option}</p><div className="space-y-1">{rows.map(({lbl,pct},bi)=>{const barW=mx>0?(pct/mx)*100:0;return(<div key={bi} className={CLS_FIG}><span className="text-xs text-black w-24 font-bold">{lbl}:</span><div className={CLS_BAR_BG}><div className={CLS_BAR} style={{width:`${barW}%`,animationDelay:`${idx*0.1+bi*0.05}s`,backgroundColor:DARK}}>{barW>15&&<span className="text-xs font-bold" style={{color:BG_GREY}}>{pct.toFixed(1)}%</span>}</div></div><span className="text-xs font-bold text-black w-16 text-right">{pct.toFixed(1)}%</span></div>);})}</div></div>);});})()}</div></div>
         <DashedDivider/>
         <div className="mb-6"><h3 className={CLS_H3}>WEALTH VISUALIZATION</h3>{renderWealthPieChart(participantsData)}</div>
         <DashedDivider/>
-        {renderMathSection(voteWeighting,[renderAdjustedWealthStep(1,participantsData,voteWeighting),<div key="v2"><p className="font-bold mb-2">2. AVERAGE WEALTH:</p><div className="flex justify-between mb-1"><span>TOTAL:</span><span className="font-mono">{formatSmartNumber(participantsData.reduce((s,p)=>s+p.wealth,0))}</span></div><div className="flex justify-between mb-1"><span>AVERAGE:</span><span className="font-mono">{formatSmartNumber(participantsData.reduce((s,p)=>s+p.wealth,0)/participantsData.length)}</span></div></div>,<div key="v3"><p className="font-bold mb-2">3. VOTING POWER (AVG ÷ ADJUSTED):</p>{renderMathRow(participantsData,p=>{const avg=participantsData.reduce((s,pp)=>s+pp.wealth,0)/participantsData.length;return`${formatSmartNumber(avg)} ÷ ${formatSmartNumber(p.adjustedWealth)} = ${p.votingPower.toFixed(2)}`;})}<div className={`flex justify-between mt-2 pt-2 ${CLS_DASHED_T} font-bold`}><span>TOTAL POWER:</span><span className="font-mono">{totalVotingPower.toFixed(2)}</span></div></div>],<div><p className="font-bold mb-2">EQUAL VOTING POWER (NO WEIGHTING):</p>{renderMathRow(participantsData,()=>'1 vote')}</div>)}
+        {renderMathSection(voteWeighting,[renderAdjustedWealthStep(1,participantsData,voteWeighting),<div key="v2"><p className={CLS_FB}>2. AVERAGE WEALTH:</p><div className={CLS_JBM}><span>TOTAL:</span><span className="font-mono">{formatSmartNumber(participantsData.reduce((s,p)=>s+p.wealth,0))}</span></div><div className={CLS_JBM}><span>AVERAGE:</span><span className="font-mono">{formatSmartNumber(participantsData.reduce((s,p)=>s+p.wealth,0)/participantsData.length)}</span></div></div>,<div key="v3"><p className={CLS_FB}>3. VOTING POWER (AVG ÷ ADJUSTED):</p>{renderMathRow(participantsData,p=>{const avg=participantsData.reduce((s,pp)=>s+pp.wealth,0)/participantsData.length;return`${formatSmartNumber(avg)} ÷ ${formatSmartNumber(p.adjustedWealth)} = ${p.votingPower.toFixed(2)}`;})}<div className={`flex justify-between mt-2 pt-2 ${CLS_DASHED_T} font-bold`}><span>TOTAL POWER:</span><span className="font-mono">{totalVotingPower.toFixed(2)}</span></div></div>],<div><p className={CLS_FB}>EQUAL VOTING POWER (NO WEIGHTING):</p>{renderMathRow(participantsData,()=>'1 vote')}</div>)}
       </>
     });
   }
 
   if(page==='rent-entry') return EntryPage({
     steps:RENT_STEPS,
-    intro:{desc:"Figuring out rent splits with roommates is a fraught process. Decide it more fairly with Comrade by accounting for both room size and tenants' financial resources. Larger rooms and higher earners both pay more.",hasSaved:hasRentSavedData,resumeLabel:"RESUME SPLIT →",newLabel:"NEW SPLIT",tool:"rent",loadLabel:"LOAD SPLIT",onJump:()=>jump(1),onClear:()=>{handleClearAll('rent');jump(1);},onExample:()=>loadExample('rent')},
-    calc:{onCalculate:()=>navigateTo('rent-results'),weighting:rentWeighting,onWeighting:setRentWeighting,navigateToFaq,hasFloor:true,floor:rentFloor,onFloor:setRentFloor},
+    intro:{desc:"Figuring out rent splits with roommates is a fraught process. Decide it more fairly with Comrade by accounting for both room size and tenants' financial resources. Larger rooms and higher earners both pay more.",hasSaved:hasRentSavedData,resumeLabel:"RESUME SPLIT →",newLabel:"NEW SPLIT",tool:"rent",loadLabel:"LOAD SPLIT",onJump:()=>jump(1),onClear:()=>{handleClearAll('rent');jump(1);},onExample:()=>loadExample('rent'),onPrivacyFaq:navigateToPrivacyFaq},
+    calc:{onCalculate:()=>navigateTo('rent-results'),weighting:rentWeighting,onWeighting:setRentWeighting,navigateToFaq,hasFloor:true,floor:rentFloor,onFloor:setRentFloor,validate:()=>_errs([
+      [!parseFloat(totalRent),'No rent amount entered'],
+      [rentPeople.length===0,'No tenants added'],
+      [rentPeople.some(p=>!(parseFloat(p.roomSize)>0)),'Some tenants are missing a room size'],
+    ])},
     midSteps:[
       ()=>(
         <div>
-          <p className="text-xs mb-4 text-black leading-relaxed">List your total monthly rent, and monthly utility costs.</p>
-          <div className={`${CLS_DASHED} p-3 mb-5`} style={{backgroundColor:'#E5E7EB'}}>
+          <p className={CLS_STEP_P}>List your total monthly rent, and monthly utility costs.</p>
+          <div className={`${CLS_DASHED} p-3 mb-5 bg-gray-50`}>
             <p className={CLS_LABEL}>CURRENCY:</p>
             <CurrencySelector value={rentCurrency} onChange={setRentCurrency}/>
           </div>
-          <FormInput type="number" value={totalRent} onChange={e=>setTotalRent(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} MONTHLY RENT`} min="0" step="0.01" inputMode="decimal" className="mb-2"/>
-          <FormInput type="number" value={totalUtilities} onChange={e=>setTotalUtilities(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} MONTHLY UTILITIES`} min="0" step="0.01" inputMode="decimal"/>
+          <FormInput type="number" value={totalRent} onChange={e=>setTotalRent(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} MONTHLY RENT`} {...NP} className="mb-2"/>
+          <FormInput type="number" value={totalUtilities} onChange={e=>setTotalUtilities(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} MONTHLY UTILITIES`} {...NP}/>
           <div className="mt-6">{NavButton({label:"CONTINUE →", onClick:()=>jump(2)})}</div>
         </div>
       ),
       ()=>(
         <div>
-          <p className="text-xs mb-4 text-black leading-relaxed">Add the names and details of each person sharing the property.</p>
-          <div className={`${CLS_DASHED} p-3 mb-5`} style={{backgroundColor:'#E5E7EB'}}>
-            <div className="mb-3"><p className={CLS_LABEL}>MEASUREMENTS:</p><div className="flex justify-center"><div className={CLS_PILL}><div className="flex gap-1">{[{value:'sqft',label:'SQ FT'},{value:'sqm',label:'SQ M'}].map(m=><button key={m.value} onClick={()=>setRentMeasurement(m.value)} className={`px-4 py-2 font-bold text-xs border-2 ${rentMeasurement===m.value?'bg-black text-white border-black':'bg-white text-black border-gray-400'}`}>{m.label}</button>)}</div></div></div></div>
+          <p className={CLS_STEP_P}>Add the names and details of each person sharing the property.</p>
+          <div className={`${CLS_DASHED} p-3 mb-5 bg-gray-50`}>
+            <div className="mb-3"><p className={CLS_LABEL}>MEASUREMENTS:</p><ToggleGroup options={[{value:'sqft',label:'SQ FT'},{value:'sqm',label:'SQ M'}]} value={rentMeasurement} onChange={setRentMeasurement} minWidth="80px"/></div>
             <div className={`${CLS_DASHED_T} my-3`}></div>
             <p className={CLS_LABEL}>WEALTH METRIC:</p>
             <WealthMetricSelector value={rentWealthMetric} onChange={setRentWealthMetric}/>
           </div>
-          <div className="flex flex-col sm:flex-row gap-2 mb-2">
+          <div className={CLS_ROW}>
             <FormInput value={curRoommateName} onChange={e=>setCurRoommateName(e.target.value)} placeholder="NAME" className="flex-1" style={{minWidth:'120px'}}/>
-            <FormInput type="number" value={curRoommateRoomSize} onChange={e=>setCurRoommateRoomSize(e.target.value)} placeholder={`ROOM SIZE (${getMeasurementLabel(rentMeasurement)})`} min="0" step="0.01" inputMode="decimal" className="flex-1" style={{minWidth:'150px'}}/>
+            <FormInput type="number" value={curRoommateRoomSize} onChange={e=>setCurRoommateRoomSize(e.target.value)} placeholder={`ROOM SIZE (${getMeasurementLabel(rentMeasurement)})`} {...NP} className="flex-1" style={{minWidth:'150px'}}/>
           </div>
-          <FormInput type="number" value={curRoommateWealth} onChange={e=>setCurRoommateWealth(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} ${getWealthMetricLabel(rentWealthMetric)}`} min="0" step="0.01" inputMode="decimal" className="mb-3"/>
+          <FormInput type="number" value={curRoommateWealth} onChange={e=>setCurRoommateWealth(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} ${getWealthMetricLabel(rentWealthMetric)}`} {...NP} className="mb-3"/>
           <button onClick={()=>{if(curRoommateName.trim()){setRentPeople([...rentPeople,{id:Date.now(),name:curRoommateName,roomSize:curRoommateRoomSize,wealth:curRoommateWealth}]);setCurRoommateName('');setCurRoommateRoomSize('');setCurRoommateWealth('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD TENANT</button>
-          {rentPeople.length>0?<ItemList items={rentPeople} onDelete={id=>setRentPeople(rentPeople.filter(p=>p.id!==id))} renderItem={p=><><p className={CLS_NAME}>{p.name}</p><p className="text-xs text-black">Room: {formatNumber((parseFloat(p.roomSize)||0).toFixed(0))} {getMeasurementLabel(rentMeasurement).toLowerCase()}</p><p className="text-xs text-black">{getWealthMetricLabel(rentWealthMetric)}: {formatCurrency(p.wealth,2,rentCurrency)}</p></>}/>:<EmptyState msg="No tenants added yet"/>}
+          {rentPeople.length>0?<ItemList items={rentPeople} onDelete={id=>setRentPeople(rentPeople.filter(p=>p.id!==id))} renderItem={p=><><p className={CLS_NAME}>{p.name}</p><p className={CLS_XS}>Room: {formatNumber((parseFloat(p.roomSize)||0).toFixed(0))} {getMeasurementLabel(rentMeasurement).toLowerCase()}</p><p className={CLS_XS}>{getWealthMetricLabel(rentWealthMetric)}: {formatCurrency(p.wealth,2,rentCurrency)}</p></>}/>:<EmptyState msg="No tenants added yet"/>}
           <div className="mt-6">{NavButton({label:"CONTINUE →", onClick:()=>jump(3)})}</div>
         </div>
       ),
@@ -1653,22 +1723,21 @@ const Comrade = () => {
 
   if(page==='rent-results'){
     const {rentAmount,utilitiesAmount,total,totalRoomSize,rentData,totalRoomValue}=rentCalculations;
-    const hasData=rentPeople.length>0&&parseFloat(totalRent)>0;
     const copyText=`Comrade | Rent-splitting results\n\nTotal: ${_fc(total,rentCurrency)}/month\nRent: ${_fc(rentAmount,rentCurrency)}\nUtilities: ${_fc(utilitiesAmount,rentCurrency)}\n\nBreakdown:\n${rentData.map(p=>`${p.name}: ${_fcs(p.fairRent,rentCurrency)} (${p.rentPct.toFixed(1)}%)`).join('\n')}\n\nCalculated using www.comrade.money, the fairer way to calculate rent splits`;
     return ResultsPage({
-      hasData:hasData, entryPage:"rent-entry", title:"MONTHLY PAYMENTS",
+      entryPage:"rent-entry", title:"MONTHLY PAYMENTS",
       summary:<div className="space-y-3">{rentData.map(p=><div key={p.id} className="pb-2" style={{borderBottom:`1px dashed ${BG_GREY}`}}><p className="text-lg font-semibold">{p.name.toUpperCase()}</p><p className="text-2xl font-black">{_fcs(p.fairRent,rentCurrency)}</p><p className="text-xs" style={{color:BG_GREY}}>{p.rentPct.toFixed(1)}% of total</p></div>)}</div>,
       stats:[{label:'RENT',value:_fc(rentAmount,rentCurrency)},{label:'UTILITIES',value:_fc(utilitiesAmount,rentCurrency)},{label:'TOTAL',value:_fc(total,rentCurrency)},{label:'TENANTS',value:rentPeople.length}],
       copyText:copyText,
       details:<>
         {renderDetailCards('ROOMMATE DATA',rentData,p=>({name:p.name,rows:[{label:'ROOM SIZE',value:`${formatNumber(p.roomSize.toFixed(0))} ${getMeasurementLabel(rentMeasurement).toLowerCase()}`},{label:'WEALTH',value:_fc(p.wealth,rentCurrency)}],summaryRows:[{label:'MONTHLY RENT',value:_fcs(p.fairRent,rentCurrency)},{label:'% OF TOTAL',value:`${p.rentPct.toFixed(1)}%`}]}))}
         <DashedDivider/>
-        <div className="mb-6"><h3 className={CLS_H3}>RENT AND ROOM SIZE BREAKDOWN</h3><div className="space-y-3">{rentData.map((p,idx)=>{const mxR=Math.max(...rentData.map(d=>d.fairRent));return <div key={p.id||idx} className="mb-4"><p className="font-bold text-black mb-1 text-xs uppercase">{p.name}</p><div className="space-y-1">{[{lbl:'RENT',v:p.fairRent,mx:mxR,disp:`${p.rentPct.toFixed(0)}%`,right:_fcs(p.fairRent,rentCurrency)},{lbl:'ROOM',v:p.roomSize,mx:totalRoomSize,disp:`${p.roomPct.toFixed(0)}%`,right:`${formatNumber(p.roomSize.toFixed(0))} ${getMeasurementLabel(rentMeasurement).toLowerCase()}`}].map(({lbl,v,mx,disp,right},bi)=><div key={bi} className="flex items-center gap-2"><span className="text-xs text-black w-20 font-bold">{lbl}:</span><div className={CLS_BAR_BG}><div className={CLS_BAR} style={{width:`${mx>0?(v/mx)*100:0}%`,animationDelay:`${idx*0.1+bi*0.05}s`,backgroundColor:DARK}}>{mx>0&&(v/mx)*100>15&&<span className="text-xs font-bold" style={{color:BG_GREY}}>{disp}</span>}</div></div><span className="text-xs font-bold text-black w-24 text-right">{right}</span></div>)}</div></div>;})}
+        <div className="mb-6"><h3 className={CLS_H3}>RENT AND ROOM SIZE BREAKDOWN</h3><div className="space-y-3">{rentData.map((p,idx)=>{const mxR=Math.max(...rentData.map(d=>d.fairRent));return <div key={p.id||idx} className="mb-4"><p className={CLS_FBTXU}>{p.name}</p><div className="space-y-1">{[{lbl:'RENT',v:p.fairRent,mx:mxR,disp:`${p.rentPct.toFixed(0)}%`,right:_fcs(p.fairRent,rentCurrency)},{lbl:'ROOM',v:p.roomSize,mx:totalRoomSize,disp:`${p.roomPct.toFixed(0)}%`,right:`${formatNumber(p.roomSize.toFixed(0))} ${getMeasurementLabel(rentMeasurement).toLowerCase()}`}].map(({lbl,v,mx,disp,right},bi)=><div key={bi} className={CLS_FIG}><span className={CLS_BL}>{lbl}:</span><div className={CLS_BAR_BG}><div className={CLS_BAR} style={{width:`${mx>0?(v/mx)*100:0}%`,animationDelay:`${idx*0.1+bi*0.05}s`,backgroundColor:DARK}}>{mx>0&&(v/mx)*100>15&&<span className="text-xs font-bold" style={{color:BG_GREY}}>{disp}</span>}</div></div><span className={CLS_BR}>{right}</span></div>)}</div></div>;})}
         </div></div>
         <DashedDivider/>
         <div className="mb-6"><h3 className={CLS_H3}>WEALTH VISUALIZATION</h3>{renderWealthPieChart(rentData)}</div>
         <DashedDivider/>
-        {renderMathSection(rentWeighting,[<div key="r1"><p className="font-bold mb-2">1. ROOM SIZE %:</p>{renderMathRow(rentData,p=>`${formatNumber(p.roomSize.toFixed(0))} ÷ ${formatNumber(totalRoomSize.toFixed(0))} = ${p.roomPct.toFixed(1)}%`)}</div>,renderAdjustedWealthStep(2,rentData,rentWeighting),<div key="r3"><p className="font-bold mb-2">3. ROOM VALUE (ROOM % × ADJUSTED WEALTH):</p>{renderMathRow(rentData,p=>`${p.roomPct.toFixed(1)}% × ${formatSmartNumber(p.adjustedWealth)} = ${formatSmartNumber(p.roomValue)}`)}<div className={`flex justify-between mt-2 pt-2 ${CLS_DASHED_T} font-bold`}><span>TOTAL VALUE:</span><span className="font-mono">{formatSmartNumber(totalRoomValue)}</span></div></div>,<div key="r4"><p className="font-bold mb-2">4. RENT OWED (VALUE % × TOTAL):</p>{renderMathRow(rentData,p=>`${p.rentPct.toFixed(1)}% × ${_fc(total,rentCurrency)} = ${_fcs(p.fairRent,rentCurrency)}`)}</div>],<><div><p className="font-bold mb-2">1. ROOM SIZE % (NO WEALTH WEIGHTING):</p>{renderMathRow(rentData,p=>`${formatNumber(p.roomSize.toFixed(0))} ÷ ${formatNumber(totalRoomSize.toFixed(0))} = ${p.roomPct.toFixed(1)}%`)}</div><div className={`${CLS_DASHED_T} my-3`}></div><div><p className="font-bold mb-2">2. RENT OWED (ROOM % × TOTAL):</p>{renderMathRow(rentData,p=>`${p.rentPct.toFixed(1)}% × ${_fc(total,rentCurrency)} = ${_fcs(p.fairRent,rentCurrency)}`)}</div></>)}
+        {renderMathSection(rentWeighting,[<div key="r1"><p className={CLS_FB}>1. ROOM SIZE %:</p>{renderMathRow(rentData,p=>`${formatNumber(p.roomSize.toFixed(0))} ÷ ${formatNumber(totalRoomSize.toFixed(0))} = ${p.roomPct.toFixed(1)}%`)}</div>,renderAdjustedWealthStep(2,rentData,rentWeighting),<div key="r3"><p className={CLS_FB}>3. ROOM VALUE (ROOM % × ADJUSTED WEALTH):</p>{renderMathRow(rentData,p=>`${p.roomPct.toFixed(1)}% × ${formatSmartNumber(p.adjustedWealth)} = ${formatSmartNumber(p.roomValue)}`)}<div className={`flex justify-between mt-2 pt-2 ${CLS_DASHED_T} font-bold`}><span>TOTAL VALUE:</span><span className="font-mono">{formatSmartNumber(totalRoomValue)}</span></div></div>,<div key="r4"><p className={CLS_FB}>4. RENT OWED (VALUE % × TOTAL):</p>{renderMathRow(rentData,p=>`${p.rentPct.toFixed(1)}% × ${_fc(total,rentCurrency)} = ${_fcs(p.fairRent,rentCurrency)}`)}</div>],<><div><p className={CLS_FB}>1. ROOM SIZE % (NO WEALTH WEIGHTING):</p>{renderMathRow(rentData,p=>`${formatNumber(p.roomSize.toFixed(0))} ÷ ${formatNumber(totalRoomSize.toFixed(0))} = ${p.roomPct.toFixed(1)}%`)}</div><div className={`${CLS_DASHED_T} my-3`}></div><div><p className={CLS_FB}>2. RENT OWED (ROOM % × TOTAL):</p>{renderMathRow(rentData,p=>`${p.rentPct.toFixed(1)}% × ${_fc(total,rentCurrency)} = ${_fcs(p.fairRent,rentCurrency)}`)}</div></>)}
       </>
     });
   }
@@ -1676,6 +1745,7 @@ const Comrade = () => {
   return null;
 };
 
+export default Comrade;
 
 
 
