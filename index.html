@@ -464,18 +464,21 @@ const ResultPieChart = () => (
   </div>
 );
 
-const ToggleGroup = ({options, value, onChange, minWidth='60px', justify='center', fontSize='11px'}) => (
-  <div style={{display:'flex',justifyContent:justify}}>
-    <div style={{display:'flex',flexWrap:'wrap',margin:'1px'}}>
-      {options.map(o=>(
-        <button key={o.value} onClick={()=>onChange(o.value)} aria-pressed={value===o.value}
-          style={{flex:'1',minWidth,padding:'10px 18px',fontWeight:900,fontSize,border:`2px solid ${DARK}`,margin:'-1px',background:value===o.value?DARK:'white',color:value===o.value?'white':DARK,transition:'all 0.15s',position:'relative',zIndex:value===o.value?1:0,whiteSpace:'nowrap'}}>
-          {o.label}
-        </button>
-      ))}
+const ToggleGroup = ({options, value, onChange, minWidth='60px', justify='center', fontSize='11px'}) => {
+  const is4 = options.length === 4;
+  return (
+    <div style={is4 ? {} : {display:'flex',justifyContent:justify}}>
+      <div className={is4 ? 'toggle-4' : ''} style={{...(is4 ? {} : {display:'flex',flexWrap:'wrap'}),margin:'1px'}}>
+        {options.map(o=>(
+          <button key={o.value} onClick={()=>onChange(o.value)} aria-pressed={value===o.value}
+            style={{...(is4 ? {} : {flex:'1',minWidth}),padding:'10px 18px',fontWeight:900,fontSize,border:`2px solid ${DARK}`,margin:'-1px',background:value===o.value?DARK:'white',color:value===o.value?'white':DARK,transition:'all 0.15s',position:'relative',zIndex:value===o.value?1:0,whiteSpace:'nowrap'}}>
+            {o.label}
+          </button>
+        ))}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const CurrencySelector = ({value, onChange}) => (
   <ToggleGroup options={[{value:'USD',label:'$'},{value:'EUR',label:'€'},{value:'GBP',label:'£'}]} value={value} onChange={onChange} minWidth="50px" fontSize="15px"/>
@@ -960,6 +963,8 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
       .bar-animate { animation: barGrow 0.8s ease-out forwards; }
       button:active { transform: scale(0.97); }
       @media (max-width: 700px) { .bg-symbols { display: none; } }
+      .toggle-4 { display: grid; grid-template-columns: repeat(4, 1fr); width: 100%; }
+      @media (max-width: 380px) { .toggle-4 { grid-template-columns: repeat(2, 1fr); } }
     `}</style>
     <div className="max-w-xl mx-auto px-2 sm:px-0 py-5">
       <div className="receipt-wrapper">
@@ -1743,7 +1748,6 @@ const Comrade = () => {
 
   return null;
 };
-
 
 
 
