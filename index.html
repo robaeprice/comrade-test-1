@@ -18,12 +18,6 @@
 
 
 
-
-
-
-
-
-
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -236,7 +230,6 @@ const CLS_H3      = 'text-lg font-bold mb-4 text-black uppercase tracking-wider'
 const CLS_LABEL   = 'text-xs font-bold mb-2 text-black uppercase tracking-wider';
 const CLS_BAR_BG  = 'flex-1 bg-gray-200 h-6 relative overflow-hidden border border-gray-400';
 const CLS_BAR     = 'h-6 bar-animate flex items-center justify-end pr-2 sf';
-const CLS_PILL    = 'bg-gray-100 p-1 border-2 border-dotted border-black inline-block';
 const CLS_TOTAL   = 'flex justify-between items-center pt-3 border-t-2 border-black';
 const CLS_NAME    = 'text-xs text-black font-bold uppercase';
 const S_DARK  = {backgroundColor:DARK,color:BG_GREY,borderColor:DARK};
@@ -280,8 +273,6 @@ const BG_STYLE = {
 };
 
 const BgSymbols = () => {
-  // w=200, h=228: rows at y=56,128,200 (baseline). Top pad=8, row spacing=72, fs=48.
-  // This ensures top of each glyph (~baseline-48) never goes negative within the tile.
   const w=200,h=216,fs=48,op=0.09;
   const xs=[Math.round(0.5/6*w),Math.round(2.5/6*w),Math.round(4.5/6*w)];
   const ys=[56,128,200];
@@ -436,6 +427,46 @@ const AboutBanner = () => (
   </div></div>
 );
 
+// OPTION A: dark strip, full-width, receipt-stamp feel
+const SubHedA = ({text}) => (
+  <div style={{backgroundColor:DARK,padding:'10px 16px',marginTop:'28px',marginBottom:'16px'}}>
+    <p style={{color:BG_GREY,fontSize:'13px',fontWeight:900,letterSpacing:'1px',textTransform:'uppercase',lineHeight:1.4}}>{text}</p>
+  </div>
+);
+// OPTION B: dashed rule above, small caps label, dashed rule below
+const SubHedB = ({text}) => (
+  <div style={{marginTop:'28px',marginBottom:'16px',textAlign:'center'}}>
+    <div style={{borderTop:'2px dashed #9CA3AF',marginBottom:'10px'}}/>
+    <p style={{color:DARK,fontSize:'13px',fontWeight:900,letterSpacing:'1.5px',textTransform:'uppercase',lineHeight:1.4}}>{text}</p>
+    <div style={{borderTop:'2px dashed #9CA3AF',marginTop:'10px'}}/>
+  </div>
+);
+// OPTION C: left border accent, text flush left
+const SubHedC = ({text}) => (
+  <div style={{borderLeft:`4px solid ${DARK}`,paddingLeft:'12px',marginTop:'28px',marginBottom:'16px'}}>
+    <p style={{color:DARK,fontSize:'13px',fontWeight:900,letterSpacing:'1px',textTransform:'uppercase',lineHeight:1.4}}>{text}</p>
+  </div>
+);
+// OPTION D: text with decorative em-dash bookends
+const SubHedD = ({text}) => (
+  <div style={{marginTop:'28px',marginBottom:'16px',display:'flex',alignItems:'center',gap:'10px'}}>
+    <div style={{flex:1,borderTop:`2px solid ${DARK}`}}/>
+    <p style={{color:DARK,fontSize:'13px',fontWeight:900,letterSpacing:'1px',textTransform:'uppercase',lineHeight:1.4,flexShrink:0}}>{text}</p>
+    <div style={{flex:1,borderTop:`2px solid ${DARK}`}}/>
+  </div>
+);
+const SubHed = SubHedA;
+
+const FaqBanner = () => (
+  <div className="mb-6"><div className="bg-white p-4">
+    <svg aria-hidden="true" width="100%" height="60" viewBox="0 0 600 60" preserveAspectRatio="xMidYMid meet">
+      {[['#1A1A1A',60],['#444444',168],['#6E6E6E',276],['#969696',384],['#B8B8B8',492]].map(([fill,x])=>(
+        <text key={x} x={x} y="50" fontFamily="Sixtyfour,monospace" fontSize="46" fill={fill} fontWeight="bold" textAnchor="middle">?</text>
+      ))}
+    </svg>
+  </div></div>
+);
+
 const PeopleAvatars = () => (
   <div className="flex justify-center gap-2 py-2">
     {['#D1D5DB','#9CA3AF','#6B7280'].map((c,i)=>(<svg aria-hidden="true" key={i} width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill={c}/><circle cx="20" cy="16" r="6" fill={BG_GREY}/><path d="M 10 32 Q 10 24 20 24 Q 30 24 30 32" fill={BG_GREY}/></svg>))}
@@ -487,7 +518,6 @@ const CurrencySelector = ({value, onChange}) => (
 const WealthMetricSelector = ({value, onChange}) => (
   <ToggleGroup options={[{value:'salary',label:'SALARY'},{value:'networth',label:'NET WORTH'}]} value={value} onChange={onChange} minWidth="100px"/>
 );
-
 
 const CurrencyWealthSettings = ({currency, onCurrency, wealth, onWealth, pad='p-3'}) => (
   <div className={`${CLS_DASHED} ${pad} mb-5 bg-gray-50`}>
@@ -887,7 +917,7 @@ const HomeAccordion = ({navigateTo}) => {
 let _legalCount = 0;
 let _legalTimer = null;
 
-const FooterNav = ({onNavigate, onClearStorage}) => {
+const FooterNav = ({onNavigate, onClearStorage, currentPage}) => {
   const [toast, setToast] = useState(false);
   const handleLegalClick = () => {
     _legalCount++;
@@ -903,13 +933,15 @@ const FooterNav = ({onNavigate, onClearStorage}) => {
     }
   };
   const resetCount = dest => { _legalCount = 0; clearTimeout(_legalTimer); onNavigate(dest); };
+  const navItem = (dest, label, handler) => (
+      <span onClick={handler || (() => resetCount(dest))} className={CLS_CUR} style={{color:DARK}}>{label}</span>
+    );
   return (
-    <div className="text-center mt-4 mb-4 text-black text-xs">
-      <span className={CLS_CUR} onClick={()=>resetCount('home')}>HOME</span>
-      <span className="mx-3 sf">/</span>
-      <span className={CLS_CUR} onClick={()=>resetCount('about')}>ABOUT</span>
-      <span className="mx-3 sf">/</span>
-      <span className={CLS_CUR} onClick={handleLegalClick}>LEGAL</span>
+    <div className="text-center mt-4 mb-4 text-xs" style={{display:'flex',justifyContent:'center',gap:'16px'}}>
+      {navItem('home','HOME')}
+      {navItem('about','ABOUT')}
+      {navItem('faq','FAQ')}
+      {navItem('legal','LEGAL', handleLegalClick)}
       {toast && (
         <div className="animate-fadeIn" style={{position:'fixed',bottom:32,left:'50%',transform:'translateX(-50%)',padding:'10px 24px',fontWeight:'bold',zIndex:9999,border:`2px solid ${DARK}`,backgroundColor:DARK,color:BG_GREY,fontSize:'12px',whiteSpace:'nowrap'}}>
           🧹 STORAGE CLEARED
@@ -936,7 +968,7 @@ const ReceiptBottom = () => (
   </svg>
 );
 
-const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClearStorage}) => (
+const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClearStorage,currentPage}) => (
   <div style={BG_STYLE}>
     <BgSymbols />
     <div style={{position:'relative',zIndex:1}}>
@@ -983,7 +1015,7 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
             </div>
             {children}
             <CurrencyDivider />
-            <FooterNav onNavigate={onNavigate} onClearStorage={onClearStorage}/>
+            <FooterNav onNavigate={onNavigate} onClearStorage={onClearStorage} currentPage={currentPage}/>
             <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 464 73" width="100%" style={{display:'block',marginBottom:'8px'}}>
               <rect x="0" y="0" width="464" height="73" fill={BG_GREY}/>
               <g transform="translate(10, 3)" fill={DARK}>
@@ -1023,22 +1055,8 @@ const Comrade = () => {
     window.history.pushState({page:p},'',`#${p}`);
     setPage(p);
   },[]);
-  const navigateToFaq = useCallback(()=>{
-    navigateTo('about');
-    setTimeout(()=>{
-      const el=document.getElementById('faq-section');
-      if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
-    },100);
-  },[navigateTo]);
-  const [faqAutoOpen,setFaqAutoOpen] = useState(null);
-  const navigateToPrivacyFaq = useCallback(()=>{
-    setFaqAutoOpen('WHAT DO YOU DO WITH MY FINANCIAL INFORMATION?');
-    navigateTo('about');
-    setTimeout(()=>{
-      const el=document.getElementById('faq-privacy');
-      if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
-    },100);
-  },[navigateTo]);
+  const navigateToFaq = useCallback(()=>navigateTo('faq'),[navigateTo]);
+  const navigateToPrivacyFaq = useCallback(()=>navigateTo('about'),[navigateTo]);
 
   useEffect(()=>{
     const hash = window.location.hash;
@@ -1212,7 +1230,7 @@ const Comrade = () => {
     setTotalRent('');setTotalUtilities('');setRentPeople([]);setRentWeighting('standard');setRentFloor('off');setRentCurrency('USD');setRentWealthMetric('salary');setRentMeasurement('sqft');
   },[]);
 
-  const lp = {onNavigate:navigateTo, showCopyToast, copyToastMsg, loadedAt, onClearStorage:clearStorage};
+  const lp = {onNavigate:navigateTo, showCopyToast, copyToastMsg, loadedAt, onClearStorage:clearStorage, currentPage:page};
   const introProps = {loadPanel, setLoadPanel, onLoad:handleLoadCode};
   const _encodeForTool = {
     bill:()=>encodeBillState(billPeople,billBills,billWeighting,billFloor,billCurrency,billWealthMetric),
@@ -1379,6 +1397,17 @@ const Comrade = () => {
     return <Layout {...lp}><AccordionPage steps={steps} openIndices={entryOpen} onToggle={toggleEntry} renderContent={rc}/></Layout>;
   };
 
+  const FAQ_ITEMS = [
+    {q:'HOW DOES THIS WORK?',a:`Comrade uses wealth data to decide how much each person should pay. It combines all the bills and the amounts already paid, then looks at each person's wealth in relation to others in the group to establish what proportion of the total amount each person should actually be responsible for.`},
+    {q:'WHAT DO YOU DO WITH MY FINANCIAL INFORMATION?',render:<><p className={CLS_PARA3}>Nothing.</p><p className={CLS_PARA3}>Calculations are performed by your device, and your data is only stored locally. It is never sent to Comrade, and is automatically wiped after 30 days of inactivity.</p><p className={CLS_PARA}>If a user signs up for email updates, their email is shared with Comrade only, and is not associated with any financial data.</p></>},
+    {q:'WHAT IS "WEIGHTING"?',a:`Weighting is the level of emphasis placed on each user's relative wealth (salary/net worth). By default, each person's responsibility is directly correlated with their wealth.\n\nFor example, let's say Fred and George each paid $100 on shared bills. Fred earns $50,000 a year, while George brings in $100,000. With regular ("Mid") weighting, because George makes twice as much money as Fred, he should pay twice as much. So far, he only paid 50% — $100 — meaning he owes Fred another $33.33.\n\nIn settings, you can also select "High" weighting, which emphasizes wealth differences even more by using squared wealth values for calculations; or "Low" weighting, which uses square-root values for more gentle adjustments. There is also an option to forego weighting entirely.`},
+    {q:'WHAT IS A "CONTRIBUTION FLOOR"?',a:`A contribution floor sets a minimum amount that any group member must pay, regardless of their wealth. It's expressed as a percentage of what they'd owe in an even split.\n\nFor example, if three people are splitting $300 and the floor is set to 25%, no one pays less than $25 — that's 25% of an equal $100 share.\n\nBy default, the contribution floor is deactivated.`},
+    {q:'HOW DOES SHARING WORK?',render:<><p className={CLS_PARA3}>When you calculate a split, Comrade generates a shareable link you can send to your group. Clicking it loads the full split — people, bills, settings, and results — instantly, with no account required.</p><p className={CLS_PARA}>All of the split's information is encoded directly into the URL itself, so your data never touches Comrade's servers. The link is entirely self-contained.</p></>},
+    {q:'IS COMRADE AVAILABLE ON THE APP STORE?',render:<p className={CLS_PARA}>Not yet! For now, Comrade is fully functional on mobile and desktop via our website, <a href="https://www.comrade.money" target="_blank" rel="noopener noreferrer" className={CLS_A}>www.comrade.money</a>. If you'd like to use a standalone app, or have other feedback or feature requests, please get in touch.</p>},
+    {q:"IT'S AWKWARD ASKING MY FRIENDS HOW MUCH MONEY THEY HAVE. WHAT SHOULD I DO?",render:<p className={CLS_PARA}>Do it anyway.{' '}<a href="https://www.hbs.edu/ris/Publication%20Files/23-039_f20d86a0-a1cf-4bd6-8066-74ccc6f2c3cf.pdf" target="_blank" rel="noopener noreferrer" className={CLS_A}>Studies</a>{' '}have found{' '}<a href="https://www.nytimes.com/interactive/2020/02/19/magazine/salary-sharing.html" target="_blank" rel="noopener noreferrer" className={CLS_A}>breaking</a>{' '}the{' '}<a href="https://www.businessinsider.com/salary-pay-transparency-jobs-income-taboo-equity-2023-1" target="_blank" rel="noopener noreferrer" className={CLS_A}>taboos</a>{' '}around sharing information about wealth makes society better.</p>},
+    {q:'IS THIS SERIOUS?',a:'What do you think?'},
+  ];
+
   if(page==='home') return (
     <Layout {...lp}>
       <p className="text-center text-sm mb-4 text-black leading-relaxed font-bold">THE FAIRER WAY TO SPLIT COSTS WITH FRIENDS.</p>
@@ -1418,38 +1447,43 @@ const Comrade = () => {
     <Layout {...lp}>
       <h2 className={CLS_H2C}>ABOUT</h2>
       <AboutBanner />
-      <div className="space-y-4 text-black mb-4">
+      <SubHed text="Wealth isn't evenly distributed — costs shouldn't be either"/>
+      <div className="space-y-4 text-black mb-2">
         <p className={CLS_PARA}>If a banker, a nurse, and a student go out for dinner, how should they split the bill?</p>
         <p className={CLS_PARA}>Just ask Comrade.</p>
-        <p className={CLS_PARA}>Comrade is an app that takes the awkwardness out of group expenses. From vacations to household purchases to work drinks, it simplifies shared bills and divides them fairly — by taking into account people's wealth (salaries or net worth) to decide the split. Those who have more, pay more.</p>
-        <p className={CLS_PARA}>Privacy and security is Comrade's top priority. All calculations are performed locally on your smartphone or computer, and your personal and financial information is never transmitted to Comrade's servers — or anywhere else.</p>
-        <p className={CLS_PARA}>Because your data is automatically saved to your device, Comrade works just as well for tracking ongoing expenses as it does for one-off bills. And you can share your results with custom links — letting your friends see who owes what.</p>
-        <p className={CLS_PARA}>Wealth isn't evenly distributed. Costs shouldn't be either. So next time your friends, family, or coworkers need to split the check, use Comrade for a fairer way to settle up.</p>
-        <div className={`${CLS_DASHED_T} my-4`}/>
+        <p className={CLS_PARA}>Comrade takes the awkwardness out of group expenses. From vacations to household purchases to work drinks, it simplifies shared bills and divides them fairly — by taking into account people's salaries or net worth to calculate the split.</p>
+        <p className={CLS_PARA}>Those who have more, pay more.</p>
+        <p className={CLS_PARA}>Because your data is automatically saved to your device, Comrade works just as well for tracking ongoing expenses as it does for one-off bills. And you can share your results with custom links, letting your friends see who owes what.</p>
+      </div>
+      <SubHed text="Free to use, no registration required, privacy-first"/>
+      <div className="space-y-4 text-black mb-2">
+        <p className={CLS_PARA}>Financial information is sensitive stuff. That's why your data is only stored locally, with all calculations taking place on your smartphone or computer. Your info is never transmitted to Comrade's servers — or anywhere else.</p>
+        <p className={CLS_PARA}>There are no user accounts to be tracked, no data to be sold, and no subscriptions or fees. Old data is wiped after 30 days, or if you start over with a new split.</p>
+      </div>
+      <SubHed text="More than just bill-splitting"/>
+      <div className="space-y-4 text-black mb-2">
+        <p className={CLS_PARA}>Beyond handling group bills, Comrade offers a number of other features.</p>
+        <p className={CLS_PARA}>There is a tool to help decide <span className={CLS_LNK} onClick={()=>navigateTo('rent-entry')}>rent splits</span> in apartments more fairly, another to assist when <span className={CLS_LNK} onClick={()=>navigateTo('sale-entry')}>selling an item</span> to ensure the buyer is the person who values it most highly, and an experimental tool for <span className={CLS_LNK} onClick={()=>navigateTo('vote-entry')}>voting on decisions</span>.</p>
+      </div>
+      <SubHed text="Get in touch"/>
+      <div className="text-black mb-6">
         <p className={CLS_PARA}>Comrade is built with care in Brooklyn, New York. Got questions, feedback, or partnership inquiries? Reach out at <a href="mailto:hello@comrade.money" className={CLS_A}>hello@comrade.money</a></p>
       </div>
       <div className="mb-4">{renderEmailSignup()}</div>
-      <CurrencyDivider />
+    </Layout>
+  );
+
+  if(page==='faq') return (
+    <Layout {...lp}>
+      <h2 className={CLS_H2C}>FAQ</h2>
+      <FaqBanner/>
+      <p className="text-sm text-black mb-6 leading-relaxed">You've got questions, we've got answers. Learn more about how Comrade functions under the hood.</p>
       <div>
-        <h2 id="faq-section" className="text-2xl font-black py-4 text-black uppercase tracking-wider text-center border-b-2 border-dashed border-gray-400">FAQ</h2>
-        {[
-          {q:'HOW DOES THIS WORK?',a:'Comrade uses wealth data to decide how much each person should pay. It combines all the bills and the amounts already paid, then looks at each person\'s wealth in relation to others in the group to establish what proportion of the total amount each person should actually be responsible for.'},
-          {q:'CAN I USE COMRADE FOR ONGOING EXPENSES?',render:<p className={CLS_PARA}>Yes. Comrade automatically saves data to your device as you go, so you can simply add bills as they occur, then hit calculate when it's finally time to settle up.</p>},
-          {q:'WHAT DO YOU DO WITH MY FINANCIAL INFORMATION?',render:<><p className={CLS_PARA3}>Nothing.</p><p className={CLS_PARA3}>Calculations are performed by your device, and your data is only stored locally. It is never sent to Comrade, and is automatically wiped after 30 days of inactivity.</p><p className={CLS_PARA}>If a user signs up for email updates, their email is shared with Comrade only, and is not associated with any financial data.</p></>},
-          {q:'WHAT ELSE CAN COMRADE DO?',render:<p className={CLS_PARA}>Beyond <span className={CLS_LNK} onClick={()=>navigateTo('bill-entry')}>bill-splitting</span>, Comrade offers a number of other features. There is a tool to help decide <span className={CLS_LNK} onClick={()=>navigateTo('rent-entry')}>rent splits</span> in apartments more fairly, another to assist when <span className={CLS_LNK} onClick={()=>navigateTo('sale-entry')}>selling</span> an item to ensure the buyer is the person who values it most highly, and an experimental tool for <span className={CLS_LNK} onClick={()=>navigateTo('vote-entry')}>voting</span> on decisions.</p>},
-          {q:'HOW DOES SHARING WORK?',render:<><p className={CLS_PARA3}>When you calculate a split, Comrade generates a shareable link you can send to your group. Clicking it loads the full split — people, bills, settings, and results — instantly, with no account required.</p><p className={CLS_PARA}>All of the split's information is encoded directly into the URL itself, so your data never touches Comrade's servers. The link is entirely self-contained.</p></>},
-          {q:'WHAT IS "WEIGHTING"?',a:'Weighting is the level of emphasis placed on each user\'s relative wealth (salary/net worth). By default, each person\'s responsibility is directly correlated with their wealth.\n\nFor example, let\'s say Fred and George each paid $100 on shared bills. Fred earns $50,000 a year, while George brings in $100,000. With regular ("Mid") weighting, because George makes twice as much money as Fred, he should pay twice as much. So far, he only paid 50% — $100 — meaning he owes Fred another $33.33.\n\nIn settings, you can also select "High" weighting, which emphasizes wealth differences even more by using squared wealth values for calculations; or "Low" weighting, which uses square-root values for more gentle adjustments. There is also an option to forego weighting entirely.'},
-          {q:'WHAT IS A "CONTRIBUTION FLOOR"?',a:'A contribution floor sets a minimum amount that any group member must pay, regardless of their wealth. It\'s expressed as a percentage of what they\'d owe in an even split.\n\nFor example, if three people are splitting $300 and the floor is set to 25%, no one pays less than $25 — that\'s 25% of an equal $100 share.\n\nBy default, the contribution floor is deactivated.'},
-          {q:'IS COMRADE AVAILABLE ON THE APP STORE?',render:<p className={CLS_PARA}>Not yet! For now, Comrade is fully functional on mobile and desktop via our website, <a href="https://www.comrade.money" target="_blank" rel="noopener noreferrer" className={CLS_A}>www.comrade.money</a>. If you'd like to use a standalone app, or have other feedback or feature requests, please get in touch.</p>},
-          {q:"IT'S AWKWARD ASKING MY FRIENDS HOW MUCH MONEY THEY HAVE. WHAT SHOULD I DO?",render:<p className={CLS_PARA}>Do it anyway.{' '}<a href="https://www.hbs.edu/ris/Publication%20Files/23-039_f20d86a0-a1cf-4bd6-8066-74ccc6f2c3cf.pdf" target="_blank" rel="noopener noreferrer" className={CLS_A}>Studies</a>{' '}have found{' '}<a href="https://www.nytimes.com/interactive/2020/02/19/magazine/salary-sharing.html" target="_blank" rel="noopener noreferrer" className={CLS_A}>breaking</a>{' '}the{' '}<a href="https://www.businessinsider.com/salary-pay-transparency-jobs-income-taboo-equity-2023-1" target="_blank" rel="noopener noreferrer" className={CLS_A}>taboos</a>{' '}around sharing information about wealth makes society better.</p>},
-          {q:'IS THIS SERIOUS?',a:'What do you think?'},
-        ].map((item,i,arr)=>{
-          const isPrivacy = item.q==='WHAT DO YOU DO WITH MY FINANCIAL INFORMATION?';
-          const el = <FaqItem key={item.q} {...item} border={i<arr.length-1} forceOpen={isPrivacy&&faqAutoOpen===item.q} />;
-          if(isPrivacy) return <div key={item.q} id="faq-privacy">{el}</div>;
-          return el;
-        })}
+        {FAQ_ITEMS.map((item,i,arr)=>(
+          <FaqItem key={item.q} {...item} border={i<arr.length-1}/>
+        ))}
       </div>
+      <div className="mt-6">{renderEmailSignup()}</div>
     </Layout>
   );
 
@@ -1659,7 +1693,6 @@ const Comrade = () => {
 
   if(page==='vote-results'){
     const {participantsData,totalVotingPower,voteBreakdown}=voteCalculations;
-    const optTexts=voteOptions.map(o=>o.text);
     const winner=voteBreakdown.length>0?voteBreakdown[0]:null;
     const isTie=voteBreakdown.length>1&&voteBreakdown[0].percentage===voteBreakdown[1].percentage;
     const copyText=`Comrade | Voting results\n\nDecision: ${voteDecision}\n\nWinner: ${winner?`${winner.option} (${winner.percentage.toFixed(1)}%)`:'None'}\n\nBreakdown:\n${voteBreakdown.map((b,i)=>`${i+1}. ${b.option}: ${b.percentage.toFixed(1)}% (${b.voters.length} voter${b.voters.length!==1?'s':''})`).join('\n')}\n\nCalculated using www.comrade.money, the fairer way to make group decisions`;
@@ -1748,6 +1781,7 @@ const Comrade = () => {
 
   return null;
 };
+
 
 
 
