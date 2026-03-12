@@ -1427,7 +1427,7 @@ const Comrade = () => {
 
   if(page==='about') return (
     <Layout {...lp}>
-      <h2 className={CLS_H2C}>ABOUT</h2>
+
       <AboutBanner />
       <SubHed text="Wealth isn't evenly distributed — costs shouldn't be either"/>
       <div className="space-y-4 text-black mb-2">
@@ -1446,7 +1446,7 @@ const Comrade = () => {
       <div className="space-y-4 text-black mb-2">
         <p className={CLS_PARA}>Beyond handling group bills, Comrade offers a number of other features.</p>
         <p className={CLS_PARA}>There is a tool to help decide <span className={CLS_LNK} onClick={()=>navigateTo('rent-entry')}>rent splits</span> in apartments more fairly, another to assist when <span className={CLS_LNK} onClick={()=>navigateTo('sale-entry')}>selling an item</span> to ensure the buyer is the person who values it most highly, and an experimental tool for <span className={CLS_LNK} onClick={()=>navigateTo('vote-entry')}>voting on decisions</span>.</p>
-        <p className={CLS_PARA}>All are built around the same fundamental mechanism — using wealth data to weight people's input appropriately.</p>
+        <p className={CLS_PARA}>All are built around the same core mechanism — using wealth data to weight people's input fairly.</p>
       </div>
       <SubHed text="Get in touch"/>
       <div className="text-black mb-6">
@@ -1460,7 +1460,7 @@ const Comrade = () => {
 
   if(page==='faq') return (
     <Layout {...lp}>
-      <h2 className={CLS_H2C}>FAQ</h2>
+
       <FaqBanner/>
       <p className="text-sm text-black mb-6 leading-relaxed">You've got questions, we've got answers. Learn more about how Comrade functions under the hood.</p>
       <div>
