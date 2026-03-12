@@ -18,6 +18,7 @@
 
 
 
+
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -427,35 +428,13 @@ const AboutBanner = () => (
   </div></div>
 );
 
-// OPTION A: dark strip, full-width, receipt-stamp feel
-const SubHedA = ({text}) => (
-  <div style={{backgroundColor:DARK,padding:'10px 16px',marginTop:'28px',marginBottom:'16px'}}>
-    <p style={{color:BG_GREY,fontSize:'13px',fontWeight:900,letterSpacing:'1px',textTransform:'uppercase',lineHeight:1.4}}>{text}</p>
+const SubHedF = ({text}) => (
+  <div style={{marginTop:'28px',marginBottom:'16px'}}>
+    <p style={{color:DARK,fontSize:'13px',fontWeight:900,letterSpacing:'1.5px',textTransform:'uppercase',lineHeight:1.4,marginBottom:'6px'}}>{text}</p>
+    <div style={{borderTop:`4px solid ${DARK}`}}/>
   </div>
 );
-// OPTION B: dashed rule above, small caps label, dashed rule below
-const SubHedB = ({text}) => (
-  <div style={{marginTop:'28px',marginBottom:'16px',textAlign:'center'}}>
-    <div style={{borderTop:'2px dashed #9CA3AF',marginBottom:'10px'}}/>
-    <p style={{color:DARK,fontSize:'13px',fontWeight:900,letterSpacing:'1.5px',textTransform:'uppercase',lineHeight:1.4}}>{text}</p>
-    <div style={{borderTop:'2px dashed #9CA3AF',marginTop:'10px'}}/>
-  </div>
-);
-// OPTION C: left border accent, text flush left
-const SubHedC = ({text}) => (
-  <div style={{borderLeft:`4px solid ${DARK}`,paddingLeft:'12px',marginTop:'28px',marginBottom:'16px'}}>
-    <p style={{color:DARK,fontSize:'13px',fontWeight:900,letterSpacing:'1px',textTransform:'uppercase',lineHeight:1.4}}>{text}</p>
-  </div>
-);
-// OPTION D: text with decorative em-dash bookends
-const SubHedD = ({text}) => (
-  <div style={{marginTop:'28px',marginBottom:'16px',display:'flex',alignItems:'center',gap:'10px'}}>
-    <div style={{flex:1,borderTop:`2px solid ${DARK}`}}/>
-    <p style={{color:DARK,fontSize:'13px',fontWeight:900,letterSpacing:'1px',textTransform:'uppercase',lineHeight:1.4,flexShrink:0}}>{text}</p>
-    <div style={{flex:1,borderTop:`2px solid ${DARK}`}}/>
-  </div>
-);
-const SubHed = SubHedA;
+const SubHed = SubHedF;
 
 const FaqBanner = () => (
   <div className="mb-6"><div className="bg-white p-4">
@@ -1464,12 +1443,15 @@ const Comrade = () => {
       <div className="space-y-4 text-black mb-2">
         <p className={CLS_PARA}>Beyond handling group bills, Comrade offers a number of other features.</p>
         <p className={CLS_PARA}>There is a tool to help decide <span className={CLS_LNK} onClick={()=>navigateTo('rent-entry')}>rent splits</span> in apartments more fairly, another to assist when <span className={CLS_LNK} onClick={()=>navigateTo('sale-entry')}>selling an item</span> to ensure the buyer is the person who values it most highly, and an experimental tool for <span className={CLS_LNK} onClick={()=>navigateTo('vote-entry')}>voting on decisions</span>.</p>
+        <p className={CLS_PARA}>All use the same fundamental mechanism — using wealth data to weight people's input appropriately.</p>
       </div>
       <SubHed text="Get in touch"/>
       <div className="text-black mb-6">
         <p className={CLS_PARA}>Comrade is built with care in Brooklyn, New York. Got questions, feedback, or partnership inquiries? Reach out at <a href="mailto:hello@comrade.money" className={CLS_A}>hello@comrade.money</a></p>
       </div>
       <div className="mb-4">{renderEmailSignup()}</div>
+
+
     </Layout>
   );
 
@@ -1781,7 +1763,6 @@ const Comrade = () => {
 
   return null;
 };
-
 
 
 
