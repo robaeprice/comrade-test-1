@@ -21,6 +21,7 @@
 
 
 
+
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -233,7 +234,7 @@ const CLS_H3      = 'text-lg font-bold mb-4 text-black uppercase tracking-wider'
 const CLS_LABEL   = 'text-xs font-bold mb-2 text-black uppercase tracking-wider';
 const CLS_BAR_BG  = 'flex-1 bg-gray-200 h-6 relative overflow-hidden border border-gray-400';
 const CLS_BAR     = 'h-6 bar-animate flex items-center justify-end pr-2 sf';
-const CLS_TOTAL   = 'flex justify-between items-center pt-3 border-t-2 border-black';
+const CLS_TOTAL   = 'flex justify-between items-center pt-3';
 const CLS_NAME    = 'text-xs text-black font-bold uppercase';
 const S_DARK  = {backgroundColor:DARK,color:BG_GREY,borderColor:DARK};
 const CLS_FB  = 'font-bold mb-2';
@@ -393,11 +394,18 @@ const scrollToStep = i => setTimeout(() => {
   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }, 80);
 
-const FaqItem = ({q,a,render,border,forceOpen}) => {
+const FaqItem = ({q,a,render,border,forceOpen,onForceOpenConsumed}) => {
   const [open,setOpen] = useState(false);
-  useEffect(()=>{ if(forceOpen) setOpen(true); },[forceOpen]);
+  const ref = useRef(null);
+  useEffect(()=>{
+    if(forceOpen){
+      setOpen(true);
+      onForceOpenConsumed?.();
+      setTimeout(()=>ref.current?.scrollIntoView({behavior:'smooth',block:'start'}),80);
+    }
+  },[forceOpen]);
   return (
-    <div className={border?'border-b-2 border-dashed border-gray-400':''}>
+    <div ref={ref} className={border?'border-b-2 border-dashed border-gray-400':''}>
       <button onClick={()=>setOpen(o=>!o)} className="w-full flex items-center gap-3 p-5 text-left hover:opacity-60 transition-all">
         <QuestionIcon size={18}/>
         <span className="flex-1 font-bold text-sm text-black uppercase tracking-wide leading-snug">{q}</span>
@@ -977,7 +985,7 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
       button:active { transform: scale(0.97); }
       @media (max-width: 700px) { .bg-symbols { display: none; } }
       .toggle-4 { display: grid; grid-template-columns: repeat(4, 1fr); width: 100%; }
-      @media (max-width: 380px) { .toggle-4 { grid-template-columns: repeat(2, 1fr); } }
+      @media (max-width: 520px) { .toggle-4 { grid-template-columns: repeat(2, 1fr); } }
       .footer-nav { display: grid; grid-template-columns: repeat(4, auto); justify-content: center; gap: 16px; }
       @media (max-width: 320px) { .footer-nav { grid-template-columns: repeat(2, 1fr); justify-items: center; } }
     `}</style>
@@ -992,7 +1000,7 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
                 <img
                   src="/logo.svg"
                   alt="COMRADE"
-                  style={{width:'100%',display:'block',marginBottom:'-2px',marginTop:'4px'}}
+                  style={{width:'100%',display:'block',marginBottom:'6px',marginTop:'4px'}}
                   onError={e=>{e.target.style.display='none';e.target.nextSibling.style.display='flex';}}
                 />
                 <div style={{display:'none',justifyContent:'space-between',alignItems:'baseline',width:'100%',marginBottom:'-2px',marginTop:'4px'}}>
@@ -1002,7 +1010,7 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
                 </div>
                 <div className={CLS_CP} style={{marginTop:'2px'}}>{'$ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £'}</div>
               </div>
-              <p className="text-center text-black font-bold mt-2" style={{fontSize:'10px',letterSpacing:'1px'}}>{loadedAt}</p>
+              <p className="text-center text-black mt-2" style={{fontSize:'10px',letterSpacing:'1px'}}>{loadedAt}</p>
             </div>
             {children}
             <CurrencyDivider />
@@ -1042,8 +1050,9 @@ const Comrade = () => {
 
   const [copyToastMsg, setCopyToastMsg] = useState('');
   const copyToClipboard = useCallback((t, msg='COPIED TO CLIPBOARD!')=>{navigator.clipboard.writeText(t);setCopyToastMsg(msg);setShowCopyToast(true);},[]);
-  const navigateTo = useCallback(p=>{
+  const navigateTo = useCallback((p, opts={})=>{
     window.history.pushState({page:p},'',`#${p}`);
+    if(opts.faqIndex != null) setFaqOpenIndex(opts.faqIndex);
     setPage(p);
   },[]);
   const navigateToFaq = useCallback(()=>navigateTo('faq'),[navigateTo]);
@@ -1067,6 +1076,7 @@ const Comrade = () => {
 
   const [loadedAt,setLoadedAt] = useState(formatTimestamp);
   const [page,setPage] = useState('home');
+  const [faqOpenIndex,setFaqOpenIndex] = useState(null);
   const [showCopyToast,setShowCopyToast] = useState(false);
   const [randomQuote,setRandomQuote] = useState('');
   const [lastQuoteIndices,setLastQuoteIndices] = useState([]);
@@ -1442,20 +1452,20 @@ const Comrade = () => {
       <div className="space-y-4 text-black mb-2">
         <p className={CLS_PARA}>If a banker, a nurse, and a student go out for dinner, how should they split the bill?</p>
         <p className={CLS_PARA}>Just ask Comrade.</p>
-        <p className={CLS_PARA}>Comrade takes the awkwardness out of group expenses. From vacations to household purchases to work drinks, it simplifies shared bills — and takes into account people's salaries or net worth to divide them fairly.</p>
+        <p className={CLS_PARA}>Comrade takes the awkwardness out of group expenses. From vacations to household purchases to work drinks, it simplifies shared bills — and takes into account people's salaries or net worth to divide them <span className={CLS_LNK} onClick={()=>navigateTo('faq',{faqIndex:0})}>fairly</span>.</p>
         <p className={CLS_PARA}>Those who have more, pay more.</p>
-        <p className={CLS_PARA}>Because your data is automatically saved to your device, Comrade works just as well for tracking ongoing expenses as it does for one-off bills. And you can share your results with custom links, letting your friends see who owes what.</p>
+        <p className={CLS_PARA}>Because your data is automatically saved to your device, Comrade works just as well for tracking ongoing expenses as it does for one-off bills. And you can <span className={CLS_LNK} onClick={()=>navigateTo('faq',{faqIndex:4})}>share</span> your results with custom links, letting your friends see who owes what.</p>
       </div>
       <SubHed text="Free to use, no registration required, privacy-first"/>
       <div className="space-y-4 text-black mb-2">
-        <p className={CLS_PARA}>Financial information is sensitive stuff. That's why your data is only stored locally, with all calculations taking place on your smartphone or computer. Your info is never transmitted to Comrade's servers — or anywhere else.</p>
+        <p className={CLS_PARA}>Financial information is sensitive stuff. That's why your <span className={CLS_LNK} onClick={()=>navigateTo('faq',{faqIndex:1})}>data</span> is only stored locally, with all calculations taking place on your smartphone or computer. Your info is never transmitted to Comrade's servers — or anywhere else.</p>
         <p className={CLS_PARA}>There are no user accounts to be tracked, no data to be sold, and no subscriptions or fees. Old data is wiped after 30 days, or when you begin a new split.</p>
       </div>
       <SubHed text="More than just bill-splitting"/>
       <div className="space-y-4 text-black mb-2">
         <p className={CLS_PARA}>Beyond handling group bills, Comrade offers a number of other features.</p>
         <p className={CLS_PARA}>There is a tool to help decide <span className={CLS_LNK} onClick={()=>navigateTo('rent-entry')}>rent splits</span> in apartments more fairly, another to assist when <span className={CLS_LNK} onClick={()=>navigateTo('sale-entry')}>selling an item</span> to ensure the buyer is the person who values it most highly, and an experimental tool for <span className={CLS_LNK} onClick={()=>navigateTo('vote-entry')}>voting on decisions</span>.</p>
-        <p className={CLS_PARA}>All are built around the same core mechanism — using wealth data to weight people's input fairly.</p>
+        <p className={CLS_PARA}>All are built around the same core mechanism — using wealth data to <span className={CLS_LNK} onClick={()=>navigateTo('faq',{faqIndex:2})}>weight</span> people's input fairly.</p>
       </div>
       <SubHed text="Get in touch"/>
       <div className="text-black mb-6">
@@ -1467,14 +1477,14 @@ const Comrade = () => {
     </Layout>
   );
 
-  if(page==='faq') return (
+      if(page==='faq') return (
     <Layout {...lp}>
 
       <FaqBanner/>
       <p className="text-sm text-black mb-6 leading-relaxed">You've got questions, we've got answers. Learn more about how Comrade functions under the hood.</p>
       <div>
         {FAQ_ITEMS.map((item,i,arr)=>(
-          <FaqItem key={item.q} {...item} border={i<arr.length-1}/>
+          <FaqItem key={item.q} {...item} border={i<arr.length-1} forceOpen={faqOpenIndex===i} onForceOpenConsumed={faqOpenIndex===i?()=>setFaqOpenIndex(null):undefined}/>
         ))}
       </div>
       <div className="mt-6">{renderEmailSignup()}</div>
