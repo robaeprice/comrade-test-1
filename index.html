@@ -26,8 +26,6 @@
 
 
 
-
-
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -283,9 +281,9 @@ const BG_STYLE = {
 };
 
 const BgSymbols = () => {
-  const w=200,h=216,fs=48,op=0.09;
+  const w=160,h=172,fs=48,op=0.09;
   const xs=[Math.round(0.5/6*w),Math.round(2.5/6*w),Math.round(4.5/6*w)];
-  const ys=[56,128,200];
+  const ys=[45,102,159];
   const syms=['$','€','£','€','£','$','£','$','€'];
   const positions=ys.flatMap((y,ri)=>xs.map((x,ci)=>({x,y,sym:syms[ri*3+ci]})));
   return (
@@ -1791,6 +1789,7 @@ const Comrade = () => {
 
   return null;
 };
+
 
 
 
