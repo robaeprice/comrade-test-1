@@ -27,7 +27,6 @@
 
 
 
-
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -370,7 +369,7 @@ const ErrorIcon = ({size=20}) => <Icon size={size}><line x1="4" y1="4" x2="20" y
 const ShareIcon = ({size=20}) => <svg aria-hidden="true" width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><circle cx="18" cy="5" r="3" fill="none" stroke="currentColor" strokeWidth="2"/><circle cx="6" cy="12" r="3" fill="none" stroke="currentColor" strokeWidth="2"/><circle cx="18" cy="19" r="3" fill="none" stroke="currentColor" strokeWidth="2"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" stroke="currentColor" strokeWidth="2"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" stroke="currentColor" strokeWidth="2"/></svg>;
 
 const BILL_STEPS = [
-  {label:'SPLIT COSTS',icon:<BillIcon size={22}/>},
+  {label:'SPLIT BILLS',icon:<BillIcon size={22}/>},
   {label:'PEOPLE',     icon:<PersonIcon size={22}/>},
   {label:'BILLS',      icon:<ReceiptLineIcon size={22}/>},
   {label:'CALCULATE',  icon:<CalculateIcon size={22}/>},
@@ -1045,10 +1044,10 @@ const _fc=(v,c)=>formatCurrency(v,2,c),_fcs=(v,c)=>formatCurrencySmart(v,c);
 
 const Comrade = () => {
   useEffect(()=>{
-    document.title="COMRADE";
+    document.title="Comrade";
     let m=document.querySelector('meta[name="description"]');
     if(!m){m=document.createElement('meta');m.name='description';document.head.appendChild(m);}
-    m.content='The fairer way to split costs with friends.';
+    m.content='The fairer way to split bills with friends.';
     let t=document.querySelector('meta[name="theme-color"]');
     if(!t){t=document.createElement('meta');t.name='theme-color';document.head.appendChild(t);}
     t.content='#333333';
@@ -1417,8 +1416,8 @@ const Comrade = () => {
 
   if(page==='home') return (
     <Layout {...lp}>
-      <p className="text-center text-sm mb-4 text-black leading-relaxed font-bold">THE FAIRER WAY TO SPLIT COSTS WITH FRIENDS.</p>
-      <p className="text-center text-sm mb-4 text-black leading-relaxed">COMRADE COMBINES AND SIMPLIFIES GROUP BILLS — THEN DIVIDES THEM BASED ON WEALTH.</p>
+      <p className="text-center text-sm mb-4 text-black leading-relaxed font-bold">THE FAIRER WAY TO SPLIT BILLS WITH FRIENDS.</p>
+      <p className="text-center text-sm mb-4 text-black leading-relaxed">COMRADE COMBINES AND SIMPLIFIES GROUP EXPENSES — THEN DIVIDES THEM BASED ON WEALTH.</p>
       <HomeAccordion navigateTo={navigateTo}/>
     </Layout>
   );
@@ -1570,7 +1569,7 @@ const Comrade = () => {
 
   if(page==='bill-results'){
     const {total,peopleData,transactions}=billCalculations;
-    const copyText=`Comrade | Bill-splitting results\n\nTotal: ${_fc(total,billCurrency)}\n\nSettlements:\n${transactions.length===0?'All settled!':transactions.map(t=>`${t.from} pays ${t.to} ${_fcs(t.amount,billCurrency)}`).join('\n')}\n\nBreakdown:\n${peopleData.map(p=>`${p.name}: Paid ${_fc(p.paid,billCurrency)}, fair share ${_fcs(p.fairShare,billCurrency)}`).join('\n')}\n\nCalculated using www.comrade.money, the fairer way to split costs with friends`;
+    const copyText=`Comrade | Bill-splitting results\n\nTotal: ${_fc(total,billCurrency)}\n\nSettlements:\n${transactions.length===0?'All settled!':transactions.map(t=>`${t.from} pays ${t.to} ${_fcs(t.amount,billCurrency)}`).join('\n')}\n\nBreakdown:\n${peopleData.map(p=>`${p.name}: Paid ${_fc(p.paid,billCurrency)}, fair share ${_fcs(p.fairShare,billCurrency)}`).join('\n')}\n\nCalculated using www.comrade.money, the fairer way to split bills with friends`;
     return ResultsPage({
       entryPage:"bill-entry", title:"YOUR SETTLEMENT",
       summary:transactions.length===0
