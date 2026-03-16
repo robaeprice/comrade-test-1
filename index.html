@@ -25,6 +25,7 @@
 
 
 
+
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -545,9 +546,10 @@ const LoadSplitPanel = ({tool, loadPanel, setLoadPanel, onLoad, label='LOAD SPLI
   );
 };
 
-const IntroStep = ({desc, hasSaved, resumeLabel, newLabel, tool, loadLabel, onJump, onClear, onExample, loadPanel, setLoadPanel, onLoad, onPrivacyFaq}) => (
+const IntroStep = ({desc, hasSaved, resumeLabel, newLabel, tool, loadLabel, onJump, onClear, onExample, loadPanel, setLoadPanel, onLoad, onPrivacyFaq, collaborativeBanner}) => (
   <div>
     <p className={CLS_P5}>{desc}</p>
+    {collaborativeBanner && collaborativeBanner}
     <div className="flex flex-col gap-3">
       {hasSaved&&<button onClick={onJump} className="w-full bg-black text-white py-3 font-bold text-sm border-2 border-black hover:bg-gray-800 transition-all">{resumeLabel}</button>}
       <button onClick={onClear} className={`w-full font-bold border-2 border-black transition-all ${hasSaved?'bg-white text-black py-2 px-4 text-xs hover:bg-gray-100':'bg-black text-white py-3 text-sm hover:bg-gray-800'}`}>{hasSaved?newLabel:`${newLabel} →`}</button>
@@ -1590,9 +1592,44 @@ const Comrade = () => {
     </Layout>
   );
 
+  const CollaborativeBanner = () => {
+    const shareUrl = splitId ? `${window.location.origin}/split/${splitId}` : null;
+    return (
+      <div className="mb-4">
+        {conflictDetected && (
+          <div className="flex items-start gap-3 p-4 mb-3 border-2 border-black bg-white animate-fadeIn">
+            <ErrorIcon size={16}/>
+            <div className="flex-1">
+              <p className="text-xs font-bold uppercase mb-2">THIS SPLIT WAS UPDATED BY SOMEONE ELSE</p>
+              <div className="flex gap-2">
+                <button onClick={()=>window.location.reload()} className={`flex-1 ${CLS_BTN_BLK} hover:bg-gray-800 transition-all`}>REFRESH</button>
+                <button onClick={()=>{setConflictDetected(false);saveSplit();}} className={`flex-1 ${CLS_BTN_WHT}`}>SAVE ANYWAY</button>
+              </div>
+            </div>
+          </div>
+        )}
+        {shareUrl && !conflictDetected && (
+          <div className="p-4 border-2 border-dashed border-gray-400 bg-white mb-3 animate-fadeIn">
+            <p className="text-xs font-bold uppercase mb-2">COLLABORATIVE SPLIT — SHARE THIS LINK:</p>
+            <div className="flex gap-2 items-center">
+              <p className="text-xs flex-1 break-all" style={{color:'#6B7280'}}>{shareUrl}</p>
+              <button onClick={()=>copyToClipboard(shareUrl,'LINK COPIED!')} className={CLS_BTN_BLK} style={{flexShrink:0}}>COPY</button>
+            </div>
+          </div>
+        )}
+        <button
+          onClick={saveSplit}
+          disabled={isSaving}
+          className={`w-full font-bold py-3 border-2 border-black text-sm transition-all ${isSaving ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-black text-white hover:bg-gray-800'}`}>
+          {isSaving ? 'SAVING...' : splitId ? 'SAVE CHANGES' : 'START COLLABORATIVE SPLIT'}
+        </button>
+      </div>
+    );
+  };
+
   if(page==='bill-entry') return EntryPage({
     steps:BILL_STEPS,
-    intro:{desc:"From meals to vacations, taxis to tickets, handle your shared expenses with friends more fairly. Comrade combines and simplifies group bills, while using information about group members' finances to decide how much everyone should pay.",hasSaved:hasBillSavedData,resumeLabel:"RESUME SPLIT →",newLabel:"NEW SPLIT",tool:"bill",loadLabel:"LOAD SPLIT",onJump:()=>jump(1),onClear:()=>{handleClearAll('bill');jump(1);},onExample:()=>loadExample('bill'),onPrivacyFaq:navigateToPrivacyFaq},
+    intro:{desc:"From meals to vacations, taxis to tickets, handle your shared expenses with friends more fairly. Comrade combines and simplifies group bills, while using information about group members' finances to decide how much everyone should pay.",hasSaved:hasBillSavedData,resumeLabel:"RESUME SPLIT →",newLabel:"NEW SPLIT",tool:"bill",loadLabel:"LOAD SPLIT",onJump:()=>jump(1),onClear:()=>{handleClearAll('bill');setSplitId(null);setSplitVersion(null);setIsCollaborative(false);setConflictDetected(false);jump(1);},onExample:()=>loadExample('bill'),onPrivacyFaq:navigateToPrivacyFaq,collaborativeBanner:<CollaborativeBanner/>},
     calc:{onCalculate:()=>navigateTo('bill-results'),weighting:billWeighting,onWeighting:setBillWeighting,navigateToFaq,hasFloor:true,floor:billFloor,onFloor:setBillFloor,validate:()=>_errs([
       [billPeople.length===0,'No people added'],
       [billBills.length===0,'No bills added'],
