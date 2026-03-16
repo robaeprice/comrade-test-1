@@ -2,6 +2,6 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/split/(.*)", "destination": "/index.html" }
+    { "source": "/split/:path*", "destination": "/index.html" }
   ]
 }
