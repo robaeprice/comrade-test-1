@@ -25,7 +25,6 @@
 
 
 
-
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -724,7 +723,7 @@ const CalcStep = ({onCalculate, weighting, onWeighting, navigateToFaq, hasFloor=
 const renderWealthPieChart = data => {
   const sorted=[...data].sort((a,b)=>b.wealth-a.wealth);
   const total=sorted.reduce((s,p)=>s+p.wealth,0);
-  const colors=['#000000','#1F2937','#475569','#64748B','#94A3B8','#CBD5E1','#E2E8F0','#F1F5F9'];
+  const colors=['#333333','#555555','#777777','#999999','#AAAAAA','#BBBBBB','#CCCCCC','#DDDDDD'];
   return(
     <>
       <svg aria-hidden="true" viewBox="0 0 200 200" className="w-full max-w-xs mx-auto">
@@ -1063,6 +1062,28 @@ const Comrade = () => {
   const navigateToPrivacyFaq = useCallback(()=>navigateTo('about'),[navigateTo]);
 
   useEffect(()=>{
+    const pathMatch = window.location.pathname.match(/^\/split\/([a-z0-9]{12})$/);
+    if (pathMatch) {
+      const id = pathMatch[1];
+      fetch(`/api/split/${id}`)
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (data) {
+            setBillPeople(data.people || []);
+            setBillBills(data.bills || []);
+            setBillWeighting(data.weighting || 'standard');
+            setBillFloor(data.floor || 'off');
+            setBillCurrency(data.currency || 'USD');
+            setBillWealthMetric(data.wealthMetric || 'salary');
+            setSplitId(id);
+            setSplitVersion(data.version);
+            setIsCollaborative(true);
+            setPage('bill-entry');
+          }
+        })
+        .catch(err => console.error('Failed to load split:', err));
+      return;
+    }
     const hash = window.location.hash;
     let found = false;
     for (const t of ['bill','sale','vote','rent']) {
@@ -1087,6 +1108,11 @@ const Comrade = () => {
   const [signupEmail,setSignupEmail] = useState('');
   const [signupStatus,setSignupStatus] = useState('');
   const [loadPanel, setLoadPanel] = useState(LOAD_PANEL_RESET);
+  const [splitId, setSplitId] = useState(null);
+  const [splitVersion, setSplitVersion] = useState(null);
+  const [isCollaborative, setIsCollaborative] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [conflictDetected, setConflictDetected] = useState(false);
 
   const [billPeople,setBillPeople]             = useState(_b0.billPeople||[]);
   const [billBills,setBillBills]               = useState(_b0.billBills||[]);
@@ -1191,6 +1217,53 @@ const Comrade = () => {
       navigateTo(`${tool}-results`);
     } else { setLoadPanel(p=>({...p,error:true})); }
   },[loadPanel,navigateTo]);
+
+  const saveSplit = useCallback(async () => {
+    setIsSaving(true);
+    setConflictDetected(false);
+    const splitData = {
+      people: billPeople,
+      bills: billBills,
+      weighting: billWeighting,
+      floor: billFloor,
+      currency: billCurrency,
+      wealthMetric: billWealthMetric,
+    };
+    try {
+      if (!splitId) {
+        const res = await fetch('/api/split', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(splitData),
+        });
+        const data = await res.json();
+        if (data.id) {
+          setSplitId(data.id);
+          setSplitVersion(1);
+          setIsCollaborative(true);
+          window.history.pushState({ page: 'bill-entry' }, '', `/split/${data.id}`);
+          console.log('Split created with ID:', data.id);
+        }
+      } else {
+        const res = await fetch(`/api/split/${splitId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...splitData, version: splitVersion }),
+        });
+        if (res.status === 409) {
+          setConflictDetected(true);
+        } else {
+          const data = await res.json();
+          if (data.version) setSplitVersion(data.version);
+          console.log('Split updated, new version:', data.version);
+        }
+      }
+    } catch (err) {
+      console.error('Save failed:', err);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [splitId, splitVersion, billPeople, billBills, billWeighting, billFloor, billCurrency, billWealthMetric]);
 
   const handleClearAll = useCallback(type=>{
     ({
