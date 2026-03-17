@@ -1,11 +1,15 @@
-limiter: Ratelimit.slidingWindow(10, '1 m'),
-
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  const ip = (req.headers['x-forwarded-for'] || '127.0.0.1').split(',')[0].trim();
+  const rateLimitKey = `rl:create:${ip}`;
+  const count = await redisCommand(['INCR', rateLimitKey]);
+  if (count === 1) await redisCommand(['EXPIRE', rateLimitKey, '60']);
+  if (count > 10) return res.status(429).json({ error: 'Too many requests' });
 
   try {
     const splitData = req.body;
