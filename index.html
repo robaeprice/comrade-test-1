@@ -28,7 +28,6 @@
 
 
 
-
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -953,6 +952,7 @@ const Comrade = () => {
   const [saveError, setSaveError]           = useState('');
   const [conflictSource, setConflictSource] = useState(null); // null | 'top' | 'bottom'
   const [showGroupSplitPrompt, setShowGroupSplitPrompt] = useState(false);
+  const [splitNotFound, setSplitNotFound]   = useState(false);
 
   // Form input state
   const [curPersonName, setCurPersonName]   = useState('');
@@ -990,8 +990,15 @@ const Comrade = () => {
     if (pathMatch) {
       const id = pathMatch[1];
       fetch(`/api/split/${id}`)
-        .then(r => r.ok ? r.json() : null)
+        .then(r => { if (r.status === 404) return { __notFound: true }; return r.ok ? r.json() : null; })
         .then(data => {
+          if (data?.__notFound) {
+            setSplitNotFound(true);
+            editModeRef.current = true;
+            setPage('bill-entry');
+            window.history.replaceState({page:'bill-entry'},'','/');
+            return;
+          }
           if (data) {
             setBillPeople(data.people || []);
             setBillBills(data.bills || []);
@@ -1197,13 +1204,13 @@ const Comrade = () => {
     </Layout>
   );
 
-  const EntryPage = ({steps, intro, calc, midSteps}) => {
+  const EntryPage = ({steps, intro, calc, midSteps, banner}) => {
     const rc = i => {
       if (i === 0) return <IntroStep {...intro}/>;
       if (i === steps.length - 1) return <CalcStep {...calc}/>;
       return midSteps[i - 1]();
     };
-    return <Layout {...lp}><AccordionPage steps={steps} openIndices={entryOpen} onToggle={toggleEntry} renderContent={rc}/></Layout>;
+    return <Layout {...lp}>{banner && <div className="mb-4">{banner}</div>}<AccordionPage steps={steps} openIndices={entryOpen} onToggle={toggleEntry} renderContent={rc}/></Layout>;
   };
 
   const FAQ_ITEMS = [
@@ -1413,19 +1420,25 @@ const Comrade = () => {
 
   if(page==='bill-entry') return EntryPage({
     steps: BILL_STEPS,
+    banner: splitNotFound ? (
+      <div className="border-2 border-dashed border-gray-400 p-4 bg-gray-50 animate-fadeIn">
+        <p className="font-bold text-xs uppercase mb-1 text-black">SPLIT NOT FOUND</p>
+        <p className="text-xs text-black leading-relaxed">This split doesn't exist or has expired. Start a new one below.</p>
+      </div>
+    ) : undefined,
     intro: {
-      desc: "From meals to vacations, taxis to tickets, handle your shared expenses with friends more fairly. Comrade combines and simplifies group bills, while using information about group members' finances to decide how much everyone should pay.",
+      desc: "From dinners to vacations, dates to work drinks, handle your shared expenses more fairly. Comrade combines and simplifies group bills, while using information about group members' finances to decide how much everyone should pay.",
       hasSaved: hasBillSavedData,
       resumeLabel: isCollaborative ? "RESUME GROUP SPLIT →" : "RESUME PRIVATE SPLIT →",
       newLabel: "NEW PRIVATE SPLIT",
-      onJump: ()=>jump(1),
-      onClear: ()=>jump(1),
-      onStartOver: ()=>handleClearAll('bill'),
+      onJump: ()=>{setSplitNotFound(false);jump(1);},
+      onClear: ()=>{setSplitNotFound(false);jump(1);},
+      onStartOver: ()=>{setSplitNotFound(false);handleClearAll('bill');},
       onExample: isCollaborative ? null : ()=>loadExample('bill'),
       isCollaborative,
       isSaving,
       saveError,
-      onGroupSplit: isCollaborative ? null : ()=>{ if(hasBillSavedData){setShowGroupSplitPrompt(true);}else{saveSplit();} },
+      onGroupSplit: isCollaborative ? null : ()=>{ setSplitNotFound(false); if(hasBillSavedData){setShowGroupSplitPrompt(true);}else{saveSplit();} },
       collaborativeBanner,
       groupSplitPrompt: showGroupSplitPrompt ? (
         <div className="border-2 border-dashed border-gray-400 p-4 bg-gray-50 animate-fadeIn">
@@ -1588,6 +1601,12 @@ const Comrade = () => {
 
   if(page==='vote-entry') return EntryPage({
     steps: VOTE_STEPS,
+    banner: (
+      <div className={`${CLS_DASHED} p-4 bg-gray-50`}>
+        <p className="text-xs font-bold uppercase mb-1 text-black">EXPERIMENTAL</p>
+        <p className="text-xs text-black leading-relaxed">Wealth-weighted voting can lead to unusual outcomes. Use at your own risk.</p>
+      </div>
+    ),
     intro: {desc:"Make group decisions more equitably with Comrade. If your friends, classmates, or coworkers are grappling with a dispute, give more voting power to those with less wealth.",hasSaved:hasVoteSavedData,resumeLabel:"RESUME VOTE →",newLabel:"NEW VOTE",onJump:()=>jump(1),onClear:()=>jump(1),onStartOver:()=>handleClearAll('vote'),onExample:()=>loadExample('vote')},
     calc: {onCalculate:()=>navigateTo('vote-results'),weighting:voteWeighting,onWeighting:setVoteWeighting,navigateToFaq,hasAdvanced:true,validate:()=>_errs([
       [!voteDecision.trim(),'No decision or question entered'],
