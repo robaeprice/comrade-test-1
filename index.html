@@ -26,6 +26,7 @@
 
 
 
+
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -41,189 +42,6 @@ const applyWeighting = (wealth, weighting) => {
   if (weighting === 'strong') return wealth * wealth;
   return wealth;
 };
-
-const LZString = (() => {
-  const ks = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$";
-  const rev = {}; for (let i = 0; i < ks.length; i++) rev[ks[i]] = i;
-  function _c(s, bpc, gcfi) {
-    if (!s) return "";
-    let cd={},cdc={},cc,wc,w="",ei=2,ds=3,nb=2,res=[],dv=0,dp=0;
-    for (let ii=0;ii<s.length;ii++) {
-      cc=s[ii];
-      if (!Object.prototype.hasOwnProperty.call(cd,cc)){cd[cc]=ds++;cdc[cc]=true;}
-      wc=w+cc;
-      if (Object.prototype.hasOwnProperty.call(cd,wc)){w=wc;}
-      else {
-        const emit=(bits,len)=>{for(let k=0;k<len;k++){dv=(dv<<1)|(bits&1);bits>>=1;if(dp===bpc-1){dp=0;res.push(gcfi(dv));dv=0;}else dp++;}};
-        if (Object.prototype.hasOwnProperty.call(cdc,w)){
-          if(w.charCodeAt(0)<256){emit(0,nb);emit(w.charCodeAt(0),8);}
-          else{emit(1,nb);emit(w.charCodeAt(0),16);}
-          if(--ei===0){ei=Math.pow(2,nb);nb++;}
-          delete cdc[w];
-        } else {emit(cd[w],nb);}
-        if(--ei===0){ei=Math.pow(2,nb);nb++;}
-        cd[wc]=ds++;w=String(cc);
-      }
-    }
-    if (w!=="") {
-      const emit=(bits,len)=>{for(let k=0;k<len;k++){dv=(dv<<1)|(bits&1);bits>>=1;if(dp===bpc-1){dp=0;res.push(gcfi(dv));dv=0;}else dp++;}};
-      if(Object.prototype.hasOwnProperty.call(cdc,w)){
-        if(w.charCodeAt(0)<256){emit(0,nb);emit(w.charCodeAt(0),8);}
-        else{emit(1,nb);emit(w.charCodeAt(0),16);}
-        if(--ei===0){ei=Math.pow(2,nb);nb++;}
-        delete cdc[w];
-      } else {emit(cd[w],nb);}
-      if(--ei===0){ei=Math.pow(2,nb);nb++;}
-    }
-    let ev=2;
-    for(let k=0;k<nb;k++){dv=(dv<<1)|(ev&1);ev>>=1;if(dp===bpc-1){dp=0;res.push(gcfi(dv));dv=0;}else dp++;}
-    while(true){dv=(dv<<1);if(dp===bpc-1){res.push(gcfi(dv));break;}else dp++;}
-    return res.join('');
-  }
-  function _d(s, rv, gnv) {
-    if (!s) return "";
-    let dict=[],next,ei=4,ds=4,nb=3,entry,result=[],w,bits,resb,c,
-      data={val:gnv(s,0),pos:rv,idx:1};
-    const rb=()=>{resb=data.val&data.pos;data.pos>>=1;if(data.pos===0){data.pos=rv;data.val=gnv(s,data.idx++);}return resb>0?1:0;};
-    const rn=(len)=>{let b=0,mp2=Math.pow(2,len),p2=1;while(p2!==mp2){b|=rb()*p2;p2<<=1;}return b;};
-    for(let i=0;i<3;i++)dict[i]=i;
-    switch(next=rn(2)){
-      case 0:c=String.fromCharCode(rn(8));break;
-      case 1:c=String.fromCharCode(rn(16));break;
-      case 2:return "";
-    }
-    dict[3]=c;w=c;result.push(c);
-    while(true){
-      if(data.idx>s.length)return "";
-      switch(c=rn(nb)){
-        case 0:dict[ds++]=String.fromCharCode(rn(8));c=ds-1;ei--;break;
-        case 1:dict[ds++]=String.fromCharCode(rn(16));c=ds-1;ei--;break;
-        case 2:return result.join('');
-      }
-      if(ei===0){ei=Math.pow(2,nb);nb++;}
-      entry=dict[c]??(c===ds?w+w[0]:null);
-      if(entry===null)return null;
-      result.push(entry);
-      dict[ds++]=w+entry[0];
-      if(--ei===0){ei=Math.pow(2,nb);nb++;}
-      w=entry;
-    }
-  }
-  return {
-    compressToEncodedURIComponent(s){if(!s)return '';return _c(s,6,i=>ks[i]).replace(/-/g,'_').replace(/\+/g,'-');},
-    decompressFromEncodedURIComponent(s){if(!s)return '';return _d(s.replace(/-/g,'+').replace(/_/g,'-'),32,(str,i)=>rev[str[i]]);}
-  };
-})();
-
-const _W  = ['none','gentle','standard','strong'];
-const _F  = ['off','10','25','50'];
-const _C  = ['USD','EUR','GBP'];
-const _M  = ['salary','networth'];
-const _MS = ['sqft','sqm'];
-const _ei = (a,v,d) => {const i=a.indexOf(v);return i>=0?i:d;};
-const _es = (wt,cu,wm,fl,ms) => ({w:_ei(_W,wt,2),c:_ei(_C,cu,0),m:_ei(_M,wm,0),...(fl!=null?{f:_ei(_F,fl,0)}:{}),...(ms!=null?{ms:_ei(_MS,ms,0)}:{})});
-const _ds = d => ({weighting:_W[d.w]??'standard',currency:_C[d.c]??'USD',wealthMetric:_M[d.m]??'salary',...(d.f!=null?{floor:_F[d.f]??'off'}:{}),...(d.ms!=null?{measurement:_MS[d.ms]??'sqft'}:{})});
-
-const encodeState = data => { try { return LZString.compressToEncodedURIComponent(JSON.stringify(data)); } catch { return null; } };
-
-const parseShareData = (code, ...reqArrays) => {
-  try {
-    if (!code || code.length < 4) return null;
-    let json = null;
-    try { json = LZString.decompressFromEncodedURIComponent(code); } catch {}
-    if (!json) return null;
-    const data = JSON.parse(json);
-    if (!data.v || !reqArrays.every(k => Array.isArray(data[k]))) return null;
-    return { data, base: Date.now() };
-  } catch { return null; }
-};
-
-const encodeBillState = (people, bills, wt, fl, cu, wm) => encodeState({
-  v:2, p:people.map(p=>[p.name,Math.round(parseFloat(p.wealth)||0)]),
-  b:bills.map(b=>{const pi=people.findIndex(pp=>pp.name===b.paidBy);return[b.description,Math.round((parseFloat(b.amount)||0)*100),pi>=0?pi:null];}),
-  ..._es(wt,cu,wm,fl),
-});
-
-const decodeBillState = code => {
-  const r = parseShareData(code, 'p', 'b'); if (!r) return null;
-  const {data, base} = r;
-  if (data.v === 1) return {
-    people: data.p.map((p,i)=>({id:base+i,name:String(p[0]||''),wealth:String(p[1]||'')})),
-    bills:  data.b.map((b,i)=>({id:base+100+i,description:String(b[0]||''),amount:String(b[1]||''),paidBy:String(b[2]||'')})),
-    weighting:data.w||'standard', floor:data.f||'off', currency:data.c||'USD', wealthMetric:data.m||'salary'
-  };
-  if (data.v === 2) {
-    const people = data.p.map((p,i)=>({id:base+i,name:String(p[0]||''),wealth:String(p[1]||0)}));
-    return {
-      people,
-      bills: data.b.map((b,i)=>({id:base+100+i,description:String(b[0]||''),amount:String(((b[1]||0)/100).toFixed(2)).replace(/\.00$/,''),paidBy:(typeof b[2]==='number'&&b[2]>=0&&data.p[b[2]])?String(data.p[b[2]][0]):''})),
-      ..._ds(data)
-    };
-  }
-  return null;
-};
-
-const encodeSaleState = (productName, numberAvailable, buyers, wt, cu, wm) => encodeState({
-  v:1, pn:productName, na:parseInt(numberAvailable)||1,
-  b:buyers.map(b=>[b.name,Math.round(parseFloat(b.wealth)||0),Math.round((parseFloat(b.offer)||0)*100)]),
-  ..._es(wt,cu,wm),
-});
-
-const decodeSaleState = code => {
-  const r = parseShareData(code, 'b'); if (!r) return null;
-  const {data, base} = r;
-  if (data.v === 1) return {
-    productName:String(data.pn||''), numberAvailable:String(data.na||1),
-    buyers:data.b.map((b,i)=>({id:base+i,name:String(b[0]||''),wealth:String(b[1]||0),offer:String(((b[2]||0)/100).toFixed(2)).replace(/\.00$/,'')})),
-    ..._ds(data),
-  };
-  return null;
-};
-
-const encodeVoteState = (decision, options, participants, wt, cu, wm) => encodeState({
-  v:1, d:decision, o:options.map(o=>o.text),
-  p:participants.map(p=>{const oi=options.findIndex(o=>o.text===p.vote);return[p.name,Math.round(parseFloat(p.wealth)||0),oi>=0?oi:null];}),
-  ..._es(wt,cu,wm),
-});
-
-const decodeVoteState = code => {
-  const r = parseShareData(code, 'p', 'o'); if (!r) return null;
-  const {data, base} = r;
-  if (data.v === 1) {
-    const options = data.o.map((t,i)=>({id:base+i,text:String(t)}));
-    return {
-      decision:String(data.d||''), options,
-      participants:data.p.map((p,i)=>({id:base+100+i,name:String(p[0]||''),wealth:String(p[1]||0),vote:(typeof p[2]==='number'&&p[2]>=0&&data.o[p[2]])?String(data.o[p[2]]):''})),
-      ..._ds(data),
-    };
-  }
-  return null;
-};
-
-const encodeRentState = (people, totalRent, totalUtilities, wt, fl, cu, wm, ms) => encodeState({
-  v:1, r:Math.round((parseFloat(totalRent)||0)*100), u:Math.round((parseFloat(totalUtilities)||0)*100),
-  p:people.map(p=>[p.name,Math.round(parseFloat(p.roomSize)||0),Math.round(parseFloat(p.wealth)||0)]),
-  ..._es(wt,cu,wm,fl,ms),
-});
-
-const decodeRentState = code => {
-  const r = parseShareData(code, 'p'); if (!r) return null;
-  const {data, base} = r;
-  if (data.v === 1) return {
-    people:data.p.map((p,i)=>({id:base+i,name:String(p[0]||''),roomSize:String(p[1]||0),wealth:String(p[2]||0)})),
-    totalRent:String(((data.r||0)/100).toFixed(2)).replace(/\.00$/,''),
-    totalUtilities:String(((data.u||0)/100).toFixed(2)).replace(/\.00$/,''),
-    ..._ds(data),
-  };
-  return null;
-};
-
-const parseShareCode = (input, prefix) => {
-  const trimmed = input.trim();
-  const match = trimmed.match(new RegExp(`#${prefix}/([^&\\s]+)`));
-  return match ? match[1] : trimmed;
-};
-const _decoders = {bill:decodeBillState,sale:decodeSaleState,vote:decodeVoteState,rent:decodeRentState};
 
 const BG_GREY = '#F3F4F6';
 const DARK    = '#333333';
@@ -519,44 +337,6 @@ const CurrencyWealthSettings = ({currency, onCurrency, wealth, onWealth, pad='p-
     <div className={`${CLS_DASHED_T} my-3`}></div>
     <p className={CLS_LABEL}>WEALTH METRIC:</p>
     <WealthMetricSelector value={wealth} onChange={onWealth}/>
-  </div>
-);
-
-const LOAD_PANEL_RESET = {tool:null, input:'', error:false};
-
-const LoadSplitPanel = ({tool, loadPanel, setLoadPanel, onLoad, label='LOAD SPLIT'}) => {
-  const isOpen = loadPanel.tool === tool;
-  return !isOpen ? (
-    <button onClick={()=>setLoadPanel({tool, input:'', error:false})} className={`w-full ${CLS_BTN_WHT}`}>{label}</button>
-  ) : (
-    <div className={`${CLS_DASHED} p-4 animate-fadeIn`}>
-      <p className={CLS_P3}>Enter a share link from a previous {tool==='sale'?'sale':tool==='vote'?'vote':'split'}.</p>
-      <input value={loadPanel.input} onChange={e=>setLoadPanel(p=>({...p,input:e.target.value,error:false}))} placeholder="PASTE URL HERE" className="w-full p-2 border-2 border-gray-400 bg-white mb-2" style={{fontSize:'16px',textTransform:'none'}}/>
-      {loadPanel.error&&(
-        <div className="flex items-center gap-2 mb-3 p-3 border-2 border-black bg-white">
-          <ErrorIcon size={16}/>
-          <p className="text-xs text-black font-bold">INVALID CODE. PLEASE CHECK AND TRY AGAIN.</p>
-        </div>
-      )}
-      <div className="flex gap-2">
-        <button onClick={onLoad} className={`flex-1 ${CLS_BTN_BLK} hover:bg-gray-800 transition-all`}>LOAD →</button>
-        <button onClick={()=>setLoadPanel(LOAD_PANEL_RESET)} className={`flex-1 ${CLS_BTN_WHT}`}>CANCEL</button>
-      </div>
-    </div>
-  );
-};
-
-const IntroStep = ({desc, hasSaved, resumeLabel, newLabel, tool, loadLabel, onJump, onClear, onExample, loadPanel, setLoadPanel, onLoad, onPrivacyFaq, collaborativeBanner}) => (
-  <div>
-    <p className={CLS_P5}>{desc}</p>
-    {collaborativeBanner && collaborativeBanner}
-    <div className="flex flex-col gap-3">
-      {hasSaved&&<button onClick={onJump} className="w-full bg-black text-white py-3 font-bold text-sm border-2 border-black hover:bg-gray-800 transition-all">{resumeLabel}</button>}
-      <button onClick={onClear} className={`w-full font-bold border-2 border-black transition-all ${hasSaved?'bg-white text-black py-2 px-4 text-xs hover:bg-gray-100':'bg-black text-white py-3 text-sm hover:bg-gray-800'}`}>{hasSaved?newLabel:`${newLabel} →`}</button>
-      <LoadSplitPanel tool={tool} loadPanel={loadPanel} setLoadPanel={setLoadPanel} onLoad={onLoad} label={loadLabel}/>
-      <button onClick={onExample} className={`w-full ${CLS_BTN_WHT}`}>TRY AN EXAMPLE</button>
-    </div>
-    {onPrivacyFaq&&<PrivacyNote onFaq={onPrivacyFaq}/>}
   </div>
 );
 
@@ -1039,8 +819,22 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
   </div>
 );
 
-
 const _fc=(v,c)=>formatCurrency(v,2,c),_fcs=(v,c)=>formatCurrencySmart(v,c);
+
+const IntroStep = ({desc, hasSaved, resumeLabel, newLabel, onJump, onClear, onExample, onPrivacyFaq, collaborativeBanner}) => (
+  <div>
+    <p className={CLS_P5}>{desc}</p>
+    {collaborativeBanner && collaborativeBanner}
+    <div className="flex flex-col gap-3">
+      {hasSaved&&<button onClick={onJump} className="w-full bg-black text-white py-3 font-bold text-sm border-2 border-black hover:bg-gray-800 transition-all">{resumeLabel}</button>}
+      <div>
+        <button onClick={onClear} className={`w-full font-bold border-2 border-black transition-all ${hasSaved?'bg-white text-black py-2 px-4 text-xs hover:bg-gray-100':'bg-black text-white py-3 text-sm hover:bg-gray-800'}`}>{hasSaved?newLabel:`${newLabel} →`}</button>
+        <p style={{color:'#9CA3AF',fontSize:'10px'}} className="mt-1 leading-relaxed">All calculation takes place on your device. No data is shared.</p>
+      </div>
+      <button onClick={onExample} className={`w-full ${CLS_BTN_WHT}`}>TRY AN EXAMPLE</button>
+    </div>
+  </div>
+);
 
 const Comrade = () => {
   useEffect(()=>{
@@ -1086,16 +880,7 @@ const Comrade = () => {
         .catch(err => console.error('Failed to load split:', err));
       return;
     }
-    const hash = window.location.hash;
-    let found = false;
-    for (const t of ['bill','sale','vote','rent']) {
-      if (hash.startsWith(`#${t}/`)) {
-        const d = _decoders[t](hash.slice(t.length+2));
-        if (d) { applyToolState(t, d); setPage(`${t}-results`); found=true; }
-        break;
-      }
-    }
-    if(!found) window.history.replaceState({page:'home'},'','#home');
+    window.history.replaceState({page:'home'},'','#home');
     const onPop = e=>{ const p=e.state?.page||'home'; setPage(p); };
     window.addEventListener('popstate',onPop);
     return()=>window.removeEventListener('popstate',onPop);
@@ -1109,12 +894,6 @@ const Comrade = () => {
   const [lastQuoteIndices,setLastQuoteIndices] = useState([]);
   const [signupEmail,setSignupEmail] = useState('');
   const [signupStatus,setSignupStatus] = useState('');
-  const [loadPanel, setLoadPanel] = useState(LOAD_PANEL_RESET);
-  const [splitId, setSplitId] = useState(null);
-  const [splitVersion, setSplitVersion] = useState(null);
-  const [isCollaborative, setIsCollaborative] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [conflictDetected, setConflictDetected] = useState(false);
 
   const [billPeople,setBillPeople]             = useState(_b0.billPeople||[]);
   const [billBills,setBillBills]               = useState(_b0.billBills||[]);
@@ -1146,6 +925,12 @@ const Comrade = () => {
   const [rentWealthMetric,setRentWealthMetric] = useState(_r0.rentWealthMetric||'salary');
   const [rentMeasurement,setRentMeasurement]   = useState(_r0.rentMeasurement||'sqft');
 
+  const [splitId, setSplitId]                 = useState(null);
+  const [splitVersion, setSplitVersion]       = useState(null);
+  const [isCollaborative, setIsCollaborative] = useState(false);
+  const [isSaving, setIsSaving]               = useState(false);
+  const [conflictDetected, setConflictDetected] = useState(false);
+
   const hasBillSavedData = billPeople.length>0 || billBills.length>0;
   const hasSaleSavedData = saleBuyers.length>0  || !!productName;
   const hasVoteSavedData = voteParticipants.length>0 || !!voteDecision;
@@ -1172,13 +957,6 @@ const Comrade = () => {
   const jump = useCallback(i => { setEntryOpen([i]); scrollToStep(i); }, []);
   const toggleEntry = useCallback(i => setEntryOpen(prev => prev.includes(i) ? prev.filter(x => x !== i) : [...prev, i]), []);
 
-  const applyToolState = (tool, d) => ({
-    bill:()=>{setBillPeople(d.people);setBillBills(d.bills);setBillWeighting(d.weighting);setBillFloor(d.floor);setBillCurrency(d.currency);setBillWealthMetric(d.wealthMetric);},
-    sale:()=>{setProductName(d.productName);setNumberAvailable(d.numberAvailable);setSaleBuyers(d.buyers);setSaleWeighting(d.weighting);setSaleCurrency(d.currency);setSaleWealthMetric(d.wealthMetric);},
-    vote:()=>{setVoteDecision(d.decision);setVoteOptions(d.options);setVoteParticipants(d.participants);setVoteWeighting(d.weighting);setVoteCurrency(d.currency);setVoteWealthMetric(d.wealthMetric);},
-    rent:()=>{setRentPeople(d.people);setTotalRent(d.totalRent);setTotalUtilities(d.totalUtilities);setRentWeighting(d.weighting);setRentFloor(d.floor);setRentCurrency(d.currency);setRentWealthMetric(d.wealthMetric);setRentMeasurement(d.measurement);},
-  })[tool]?.();
-
   useEffect(()=>{
     saveToStorage(BILL_KEY,{billPeople,billBills,billCurrency,billWealthMetric,billWeighting,billFloor});
     saveToStorage(VOTE_KEY,{voteDecision,voteOptions,voteParticipants,voteCurrency,voteWealthMetric,voteWeighting});
@@ -1192,12 +970,9 @@ const Comrade = () => {
     window.scrollTo({top:0,behavior:'instant'});
     setLoadedAt(formatTimestamp());
     setShowDetails(false);
-    setLoadPanel(LOAD_PANEL_RESET);
     if(page==='vote-entry') { setEntryOpen(editModeRef.current?[0,1,2,3,4]:[0]); }
     else if(['bill-entry','sale-entry','rent-entry'].includes(page)) { setEntryOpen(editModeRef.current?[0,1,2,3]:[0]); }
     editModeRef.current = false;
-    const _t=page.replace('-results','');
-    if(_encodeForTool[_t]){const c=_encodeForTool[_t]();if(c)window.history.replaceState({page},'',`#${_t}/${c}`);}
     if(['bill-results','sale-results','vote-results','rent-results'].includes(page)){
       setLastQuoteIndices(prev=>{
         let idx,attempts=0;
@@ -1209,16 +984,6 @@ const Comrade = () => {
   },[page]);
 
   useEffect(()=>{if(showCopyToast){const t=setTimeout(()=>setShowCopyToast(false),2500);return()=>clearTimeout(t);}},[showCopyToast]);
-
-  const handleLoadCode = useCallback(()=>{
-    const {tool, input} = loadPanel;
-    const decoded = _decoders[tool]?.(parseShareCode(input, tool));
-    if (decoded) {
-      applyToolState(tool, decoded);
-      setLoadPanel(LOAD_PANEL_RESET);
-      navigateTo(`${tool}-results`);
-    } else { setLoadPanel(p=>({...p,error:true})); }
-  },[loadPanel,navigateTo]);
 
   const saveSplit = useCallback(async () => {
     setIsSaving(true);
@@ -1244,7 +1009,6 @@ const Comrade = () => {
           setSplitVersion(1);
           setIsCollaborative(true);
           window.history.pushState({ page: 'bill-entry' }, '', `/split/${data.id}`);
-          console.log('Split created with ID:', data.id);
         }
       } else {
         const res = await fetch(`/api/split/${splitId}`, {
@@ -1257,7 +1021,6 @@ const Comrade = () => {
         } else {
           const data = await res.json();
           if (data.version) setSplitVersion(data.version);
-          console.log('Split updated, new version:', data.version);
         }
       }
     } catch (err) {
@@ -1269,7 +1032,7 @@ const Comrade = () => {
 
   const handleClearAll = useCallback(type=>{
     ({
-      bill:()=>{ setBillPeople([]);setBillBills([]);setCurPersonName('');setCurPersonWealth('');setCurBillDesc('');setCurBillAmt('');setCurBillPaidBy(''); },
+      bill:()=>{ setBillPeople([]);setBillBills([]);setCurPersonName('');setCurPersonWealth('');setCurBillDesc('');setCurBillAmt('');setCurBillPaidBy('');setSplitId(null);setSplitVersion(null);setIsCollaborative(false);setConflictDetected(false); },
       sale:()=>{ setProductName('');setNumberAvailable('');setSaleBuyers([]);setCurBuyerName('');setCurBuyerWealth('');setCurBuyerOffer('');try{localStorage.removeItem(SALE_KEY);}catch{} },
       vote:()=>{ setVoteDecision('');setVoteOptions([]);setVoteParticipants([]);setCurParticipantName('');setCurParticipantWealth('');setCurParticipantVote('');setCurOptionText('');try{localStorage.removeItem(VOTE_KEY);}catch{} },
       rent:()=>{ setTotalRent('');setTotalUtilities('');setRentPeople([]);setCurRoommateName('');setCurRoommateRoomSize('');setCurRoommateWealth('');try{localStorage.removeItem(RENT_KEY);}catch{} },
@@ -1309,15 +1072,6 @@ const Comrade = () => {
     try{localStorage.removeItem(RENT_KEY);}catch{}
     setTotalRent('');setTotalUtilities('');setRentPeople([]);setRentWeighting('standard');setRentFloor('off');setRentCurrency('USD');setRentWealthMetric('salary');setRentMeasurement('sqft');
   },[]);
-
-  const lp = {onNavigate:navigateTo, showCopyToast, copyToastMsg, loadedAt, onClearStorage:clearStorage, currentPage:page};
-  const introProps = {loadPanel, setLoadPanel, onLoad:handleLoadCode};
-  const _encodeForTool = {
-    bill:()=>encodeBillState(billPeople,billBills,billWeighting,billFloor,billCurrency,billWealthMetric),
-    sale:()=>encodeSaleState(productName,numberAvailable,saleBuyers,saleWeighting,saleCurrency,saleWealthMetric),
-    vote:()=>encodeVoteState(voteDecision,voteOptions,voteParticipants,voteWeighting,voteCurrency,voteWealthMetric),
-    rent:()=>encodeRentState(rentPeople,totalRent,totalUtilities,rentWeighting,rentFloor,rentCurrency,rentWealthMetric,rentMeasurement),
-  };
 
   const billCalculations = useMemo(()=>{
     if(page!=='bill-results'||!billPeople.length) return{total:0,peopleData:[],transactions:[]};
@@ -1412,6 +1166,45 @@ const Comrade = () => {
     return{rentAmount,utilitiesAmount,total,totalRoomSize:trs,rentData,totalRoomValue:trv};
   },[rentPeople,totalRent,totalUtilities,rentWeighting,rentFloor,page]);
 
+  const lp = {onNavigate:navigateTo, showCopyToast, copyToastMsg, loadedAt, onClearStorage:clearStorage, currentPage:page};
+
+  const shareUrl = splitId ? `${window.location.origin}/split/${splitId}` : null;
+  const collaborativeBanner = (
+    <div className="mb-4">
+      {conflictDetected && (
+        <div className="flex items-start gap-3 p-4 mb-3 border-2 border-black bg-white animate-fadeIn">
+          <ErrorIcon size={16}/>
+          <div className="flex-1">
+            <p className="text-xs font-bold uppercase mb-2">THIS SPLIT WAS UPDATED BY SOMEONE ELSE</p>
+            <div className="flex gap-2">
+              <button onClick={()=>window.location.reload()} className={`flex-1 ${CLS_BTN_BLK} hover:bg-gray-800 transition-all`}>REFRESH</button>
+              <button onClick={()=>{setConflictDetected(false);saveSplit();}} className={`flex-1 ${CLS_BTN_WHT}`}>SAVE ANYWAY</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {shareUrl && !conflictDetected && (
+        <div className="p-4 border-2 border-dashed border-gray-400 bg-white mb-3 animate-fadeIn">
+          <p className="text-xs font-bold uppercase mb-2">GROUP SPLIT</p>
+          <p style={{color:'#9CA3AF',fontSize:'10px'}} className="mb-3 leading-relaxed">Share this link with friends to let them add expenses and wealth information. Press save to sync data.</p>
+          <div className="flex gap-2 items-center">
+            <p className="text-xs flex-1 break-all" style={{color:'#6B7280'}}>{shareUrl}</p>
+            <button onClick={()=>copyToClipboard(shareUrl,'LINK COPIED!')} className={CLS_BTN_BLK} style={{flexShrink:0}}>COPY</button>
+          </div>
+        </div>
+      )}
+      <div>
+        <button
+          onClick={saveSplit}
+          disabled={isSaving}
+          className={`w-full font-bold py-3 border-2 border-black text-sm transition-all ${isSaving ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-black text-white hover:bg-gray-800'}`}>
+          {isSaving ? 'SAVING...' : splitId ? 'SAVE CHANGES' : 'NEW GROUP SPLIT →'}
+        </button>
+        {!splitId && <p style={{color:'#9CA3AF',fontSize:'10px'}} className="mt-1 leading-relaxed">Sync data to the cloud, allow friends to add expenses.</p>}
+      </div>
+    </div>
+  );
+
   const renderEmailSignup = () => (
     <div className={`bg-white p-6 ${CLS_DASHED}`}>
       <h3 className="text-lg font-bold text-black uppercase tracking-wider text-center mb-2">LIKE COMRADE?</h3>
@@ -1431,7 +1224,6 @@ const Comrade = () => {
   const renderResultsFooter = (copyText, entryPage) => (
     <>
       <div className="flex flex-col gap-3 max-w-xs mx-auto">
-        <button onClick={()=>copyToClipboard(getShareUrl(),'SHARE LINK COPIED!')} className={CLS_BTN_ACT} style={{gap:'8px'}}><ShareIcon size={16}/>SHARE LINK</button>
         <button onClick={()=>copyToClipboard(copyText,'RESULTS COPIED!')} className={CLS_BTN_ACT}>COPY RESULTS</button>
         <button onClick={()=>{editModeRef.current=true;navigateTo(entryPage);}} className={CLS_BTN_ACT}>EDIT DETAILS</button>
         <button onClick={()=>navigateTo('home')} className="bg-white text-black px-6 py-2 font-bold border-2 border-black hover:bg-gray-100 transition-all w-full">RETURN HOME</button>
@@ -1440,16 +1232,6 @@ const Comrade = () => {
       <div className="mt-4">{renderEmailSignup()}</div>
     </>
   );
-
-  const getShareUrl = () => {
-    const prefix = page.replace('-results','');
-    const code = _encodeForTool[prefix]?.();
-    if (!code) return window.location.href;
-    const href = window.location.href;
-    const base = href.includes('#') ? href.split('#')[0] : href;
-    const safeBase = (!base || base.startsWith('about:') || base.startsWith('blob:')) ? '' : base;
-    return safeBase ? `${safeBase}#${prefix}/${code}` : `#${prefix}/${code}`;
-  };
 
   const NavButton = ({label,onClick}) => (
     <button onClick={onClick} className="bg-black text-white w-full py-3 font-bold border-2 border-black text-sm hover:bg-gray-800 transition-all mt-2">{label}</button>
@@ -1470,7 +1252,7 @@ const Comrade = () => {
 
   const EntryPage = ({steps, intro, calc, midSteps}) => {
     const rc = i => {
-      if (i === 0) return <IntroStep {...intro} {...introProps}/>;
+      if (i === 0) return <IntroStep {...intro}/>;
       if (i === steps.length - 1) return <CalcStep {...calc}/>;
       return midSteps[i - 1]();
     };
@@ -1482,7 +1264,7 @@ const Comrade = () => {
     {q:'WHAT DO YOU DO WITH MY FINANCIAL INFORMATION?',render:<><p className={CLS_PARA3}>Nothing.</p><p className={CLS_PARA3}>Calculations are performed by your device, and your data is only stored locally. It is never sent to Comrade, and is automatically wiped after 30 days of inactivity.</p><p className={CLS_PARA}>If a user signs up for email updates, their email is shared with Comrade only, and is not associated with any financial data.</p></>},
     {q:'WHAT IS "WEIGHTING"?',a:`Weighting is the level of emphasis placed on each user's relative wealth (salary/net worth). By default, each person's responsibility is directly proportional to their wealth.\n\nFor example, let's say Fred and George each paid $100 on shared bills. Fred earns $50,000 a year, while George brings in $100,000. With regular ("Mid") weighting, because George makes twice as much money as Fred, he should pay twice as much. So far, he only paid 50% — $100 — meaning he owes Fred another $33.33.\n\nIn settings, you can also select "High" weighting, which emphasizes wealth differences even more by using squared wealth values for calculations; or "Low" weighting, which uses square-root values for more gentle adjustments. There is also an option to forego weighting entirely.`},
     {q:'WHAT IS A "CONTRIBUTION FLOOR"?',a:`A contribution floor sets a minimum amount that any group member must pay, regardless of their wealth. It's expressed as a percentage of what they'd owe in an even split.\n\nFor example, if three people are splitting $300 and the floor is set to 25%, no one pays less than $25 — that's 25% of an equal $100 share.\n\nBy default, the contribution floor is deactivated.`},
-    {q:'HOW DOES SHARING WORK?',render:<><p className={CLS_PARA3}>When you calculate a split, Comrade generates a shareable link you can send to your group. Clicking it loads the full split — people, bills, settings, and results — instantly, with no account required.</p><p className={CLS_PARA}>All of the split's information is encoded directly into the URL itself, so your data never touches Comrade's servers. The link is entirely self-contained.</p></>},
+    {q:'HOW DOES SHARING WORK?',render:<><p className={CLS_PARA3}>When you start a collaborative split, Comrade generates a shareable link you can send to your group. Anyone with the link can view the split, add or remove people and expenses, and calculate results — with no account required.</p><p className={CLS_PARA}>Collaborative splits are stored securely and expire after 90 days of inactivity.</p></>},
     {q:'IS COMRADE AVAILABLE ON THE APP STORE?',render:<p className={CLS_PARA}>Not yet! For now, Comrade is fully functional on mobile and desktop via our website, <a href="https://www.comrade.money" target="_blank" rel="noopener noreferrer" className={CLS_A}>www.comrade.money</a>. If you'd like to use a standalone app, or have other feedback or feature requests, please get in touch.</p>},
     {q:"IT'S AWKWARD ASKING MY FRIENDS HOW MUCH MONEY THEY HAVE. WHAT SHOULD I DO?",render:<p className={CLS_PARA}>Do it anyway.{' '}<a href="https://www.hbs.edu/ris/Publication%20Files/23-039_f20d86a0-a1cf-4bd6-8066-74ccc6f2c3cf.pdf" target="_blank" rel="noopener noreferrer" className={CLS_A}>Studies</a>{' '}have found{' '}<a href="https://www.nytimes.com/interactive/2020/02/19/magazine/salary-sharing.html" target="_blank" rel="noopener noreferrer" className={CLS_A}>breaking</a>{' '}the{' '}<a href="https://www.businessinsider.com/salary-pay-transparency-jobs-income-taboo-equity-2023-1" target="_blank" rel="noopener noreferrer" className={CLS_A}>taboos</a>{' '}around sharing information about wealth makes society better.</p>},
     {q:'IS THIS SERIOUS?',a:'What do you think?'},
@@ -1525,7 +1307,6 @@ const Comrade = () => {
 
   if(page==='about') return (
     <Layout {...lp}>
-
       <AboutBanner />
       <SubHed text="Wealth isn't evenly distributed — costs shouldn't be either"/>
       <div className="space-y-4 text-black mb-2">
@@ -1533,7 +1314,7 @@ const Comrade = () => {
         <p className={CLS_PARA}>Just ask Comrade.</p>
         <p className={CLS_PARA}>Comrade takes the awkwardness out of group expenses. From vacations to household purchases to work drinks, it simplifies shared bills — and takes into account people's salaries or net worth to divide them <span className={CLS_LNK} onClick={()=>navigateTo('faq',{faqIndex:0})}>fairly</span>.</p>
         <p className={CLS_PARA}>Those who have more, pay more.</p>
-        <p className={CLS_PARA}>Because your data is automatically saved to your device, Comrade works just as well for tracking ongoing expenses as it does for one-off bills. And you can <span className={CLS_LNK} onClick={()=>navigateTo('faq',{faqIndex:4})}>share</span> your results with custom links, letting your friends see who owes what.</p>
+        <p className={CLS_PARA}>Because your data is automatically saved to your device, Comrade works just as well for tracking ongoing expenses as it does for one-off bills. And you can <span className={CLS_LNK} onClick={()=>navigateTo('faq',{faqIndex:4})}>share</span> your results with collaborative links, letting your whole group add expenses and see who owes what.</p>
       </div>
       <SubHed text="Free to use, no registration required, privacy-first"/>
       <div className="space-y-4 text-black mb-2">
@@ -1551,14 +1332,11 @@ const Comrade = () => {
         <p className={CLS_PARA}>Comrade is built with care in Brooklyn, New York. Got questions, feedback, or partnership inquiries? Reach out at <a href="mailto:hello@comrade.money" className={CLS_A}>hello@comrade.money</a></p>
       </div>
       <div className="mb-4">{renderEmailSignup()}</div>
-
-
     </Layout>
   );
 
-      if(page==='faq') return (
+  if(page==='faq') return (
     <Layout {...lp}>
-
       <FaqBanner/>
       <p className="text-sm text-black mb-6 leading-relaxed">You've got questions, we've got answers. Learn more about how Comrade functions under the hood.</p>
       <div>
@@ -1576,7 +1354,7 @@ const Comrade = () => {
       <div className="text-black">
         {[{heading:'TERMS OF USE',text:'This application is provided for informational purposes only, on an "as is" basis, without warranty of any kind.'},
           {heading:null,text:'Users are solely responsible for their own actions. The creators of Comrade are not liable for any outcomes, disputes, unintended consequences, or bad decisions resulting from the use of Comrade and its calculations. Sorry!'},
-          {heading:'PRIVACY POLICY',text:'Any financial information entered into the app is stored only on your device, and all calculations are performed locally — nothing is sent to Comrade. Share link URLs are generated algorithmically and do not transmit any data to Comrade. Comrade loses access to your data after 30 days of inactivity.'},
+          {heading:'PRIVACY POLICY',text:'Any financial information entered into the app is stored only on your device, and all calculations are performed locally — nothing is sent to Comrade. Collaborative split links store data on Comrade\'s servers for up to 90 days, after which they expire automatically.'},
           {heading:null,text:'Comrade uses Vercel Analytics to collect anonymous, aggregated data about site visits, including page views and unique visitor counts. No personal or financial information is collected through analytics, and no cookies are used.'},
           {heading:null,text:'By entering your email address, you consent to Comrade and its team contacting you about updates to the app, news, and other projects they may be working on. Comrade will not sell your personal information to third parties. You can unsubscribe at any time.'},
           {heading:null,text:'© 2026 Comrade. All rights reserved.'},
@@ -1592,44 +1370,9 @@ const Comrade = () => {
     </Layout>
   );
 
-  const CollaborativeBanner = () => {
-    const shareUrl = splitId ? `${window.location.origin}/split/${splitId}` : null;
-    return (
-      <div className="mb-4">
-        {conflictDetected && (
-          <div className="flex items-start gap-3 p-4 mb-3 border-2 border-black bg-white animate-fadeIn">
-            <ErrorIcon size={16}/>
-            <div className="flex-1">
-              <p className="text-xs font-bold uppercase mb-2">THIS SPLIT WAS UPDATED BY SOMEONE ELSE</p>
-              <div className="flex gap-2">
-                <button onClick={()=>window.location.reload()} className={`flex-1 ${CLS_BTN_BLK} hover:bg-gray-800 transition-all`}>REFRESH</button>
-                <button onClick={()=>{setConflictDetected(false);saveSplit();}} className={`flex-1 ${CLS_BTN_WHT}`}>SAVE ANYWAY</button>
-              </div>
-            </div>
-          </div>
-        )}
-        {shareUrl && !conflictDetected && (
-          <div className="p-4 border-2 border-dashed border-gray-400 bg-white mb-3 animate-fadeIn">
-            <p className="text-xs font-bold uppercase mb-2">COLLABORATIVE SPLIT — SHARE THIS LINK:</p>
-            <div className="flex gap-2 items-center">
-              <p className="text-xs flex-1 break-all" style={{color:'#6B7280'}}>{shareUrl}</p>
-              <button onClick={()=>copyToClipboard(shareUrl,'LINK COPIED!')} className={CLS_BTN_BLK} style={{flexShrink:0}}>COPY</button>
-            </div>
-          </div>
-        )}
-        <button
-          onClick={saveSplit}
-          disabled={isSaving}
-          className={`w-full font-bold py-3 border-2 border-black text-sm transition-all ${isSaving ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-black text-white hover:bg-gray-800'}`}>
-          {isSaving ? 'SAVING...' : splitId ? 'SAVE CHANGES' : 'START COLLABORATIVE SPLIT'}
-        </button>
-      </div>
-    );
-  };
-
   if(page==='bill-entry') return EntryPage({
     steps:BILL_STEPS,
-    intro:{desc:"From meals to vacations, taxis to tickets, handle your shared expenses with friends more fairly. Comrade combines and simplifies group bills, while using information about group members' finances to decide how much everyone should pay.",hasSaved:hasBillSavedData,resumeLabel:"RESUME SPLIT →",newLabel:"NEW SPLIT",tool:"bill",loadLabel:"LOAD SPLIT",onJump:()=>jump(1),onClear:()=>{handleClearAll('bill');setSplitId(null);setSplitVersion(null);setIsCollaborative(false);setConflictDetected(false);jump(1);},onExample:()=>loadExample('bill'),onPrivacyFaq:navigateToPrivacyFaq,collaborativeBanner:<CollaborativeBanner/>},
+    intro:{desc:"From meals to vacations, taxis to tickets, handle your shared expenses with friends more fairly. Comrade combines and simplifies group bills, while using information about group members' finances to decide how much everyone should pay.",hasSaved:hasBillSavedData,resumeLabel:"RESUME SPLIT →",newLabel:"NEW PRIVATE SPLIT",onJump:()=>jump(1),onClear:()=>{handleClearAll('bill');jump(1);},onExample:()=>loadExample('bill'),onPrivacyFaq:navigateToPrivacyFaq,collaborativeBanner},
     calc:{onCalculate:()=>navigateTo('bill-results'),weighting:billWeighting,onWeighting:setBillWeighting,navigateToFaq,hasFloor:true,floor:billFloor,onFloor:setBillFloor,validate:()=>_errs([
       [billPeople.length===0,'No people added'],
       [billBills.length===0,'No bills added'],
@@ -1683,7 +1426,7 @@ const Comrade = () => {
       entryPage:"bill-entry", title:"YOUR SETTLEMENT",
       summary:transactions.length===0
         ?<p className="text-lg font-bold">ALL SETTLED! EVERYONE'S SQUARE.</p>
-        :<div className="space-y-3">{transactions.map((t,i)=><div key={i} className="text-sm leading-relaxed pb-2" style={{borderBottom:`1px dashed ${BG_GREY}`}}><span className="font-semibold">{t.from.toUpperCase()}</span><span> PAYS </span><span className="font-semibold">{t.to.toUpperCase()}</span><br/><span className="font-black text-2xl">{_fcs(t.amount,billCurrency)}</span></div>)}</div>,
+        :<>{transactions.map((t,i)=><div key={i} className="mb-3 pb-3" style={{borderBottom:`1px dashed ${BG_GREY}`}}><p className="text-3xl font-black mb-2">{t.from.toUpperCase()}</p><span> PAYS </span><span className="font-semibold">{t.to.toUpperCase()}</span><br/><span className="font-black text-2xl">{_fcs(t.amount,billCurrency)}</span></div>)}</>,
       stats:[{label:'TOTAL BILLS',value:billBills.length},{label:'TOTAL',value:_fc(total,billCurrency)},{label:'PEOPLE',value:billPeople.length}],
       copyText:copyText,
       details:<>
@@ -1710,7 +1453,7 @@ const Comrade = () => {
 
   if(page==='sale-entry') return EntryPage({
     steps:SALE_STEPS,
-    intro:{desc:"If you're selling something, make sure it goes to the potential buyer who needs it the most — not just whoever offers to pay the most. Comrade takes into account prospective purchasers' financial resources to help you understand how much your product is truly worth to them.",hasSaved:hasSaleSavedData,resumeLabel:"RESUME SALE →",newLabel:"NEW SALE",tool:"sale",loadLabel:"LOAD SALE",onJump:()=>jump(1),onClear:()=>{handleClearAll('sale');jump(1);},onExample:()=>loadExample('sale'),onPrivacyFaq:navigateToPrivacyFaq},
+    intro:{desc:"If you're selling something, make sure it goes to the potential buyer who needs it the most — not just whoever offers to pay the most. Comrade takes into account prospective purchasers' financial resources to help you understand how much your product is truly worth to them.",hasSaved:hasSaleSavedData,resumeLabel:"RESUME SALE →",newLabel:"NEW SALE",onJump:()=>jump(1),onClear:()=>{handleClearAll('sale');jump(1);},onExample:()=>loadExample('sale'),onPrivacyFaq:navigateToPrivacyFaq},
     calc:{onCalculate:()=>navigateTo('sale-results'),weighting:saleWeighting,onWeighting:setSaleWeighting,navigateToFaq,hasAdvanced:true,validate:()=>_errs([
       [!productName.trim(),'No product name entered'],
       [saleBuyers.length===0,'No buyers added'],
@@ -1765,7 +1508,7 @@ const Comrade = () => {
 
   if(page==='vote-entry') return EntryPage({
     steps:VOTE_STEPS,
-    intro:{desc:"Make group decisions more equitably with Comrade. If your friends, classmates, or coworkers are grappling with a dispute, give more voting power to those with less wealth.",hasSaved:hasVoteSavedData,resumeLabel:"RESUME VOTE →",newLabel:"NEW VOTE",tool:"vote",loadLabel:"LOAD VOTE",onJump:()=>jump(1),onClear:()=>{handleClearAll('vote');jump(1);},onExample:()=>loadExample('vote'),onPrivacyFaq:navigateToPrivacyFaq},
+    intro:{desc:"Make group decisions more equitably with Comrade. If your friends, classmates, or coworkers are grappling with a dispute, give more voting power to those with less wealth.",hasSaved:hasVoteSavedData,resumeLabel:"RESUME VOTE →",newLabel:"NEW VOTE",onJump:()=>jump(1),onClear:()=>{handleClearAll('vote');jump(1);},onExample:()=>loadExample('vote'),onPrivacyFaq:navigateToPrivacyFaq},
     calc:{onCalculate:()=>navigateTo('vote-results'),weighting:voteWeighting,onWeighting:setVoteWeighting,navigateToFaq,hasAdvanced:true,validate:()=>_errs([
       [!voteDecision.trim(),'No decision or question entered'],
       [voteOptions.length===0,'No voting options added'],
@@ -1835,7 +1578,7 @@ const Comrade = () => {
 
   if(page==='rent-entry') return EntryPage({
     steps:RENT_STEPS,
-    intro:{desc:"Figuring out rent splits with roommates is a fraught process. Decide it more fairly with Comrade by accounting for both room size and tenants' financial resources. Larger rooms and higher earners both pay more.",hasSaved:hasRentSavedData,resumeLabel:"RESUME SPLIT →",newLabel:"NEW SPLIT",tool:"rent",loadLabel:"LOAD SPLIT",onJump:()=>jump(1),onClear:()=>{handleClearAll('rent');jump(1);},onExample:()=>loadExample('rent'),onPrivacyFaq:navigateToPrivacyFaq},
+    intro:{desc:"Figuring out rent splits with roommates is a fraught process. Decide it more fairly with Comrade by accounting for both room size and tenants' financial resources. Larger rooms and higher earners both pay more.",hasSaved:hasRentSavedData,resumeLabel:"RESUME SPLIT →",newLabel:"NEW SPLIT",onJump:()=>jump(1),onClear:()=>{handleClearAll('rent');jump(1);},onExample:()=>loadExample('rent'),onPrivacyFaq:navigateToPrivacyFaq},
     calc:{onCalculate:()=>navigateTo('rent-results'),weighting:rentWeighting,onWeighting:setRentWeighting,navigateToFaq,hasFloor:true,floor:rentFloor,onFloor:setRentFloor,validate:()=>_errs([
       [!parseFloat(totalRent),'No rent amount entered'],
       [rentPeople.length===0,'No tenants added'],
@@ -1899,6 +1642,7 @@ const Comrade = () => {
 
   return null;
 };
+
 
 
 
