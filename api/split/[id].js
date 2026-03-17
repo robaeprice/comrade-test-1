@@ -6,7 +6,8 @@ module.exports = async function handler(req, res) {
 
   const ip = (req.headers['x-forwarded-for'] || '127.0.0.1').split(',')[0].trim();
   const rateLimitKey = `rl:read:${ip}`;
-  const count = await redisCommand(['INCR', rateLimitKey]);
+  const countResult = await redisCommand(['INCR', rateLimitKey]);
+  const count = countResult.result;
   if (count === 1) await redisCommand(['EXPIRE', rateLimitKey, '60']);
   if (count > 30) return res.status(429).json({ error: 'Too many requests' });
 
