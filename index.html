@@ -24,9 +24,6 @@
         const { useState, useCallback, useEffect, useMemo, useRef } = React;
 
 
-
-
-
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -831,7 +828,7 @@ const IntroStep = ({desc, hasSaved, resumeLabel, newLabel, onJump, onClear, onEx
         <button onClick={onClear} className={`w-full font-bold border-2 border-black transition-all ${hasSaved?'bg-white text-black py-2 px-4 text-xs hover:bg-gray-100':'bg-black text-white py-3 text-sm hover:bg-gray-800'}`}>{hasSaved?newLabel:`${newLabel} →`}</button>
         <p style={{color:'#9CA3AF',fontSize:'10px'}} className="mt-1 leading-relaxed">All calculation takes place on your device. No data is shared.</p>
       </div>
-      <button onClick={onExample} className={`w-full ${CLS_BTN_WHT}`}>TRY AN EXAMPLE</button>
+      {onExample && <button onClick={onExample} className={`w-full ${CLS_BTN_WHT}`}>TRY AN EXAMPLE</button>}
     </div>
   </div>
 );
@@ -1186,7 +1183,7 @@ const Comrade = () => {
       {shareUrl && !conflictDetected && (
         <div className="p-4 border-2 border-dashed border-gray-400 bg-white mb-3 animate-fadeIn">
           <p className="text-xs font-bold uppercase mb-2">GROUP SPLIT</p>
-          <p style={{color:'#9CA3AF',fontSize:'10px'}} className="mb-3 leading-relaxed">Share this link with friends to let them add expenses and wealth information. Press save to sync data.</p>
+          <p style={{color:'#9CA3AF',fontSize:'10px'}} className="mb-3 leading-relaxed">Share this link with friends to let them add expenses and wealth information. Save your data after making changes, and press "calculate" when you're all ready to settle up.</p>
           <div className="flex gap-2 items-center">
             <p className="text-xs flex-1 break-all" style={{color:'#6B7280'}}>{shareUrl}</p>
             <button onClick={()=>copyToClipboard(shareUrl,'LINK COPIED!')} className={CLS_BTN_BLK} style={{flexShrink:0}}>COPY</button>
@@ -1261,10 +1258,10 @@ const Comrade = () => {
 
   const FAQ_ITEMS = [
     {q:'HOW DOES THIS WORK?',a:`Comrade uses wealth data to decide how much each person should pay. It combines all the bills and the amounts already paid, then looks at each person's wealth in relation to others in the group to establish what proportion of the total amount each person should actually be responsible for.`},
-    {q:'WHAT DO YOU DO WITH MY FINANCIAL INFORMATION?',render:<><p className={CLS_PARA3}>Nothing.</p><p className={CLS_PARA3}>Calculations are performed by your device, and your data is only stored locally. It is never sent to Comrade, and is automatically wiped after 30 days of inactivity.</p><p className={CLS_PARA}>If a user signs up for email updates, their email is shared with Comrade only, and is not associated with any financial data.</p></>},
+    {q:'WHAT DO YOU DO WITH MY FINANCIAL INFORMATION?',render:<><p className={CLS_PARA3}>Your financial information is used for nothing beyond calculating your results.</p><p className={CLS_PARA3}>In Private Splits, these calculations are performed by your device, and your data is only stored locally. It is never sent to Comrade, and is automatically wiped after 30 days of inactivity.</p><p className={CLS_PARA3}>In Group Splits, your data is securely synced to Comrade's servers, and is accessible only to your friends who you share the group link with. Again, your data is wiped after 30 days.</p><p className={CLS_PARA}>If a user signs up for email updates, their email is shared with Comrade only, and is not associated with any financial data.</p></>},
     {q:'WHAT IS "WEIGHTING"?',a:`Weighting is the level of emphasis placed on each user's relative wealth (salary/net worth). By default, each person's responsibility is directly proportional to their wealth.\n\nFor example, let's say Fred and George each paid $100 on shared bills. Fred earns $50,000 a year, while George brings in $100,000. With regular ("Mid") weighting, because George makes twice as much money as Fred, he should pay twice as much. So far, he only paid 50% — $100 — meaning he owes Fred another $33.33.\n\nIn settings, you can also select "High" weighting, which emphasizes wealth differences even more by using squared wealth values for calculations; or "Low" weighting, which uses square-root values for more gentle adjustments. There is also an option to forego weighting entirely.`},
     {q:'WHAT IS A "CONTRIBUTION FLOOR"?',a:`A contribution floor sets a minimum amount that any group member must pay, regardless of their wealth. It's expressed as a percentage of what they'd owe in an even split.\n\nFor example, if three people are splitting $300 and the floor is set to 25%, no one pays less than $25 — that's 25% of an equal $100 share.\n\nBy default, the contribution floor is deactivated.`},
-    {q:'HOW DOES SHARING WORK?',render:<><p className={CLS_PARA3}>When you start a collaborative split, Comrade generates a shareable link you can send to your group. Anyone with the link can view the split, add or remove people and expenses, and calculate results — with no account required.</p><p className={CLS_PARA}>Collaborative splits are stored securely and expire after 90 days of inactivity.</p></>},
+    {q:'HOW DO GROUP SPLITS WORK?',render:<><p className={CLS_PARA3}>When you start a Group Split, Comrade generates a shareable link you can send to your group. Anyone with the link can view the split, add or remove people and expenses, and calculate results — with no account required.</p><p className={CLS_PARA3}>Group Splits are stored securely and expire after 30 days of inactivity.</p><p className={CLS_PARA}>Anyone with the link to a Group Split can access all the data in it.</p></>},
     {q:'IS COMRADE AVAILABLE ON THE APP STORE?',render:<p className={CLS_PARA}>Not yet! For now, Comrade is fully functional on mobile and desktop via our website, <a href="https://www.comrade.money" target="_blank" rel="noopener noreferrer" className={CLS_A}>www.comrade.money</a>. If you'd like to use a standalone app, or have other feedback or feature requests, please get in touch.</p>},
     {q:"IT'S AWKWARD ASKING MY FRIENDS HOW MUCH MONEY THEY HAVE. WHAT SHOULD I DO?",render:<p className={CLS_PARA}>Do it anyway.{' '}<a href="https://www.hbs.edu/ris/Publication%20Files/23-039_f20d86a0-a1cf-4bd6-8066-74ccc6f2c3cf.pdf" target="_blank" rel="noopener noreferrer" className={CLS_A}>Studies</a>{' '}have found{' '}<a href="https://www.nytimes.com/interactive/2020/02/19/magazine/salary-sharing.html" target="_blank" rel="noopener noreferrer" className={CLS_A}>breaking</a>{' '}the{' '}<a href="https://www.businessinsider.com/salary-pay-transparency-jobs-income-taboo-equity-2023-1" target="_blank" rel="noopener noreferrer" className={CLS_A}>taboos</a>{' '}around sharing information about wealth makes society better.</p>},
     {q:'IS THIS SERIOUS?',a:'What do you think?'},
@@ -1314,12 +1311,12 @@ const Comrade = () => {
         <p className={CLS_PARA}>Just ask Comrade.</p>
         <p className={CLS_PARA}>Comrade takes the awkwardness out of group expenses. From vacations to household purchases to work drinks, it simplifies shared bills — and takes into account people's salaries or net worth to divide them <span className={CLS_LNK} onClick={()=>navigateTo('faq',{faqIndex:0})}>fairly</span>.</p>
         <p className={CLS_PARA}>Those who have more, pay more.</p>
-        <p className={CLS_PARA}>Because your data is automatically saved to your device, Comrade works just as well for tracking ongoing expenses as it does for one-off bills. And you can <span className={CLS_LNK} onClick={()=>navigateTo('faq',{faqIndex:4})}>share</span> your results with collaborative links, letting your whole group add expenses and see who owes what.</p>
+        <p className={CLS_PARA}>You can use Comrade for tracking ongoing expenses, or for one-off bills. Group Splits sync to the cloud so your friends can add expenses and see for themselves who owes what, while Private Splits store the bills and data entirely on your device.</p>
       </div>
       <SubHed text="Free to use, no registration required, privacy-first"/>
       <div className="space-y-4 text-black mb-2">
-        <p className={CLS_PARA}>Financial information is sensitive stuff. That's why your <span className={CLS_LNK} onClick={()=>navigateTo('faq',{faqIndex:1})}>data</span> is only stored locally, with all calculations taking place on your smartphone or computer. Your info is never transmitted to Comrade's servers — or anywhere else.</p>
-        <p className={CLS_PARA}>There are no user accounts to be tracked, no data to be sold, and no subscriptions or fees. Old data is wiped after 30 days, or when you begin a new split.</p>
+        <p className={CLS_PARA}>Financial information is sensitive stuff. That's why Comrade has no user accounts, no tracking, and no covert fees or subscriptions.</p>
+        <p className={CLS_PARA}>The information entered for Private Splits never leaves your device. Group Splits are stored securely, and expire automatically after 30 days. Either way, your financial data is never associated with your identity, never sold, and never used for anything beyond the calculation in front of you.</p>
       </div>
       <SubHed text="More than just bill-splitting"/>
       <div className="space-y-4 text-black mb-2">
@@ -1354,7 +1351,8 @@ const Comrade = () => {
       <div className="text-black">
         {[{heading:'TERMS OF USE',text:'This application is provided for informational purposes only, on an "as is" basis, without warranty of any kind.'},
           {heading:null,text:'Users are solely responsible for their own actions. The creators of Comrade are not liable for any outcomes, disputes, unintended consequences, or bad decisions resulting from the use of Comrade and its calculations. Sorry!'},
-          {heading:'PRIVACY POLICY',text:'Any financial information entered into the app is stored only on your device, and all calculations are performed locally — nothing is sent to Comrade. Collaborative split links store data on Comrade\'s servers for up to 90 days, after which they expire automatically.'},
+          {heading:'PRIVACY POLICY',text:'Any financial information entered into private splits is stored only on your device, and all calculations are performed locally — nothing is sent to Comrade.'},
+          {heading:null,text:'Group splits store data on Comrade\'s servers for up to 30 days, after which they expire automatically. This data is accessible to anyone with the split link, and is never associated with your identity.'},
           {heading:null,text:'Comrade uses Vercel Analytics to collect anonymous, aggregated data about site visits, including page views and unique visitor counts. No personal or financial information is collected through analytics, and no cookies are used.'},
           {heading:null,text:'By entering your email address, you consent to Comrade and its team contacting you about updates to the app, news, and other projects they may be working on. Comrade will not sell your personal information to third parties. You can unsubscribe at any time.'},
           {heading:null,text:'© 2026 Comrade. All rights reserved.'},
@@ -1372,7 +1370,7 @@ const Comrade = () => {
 
   if(page==='bill-entry') return EntryPage({
     steps:BILL_STEPS,
-    intro:{desc:"From meals to vacations, taxis to tickets, handle your shared expenses with friends more fairly. Comrade combines and simplifies group bills, while using information about group members' finances to decide how much everyone should pay.",hasSaved:hasBillSavedData,resumeLabel:"RESUME SPLIT →",newLabel:"NEW PRIVATE SPLIT",onJump:()=>jump(1),onClear:()=>{handleClearAll('bill');jump(1);},onExample:()=>loadExample('bill'),onPrivacyFaq:navigateToPrivacyFaq,collaborativeBanner},
+    intro:{desc:"From meals to vacations, taxis to tickets, handle your shared expenses with friends more fairly. Comrade combines and simplifies group bills, while using information about group members' finances to decide how much everyone should pay.",hasSaved:hasBillSavedData,resumeLabel:isCollaborative?"RESUME GROUP SPLIT →":"RESUME PRIVATE SPLIT →",newLabel:"NEW PRIVATE SPLIT",onJump:()=>jump(1),onClear:()=>{handleClearAll('bill');jump(1);},onExample:isCollaborative?null:()=>loadExample('bill'),onPrivacyFaq:navigateToPrivacyFaq,collaborativeBanner},
     calc:{onCalculate:()=>navigateTo('bill-results'),weighting:billWeighting,onWeighting:setBillWeighting,navigateToFaq,hasFloor:true,floor:billFloor,onFloor:setBillFloor,validate:()=>_errs([
       [billPeople.length===0,'No people added'],
       [billBills.length===0,'No bills added'],
@@ -1426,7 +1424,7 @@ const Comrade = () => {
       entryPage:"bill-entry", title:"YOUR SETTLEMENT",
       summary:transactions.length===0
         ?<p className="text-lg font-bold">ALL SETTLED! EVERYONE'S SQUARE.</p>
-        :<>{transactions.map((t,i)=><div key={i} className="mb-3 pb-3" style={{borderBottom:`1px dashed ${BG_GREY}`}}><p className="text-3xl font-black mb-2">{t.from.toUpperCase()}</p><span> PAYS </span><span className="font-semibold">{t.to.toUpperCase()}</span><br/><span className="font-black text-2xl">{_fcs(t.amount,billCurrency)}</span></div>)}</>,
+        :<div className="space-y-3">{transactions.map((t,i)=><div key={i} className="text-sm leading-relaxed pb-2" style={{borderBottom:`1px dashed ${BG_GREY}`}}><span className="font-semibold">{t.from.toUpperCase()}</span><span> PAYS </span><span className="font-semibold">{t.to.toUpperCase()}</span><br/><span className="font-black text-2xl">{_fcs(t.amount,billCurrency)}</span></div>)}</div>,
       stats:[{label:'TOTAL BILLS',value:billBills.length},{label:'TOTAL',value:_fc(total,billCurrency)},{label:'PEOPLE',value:billPeople.length}],
       copyText:copyText,
       details:<>
@@ -1642,8 +1640,6 @@ const Comrade = () => {
 
   return null;
 };
-
-
 
 
 
