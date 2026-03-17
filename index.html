@@ -27,6 +27,7 @@
      
 
 
+
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -814,7 +815,7 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
 const _fc=(v,c)=>formatCurrency(v,2,c),_fcs=(v,c)=>formatCurrencySmart(v,c);
 
 // IntroStep is defined outside Comrade so it's stable across renders
-const IntroStep = ({desc, hasSaved, resumeLabel, newLabel, onJump, onClear, onExample, isCollaborative, isSaving, onGroupSplit, collaborativeBanner, groupSplitPrompt, onStartOver}) => {
+const IntroStep = ({desc, hasSaved, resumeLabel, newLabel, onJump, onClear, onExample, isCollaborative, isSaving, saveError, onGroupSplit, collaborativeBanner, groupSplitPrompt, onStartOver}) => {
   const hasData = hasSaved || isCollaborative;
   const groupSplitButton = groupSplitPrompt || (onGroupSplit ? (
     <div>
@@ -843,6 +844,7 @@ const IntroStep = ({desc, hasSaved, resumeLabel, newLabel, onJump, onClear, onEx
         </>
       ) : (
         <div className="flex flex-col gap-3">
+        {saveError && <p className="text-xs font-bold uppercase text-black animate-fadeIn" style={{borderLeft:`3px solid ${DARK}`,paddingLeft:'8px'}}>{saveError}</p>}
           {groupSplitButton}
           <div>
             <button onClick={onClear} className="w-full bg-black text-white py-3 font-bold text-sm border-2 border-black hover:bg-gray-800 transition-all">{newLabel} →</button>
@@ -933,6 +935,7 @@ const Comrade = () => {
   const [splitVersion, setSplitVersion]     = useState(null);
   const [isCollaborative, setIsCollaborative] = useState(false);
   const [isSaving, setIsSaving]             = useState(false);
+  const [saveError, setSaveError]           = useState('');
   const [conflictDetected, setConflictDetected] = useState(false);
   const [showGroupSplitPrompt, setShowGroupSplitPrompt] = useState(false);
 
@@ -1020,21 +1023,15 @@ const Comrade = () => {
   const saveSplit = useCallback(async () => {
     setIsSaving(true);
     setConflictDetected(false);
+    setSaveError('');
     const splitData = {
-      people: billPeople,
-      bills: billBills,
-      weighting: billWeighting,
-      floor: billFloor,
-      currency: billCurrency,
-      wealthMetric: billWealthMetric,
+      people: billPeople, bills: billBills, weighting: billWeighting,
+      floor: billFloor, currency: billCurrency, wealthMetric: billWealthMetric,
     };
     try {
       if (!splitId) {
-        const res = await fetch('/api/split', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(splitData),
-        });
+        const res = await fetch('/api/split', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(splitData) });
+        if (!res.ok) { setSaveError(`Server error ${res.status}`); return; }
         const data = await res.json();
         if (data.id) {
           setSplitId(data.id);
@@ -1042,21 +1039,17 @@ const Comrade = () => {
           setIsCollaborative(true);
           window.history.pushState({ page: 'bill-entry' }, '', `/split/${data.id}`);
           setEntryOpen(prev => prev.includes(1) ? prev : [...prev, 1]);
+        } else {
+          setSaveError(data.error || 'Unexpected response from server');
         }
       } else {
-        const res = await fetch(`/api/split/${splitId}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...splitData, version: splitVersion }),
-        });
-        if (res.status === 409) {
-          setConflictDetected(true);
-        } else {
-          const data = await res.json();
-          if (data.version) setSplitVersion(data.version);
-        }
+        const res = await fetch(`/api/split/${splitId}`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({...splitData, version:splitVersion}) });
+        if (res.status === 409) { setConflictDetected(true); }
+        else if (!res.ok) { setSaveError(`Server error ${res.status}`); }
+        else { const data = await res.json(); if (data.version) setSplitVersion(data.version); }
       }
     } catch (err) {
+      setSaveError(`Network error: ${err.message}`);
       console.error('Save failed:', err);
     } finally {
       setIsSaving(false);
@@ -1087,7 +1080,7 @@ const Comrade = () => {
 
   const handleClearAll = useCallback(type=>{
     ({
-      bill:()=>{ setBillPeople([]);setBillBills([]);setCurPersonName('');setCurPersonWealth('');setCurBillDesc('');setCurBillAmt('');setCurBillPaidBy('');setSplitId(null);setSplitVersion(null);setIsCollaborative(false);setConflictDetected(false); },
+      bill:()=>{ setBillPeople([]);setBillBills([]);setCurPersonName('');setCurPersonWealth('');setCurBillDesc('');setCurBillAmt('');setCurBillPaidBy('');setSplitId(null);setSplitVersion(null);setIsCollaborative(false);setConflictDetected(false);setSaveError('');setShowGroupSplitPrompt(false); },
       sale:()=>{ setProductName('');setNumberAvailable('');setSaleBuyers([]);setCurBuyerName('');setCurBuyerWealth('');setCurBuyerOffer('');try{localStorage.removeItem(SALE_KEY);}catch{} },
       vote:()=>{ setVoteDecision('');setVoteOptions([]);setVoteParticipants([]);setCurParticipantName('');setCurParticipantWealth('');setCurParticipantVote('');setCurOptionText('');try{localStorage.removeItem(VOTE_KEY);}catch{} },
       rent:()=>{ setTotalRent('');setTotalUtilities('');setRentPeople([]);setCurRoommateName('');setCurRoommateRoomSize('');setCurRoommateWealth('');try{localStorage.removeItem(RENT_KEY);}catch{} },
@@ -1435,6 +1428,7 @@ const Comrade = () => {
       onExample: isCollaborative ? null : ()=>loadExample('bill'),
       isCollaborative,
       isSaving,
+      saveError,
       onGroupSplit: isCollaborative ? null : ()=>{ if(hasBillSavedData){setShowGroupSplitPrompt(true);}else{saveSplit();} },
       groupSplitPrompt: showGroupSplitPrompt ? (
         <div className="border-2 border-dashed border-gray-400 p-4 bg-gray-50 animate-fadeIn">
