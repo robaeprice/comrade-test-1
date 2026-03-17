@@ -1435,7 +1435,7 @@ const Comrade = () => {
       onExample: isCollaborative ? null : ()=>loadExample('bill'),
       isCollaborative,
       isSaving,
-      onGroupSplit: isCollaborative ? null : handleGroupSplitClick,
+      onGroupSplit: isCollaborative ? null : ()=>{ if(hasBillSavedData){setShowGroupSplitPrompt(true);}else{saveSplit();} },
       groupSplitPrompt: showGroupSplitPrompt ? (
         <div className="border-2 border-dashed border-gray-400 p-4 bg-gray-50 animate-fadeIn">
           <p className="font-bold text-xs uppercase mb-1 text-black">YOU'VE ALREADY ENTERED SOME DATA</p>
@@ -1722,6 +1722,7 @@ const Comrade = () => {
 
   return null;
 };
+
 
 
 // Render the app
