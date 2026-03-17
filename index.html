@@ -24,8 +24,7 @@
         const { useState, useCallback, useEffect, useMemo, useRef } = React;
 
 
-
-
+     
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -42,189 +41,6 @@ const applyWeighting = (wealth, weighting) => {
   return wealth;
 };
 
-const LZString = (() => {
-  const ks = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$";
-  const rev = {}; for (let i = 0; i < ks.length; i++) rev[ks[i]] = i;
-  function _c(s, bpc, gcfi) {
-    if (!s) return "";
-    let cd={},cdc={},cc,wc,w="",ei=2,ds=3,nb=2,res=[],dv=0,dp=0;
-    for (let ii=0;ii<s.length;ii++) {
-      cc=s[ii];
-      if (!Object.prototype.hasOwnProperty.call(cd,cc)){cd[cc]=ds++;cdc[cc]=true;}
-      wc=w+cc;
-      if (Object.prototype.hasOwnProperty.call(cd,wc)){w=wc;}
-      else {
-        const emit=(bits,len)=>{for(let k=0;k<len;k++){dv=(dv<<1)|(bits&1);bits>>=1;if(dp===bpc-1){dp=0;res.push(gcfi(dv));dv=0;}else dp++;}};
-        if (Object.prototype.hasOwnProperty.call(cdc,w)){
-          if(w.charCodeAt(0)<256){emit(0,nb);emit(w.charCodeAt(0),8);}
-          else{emit(1,nb);emit(w.charCodeAt(0),16);}
-          if(--ei===0){ei=Math.pow(2,nb);nb++;}
-          delete cdc[w];
-        } else {emit(cd[w],nb);}
-        if(--ei===0){ei=Math.pow(2,nb);nb++;}
-        cd[wc]=ds++;w=String(cc);
-      }
-    }
-    if (w!=="") {
-      const emit=(bits,len)=>{for(let k=0;k<len;k++){dv=(dv<<1)|(bits&1);bits>>=1;if(dp===bpc-1){dp=0;res.push(gcfi(dv));dv=0;}else dp++;}};
-      if(Object.prototype.hasOwnProperty.call(cdc,w)){
-        if(w.charCodeAt(0)<256){emit(0,nb);emit(w.charCodeAt(0),8);}
-        else{emit(1,nb);emit(w.charCodeAt(0),16);}
-        if(--ei===0){ei=Math.pow(2,nb);nb++;}
-        delete cdc[w];
-      } else {emit(cd[w],nb);}
-      if(--ei===0){ei=Math.pow(2,nb);nb++;}
-    }
-    let ev=2;
-    for(let k=0;k<nb;k++){dv=(dv<<1)|(ev&1);ev>>=1;if(dp===bpc-1){dp=0;res.push(gcfi(dv));dv=0;}else dp++;}
-    while(true){dv=(dv<<1);if(dp===bpc-1){res.push(gcfi(dv));break;}else dp++;}
-    return res.join('');
-  }
-  function _d(s, rv, gnv) {
-    if (!s) return "";
-    let dict=[],next,ei=4,ds=4,nb=3,entry,result=[],w,bits,resb,c,
-      data={val:gnv(s,0),pos:rv,idx:1};
-    const rb=()=>{resb=data.val&data.pos;data.pos>>=1;if(data.pos===0){data.pos=rv;data.val=gnv(s,data.idx++);}return resb>0?1:0;};
-    const rn=(len)=>{let b=0,mp2=Math.pow(2,len),p2=1;while(p2!==mp2){b|=rb()*p2;p2<<=1;}return b;};
-    for(let i=0;i<3;i++)dict[i]=i;
-    switch(next=rn(2)){
-      case 0:c=String.fromCharCode(rn(8));break;
-      case 1:c=String.fromCharCode(rn(16));break;
-      case 2:return "";
-    }
-    dict[3]=c;w=c;result.push(c);
-    while(true){
-      if(data.idx>s.length)return "";
-      switch(c=rn(nb)){
-        case 0:dict[ds++]=String.fromCharCode(rn(8));c=ds-1;ei--;break;
-        case 1:dict[ds++]=String.fromCharCode(rn(16));c=ds-1;ei--;break;
-        case 2:return result.join('');
-      }
-      if(ei===0){ei=Math.pow(2,nb);nb++;}
-      entry=dict[c]??(c===ds?w+w[0]:null);
-      if(entry===null)return null;
-      result.push(entry);
-      dict[ds++]=w+entry[0];
-      if(--ei===0){ei=Math.pow(2,nb);nb++;}
-      w=entry;
-    }
-  }
-  return {
-    compressToEncodedURIComponent(s){if(!s)return '';return _c(s,6,i=>ks[i]).replace(/-/g,'_').replace(/\+/g,'-');},
-    decompressFromEncodedURIComponent(s){if(!s)return '';return _d(s.replace(/-/g,'+').replace(/_/g,'-'),32,(str,i)=>rev[str[i]]);}
-  };
-})();
-
-const _W  = ['none','gentle','standard','strong'];
-const _F  = ['off','10','25','50'];
-const _C  = ['USD','EUR','GBP'];
-const _M  = ['salary','networth'];
-const _MS = ['sqft','sqm'];
-const _ei = (a,v,d) => {const i=a.indexOf(v);return i>=0?i:d;};
-const _es = (wt,cu,wm,fl,ms) => ({w:_ei(_W,wt,2),c:_ei(_C,cu,0),m:_ei(_M,wm,0),...(fl!=null?{f:_ei(_F,fl,0)}:{}),...(ms!=null?{ms:_ei(_MS,ms,0)}:{})});
-const _ds = d => ({weighting:_W[d.w]??'standard',currency:_C[d.c]??'USD',wealthMetric:_M[d.m]??'salary',...(d.f!=null?{floor:_F[d.f]??'off'}:{}),...(d.ms!=null?{measurement:_MS[d.ms]??'sqft'}:{})});
-
-const encodeState = data => { try { return LZString.compressToEncodedURIComponent(JSON.stringify(data)); } catch { return null; } };
-
-const parseShareData = (code, ...reqArrays) => {
-  try {
-    if (!code || code.length < 4) return null;
-    let json = null;
-    try { json = LZString.decompressFromEncodedURIComponent(code); } catch {}
-    if (!json) return null;
-    const data = JSON.parse(json);
-    if (!data.v || !reqArrays.every(k => Array.isArray(data[k]))) return null;
-    return { data, base: Date.now() };
-  } catch { return null; }
-};
-
-const encodeBillState = (people, bills, wt, fl, cu, wm) => encodeState({
-  v:2, p:people.map(p=>[p.name,Math.round(parseFloat(p.wealth)||0)]),
-  b:bills.map(b=>{const pi=people.findIndex(pp=>pp.name===b.paidBy);return[b.description,Math.round((parseFloat(b.amount)||0)*100),pi>=0?pi:null];}),
-  ..._es(wt,cu,wm,fl),
-});
-
-const decodeBillState = code => {
-  const r = parseShareData(code, 'p', 'b'); if (!r) return null;
-  const {data, base} = r;
-  if (data.v === 1) return {
-    people: data.p.map((p,i)=>({id:base+i,name:String(p[0]||''),wealth:String(p[1]||'')})),
-    bills:  data.b.map((b,i)=>({id:base+100+i,description:String(b[0]||''),amount:String(b[1]||''),paidBy:String(b[2]||'')})),
-    weighting:data.w||'standard', floor:data.f||'off', currency:data.c||'USD', wealthMetric:data.m||'salary'
-  };
-  if (data.v === 2) {
-    const people = data.p.map((p,i)=>({id:base+i,name:String(p[0]||''),wealth:String(p[1]||0)}));
-    return {
-      people,
-      bills: data.b.map((b,i)=>({id:base+100+i,description:String(b[0]||''),amount:String(((b[1]||0)/100).toFixed(2)).replace(/\.00$/,''),paidBy:(typeof b[2]==='number'&&b[2]>=0&&data.p[b[2]])?String(data.p[b[2]][0]):''})),
-      ..._ds(data)
-    };
-  }
-  return null;
-};
-
-const encodeSaleState = (productName, numberAvailable, buyers, wt, cu, wm) => encodeState({
-  v:1, pn:productName, na:parseInt(numberAvailable)||1,
-  b:buyers.map(b=>[b.name,Math.round(parseFloat(b.wealth)||0),Math.round((parseFloat(b.offer)||0)*100)]),
-  ..._es(wt,cu,wm),
-});
-
-const decodeSaleState = code => {
-  const r = parseShareData(code, 'b'); if (!r) return null;
-  const {data, base} = r;
-  if (data.v === 1) return {
-    productName:String(data.pn||''), numberAvailable:String(data.na||1),
-    buyers:data.b.map((b,i)=>({id:base+i,name:String(b[0]||''),wealth:String(b[1]||0),offer:String(((b[2]||0)/100).toFixed(2)).replace(/\.00$/,'')})),
-    ..._ds(data),
-  };
-  return null;
-};
-
-const encodeVoteState = (decision, options, participants, wt, cu, wm) => encodeState({
-  v:1, d:decision, o:options.map(o=>o.text),
-  p:participants.map(p=>{const oi=options.findIndex(o=>o.text===p.vote);return[p.name,Math.round(parseFloat(p.wealth)||0),oi>=0?oi:null];}),
-  ..._es(wt,cu,wm),
-});
-
-const decodeVoteState = code => {
-  const r = parseShareData(code, 'p', 'o'); if (!r) return null;
-  const {data, base} = r;
-  if (data.v === 1) {
-    const options = data.o.map((t,i)=>({id:base+i,text:String(t)}));
-    return {
-      decision:String(data.d||''), options,
-      participants:data.p.map((p,i)=>({id:base+100+i,name:String(p[0]||''),wealth:String(p[1]||0),vote:(typeof p[2]==='number'&&p[2]>=0&&data.o[p[2]])?String(data.o[p[2]]):''})),
-      ..._ds(data),
-    };
-  }
-  return null;
-};
-
-const encodeRentState = (people, totalRent, totalUtilities, wt, fl, cu, wm, ms) => encodeState({
-  v:1, r:Math.round((parseFloat(totalRent)||0)*100), u:Math.round((parseFloat(totalUtilities)||0)*100),
-  p:people.map(p=>[p.name,Math.round(parseFloat(p.roomSize)||0),Math.round(parseFloat(p.wealth)||0)]),
-  ..._es(wt,cu,wm,fl,ms),
-});
-
-const decodeRentState = code => {
-  const r = parseShareData(code, 'p'); if (!r) return null;
-  const {data, base} = r;
-  if (data.v === 1) return {
-    people:data.p.map((p,i)=>({id:base+i,name:String(p[0]||''),roomSize:String(p[1]||0),wealth:String(p[2]||0)})),
-    totalRent:String(((data.r||0)/100).toFixed(2)).replace(/\.00$/,''),
-    totalUtilities:String(((data.u||0)/100).toFixed(2)).replace(/\.00$/,''),
-    ..._ds(data),
-  };
-  return null;
-};
-
-const parseShareCode = (input, prefix) => {
-  const trimmed = input.trim();
-  const match = trimmed.match(new RegExp(`#${prefix}/([^&\\s]+)`));
-  return match ? match[1] : trimmed;
-};
-const _decoders = {bill:decodeBillState,sale:decodeSaleState,vote:decodeVoteState,rent:decodeRentState};
-
 const BG_GREY = '#F3F4F6';
 const DARK    = '#333333';
 
@@ -232,35 +48,34 @@ const CLS_DASHED   = 'border-2 border-dashed border-gray-400';
 const CLS_DASHED_T = 'border-t border-dashed border-gray-400';
 const CLS_BTN_BLK  = 'bg-black text-white px-4 py-2 font-bold border-2 border-black text-xs';
 const CLS_BTN_WHT  = 'bg-white text-black font-bold py-2 px-4 border-2 border-black text-xs hover:bg-gray-100 transition-all';
-const CLS_BTN_ACT = 'bg-black text-white px-6 py-2 font-bold border-2 border-black hover:bg-gray-800 transition-all w-full';
-
-const CLS_H3      = 'text-lg font-bold mb-4 text-black uppercase tracking-wider';
-const CLS_LABEL   = 'text-xs font-bold mb-2 text-black uppercase tracking-wider';
-const CLS_BAR_BG  = 'flex-1 bg-gray-200 h-6 relative overflow-hidden border border-gray-400';
-const CLS_BAR     = 'h-6 bar-animate flex items-center justify-end pr-2 sf';
-const CLS_TOTAL   = 'flex justify-between items-center pt-3';
-const CLS_NAME    = 'text-xs text-black font-bold uppercase';
-const S_DARK  = {backgroundColor:DARK,color:BG_GREY,borderColor:DARK};
-const CLS_FB  = 'font-bold mb-2';
-const S_PANEL = {border:'2px dashed #9CA3AF',borderTop:'none',padding:'20px'};
+const CLS_BTN_ACT  = 'bg-black text-white px-6 py-2 font-bold border-2 border-black hover:bg-gray-800 transition-all w-full';
+const CLS_H3       = 'text-lg font-bold mb-4 text-black uppercase tracking-wider';
+const CLS_LABEL    = 'text-xs font-bold mb-2 text-black uppercase tracking-wider';
+const CLS_BAR_BG   = 'flex-1 bg-gray-200 h-6 relative overflow-hidden border border-gray-400';
+const CLS_BAR      = 'h-6 bar-animate flex items-center justify-end pr-2 sf';
+const CLS_TOTAL    = 'flex justify-between items-center pt-3';
+const CLS_NAME     = 'text-xs text-black font-bold uppercase';
+const S_DARK   = {backgroundColor:DARK,color:BG_GREY,borderColor:DARK};
+const CLS_FB   = 'font-bold mb-2';
+const S_PANEL  = {border:'2px dashed #9CA3AF',borderTop:'none',padding:'20px'};
 const NP = {min:'0',step:'0.01',inputMode:'decimal'};
-const CLS_JBH   = 'flex justify-between items-start mb-3 border-b border-dashed border-gray-400 pb-2';
-const CLS_H2C   = 'text-2xl font-black mb-4 text-black uppercase tracking-wider text-center';
-const CLS_DEL   = 'text-black font-bold text-xl ml-3 hover:text-gray-600 leading-none';
-const CLS_CUR   = 'cursor-pointer hover:underline font-bold sf';
-const CLS_CP    = 'currency-pattern text-xs text-black uppercase tracking-wider sf';
-const CLS_I1    = 'flex-1 p-2 border-2 border-gray-400 bg-white uppercase';
-const CLS_FBU   = 'font-bold text-black uppercase mb-1';
-const CLS_FIG   = 'flex items-center gap-2';
-const CLS_P3    = 'text-xs mb-3 text-black';
-const CLS_BR    = 'text-xs font-bold text-black w-24 text-right';
-const CLS_PARA3 = 'leading-relaxed text-xs mb-3';
-const CLS_FBSM  = 'font-bold text-sm text-black uppercase';
-const CLS_ROW3  = 'flex flex-col sm:flex-row gap-2 mb-3';
-const CLS_FBS   = 'font-black text-black uppercase sf';
-const CLS_BL    = 'text-xs text-black w-20 font-bold';
-const CLS_FG4   = 'flex gap-4 items-start';
-const CLS_FBT   = 'font-black text-black text-xs sf';
+const CLS_JBH    = 'flex justify-between items-start mb-3 border-b border-dashed border-gray-400 pb-2';
+const CLS_H2C    = 'text-2xl font-black mb-4 text-black uppercase tracking-wider text-center';
+const CLS_DEL    = 'text-black font-bold text-xl ml-3 hover:text-gray-600 leading-none';
+const CLS_CUR    = 'cursor-pointer hover:underline font-bold sf';
+const CLS_CP     = 'currency-pattern text-xs text-black uppercase tracking-wider sf';
+const CLS_I1     = 'flex-1 p-2 border-2 border-gray-400 bg-white uppercase';
+const CLS_FBU    = 'font-bold text-black uppercase mb-1';
+const CLS_FIG    = 'flex items-center gap-2';
+const CLS_P3     = 'text-xs mb-3 text-black';
+const CLS_BR     = 'text-xs font-bold text-black w-24 text-right';
+const CLS_PARA3  = 'leading-relaxed text-xs mb-3';
+const CLS_FBSM   = 'font-bold text-sm text-black uppercase';
+const CLS_ROW3   = 'flex flex-col sm:flex-row gap-2 mb-3';
+const CLS_FBS    = 'font-black text-black uppercase sf';
+const CLS_BL     = 'text-xs text-black w-20 font-bold';
+const CLS_FG4    = 'flex gap-4 items-start';
+const CLS_FBT    = 'font-black text-black text-xs sf';
 const CLS_PARA   = 'leading-relaxed text-xs';
 const CLS_STEP_P = 'text-xs mb-4 text-black leading-relaxed';
 const CLS_XS     = 'text-xs text-black';
@@ -273,7 +88,7 @@ const CLS_P5     = 'text-xs mb-5 text-black leading-relaxed';
 const CLS_ROW    = 'flex flex-col sm:flex-row gap-2 mb-2';
 const CLS_FBTXU  = 'font-bold text-black mb-1 text-xs uppercase';
 const FLOOR_OPTIONS = [{value:'off',label:'OFF'},{value:'10',label:'10%'},{value:'25',label:'25%'},{value:'50',label:'50%'}];
-const _errs=c=>c.flatMap(([t,m])=>t?[m]:[]);
+const _errs = c => c.flatMap(([t,m])=>t?[m]:[]);
 
 const BG_STYLE = {
   backgroundImage:'repeating-linear-gradient(135deg,#ffd700 0px,#ff8c00 525px,#ffd700 1050px)',
@@ -365,13 +180,12 @@ const CalculateIcon = ({size=20}) => <Icon size={size}><line x1="4" y1="9" x2="2
 const ListIcon = ({size=20}) => <Icon size={size}><rect x="4" y="5" width="3" height="3" fill={DARK}/><rect x="4" y="10" width="3" height="3" fill={DARK}/><rect x="4" y="15" width="3" height="3" fill={DARK}/><line x1="9" y1="6.5" x2="20" y2="6.5" stroke={DARK} strokeWidth="2"/><line x1="9" y1="11.5" x2="20" y2="11.5" stroke={DARK} strokeWidth="2"/><line x1="9" y1="16.5" x2="20" y2="16.5" stroke={DARK} strokeWidth="2"/></Icon>;
 const ReceiptLineIcon = ({size=20}) => <Icon size={size}><rect x="4" y="2" width="16" height="20" rx="1" fill={DARK}/><line x1="7" y1="7" x2="17" y2="7" stroke={BG_GREY} strokeWidth="1.5" strokeLinecap="round"/><line x1="7" y1="11" x2="17" y2="11" stroke={BG_GREY} strokeWidth="1.5" strokeLinecap="round"/><line x1="7" y1="15" x2="13" y2="15" stroke={BG_GREY} strokeWidth="1.5" strokeLinecap="round"/></Icon>;
 const ErrorIcon = ({size=20}) => <Icon size={size}><line x1="4" y1="4" x2="20" y2="20" stroke={DARK} strokeWidth="3"/><line x1="20" y1="4" x2="4" y2="20" stroke={DARK} strokeWidth="3"/></Icon>;
-const ShareIcon = ({size=20}) => <svg aria-hidden="true" width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><circle cx="18" cy="5" r="3" fill="none" stroke="currentColor" strokeWidth="2"/><circle cx="6" cy="12" r="3" fill="none" stroke="currentColor" strokeWidth="2"/><circle cx="18" cy="19" r="3" fill="none" stroke="currentColor" strokeWidth="2"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" stroke="currentColor" strokeWidth="2"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" stroke="currentColor" strokeWidth="2"/></svg>;
 
 const BILL_STEPS = [
-  {label:'SPLIT BILLS',icon:<BillIcon size={22}/>},
-  {label:'PEOPLE',     icon:<PersonIcon size={22}/>},
-  {label:'BILLS',      icon:<ReceiptLineIcon size={22}/>},
-  {label:'CALCULATE',  icon:<CalculateIcon size={22}/>},
+  {label:'SPLIT BILLS', icon:<BillIcon size={22}/>},
+  {label:'PEOPLE',      icon:<PersonIcon size={22}/>},
+  {label:'BILLS',       icon:<ReceiptLineIcon size={22}/>},
+  {label:'CALCULATE',   icon:<CalculateIcon size={22}/>},
 ];
 const SALE_STEPS = [
   {label:'SELL',      icon:<TagIcon size={22}/>},
@@ -387,10 +201,10 @@ const VOTE_STEPS = [
   {label:'CALCULATE', icon:<CalculateIcon size={22}/>},
 ];
 const RENT_STEPS = [
-  {label:'SPLIT RENT',icon:<HouseIcon size={22}/>},
-  {label:'COSTS',     icon:<BillIcon size={22}/>},
-  {label:'TENANTS',   icon:<PersonIcon size={22}/>},
-  {label:'CALCULATE', icon:<CalculateIcon size={22}/>},
+  {label:'SPLIT RENT', icon:<HouseIcon size={22}/>},
+  {label:'COSTS',      icon:<BillIcon size={22}/>},
+  {label:'TENANTS',    icon:<PersonIcon size={22}/>},
+  {label:'CALCULATE',  icon:<CalculateIcon size={22}/>},
 ];
 
 const scrollToStep = i => setTimeout(() => {
@@ -422,9 +236,9 @@ const FaqItem = ({q,a,render,border,forceOpen,onForceOpenConsumed}) => {
 
 const DetailToggleButton = ({show, onClick}) => (
   <div style={{borderTop:'2px dashed #9CA3AF', borderBottom:'2px dashed #9CA3AF', marginBottom:'24px'}}>
-    <button onClick={onClick} style={{background:'transparent', border:'0', width:'100%', display:'flex', alignItems:'center', gap:'12px', padding:'20px', cursor:'pointer', textAlign:'left'}} className="hover:opacity-60 transition-all">
-      <span style={{flex:1, fontWeight:900, fontSize:'14px', color:DARK, textTransform:'uppercase', letterSpacing:'0.05em', lineHeight:1.3}}>{show ? 'HIDE BREAKDOWN' : 'SHOW BREAKDOWN'}</span>
-      <span style={{fontSize:'24px', fontWeight:900, color:DARK, lineHeight:1, flexShrink:0}}>{show ? '−' : '+'}</span>
+    <button onClick={onClick} style={{background:'transparent',border:'0',width:'100%',display:'flex',alignItems:'center',gap:'12px',padding:'20px',cursor:'pointer',textAlign:'left'}} className="hover:opacity-60 transition-all">
+      <span style={{flex:1,fontWeight:900,fontSize:'14px',color:DARK,textTransform:'uppercase',letterSpacing:'0.05em',lineHeight:1.3}}>{show ? 'HIDE BREAKDOWN' : 'SHOW BREAKDOWN'}</span>
+      <span style={{fontSize:'24px',fontWeight:900,color:DARK,lineHeight:1,flexShrink:0}}>{show ? '−' : '+'}</span>
     </button>
   </div>
 );
@@ -442,13 +256,12 @@ const AboutBanner = () => (
   </div></div>
 );
 
-const SubHedF = ({text}) => (
+const SubHed = ({text}) => (
   <div style={{marginTop:'28px',marginBottom:'16px'}}>
     <p style={{color:DARK,fontSize:'13px',fontWeight:900,letterSpacing:'1.5px',textTransform:'uppercase',lineHeight:1.4,marginBottom:'6px'}}>{text}</p>
     <div style={{borderTop:`4px solid ${DARK}`}}/>
   </div>
 );
-const SubHed = SubHedF;
 
 const FaqBanner = () => (
   <div className="mb-6"><div className="bg-white p-4">
@@ -507,11 +320,9 @@ const ToggleGroup = ({options, value, onChange, minWidth='60px', justify='center
 const CurrencySelector = ({value, onChange}) => (
   <ToggleGroup options={[{value:'USD',label:'$'},{value:'EUR',label:'€'},{value:'GBP',label:'£'}]} value={value} onChange={onChange} minWidth="50px" fontSize="15px"/>
 );
-
 const WealthMetricSelector = ({value, onChange}) => (
   <ToggleGroup options={[{value:'salary',label:'SALARY'},{value:'networth',label:'NET WORTH'}]} value={value} onChange={onChange} minWidth="100px"/>
 );
-
 const CurrencyWealthSettings = ({currency, onCurrency, wealth, onWealth, pad='p-3'}) => (
   <div className={`${CLS_DASHED} ${pad} mb-5 bg-gray-50`}>
     <p className={CLS_LABEL}>CURRENCY:</p>
@@ -522,47 +333,7 @@ const CurrencyWealthSettings = ({currency, onCurrency, wealth, onWealth, pad='p-
   </div>
 );
 
-const LOAD_PANEL_RESET = {tool:null, input:'', error:false};
-
-const LoadSplitPanel = ({tool, loadPanel, setLoadPanel, onLoad, label='LOAD SPLIT'}) => {
-  const isOpen = loadPanel.tool === tool;
-  return !isOpen ? (
-    <button onClick={()=>setLoadPanel({tool, input:'', error:false})} className={`w-full ${CLS_BTN_WHT}`}>{label}</button>
-  ) : (
-    <div className={`${CLS_DASHED} p-4 animate-fadeIn`}>
-      <p className={CLS_P3}>Enter a share link from a previous {tool==='sale'?'sale':tool==='vote'?'vote':'split'}.</p>
-      <input value={loadPanel.input} onChange={e=>setLoadPanel(p=>({...p,input:e.target.value,error:false}))} placeholder="PASTE URL HERE" className="w-full p-2 border-2 border-gray-400 bg-white mb-2" style={{fontSize:'16px',textTransform:'none'}}/>
-      {loadPanel.error&&(
-        <div className="flex items-center gap-2 mb-3 p-3 border-2 border-black bg-white">
-          <ErrorIcon size={16}/>
-          <p className="text-xs text-black font-bold">INVALID CODE. PLEASE CHECK AND TRY AGAIN.</p>
-        </div>
-      )}
-      <div className="flex gap-2">
-        <button onClick={onLoad} className={`flex-1 ${CLS_BTN_BLK} hover:bg-gray-800 transition-all`}>LOAD →</button>
-        <button onClick={()=>setLoadPanel(LOAD_PANEL_RESET)} className={`flex-1 ${CLS_BTN_WHT}`}>CANCEL</button>
-      </div>
-    </div>
-  );
-};
-
-const IntroStep = ({desc, hasSaved, resumeLabel, newLabel, tool, loadLabel, onJump, onClear, onExample, loadPanel, setLoadPanel, onLoad, onPrivacyFaq}) => (
-  <div>
-    <p className={CLS_P5}>{desc}</p>
-    <div className="flex flex-col gap-3">
-      {hasSaved&&<button onClick={onJump} className="w-full bg-black text-white py-3 font-bold text-sm border-2 border-black hover:bg-gray-800 transition-all">{resumeLabel}</button>}
-      <button onClick={onClear} className={`w-full font-bold border-2 border-black transition-all ${hasSaved?'bg-white text-black py-2 px-4 text-xs hover:bg-gray-100':'bg-black text-white py-3 text-sm hover:bg-gray-800'}`}>{hasSaved?newLabel:`${newLabel} →`}</button>
-      <LoadSplitPanel tool={tool} loadPanel={loadPanel} setLoadPanel={setLoadPanel} onLoad={onLoad} label={loadLabel}/>
-      <button onClick={onExample} className={`w-full ${CLS_BTN_WHT}`}>TRY AN EXAMPLE</button>
-    </div>
-    {onPrivacyFaq&&<PrivacyNote onFaq={onPrivacyFaq}/>}
-  </div>
-);
-
 const DashedDivider = () => <div className="border-t-2 border-dashed border-gray-400 my-6"/>;
-const PrivacyNote = ({onFaq}) => (
-  <p className="text-xs mt-4 leading-relaxed" style={{color:'#9CA3AF',fontSize:'10px'}}>Your data never leaves your device. <span className="underline cursor-pointer hover:text-gray-500" onClick={onFaq}>Learn more</span></p>
-);
 const CurrencyDivider = () => (
   <div className="flex items-center gap-4 my-6">
     <div className="flex-1 border-t-4" style={{borderColor:DARK}}></div>
@@ -575,22 +346,18 @@ const BlackBoxStats = ({stats}) => (
     {stats.map(({label,value})=><div key={label} className="text-xs" style={{color:BG_GREY}}><span>{label}: </span><span className="font-bold">{value}</span></div>)}
   </div>
 );
-
 const WeightingButtons = ({value,onChange}) => (
   <ToggleGroup options={[{value:'none',label:'OFF'},{value:'gentle',label:'LOW'},{value:'standard',label:'MID'},{value:'strong',label:'HIGH'}]} value={value} onChange={onChange} minWidth="80px"/>
 );
-
 const numericChange = (onChange) => (e) => {
   const val = e.target.value;
   if (val === '' || /^\d*\.?\d*$/.test(val)) onChange(e);
 };
-
 const FormInput = ({type='text',value,onChange,placeholder,className='',style,...props}) => {
   const base="w-full p-2 border-2 border-gray-400 bg-white uppercase";
   if(type==='textarea') return <textarea value={value} onChange={onChange} placeholder={placeholder} className={`${base} ${className}`} style={{fontSize:'16px',...style}} {...props}/>;
   return <input type={type} value={value} onChange={type==='number'?numericChange(onChange):onChange} placeholder={placeholder} className={`${base} ${className}`} style={{fontSize:'16px',...style}} {...props}/>;
 };
-
 const ItemList = ({items,onDelete,renderItem,receiptStyle,formatTotal,getAmount}) => {
   if(!items.length) return null;
   if(receiptStyle) {
@@ -660,7 +427,7 @@ const AdvancedSettingsToggle = ({isOpen, onToggle}) => (
   </button>
 );
 
-const CalcStep = ({onCalculate, weighting, onWeighting, navigateToFaq, hasFloor=false, floor, onFloor, hasAdvanced=false, validate}) => {
+const CalcStep = ({onCalculate, weighting, onWeighting, navigateToFaq, hasFloor=false, floor, onFloor, hasAdvanced=false, validate, onSave, isSaving}) => {
   const [advOpen, setAdvOpen] = useState(false);
   const [attempted, setAttempted] = useState(false);
   const errors = validate ? validate() : [];
@@ -711,10 +478,15 @@ const CalcStep = ({onCalculate, weighting, onWeighting, navigateToFaq, hasFloor=
             </svg>
             <div>
               <p className="text-xs font-bold uppercase mb-2 text-black">ERROR</p>
-              {errors.map((e,i)=><p key={i} className="text-xs uppercase text-black" style={{marginBottom: i<errors.length-1?'4px':0}}>— {e}</p>)}
+              {errors.map((e,i)=><p key={i} className="text-xs uppercase text-black" style={{marginBottom:i<errors.length-1?'4px':0}}>— {e}</p>)}
             </div>
           </div>
         </div>
+      )}
+      {onSave && (
+        <button onClick={onSave} disabled={isSaving} className={`w-full py-4 font-black text-xl border-4 border-black transition-all uppercase mb-3 ${isSaving?'bg-gray-300 text-gray-500 cursor-not-allowed':'bg-white text-black hover:bg-gray-100'}`}>
+          {isSaving ? 'SAVING...' : 'SAVE CHANGES'}
+        </button>
       )}
       <button onClick={handleCalculate} className="bg-black text-white w-full py-4 font-black text-xl border-4 border-black hover:bg-gray-800 transition-all uppercase calculate-btn">CALCULATE</button>
     </div>
@@ -724,7 +496,7 @@ const CalcStep = ({onCalculate, weighting, onWeighting, navigateToFaq, hasFloor=
 const renderWealthPieChart = data => {
   const sorted=[...data].sort((a,b)=>b.wealth-a.wealth);
   const total=sorted.reduce((s,p)=>s+p.wealth,0);
-  const colors=['#000000','#1F2937','#475569','#64748B','#94A3B8','#CBD5E1','#E2E8F0','#F1F5F9'];
+  const colors=['#333333','#555555','#777777','#999999','#AAAAAA','#BBBBBB','#CCCCCC','#DDDDDD'];
   return(
     <>
       <svg aria-hidden="true" viewBox="0 0 200 200" className="w-full max-w-xs mx-auto">
@@ -877,20 +649,11 @@ const HomeAccordion = ({navigateTo}) => {
         {openSection==='how'&&(
           <div style={S_PANEL}>
             <div className="space-y-6">
-              <div className={CLS_FG4}>
-                <div className={CLS_NUM} style={S_DARK}>1</div>
-                <div><h3 className={CLS_FBU}>ADD YOUR GROUP</h3><p className={CLS_XS}>Enter everyone's names, and incomes or net worth</p></div>
-              </div>
+              <div className={CLS_FG4}><div className={CLS_NUM} style={S_DARK}>1</div><div><h3 className={CLS_FBU}>ADD YOUR GROUP</h3><p className={CLS_XS}>Enter everyone's names, and incomes or net worth</p></div></div>
               <PeopleAvatars />
-              <div className={CLS_FG4}>
-                <div className={CLS_NUM} style={S_DARK}>2</div>
-                <div><h3 className={CLS_FBU}>ENTER YOUR BILLS</h3><p className={CLS_XS}>List what was spent, and who paid</p></div>
-              </div>
+              <div className={CLS_FG4}><div className={CLS_NUM} style={S_DARK}>2</div><div><h3 className={CLS_FBU}>ENTER YOUR BILLS</h3><p className={CLS_XS}>List what was spent, and who paid</p></div></div>
               <MockReceipt />
-              <div className={CLS_FG4}>
-                <div className={CLS_NUM} style={S_DARK}>3</div>
-                <div><h3 className={CLS_FBU}>GET FAIR RESULTS</h3><p className={CLS_XS}>See who owes what, based on ability to pay</p></div>
-              </div>
+              <div className={CLS_FG4}><div className={CLS_NUM} style={S_DARK}>3</div><div><h3 className={CLS_FBU}>GET FAIR RESULTS</h3><p className={CLS_XS}>See who owes what, based on ability to pay</p></div></div>
               <ResultPieChart />
             </div>
             <div className="mt-6 flex flex-col max-w-xs mx-auto" style={{gap:'12px'}}>
@@ -910,7 +673,7 @@ const HomeAccordion = ({navigateTo}) => {
 let _legalCount = 0;
 let _legalTimer = null;
 
-const FooterNav = ({onNavigate, onClearStorage, currentPage}) => {
+const FooterNav = ({onNavigate, onClearStorage}) => {
   const [toast, setToast] = useState(false);
   const handleLegalClick = () => {
     _legalCount++;
@@ -927,8 +690,8 @@ const FooterNav = ({onNavigate, onClearStorage, currentPage}) => {
   };
   const resetCount = dest => { _legalCount = 0; clearTimeout(_legalTimer); onNavigate(dest); };
   const navItem = (dest, label, handler) => (
-      <span onClick={handler || (() => resetCount(dest))} className={CLS_CUR} style={{color:DARK}}>{label}</span>
-    );
+    <span onClick={handler || (() => resetCount(dest))} className={CLS_CUR} style={{color:DARK}}>{label}</span>
+  );
   return (
     <div className="footer-nav text-xs mt-4 mb-4">
       {navItem('home','HOME')}
@@ -961,7 +724,7 @@ const ReceiptBottom = () => (
   </svg>
 );
 
-const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClearStorage,currentPage}) => (
+const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClearStorage}) => (
   <div style={BG_STYLE}>
     <BgSymbols />
     <div style={{position:'relative',zIndex:1}}>
@@ -1001,12 +764,7 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
             <div className="bg-white mb-4 pt-3 pb-3 border-b-2 border-dashed border-gray-400">
               <div role="button" tabIndex={0} aria-label="Go to home" className="cursor-pointer text-center" onClick={()=>onNavigate('home')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&onNavigate('home')}>
                 <div className={CLS_CP} style={{marginBottom:'2px'}}>{'$ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £'}</div>
-                <img
-                  src="/logo.svg"
-                  alt="COMRADE"
-                  style={{width:'100%',display:'block',marginBottom:'6px',marginTop:'4px'}}
-                  onError={e=>{e.target.style.display='none';e.target.nextSibling.style.display='flex';}}
-                />
+                <img src="/logo.svg" alt="COMRADE" style={{width:'100%',display:'block',marginBottom:'6px',marginTop:'4px'}} onError={e=>{e.target.style.display='none';e.target.nextSibling.style.display='flex';}}/>
                 <div style={{display:'none',justifyContent:'space-between',alignItems:'baseline',width:'100%',marginBottom:'-2px',marginTop:'4px'}}>
                   {'COMRADE'.split('').map((c,i)=>(
                     <span key={i} style={{fontFamily:'Sixtyfour,monospace',fontWeight:900,color:DARK,fontSize:'clamp(24px,9vw,72px)',lineHeight:1}}>{c}</span>
@@ -1018,7 +776,7 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
             </div>
             {children}
             <CurrencyDivider />
-            <FooterNav onNavigate={onNavigate} onClearStorage={onClearStorage} currentPage={currentPage}/>
+            <FooterNav onNavigate={onNavigate} onClearStorage={onClearStorage}/>
             <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 464 73" width="100%" style={{display:'block',marginBottom:'8px'}}>
               <rect x="0" y="0" width="464" height="73" fill={BG_GREY}/>
               <g transform="translate(10, 3)" fill={DARK}>
@@ -1038,8 +796,45 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
   </div>
 );
 
-
 const _fc=(v,c)=>formatCurrency(v,2,c),_fcs=(v,c)=>formatCurrencySmart(v,c);
+
+// IntroStep is defined outside Comrade so it's stable across renders
+const IntroStep = ({desc, hasSaved, resumeLabel, newLabel, onJump, onClear, onExample, isCollaborative, isSaving, onGroupSplit, collaborativeBanner, groupSplitPrompt}) => {
+  const groupSplitButton = groupSplitPrompt || (onGroupSplit ? (
+    <div>
+      <button
+        onClick={onGroupSplit}
+        disabled={isSaving}
+        className={`w-full font-bold py-3 border-2 border-black text-sm transition-all ${isSaving?'bg-gray-300 text-gray-500 cursor-not-allowed':hasSaved?'bg-white text-black hover:bg-gray-100':'bg-black text-white hover:bg-gray-800'}`}>
+        {isSaving ? 'SAVING...' : hasSaved ? 'NEW GROUP SPLIT' : 'NEW GROUP SPLIT →'}
+      </button>
+      <p style={{color:'#9CA3AF',fontSize:'10px'}} className="mt-1 leading-relaxed">Syncs data to the cloud, allows friends to add expenses and see results.</p>
+    </div>
+  ) : null);
+
+  return (
+    <div>
+      <p className={CLS_P5}>{desc}</p>
+      {collaborativeBanner}
+      <div className="flex flex-col gap-3">
+        {hasSaved && !isCollaborative && (
+          <button onClick={onJump} className="w-full bg-black text-white py-3 font-bold text-sm border-2 border-black hover:bg-gray-800 transition-all">{resumeLabel}</button>
+        )}
+        {!hasSaved && groupSplitButton}
+        <div>
+          <button onClick={onClear} className={`w-full font-bold border-2 border-black transition-all ${(hasSaved||isCollaborative)?'bg-white text-black py-2 px-4 text-xs hover:bg-gray-100':'bg-black text-white py-3 text-sm hover:bg-gray-800'}`}>
+            {(hasSaved||isCollaborative) ? newLabel : `${newLabel} →`}
+          </button>
+          <p style={{color:'#9CA3AF',fontSize:'10px'}} className="mt-1 leading-relaxed">All calculation takes place on your device. No data is shared.</p>
+        </div>
+        {hasSaved && !isCollaborative && groupSplitButton}
+        {onExample && (
+          <button onClick={onExample} className={`w-full ${CLS_BTN_WHT}`}>TRY AN EXAMPLE</button>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const Comrade = () => {
   useEffect(()=>{
@@ -1053,7 +848,20 @@ const Comrade = () => {
   },[]);
 
   const [copyToastMsg, setCopyToastMsg] = useState('');
+  const [showCopyToast, setShowCopyToast] = useState(false);
   const copyToClipboard = useCallback((t, msg='COPIED TO CLIPBOARD!')=>{navigator.clipboard.writeText(t);setCopyToastMsg(msg);setShowCopyToast(true);},[]);
+
+  const [page, setPage] = useState('home');
+  const [faqOpenIndex, setFaqOpenIndex] = useState(null);
+  const [loadedAt, setLoadedAt] = useState(formatTimestamp);
+  const [randomQuote, setRandomQuote] = useState('');
+  const [lastQuoteIndices, setLastQuoteIndices] = useState([]);
+  const [signupEmail, setSignupEmail] = useState('');
+  const [signupStatus, setSignupStatus] = useState('');
+  const [showDetails, setShowDetails] = useState(false);
+  const [entryOpen, setEntryOpen] = useState([0]);
+  const editModeRef = useRef(false);
+
   const navigateTo = useCallback((p, opts={})=>{
     window.history.pushState({page:p},'',`#${p}`);
     if(opts.faqIndex != null) setFaqOpenIndex(opts.faqIndex);
@@ -1062,95 +870,74 @@ const Comrade = () => {
   const navigateToFaq = useCallback(()=>navigateTo('faq'),[navigateTo]);
   const navigateToPrivacyFaq = useCallback(()=>navigateTo('about'),[navigateTo]);
 
-  useEffect(()=>{
-    const hash = window.location.hash;
-    let found = false;
-    for (const t of ['bill','sale','vote','rent']) {
-      if (hash.startsWith(`#${t}/`)) {
-        const d = _decoders[t](hash.slice(t.length+2));
-        if (d) { applyToolState(t, d); setPage(`${t}-results`); found=true; }
-        break;
-      }
-    }
-    if(!found) window.history.replaceState({page:'home'},'','#home');
-    const onPop = e=>{ const p=e.state?.page||'home'; setPage(p); };
-    window.addEventListener('popstate',onPop);
-    return()=>window.removeEventListener('popstate',onPop);
-  },[]);
-
-  const [loadedAt,setLoadedAt] = useState(formatTimestamp);
-  const [page,setPage] = useState('home');
-  const [faqOpenIndex,setFaqOpenIndex] = useState(null);
-  const [showCopyToast,setShowCopyToast] = useState(false);
-  const [randomQuote,setRandomQuote] = useState('');
-  const [lastQuoteIndices,setLastQuoteIndices] = useState([]);
-  const [signupEmail,setSignupEmail] = useState('');
-  const [signupStatus,setSignupStatus] = useState('');
-  const [loadPanel, setLoadPanel] = useState(LOAD_PANEL_RESET);
-
-  const [billPeople,setBillPeople]             = useState(_b0.billPeople||[]);
-  const [billBills,setBillBills]               = useState(_b0.billBills||[]);
-  const [billWeighting,setBillWeighting]       = useState(_b0.billWeighting||'standard');
-  const [billFloor,setBillFloor]               = useState(_b0.billFloor||'off');
-  const [billCurrency,setBillCurrency]         = useState(_b0.billCurrency||'USD');
-  const [billWealthMetric,setBillWealthMetric] = useState(_b0.billWealthMetric||'salary');
-
-  const [productName,setProductName]           = useState(_s0.productName||'');
-  const [numberAvailable,setNumberAvailable]   = useState(_s0.numberAvailable||'');
-  const [saleBuyers,setSaleBuyers]             = useState(_s0.saleBuyers||[]);
-  const [saleWeighting,setSaleWeighting]       = useState(_s0.saleWeighting||'standard');
-  const [saleCurrency,setSaleCurrency]         = useState(_s0.saleCurrency||'USD');
-  const [saleWealthMetric,setSaleWealthMetric] = useState(_s0.saleWealthMetric||'salary');
-
-  const [voteDecision,setVoteDecision]         = useState(_v0.voteDecision||'');
-  const [voteOptions,setVoteOptions]           = useState(_v0.voteOptions||[]);
-  const [voteParticipants,setVoteParticipants] = useState(_v0.voteParticipants||[]);
-  const [voteWeighting,setVoteWeighting]       = useState(_v0.voteWeighting||'standard');
-  const [voteCurrency,setVoteCurrency]         = useState(_v0.voteCurrency||'USD');
-  const [voteWealthMetric,setVoteWealthMetric] = useState(_v0.voteWealthMetric||'salary');
-
-  const [totalRent,setTotalRent]               = useState(_r0.totalRent||'');
-  const [totalUtilities,setTotalUtilities]     = useState(_r0.totalUtilities||'');
-  const [rentPeople,setRentPeople]             = useState(_r0.rentPeople||[]);
-  const [rentWeighting,setRentWeighting]       = useState(_r0.rentWeighting||'standard');
-  const [rentFloor,setRentFloor]               = useState(_r0.rentFloor||'off');
-  const [rentCurrency,setRentCurrency]         = useState(_r0.rentCurrency||'USD');
-  const [rentWealthMetric,setRentWealthMetric] = useState(_r0.rentWealthMetric||'salary');
-  const [rentMeasurement,setRentMeasurement]   = useState(_r0.rentMeasurement||'sqft');
-
-  const hasBillSavedData = billPeople.length>0 || billBills.length>0;
-  const hasSaleSavedData = saleBuyers.length>0  || !!productName;
-  const hasVoteSavedData = voteParticipants.length>0 || !!voteDecision;
-  const hasRentSavedData = rentPeople.length>0  || !!totalRent;
-
-  const [curPersonName,setCurPersonName]         = useState('');
-  const [curPersonWealth,setCurPersonWealth]     = useState('');
-  const [curBillDesc,setCurBillDesc]             = useState('');
-  const [curBillAmt,setCurBillAmt]               = useState('');
-  const [curBillPaidBy,setCurBillPaidBy]         = useState('');
-  const [curBuyerName,setCurBuyerName]           = useState('');
-  const [curBuyerWealth,setCurBuyerWealth]       = useState('');
-  const [curBuyerOffer,setCurBuyerOffer]         = useState('');
-  const [curOptionText,setCurOptionText]               = useState('');
-  const [curParticipantName,setCurParticipantName]     = useState('');
-  const [curParticipantWealth,setCurParticipantWealth] = useState('');
-  const [curParticipantVote,setCurParticipantVote]     = useState('');
-  const [curRoommateName,setCurRoommateName]         = useState('');
-  const [curRoommateRoomSize,setCurRoommateRoomSize] = useState('');
-  const [curRoommateWealth,setCurRoommateWealth]     = useState('');
-  const [entryOpen, setEntryOpen] = useState([0]);
-  const [showDetails,setShowDetails] = useState(false);
-
   const jump = useCallback(i => { setEntryOpen([i]); scrollToStep(i); }, []);
   const toggleEntry = useCallback(i => setEntryOpen(prev => prev.includes(i) ? prev.filter(x => x !== i) : [...prev, i]), []);
 
-  const applyToolState = (tool, d) => ({
-    bill:()=>{setBillPeople(d.people);setBillBills(d.bills);setBillWeighting(d.weighting);setBillFloor(d.floor);setBillCurrency(d.currency);setBillWealthMetric(d.wealthMetric);},
-    sale:()=>{setProductName(d.productName);setNumberAvailable(d.numberAvailable);setSaleBuyers(d.buyers);setSaleWeighting(d.weighting);setSaleCurrency(d.currency);setSaleWealthMetric(d.wealthMetric);},
-    vote:()=>{setVoteDecision(d.decision);setVoteOptions(d.options);setVoteParticipants(d.participants);setVoteWeighting(d.weighting);setVoteCurrency(d.currency);setVoteWealthMetric(d.wealthMetric);},
-    rent:()=>{setRentPeople(d.people);setTotalRent(d.totalRent);setTotalUtilities(d.totalUtilities);setRentWeighting(d.weighting);setRentFloor(d.floor);setRentCurrency(d.currency);setRentWealthMetric(d.wealthMetric);setRentMeasurement(d.measurement);},
-  })[tool]?.();
+  // Bill state
+  const [billPeople, setBillPeople]         = useState(_b0.billPeople||[]);
+  const [billBills, setBillBills]           = useState(_b0.billBills||[]);
+  const [billWeighting, setBillWeighting]   = useState(_b0.billWeighting||'standard');
+  const [billFloor, setBillFloor]           = useState(_b0.billFloor||'off');
+  const [billCurrency, setBillCurrency]     = useState(_b0.billCurrency||'USD');
+  const [billWealthMetric, setBillWealthMetric] = useState(_b0.billWealthMetric||'salary');
 
+  // Sale state
+  const [productName, setProductName]       = useState(_s0.productName||'');
+  const [numberAvailable, setNumberAvailable] = useState(_s0.numberAvailable||'');
+  const [saleBuyers, setSaleBuyers]         = useState(_s0.saleBuyers||[]);
+  const [saleWeighting, setSaleWeighting]   = useState(_s0.saleWeighting||'standard');
+  const [saleCurrency, setSaleCurrency]     = useState(_s0.saleCurrency||'USD');
+  const [saleWealthMetric, setSaleWealthMetric] = useState(_s0.saleWealthMetric||'salary');
+
+  // Vote state
+  const [voteDecision, setVoteDecision]     = useState(_v0.voteDecision||'');
+  const [voteOptions, setVoteOptions]       = useState(_v0.voteOptions||[]);
+  const [voteParticipants, setVoteParticipants] = useState(_v0.voteParticipants||[]);
+  const [voteWeighting, setVoteWeighting]   = useState(_v0.voteWeighting||'standard');
+  const [voteCurrency, setVoteCurrency]     = useState(_v0.voteCurrency||'USD');
+  const [voteWealthMetric, setVoteWealthMetric] = useState(_v0.voteWealthMetric||'salary');
+
+  // Rent state
+  const [totalRent, setTotalRent]           = useState(_r0.totalRent||'');
+  const [totalUtilities, setTotalUtilities] = useState(_r0.totalUtilities||'');
+  const [rentPeople, setRentPeople]         = useState(_r0.rentPeople||[]);
+  const [rentWeighting, setRentWeighting]   = useState(_r0.rentWeighting||'standard');
+  const [rentFloor, setRentFloor]           = useState(_r0.rentFloor||'off');
+  const [rentCurrency, setRentCurrency]     = useState(_r0.rentCurrency||'USD');
+  const [rentWealthMetric, setRentWealthMetric] = useState(_r0.rentWealthMetric||'salary');
+  const [rentMeasurement, setRentMeasurement] = useState(_r0.rentMeasurement||'sqft');
+
+  // Collaborative state
+  const [splitId, setSplitId]               = useState(null);
+  const [splitVersion, setSplitVersion]     = useState(null);
+  const [isCollaborative, setIsCollaborative] = useState(false);
+  const [isSaving, setIsSaving]             = useState(false);
+  const [conflictDetected, setConflictDetected] = useState(false);
+  const [showGroupSplitPrompt, setShowGroupSplitPrompt] = useState(false);
+
+  // Form input state
+  const [curPersonName, setCurPersonName]   = useState('');
+  const [curPersonWealth, setCurPersonWealth] = useState('');
+  const [curBillDesc, setCurBillDesc]       = useState('');
+  const [curBillAmt, setCurBillAmt]         = useState('');
+  const [curBillPaidBy, setCurBillPaidBy]   = useState('');
+  const [curBuyerName, setCurBuyerName]     = useState('');
+  const [curBuyerWealth, setCurBuyerWealth] = useState('');
+  const [curBuyerOffer, setCurBuyerOffer]   = useState('');
+  const [curOptionText, setCurOptionText]   = useState('');
+  const [curParticipantName, setCurParticipantName]   = useState('');
+  const [curParticipantWealth, setCurParticipantWealth] = useState('');
+  const [curParticipantVote, setCurParticipantVote]   = useState('');
+  const [curRoommateName, setCurRoommateName]         = useState('');
+  const [curRoommateRoomSize, setCurRoommateRoomSize] = useState('');
+  const [curRoommateWealth, setCurRoommateWealth]     = useState('');
+
+  const hasBillSavedData = billPeople.length>0 || billBills.length>0;
+  const hasSaleSavedData = saleBuyers.length>0 || !!productName;
+  const hasVoteSavedData = voteParticipants.length>0 || !!voteDecision;
+  const hasRentSavedData = rentPeople.length>0 || !!totalRent;
+
+  // Persist to localStorage
   useEffect(()=>{
     saveToStorage(BILL_KEY,{billPeople,billBills,billCurrency,billWealthMetric,billWeighting,billFloor});
     saveToStorage(VOTE_KEY,{voteDecision,voteOptions,voteParticipants,voteCurrency,voteWealthMetric,voteWeighting});
@@ -1158,18 +945,45 @@ const Comrade = () => {
     saveToStorage(RENT_KEY,{totalRent,totalUtilities,rentPeople,rentCurrency,rentWealthMetric,rentWeighting,rentFloor,rentMeasurement});
   },[billPeople,billBills,billCurrency,billWealthMetric,billWeighting,billFloor,voteDecision,voteOptions,voteParticipants,voteCurrency,voteWealthMetric,voteWeighting,productName,numberAvailable,saleBuyers,saleCurrency,saleWealthMetric,saleWeighting,totalRent,totalUtilities,rentPeople,rentCurrency,rentWealthMetric,rentWeighting,rentFloor,rentMeasurement]);
 
-  const editModeRef = useRef(false);
+  // Load split from URL path on mount
+  useEffect(()=>{
+    const pathMatch = window.location.pathname.match(/^\/split\/([a-z0-9]{8})$/);
+    if (pathMatch) {
+      const id = pathMatch[1];
+      fetch(`/api/split/${id}`)
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (data) {
+            setBillPeople(data.people || []);
+            setBillBills(data.bills || []);
+            setBillWeighting(data.weighting || 'standard');
+            setBillFloor(data.floor || 'off');
+            setBillCurrency(data.currency || 'USD');
+            setBillWealthMetric(data.wealthMetric || 'salary');
+            setSplitId(id);
+            setSplitVersion(data.version);
+            setIsCollaborative(true);
+            setEntryOpen([0,1,2,3]);
+            setPage('bill-entry');
+          }
+        })
+        .catch(err => console.error('Failed to load split:', err));
+      return;
+    }
+    window.history.replaceState({page:'home'},'','#home');
+    const onPop = e=>{ const p=e.state?.page||'home'; setPage(p); };
+    window.addEventListener('popstate',onPop);
+    return()=>window.removeEventListener('popstate',onPop);
+  },[]);
 
+  // Page change effects
   useEffect(()=>{
     window.scrollTo({top:0,behavior:'instant'});
     setLoadedAt(formatTimestamp());
     setShowDetails(false);
-    setLoadPanel(LOAD_PANEL_RESET);
     if(page==='vote-entry') { setEntryOpen(editModeRef.current?[0,1,2,3,4]:[0]); }
     else if(['bill-entry','sale-entry','rent-entry'].includes(page)) { setEntryOpen(editModeRef.current?[0,1,2,3]:[0]); }
     editModeRef.current = false;
-    const _t=page.replace('-results','');
-    if(_encodeForTool[_t]){const c=_encodeForTool[_t]();if(c)window.history.replaceState({page},'',`#${_t}/${c}`);}
     if(['bill-results','sale-results','vote-results','rent-results'].includes(page)){
       setLastQuoteIndices(prev=>{
         let idx,attempts=0;
@@ -1182,19 +996,63 @@ const Comrade = () => {
 
   useEffect(()=>{if(showCopyToast){const t=setTimeout(()=>setShowCopyToast(false),2500);return()=>clearTimeout(t);}},[showCopyToast]);
 
-  const handleLoadCode = useCallback(()=>{
-    const {tool, input} = loadPanel;
-    const decoded = _decoders[tool]?.(parseShareCode(input, tool));
-    if (decoded) {
-      applyToolState(tool, decoded);
-      setLoadPanel(LOAD_PANEL_RESET);
-      navigateTo(`${tool}-results`);
-    } else { setLoadPanel(p=>({...p,error:true})); }
-  },[loadPanel,navigateTo]);
+  const saveSplit = useCallback(async () => {
+    setIsSaving(true);
+    setConflictDetected(false);
+    const splitData = {
+      people: billPeople,
+      bills: billBills,
+      weighting: billWeighting,
+      floor: billFloor,
+      currency: billCurrency,
+      wealthMetric: billWealthMetric,
+    };
+    try {
+      if (!splitId) {
+        const res = await fetch('/api/split', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(splitData),
+        });
+        const data = await res.json();
+        if (data.id) {
+          setSplitId(data.id);
+          setSplitVersion(1);
+          setIsCollaborative(true);
+          window.history.pushState({ page: 'bill-entry' }, '', `/split/${data.id}`);
+          setEntryOpen(prev => prev.includes(1) ? prev : [...prev, 1]);
+        }
+      } else {
+        const res = await fetch(`/api/split/${splitId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...splitData, version: splitVersion }),
+        });
+        if (res.status === 409) {
+          setConflictDetected(true);
+        } else {
+          const data = await res.json();
+          if (data.version) setSplitVersion(data.version);
+        }
+      }
+    } catch (err) {
+      console.error('Save failed:', err);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [splitId, splitVersion, billPeople, billBills, billWeighting, billFloor, billCurrency, billWealthMetric]);
+
+  const handleGroupSplitClick = useCallback(() => {
+    if (hasBillSavedData) {
+      setShowGroupSplitPrompt(true);
+    } else {
+      saveSplit();
+    }
+  }, [hasBillSavedData, saveSplit]);
 
   const handleClearAll = useCallback(type=>{
     ({
-      bill:()=>{ setBillPeople([]);setBillBills([]);setCurPersonName('');setCurPersonWealth('');setCurBillDesc('');setCurBillAmt('');setCurBillPaidBy(''); },
+      bill:()=>{ setBillPeople([]);setBillBills([]);setCurPersonName('');setCurPersonWealth('');setCurBillDesc('');setCurBillAmt('');setCurBillPaidBy('');setSplitId(null);setSplitVersion(null);setIsCollaborative(false);setConflictDetected(false); },
       sale:()=>{ setProductName('');setNumberAvailable('');setSaleBuyers([]);setCurBuyerName('');setCurBuyerWealth('');setCurBuyerOffer('');try{localStorage.removeItem(SALE_KEY);}catch{} },
       vote:()=>{ setVoteDecision('');setVoteOptions([]);setVoteParticipants([]);setCurParticipantName('');setCurParticipantWealth('');setCurParticipantVote('');setCurOptionText('');try{localStorage.removeItem(VOTE_KEY);}catch{} },
       rent:()=>{ setTotalRent('');setTotalUtilities('');setRentPeople([]);setCurRoommateName('');setCurRoommateRoomSize('');setCurRoommateWealth('');try{localStorage.removeItem(RENT_KEY);}catch{} },
@@ -1235,15 +1093,7 @@ const Comrade = () => {
     setTotalRent('');setTotalUtilities('');setRentPeople([]);setRentWeighting('standard');setRentFloor('off');setRentCurrency('USD');setRentWealthMetric('salary');setRentMeasurement('sqft');
   },[]);
 
-  const lp = {onNavigate:navigateTo, showCopyToast, copyToastMsg, loadedAt, onClearStorage:clearStorage, currentPage:page};
-  const introProps = {loadPanel, setLoadPanel, onLoad:handleLoadCode};
-  const _encodeForTool = {
-    bill:()=>encodeBillState(billPeople,billBills,billWeighting,billFloor,billCurrency,billWealthMetric),
-    sale:()=>encodeSaleState(productName,numberAvailable,saleBuyers,saleWeighting,saleCurrency,saleWealthMetric),
-    vote:()=>encodeVoteState(voteDecision,voteOptions,voteParticipants,voteWeighting,voteCurrency,voteWealthMetric),
-    rent:()=>encodeRentState(rentPeople,totalRent,totalUtilities,rentWeighting,rentFloor,rentCurrency,rentWealthMetric,rentMeasurement),
-  };
-
+  // All useMemos before any conditional returns
   const billCalculations = useMemo(()=>{
     if(page!=='bill-results'||!billPeople.length) return{total:0,peopleData:[],transactions:[]};
     const total=billBills.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
@@ -1337,6 +1187,40 @@ const Comrade = () => {
     return{rentAmount,utilitiesAmount,total,totalRoomSize:trs,rentData,totalRoomValue:trv};
   },[rentPeople,totalRent,totalUtilities,rentWeighting,rentFloor,page]);
 
+  const lp = {onNavigate:navigateTo, showCopyToast, copyToastMsg, loadedAt, onClearStorage:clearStorage};
+
+  // Collaborative banner JSX (inline, not a component)
+  const shareUrl = splitId ? `${window.location.origin}/split/${splitId}` : null;
+  const collaborativeBanner = (isCollaborative || conflictDetected) ? (
+    <div className="mb-4">
+      {conflictDetected && (
+        <div className="flex items-start gap-3 p-4 mb-3 border-2 border-black bg-white animate-fadeIn">
+          <ErrorIcon size={16}/>
+          <div className="flex-1">
+            <p className="text-xs font-bold uppercase mb-2">WARNING: This split was recently updated by someone else. Saving will override any changes they made.</p>
+            <div className="flex gap-2">
+              <button onClick={()=>window.location.reload()} className={`flex-1 ${CLS_BTN_BLK} hover:bg-gray-800 transition-all`}>RELOAD</button>
+              <button onClick={()=>{setConflictDetected(false);saveSplit();}} className={`flex-1 ${CLS_BTN_WHT}`}>SAVE ANYWAY</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {shareUrl && !conflictDetected && (
+        <div className="p-4 border-2 border-dashed border-gray-400 bg-white mb-3 animate-fadeIn">
+          <p className="text-xs font-bold uppercase mb-2">GROUP SPLIT</p>
+          <p style={{color:'#9CA3AF',fontSize:'10px'}} className="mb-3 leading-relaxed">Share this link with friends to let them add expenses and wealth information. Save your data after making changes, and press Calculate when you're ready to settle up.</p>
+          <div className="flex gap-2 items-center">
+            <p className="text-xs flex-1 break-all" style={{color:'#6B7280'}}>{shareUrl}</p>
+            <button onClick={()=>copyToClipboard(shareUrl,'LINK COPIED!')} className={CLS_BTN_BLK} style={{flexShrink:0}}>COPY</button>
+          </div>
+        </div>
+      )}
+      <button onClick={saveSplit} disabled={isSaving} className={`w-full font-bold py-3 border-2 border-black text-sm transition-all ${isSaving?'bg-gray-300 text-gray-500 cursor-not-allowed':'bg-black text-white hover:bg-gray-800'}`}>
+        {isSaving ? 'SAVING...' : 'SAVE CHANGES'}
+      </button>
+    </div>
+  ) : null;
+
   const renderEmailSignup = () => (
     <div className={`bg-white p-6 ${CLS_DASHED}`}>
       <h3 className="text-lg font-bold text-black uppercase tracking-wider text-center mb-2">LIKE COMRADE?</h3>
@@ -1356,7 +1240,6 @@ const Comrade = () => {
   const renderResultsFooter = (copyText, entryPage) => (
     <>
       <div className="flex flex-col gap-3 max-w-xs mx-auto">
-        <button onClick={()=>copyToClipboard(getShareUrl(),'SHARE LINK COPIED!')} className={CLS_BTN_ACT} style={{gap:'8px'}}><ShareIcon size={16}/>SHARE LINK</button>
         <button onClick={()=>copyToClipboard(copyText,'RESULTS COPIED!')} className={CLS_BTN_ACT}>COPY RESULTS</button>
         <button onClick={()=>{editModeRef.current=true;navigateTo(entryPage);}} className={CLS_BTN_ACT}>EDIT DETAILS</button>
         <button onClick={()=>navigateTo('home')} className="bg-white text-black px-6 py-2 font-bold border-2 border-black hover:bg-gray-100 transition-all w-full">RETURN HOME</button>
@@ -1365,16 +1248,6 @@ const Comrade = () => {
       <div className="mt-4">{renderEmailSignup()}</div>
     </>
   );
-
-  const getShareUrl = () => {
-    const prefix = page.replace('-results','');
-    const code = _encodeForTool[prefix]?.();
-    if (!code) return window.location.href;
-    const href = window.location.href;
-    const base = href.includes('#') ? href.split('#')[0] : href;
-    const safeBase = (!base || base.startsWith('about:') || base.startsWith('blob:')) ? '' : base;
-    return safeBase ? `${safeBase}#${prefix}/${code}` : `#${prefix}/${code}`;
-  };
 
   const NavButton = ({label,onClick}) => (
     <button onClick={onClick} className="bg-black text-white w-full py-3 font-bold border-2 border-black text-sm hover:bg-gray-800 transition-all mt-2">{label}</button>
@@ -1395,7 +1268,7 @@ const Comrade = () => {
 
   const EntryPage = ({steps, intro, calc, midSteps}) => {
     const rc = i => {
-      if (i === 0) return <IntroStep {...intro} {...introProps}/>;
+      if (i === 0) return <IntroStep {...intro}/>;
       if (i === steps.length - 1) return <CalcStep {...calc}/>;
       return midSteps[i - 1]();
     };
@@ -1404,10 +1277,10 @@ const Comrade = () => {
 
   const FAQ_ITEMS = [
     {q:'HOW DOES THIS WORK?',a:`Comrade uses wealth data to decide how much each person should pay. It combines all the bills and the amounts already paid, then looks at each person's wealth in relation to others in the group to establish what proportion of the total amount each person should actually be responsible for.`},
-    {q:'WHAT DO YOU DO WITH MY FINANCIAL INFORMATION?',render:<><p className={CLS_PARA3}>Nothing.</p><p className={CLS_PARA3}>Calculations are performed by your device, and your data is only stored locally. It is never sent to Comrade, and is automatically wiped after 30 days of inactivity.</p><p className={CLS_PARA}>If a user signs up for email updates, their email is shared with Comrade only, and is not associated with any financial data.</p></>},
+    {q:'WHAT DO YOU DO WITH MY FINANCIAL INFORMATION?',render:<><p className={CLS_PARA3}>Your financial information is used for nothing beyond calculating your results.</p><p className={CLS_PARA3}>In Private Splits, these calculations are performed by your device, and your data is only stored locally. It is never sent to Comrade, and is automatically wiped after 30 days of inactivity.</p><p className={CLS_PARA3}>In Group Splits, your data is securely synced to Comrade's servers, and is accessible only to your friends who you share the group link with. Again, your data is wiped after 30 days.</p><p className={CLS_PARA}>If a user signs up for email updates, their email is shared with Comrade only, and is not associated with any financial data.</p></>},
     {q:'WHAT IS "WEIGHTING"?',a:`Weighting is the level of emphasis placed on each user's relative wealth (salary/net worth). By default, each person's responsibility is directly proportional to their wealth.\n\nFor example, let's say Fred and George each paid $100 on shared bills. Fred earns $50,000 a year, while George brings in $100,000. With regular ("Mid") weighting, because George makes twice as much money as Fred, he should pay twice as much. So far, he only paid 50% — $100 — meaning he owes Fred another $33.33.\n\nIn settings, you can also select "High" weighting, which emphasizes wealth differences even more by using squared wealth values for calculations; or "Low" weighting, which uses square-root values for more gentle adjustments. There is also an option to forego weighting entirely.`},
     {q:'WHAT IS A "CONTRIBUTION FLOOR"?',a:`A contribution floor sets a minimum amount that any group member must pay, regardless of their wealth. It's expressed as a percentage of what they'd owe in an even split.\n\nFor example, if three people are splitting $300 and the floor is set to 25%, no one pays less than $25 — that's 25% of an equal $100 share.\n\nBy default, the contribution floor is deactivated.`},
-    {q:'HOW DOES SHARING WORK?',render:<><p className={CLS_PARA3}>When you calculate a split, Comrade generates a shareable link you can send to your group. Clicking it loads the full split — people, bills, settings, and results — instantly, with no account required.</p><p className={CLS_PARA}>All of the split's information is encoded directly into the URL itself, so your data never touches Comrade's servers. The link is entirely self-contained.</p></>},
+    {q:'HOW DO GROUP SPLITS WORK?',render:<><p className={CLS_PARA3}>When you start a Group Split, Comrade generates a shareable link you can send to your group. Anyone with the link can view the split, add or remove people and expenses, and calculate results — with no account required.</p><p className={CLS_PARA3}>Group Splits are stored securely and expire after 30 days of inactivity.</p><p className={CLS_PARA}>Anyone with the link to a Group Split can access all the data in it.</p></>},
     {q:'IS COMRADE AVAILABLE ON THE APP STORE?',render:<p className={CLS_PARA}>Not yet! For now, Comrade is fully functional on mobile and desktop via our website, <a href="https://www.comrade.money" target="_blank" rel="noopener noreferrer" className={CLS_A}>www.comrade.money</a>. If you'd like to use a standalone app, or have other feedback or feature requests, please get in touch.</p>},
     {q:"IT'S AWKWARD ASKING MY FRIENDS HOW MUCH MONEY THEY HAVE. WHAT SHOULD I DO?",render:<p className={CLS_PARA}>Do it anyway.{' '}<a href="https://www.hbs.edu/ris/Publication%20Files/23-039_f20d86a0-a1cf-4bd6-8066-74ccc6f2c3cf.pdf" target="_blank" rel="noopener noreferrer" className={CLS_A}>Studies</a>{' '}have found{' '}<a href="https://www.nytimes.com/interactive/2020/02/19/magazine/salary-sharing.html" target="_blank" rel="noopener noreferrer" className={CLS_A}>breaking</a>{' '}the{' '}<a href="https://www.businessinsider.com/salary-pay-transparency-jobs-income-taboo-equity-2023-1" target="_blank" rel="noopener noreferrer" className={CLS_A}>taboos</a>{' '}around sharing information about wealth makes society better.</p>},
     {q:'IS THIS SERIOUS?',a:'What do you think?'},
@@ -1450,7 +1323,6 @@ const Comrade = () => {
 
   if(page==='about') return (
     <Layout {...lp}>
-
       <AboutBanner />
       <SubHed text="Wealth isn't evenly distributed — costs shouldn't be either"/>
       <div className="space-y-4 text-black mb-2">
@@ -1458,12 +1330,12 @@ const Comrade = () => {
         <p className={CLS_PARA}>Just ask Comrade.</p>
         <p className={CLS_PARA}>Comrade takes the awkwardness out of group expenses. From vacations to household purchases to work drinks, it simplifies shared bills — and takes into account people's salaries or net worth to divide them <span className={CLS_LNK} onClick={()=>navigateTo('faq',{faqIndex:0})}>fairly</span>.</p>
         <p className={CLS_PARA}>Those who have more, pay more.</p>
-        <p className={CLS_PARA}>Because your data is automatically saved to your device, Comrade works just as well for tracking ongoing expenses as it does for one-off bills. And you can <span className={CLS_LNK} onClick={()=>navigateTo('faq',{faqIndex:4})}>share</span> your results with custom links, letting your friends see who owes what.</p>
+        <p className={CLS_PARA}>You can use Comrade for tracking ongoing expenses, or for one-off bills. Group Splits sync to the cloud so your friends can add expenses and see for themselves who owes what, while Private Splits store the bills and data entirely on your device.</p>
       </div>
       <SubHed text="Free to use, no registration required, privacy-first"/>
       <div className="space-y-4 text-black mb-2">
-        <p className={CLS_PARA}>Financial information is sensitive stuff. That's why your <span className={CLS_LNK} onClick={()=>navigateTo('faq',{faqIndex:1})}>data</span> is only stored locally, with all calculations taking place on your smartphone or computer. Your info is never transmitted to Comrade's servers — or anywhere else.</p>
-        <p className={CLS_PARA}>There are no user accounts to be tracked, no data to be sold, and no subscriptions or fees. Old data is wiped after 30 days, or when you begin a new split.</p>
+        <p className={CLS_PARA}>Financial information is sensitive stuff. That's why Comrade has no user accounts, no tracking, and no covert fees or subscriptions.</p>
+        <p className={CLS_PARA}>The information entered for Private Splits never leaves your device. Group Splits are stored securely, and expire automatically after 30 days. Either way, your financial data is never associated with your identity, never sold, and never used for anything beyond the calculation in front of you.</p>
       </div>
       <SubHed text="More than just bill-splitting"/>
       <div className="space-y-4 text-black mb-2">
@@ -1476,14 +1348,11 @@ const Comrade = () => {
         <p className={CLS_PARA}>Comrade is built with care in Brooklyn, New York. Got questions, feedback, or partnership inquiries? Reach out at <a href="mailto:hello@comrade.money" className={CLS_A}>hello@comrade.money</a></p>
       </div>
       <div className="mb-4">{renderEmailSignup()}</div>
-
-
     </Layout>
   );
 
-      if(page==='faq') return (
+  if(page==='faq') return (
     <Layout {...lp}>
-
       <FaqBanner/>
       <p className="text-sm text-black mb-6 leading-relaxed">You've got questions, we've got answers. Learn more about how Comrade functions under the hood.</p>
       <div>
@@ -1501,14 +1370,15 @@ const Comrade = () => {
       <div className="text-black">
         {[{heading:'TERMS OF USE',text:'This application is provided for informational purposes only, on an "as is" basis, without warranty of any kind.'},
           {heading:null,text:'Users are solely responsible for their own actions. The creators of Comrade are not liable for any outcomes, disputes, unintended consequences, or bad decisions resulting from the use of Comrade and its calculations. Sorry!'},
-          {heading:'PRIVACY POLICY',text:'Any financial information entered into the app is stored only on your device, and all calculations are performed locally — nothing is sent to Comrade. Share link URLs are generated algorithmically and do not transmit any data to Comrade. Comrade loses access to your data after 30 days of inactivity.'},
+          {heading:'PRIVACY POLICY',text:'Any financial information entered into private splits is stored only on your device, and all calculations are performed locally — nothing is sent to Comrade.'},
+          {heading:null,text:'Group splits store data on Comrade\'s servers for up to 30 days, after which they expire automatically. This data is accessible to anyone with the split link, and is never associated with your identity.'},
           {heading:null,text:'Comrade uses Vercel Analytics to collect anonymous, aggregated data about site visits, including page views and unique visitor counts. No personal or financial information is collected through analytics, and no cookies are used.'},
           {heading:null,text:'By entering your email address, you consent to Comrade and its team contacting you about updates to the app, news, and other projects they may be working on. Comrade will not sell your personal information to third parties. You can unsubscribe at any time.'},
           {heading:null,text:'© 2026 Comrade. All rights reserved.'},
         ].map((item,i)=>(
           <React.Fragment key={i}>
-            {(i===2||i===5)&&<div className={`${CLS_DASHED_T} my-4`}/>}
-            {i>0&&i!==2&&i!==5&&<div className="my-3"/>}
+            {(i===2||i===6)&&<div className={`${CLS_DASHED_T} my-4`}/>}
+            {i>0&&i!==2&&i!==6&&<div className="my-3"/>}
             {item.heading&&<p className="font-bold text-xs uppercase tracking-wider mb-2">{item.heading}</p>}
             <p className={CLS_PARA}>{item.text}</p>
           </React.Fragment>
@@ -1518,9 +1388,31 @@ const Comrade = () => {
   );
 
   if(page==='bill-entry') return EntryPage({
-    steps:BILL_STEPS,
-    intro:{desc:"From meals to vacations, taxis to tickets, handle your shared expenses with friends more fairly. Comrade combines and simplifies group bills, while using information about group members' finances to decide how much everyone should pay.",hasSaved:hasBillSavedData,resumeLabel:"RESUME SPLIT →",newLabel:"NEW SPLIT",tool:"bill",loadLabel:"LOAD SPLIT",onJump:()=>jump(1),onClear:()=>{handleClearAll('bill');jump(1);},onExample:()=>loadExample('bill'),onPrivacyFaq:navigateToPrivacyFaq},
-    calc:{onCalculate:()=>navigateTo('bill-results'),weighting:billWeighting,onWeighting:setBillWeighting,navigateToFaq,hasFloor:true,floor:billFloor,onFloor:setBillFloor,validate:()=>_errs([
+    steps: BILL_STEPS,
+    intro: {
+      desc: "From meals to vacations, taxis to tickets, handle your shared expenses with friends more fairly. Comrade combines and simplifies group bills, while using information about group members' finances to decide how much everyone should pay.",
+      hasSaved: hasBillSavedData,
+      resumeLabel: isCollaborative ? "RESUME GROUP SPLIT →" : "RESUME PRIVATE SPLIT →",
+      newLabel: "NEW PRIVATE SPLIT",
+      onJump: ()=>jump(1),
+      onClear: ()=>{ setShowGroupSplitPrompt(false); handleClearAll('bill'); jump(1); },
+      onExample: isCollaborative ? null : ()=>loadExample('bill'),
+      isCollaborative,
+      isSaving,
+      onGroupSplit: isCollaborative ? null : handleGroupSplitClick,
+      groupSplitPrompt: showGroupSplitPrompt ? (
+        <div className="border-2 border-dashed border-gray-400 p-4 bg-gray-50 animate-fadeIn">
+          <p className="font-bold text-xs uppercase mb-1 text-black">YOU'VE ALREADY ENTERED SOME DATA</p>
+          <p className="text-xs text-black mb-4 leading-relaxed">Keep the people and bills you've already added, or start fresh?</p>
+          <div className="flex flex-col gap-2">
+            <button onClick={()=>{setShowGroupSplitPrompt(false);saveSplit();}} className="w-full bg-white text-black py-2 font-bold text-xs border-2 border-black hover:bg-gray-100 transition-all">USE EXISTING DATA →</button>
+            <button onClick={async()=>{handleClearAll('bill');setShowGroupSplitPrompt(false);setIsSaving(true);try{const r=await fetch('/api/split',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({people:[],bills:[],weighting:billWeighting,floor:billFloor,currency:billCurrency,wealthMetric:billWealthMetric})});const d=await r.json();if(d.id){setSplitId(d.id);setSplitVersion(1);setIsCollaborative(true);window.history.pushState({page:'bill-entry'},'',`/split/${d.id}`);setEntryOpen(prev=>prev.includes(1)?prev:[...prev,1]);}}catch(e){console.error(e);}finally{setIsSaving(false);}}} className="w-full bg-white text-black py-2 font-bold text-xs border-2 border-black hover:bg-gray-100 transition-all">START FRESH →</button>
+          </div>
+        </div>
+      ) : null,
+      collaborativeBanner,
+    },
+    calc: {onCalculate:()=>navigateTo('bill-results'),weighting:billWeighting,onWeighting:setBillWeighting,navigateToFaq,hasFloor:true,floor:billFloor,onFloor:setBillFloor,onSave:isCollaborative?saveSplit:null,isSaving,validate:()=>_errs([
       [billPeople.length===0,'No people added'],
       [billBills.length===0,'No bills added'],
       [billBills.length>0&&!billBills.some(b=>parseFloat(b.amount)>0),'No bills have a valid amount'],
@@ -1541,7 +1433,7 @@ const Comrade = () => {
             ?<ItemList items={billPeople} onDelete={id=>setBillPeople(billPeople.filter(p=>p.id!==id))} renderItem={p=><><p className={CLS_NAME}>{p.name}</p><p className={CLS_XS}>{getWealthMetricLabel(billWealthMetric)}: {formatCurrency(p.wealth,2,billCurrency)}</p></>}/>
             :<EmptyState msg="No people added yet"/>
           }
-          <div className="mt-6">{NavButton({label:"CONTINUE →", onClick:()=>jump(2)})}</div>
+          <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(2)}/></div>
         </div>
       ),
       ()=>(
@@ -1560,7 +1452,7 @@ const Comrade = () => {
             ?<ItemList items={billBills} onDelete={id=>setBillBills(billBills.filter(b=>b.id!==id))} renderItem={b=><><p className="text-black font-bold uppercase">{b.description}</p><p className="text-black text-xs">{b.paidBy||'Unknown'}</p></>} receiptStyle formatTotal={t=>formatCurrency(t,2,billCurrency)} getAmount={b=>b.amount}/>
             :<EmptyState msg="No bills added yet" cls="mb-4"/>
           }
-          <div className="mt-6">{NavButton({label:"CONTINUE →", onClick:()=>jump(3)})}</div>
+          <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(3)}/></div>
         </div>
       ),
     ]
@@ -1575,7 +1467,7 @@ const Comrade = () => {
         ?<p className="text-lg font-bold">ALL SETTLED! EVERYONE'S SQUARE.</p>
         :<div className="space-y-3">{transactions.map((t,i)=><div key={i} className="text-sm leading-relaxed pb-2" style={{borderBottom:`1px dashed ${BG_GREY}`}}><span className="font-semibold">{t.from.toUpperCase()}</span><span> PAYS </span><span className="font-semibold">{t.to.toUpperCase()}</span><br/><span className="font-black text-2xl">{_fcs(t.amount,billCurrency)}</span></div>)}</div>,
       stats:[{label:'TOTAL BILLS',value:billBills.length},{label:'TOTAL',value:_fc(total,billCurrency)},{label:'PEOPLE',value:billPeople.length}],
-      copyText:copyText,
+      copyText,
       details:<>
         {renderDetailCards('PARTICIPANT DATA',[...peopleData].sort((a,b)=>b.wealth-a.wealth),p=>{const bal=p.paid-p.fairShare;return{name:p.name,rows:[{label:'WEALTH',value:_fc(p.wealth,billCurrency)},{label:'PAID',value:`${_fc(p.paid,billCurrency)} (${p.paidPct.toFixed(1)}%)`},{label:'FAIR SHARE',value:`${_fcs(p.fairShare,billCurrency)} (${p.fairPct.toFixed(1)}%)`}],summaryRows:[{label:'BALANCE',value:`${bal>0.01?'+':''}${_fcs(bal,billCurrency)}`}]};})}
         <DashedDivider/>
@@ -1599,9 +1491,9 @@ const Comrade = () => {
   }
 
   if(page==='sale-entry') return EntryPage({
-    steps:SALE_STEPS,
-    intro:{desc:"If you're selling something, make sure it goes to the potential buyer who needs it the most — not just whoever offers to pay the most. Comrade takes into account prospective purchasers' financial resources to help you understand how much your product is truly worth to them.",hasSaved:hasSaleSavedData,resumeLabel:"RESUME SALE →",newLabel:"NEW SALE",tool:"sale",loadLabel:"LOAD SALE",onJump:()=>jump(1),onClear:()=>{handleClearAll('sale');jump(1);},onExample:()=>loadExample('sale'),onPrivacyFaq:navigateToPrivacyFaq},
-    calc:{onCalculate:()=>navigateTo('sale-results'),weighting:saleWeighting,onWeighting:setSaleWeighting,navigateToFaq,hasAdvanced:true,validate:()=>_errs([
+    steps: SALE_STEPS,
+    intro: {desc:"If you're selling something, make sure it goes to the potential buyer who needs it the most — not just whoever offers to pay the most. Comrade takes into account prospective purchasers' financial resources to help you understand how much your product is truly worth to them.",hasSaved:hasSaleSavedData,resumeLabel:"RESUME SALE →",newLabel:"NEW SALE",onJump:()=>jump(1),onClear:()=>{handleClearAll('sale');jump(1);},onExample:()=>loadExample('sale')},
+    calc: {onCalculate:()=>navigateTo('sale-results'),weighting:saleWeighting,onWeighting:setSaleWeighting,navigateToFaq,hasAdvanced:true,validate:()=>_errs([
       [!productName.trim(),'No product name entered'],
       [saleBuyers.length===0,'No buyers added'],
     ])},
@@ -1611,7 +1503,7 @@ const Comrade = () => {
           <p className={CLS_STEP_P}>List what you're selling, and how many items are available.</p>
           <FormInput value={productName} onChange={e=>setProductName(e.target.value)} placeholder="PRODUCT NAME" className="mb-2"/>
           <FormInput type="number" value={numberAvailable} onChange={e=>setNumberAvailable(e.target.value)} placeholder="NUMBER AVAILABLE" min="1" step="1" inputMode="numeric"/>
-          <div className="mt-6">{NavButton({label:"CONTINUE →", onClick:()=>jump(2)})}</div>
+          <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(2)}/></div>
         </div>
       ),
       ()=>(
@@ -1625,7 +1517,7 @@ const Comrade = () => {
           <FormInput type="number" value={curBuyerWealth} onChange={e=>setCurBuyerWealth(e.target.value)} placeholder={`${getCurrencySymbol(saleCurrency)} ${getWealthMetricLabel(saleWealthMetric)}`} {...NP} className="mb-3"/>
           <button onClick={()=>{if(curBuyerName.trim()){setSaleBuyers([...saleBuyers,{id:Date.now(),name:curBuyerName,wealth:curBuyerWealth,offer:curBuyerOffer}]);setCurBuyerName('');setCurBuyerWealth('');setCurBuyerOffer('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD BUYER</button>
           {saleBuyers.length>0?<ItemList items={saleBuyers} onDelete={id=>setSaleBuyers(saleBuyers.filter(b=>b.id!==id))} renderItem={b=><><p className={CLS_NAME}>{b.name}</p><p className={CLS_XS}>{getWealthMetricLabel(saleWealthMetric)}: {formatCurrency(b.wealth,2,saleCurrency)}</p><p className={CLS_XS}>Offer: {formatCurrency(b.offer,2,saleCurrency)}</p></>}/>:<EmptyState msg="No buyers added yet"/>}
-          <div className="mt-6">{NavButton({label:"CONTINUE →", onClick:()=>jump(3)})}</div>
+          <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(3)}/></div>
         </div>
       ),
     ]
@@ -1642,7 +1534,7 @@ const Comrade = () => {
         ?<p className="text-lg font-bold">PERFECT TIE. EVERYONE HAS EQUAL CLAIM.</p>
         :<>{winners.map((w,i)=><div key={w.id} className="mb-3 pb-3" style={{borderBottom:`1px dashed ${BG_GREY}`}}><p className="text-3xl font-black mb-2">{w.name.toUpperCase()}</p><p className="text-xl font-semibold">OFFER: {_fc(w.offer,saleCurrency)}</p><p className="text-xs" style={{color:BG_GREY}}>NEED SCORE: {w.needScore<0.01?w.needScore.toExponential(4):w.needScore.toFixed(2)}%</p></div>)}</>,
       stats:[{label:'PRODUCT',value:productName.toUpperCase()||'N/A'},{label:'AVAILABLE',value:numAvail},{label:'AVG OFFER',value:_fc(avgOffer,saleCurrency)}],
-      copyText:copyText,
+      copyText,
       details:<>
         {renderDetailCards('BUYER DATA',rankedBuyers,(b,i)=>({name:`#${i+1} ${b.name}`,cardClassName:`p-4 border-2 ${i<numAvail?'border-black bg-gray-100':'border-gray-400 bg-white'}`,titleExtra:<span className={`px-2 py-1 text-xs font-bold border sf ${i<numAvail?'bg-black text-white border-black':'bg-white text-black border-black'}`}>{i<numAvail?'SELECTED':'NOT SELECTED'}</span>,rows:[{label:'WEALTH',value:_fc(b.wealth,saleCurrency)},{label:'OFFER',value:_fc(b.offer,saleCurrency)}],summaryRows:[{label:'NEED SCORE',value:`${b.needScore<0.01?b.needScore.toExponential(4):b.needScore.toFixed(2)}%`}]}))}
         <DashedDivider/>
@@ -1654,9 +1546,9 @@ const Comrade = () => {
   }
 
   if(page==='vote-entry') return EntryPage({
-    steps:VOTE_STEPS,
-    intro:{desc:"Make group decisions more equitably with Comrade. If your friends, classmates, or coworkers are grappling with a dispute, give more voting power to those with less wealth.",hasSaved:hasVoteSavedData,resumeLabel:"RESUME VOTE →",newLabel:"NEW VOTE",tool:"vote",loadLabel:"LOAD VOTE",onJump:()=>jump(1),onClear:()=>{handleClearAll('vote');jump(1);},onExample:()=>loadExample('vote'),onPrivacyFaq:navigateToPrivacyFaq},
-    calc:{onCalculate:()=>navigateTo('vote-results'),weighting:voteWeighting,onWeighting:setVoteWeighting,navigateToFaq,hasAdvanced:true,validate:()=>_errs([
+    steps: VOTE_STEPS,
+    intro: {desc:"Make group decisions more equitably with Comrade. If your friends, classmates, or coworkers are grappling with a dispute, give more voting power to those with less wealth.",hasSaved:hasVoteSavedData,resumeLabel:"RESUME VOTE →",newLabel:"NEW VOTE",onJump:()=>jump(1),onClear:()=>{handleClearAll('vote');jump(1);},onExample:()=>loadExample('vote')},
+    calc: {onCalculate:()=>navigateTo('vote-results'),weighting:voteWeighting,onWeighting:setVoteWeighting,navigateToFaq,hasAdvanced:true,validate:()=>_errs([
       [!voteDecision.trim(),'No decision or question entered'],
       [voteOptions.length===0,'No voting options added'],
       [voteParticipants.length===0,'No participants added'],
@@ -1667,7 +1559,7 @@ const Comrade = () => {
         <div>
           <p className={CLS_STEP_P}>Enter the question the group is voting on.</p>
           <FormInput type="textarea" value={voteDecision} onChange={e=>setVoteDecision(e.target.value)} placeholder="DECISION TO BE MADE" rows={4}/>
-          <div className="mt-6">{NavButton({label:"CONTINUE →", onClick:()=>jump(2)})}</div>
+          <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(2)}/></div>
         </div>
       ),
       ()=>(
@@ -1676,7 +1568,7 @@ const Comrade = () => {
           <FormInput value={curOptionText} onChange={e=>setCurOptionText(e.target.value)} placeholder="OPTION TEXT" className="mb-3"/>
           <button onClick={()=>{if(curOptionText.trim()){setVoteOptions([...voteOptions,{id:Date.now(),text:curOptionText}]);setCurOptionText('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD OPTION</button>
           {voteOptions.length>0?<div className="space-y-0">{voteOptions.map(opt=><div key={opt.id} className="flex justify-between items-center text-xs text-black border-b border-dashed border-gray-400 pb-2 pt-2"><p className="font-bold text-black uppercase flex-1">{opt.text}</p><button onClick={()=>setVoteOptions(voteOptions.filter(o=>o.id!==opt.id))} className={CLS_DEL}>×</button></div>)}</div>:<EmptyState msg="No options added yet"/>}
-          <div className="mt-6">{NavButton({label:"CONTINUE →", onClick:()=>jump(3)})}</div>
+          <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(3)}/></div>
         </div>
       ),
       ()=>(
@@ -1693,7 +1585,7 @@ const Comrade = () => {
           <FormInput type="number" value={curParticipantWealth} onChange={e=>setCurParticipantWealth(e.target.value)} placeholder={`${getCurrencySymbol(voteCurrency)} ${getWealthMetricLabel(voteWealthMetric)}`} {...NP} className="mb-3"/>
           <button onClick={()=>{if(curParticipantName.trim()){setVoteParticipants([...voteParticipants,{id:Date.now(),name:curParticipantName,wealth:curParticipantWealth,vote:curParticipantVote}]);setCurParticipantName('');setCurParticipantWealth('');setCurParticipantVote('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD PERSON</button>
           {voteParticipants.length>0?<ItemList items={voteParticipants} onDelete={id=>setVoteParticipants(voteParticipants.filter(p=>p.id!==id))} renderItem={p=><><p className={CLS_NAME}>{p.name}</p><p className={CLS_XS}>{getWealthMetricLabel(voteWealthMetric)}: {formatCurrency(p.wealth,2,voteCurrency)}</p><p className={CLS_XS}>Vote: {p.vote||'Not selected'}</p></>}/>:<EmptyState msg="No people added yet"/>}
-          <div className="mt-6">{NavButton({label:"CONTINUE →", onClick:()=>jump(4)})}</div>
+          <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(4)}/></div>
         </div>
       ),
     ]
@@ -1708,7 +1600,7 @@ const Comrade = () => {
       entryPage:"vote-entry", title:"DECISION",
       summary:<><p className="text-lg mb-6 font-semibold">{voteDecision.toUpperCase()}</p>{isTie?<p className="text-xl font-bold">PERFECT TIE. NO CLEAR WINNER.</p>:winner?<><p className="text-sm mb-2">WINNING OPTION:</p><p className="text-3xl font-black mb-2">{winner.option.toUpperCase()}</p><p className="text-xl font-semibold">{winner.percentage.toFixed(1)}% OF VOTING POWER</p></>:<p className="text-lg font-bold">NO VOTES CAST</p>}</>,
       stats:[{label:'PARTICIPANTS',value:voteParticipants.length},{label:'OPTIONS',value:voteOptions.length}],
-      copyText:copyText,
+      copyText,
       details:<>
         <div className="mb-6"><h3 className={CLS_H3}>VOTE BREAKDOWN</h3><div className="space-y-4">{voteBreakdown.map((item,i)=><div key={i} className="border-2 border-gray-400 p-4"><div className={CLS_JBH}><p className={CLS_FBSM}>{item.option}</p><span className="px-2 py-1 text-xs font-bold border sf" style={S_DARK}>{item.percentage.toFixed(1)}%</span></div><p className="text-xs text-black mb-2 font-bold">VOTERS ({item.voters.length}):</p><div className="space-y-1">{item.voters.map(v=><p key={v.name} className={CLS_XS}>• {v.name} (Power: {v.votingPower.toFixed(2)})</p>)}</div></div>)}</div></div>
         <DashedDivider/>
@@ -1724,9 +1616,9 @@ const Comrade = () => {
   }
 
   if(page==='rent-entry') return EntryPage({
-    steps:RENT_STEPS,
-    intro:{desc:"Figuring out rent splits with roommates is a fraught process. Decide it more fairly with Comrade by accounting for both room size and tenants' financial resources. Larger rooms and higher earners both pay more.",hasSaved:hasRentSavedData,resumeLabel:"RESUME SPLIT →",newLabel:"NEW SPLIT",tool:"rent",loadLabel:"LOAD SPLIT",onJump:()=>jump(1),onClear:()=>{handleClearAll('rent');jump(1);},onExample:()=>loadExample('rent'),onPrivacyFaq:navigateToPrivacyFaq},
-    calc:{onCalculate:()=>navigateTo('rent-results'),weighting:rentWeighting,onWeighting:setRentWeighting,navigateToFaq,hasFloor:true,floor:rentFloor,onFloor:setRentFloor,validate:()=>_errs([
+    steps: RENT_STEPS,
+    intro: {desc:"Figuring out rent splits with roommates is a fraught process. Decide it more fairly with Comrade by accounting for both room size and tenants' financial resources. Larger rooms and higher earners both pay more.",hasSaved:hasRentSavedData,resumeLabel:"RESUME SPLIT →",newLabel:"NEW SPLIT",onJump:()=>jump(1),onClear:()=>{handleClearAll('rent');jump(1);},onExample:()=>loadExample('rent')},
+    calc: {onCalculate:()=>navigateTo('rent-results'),weighting:rentWeighting,onWeighting:setRentWeighting,navigateToFaq,hasFloor:true,floor:rentFloor,onFloor:setRentFloor,validate:()=>_errs([
       [!parseFloat(totalRent),'No rent amount entered'],
       [rentPeople.length===0,'No tenants added'],
       [rentPeople.some(p=>!(parseFloat(p.roomSize)>0)),'Some tenants are missing a room size'],
@@ -1741,7 +1633,7 @@ const Comrade = () => {
           </div>
           <FormInput type="number" value={totalRent} onChange={e=>setTotalRent(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} MONTHLY RENT`} {...NP} className="mb-2"/>
           <FormInput type="number" value={totalUtilities} onChange={e=>setTotalUtilities(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} MONTHLY UTILITIES`} {...NP}/>
-          <div className="mt-6">{NavButton({label:"CONTINUE →", onClick:()=>jump(2)})}</div>
+          <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(2)}/></div>
         </div>
       ),
       ()=>(
@@ -1760,7 +1652,7 @@ const Comrade = () => {
           <FormInput type="number" value={curRoommateWealth} onChange={e=>setCurRoommateWealth(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} ${getWealthMetricLabel(rentWealthMetric)}`} {...NP} className="mb-3"/>
           <button onClick={()=>{if(curRoommateName.trim()){setRentPeople([...rentPeople,{id:Date.now(),name:curRoommateName,roomSize:curRoommateRoomSize,wealth:curRoommateWealth}]);setCurRoommateName('');setCurRoommateRoomSize('');setCurRoommateWealth('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD TENANT</button>
           {rentPeople.length>0?<ItemList items={rentPeople} onDelete={id=>setRentPeople(rentPeople.filter(p=>p.id!==id))} renderItem={p=><><p className={CLS_NAME}>{p.name}</p><p className={CLS_XS}>Room: {formatNumber((parseFloat(p.roomSize)||0).toFixed(0))} {getMeasurementLabel(rentMeasurement).toLowerCase()}</p><p className={CLS_XS}>{getWealthMetricLabel(rentWealthMetric)}: {formatCurrency(p.wealth,2,rentCurrency)}</p></>}/>:<EmptyState msg="No tenants added yet"/>}
-          <div className="mt-6">{NavButton({label:"CONTINUE →", onClick:()=>jump(3)})}</div>
+          <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(3)}/></div>
         </div>
       ),
     ]
@@ -1773,7 +1665,7 @@ const Comrade = () => {
       entryPage:"rent-entry", title:"MONTHLY PAYMENTS",
       summary:<div className="space-y-3">{rentData.map(p=><div key={p.id} className="pb-2" style={{borderBottom:`1px dashed ${BG_GREY}`}}><p className="text-lg font-semibold">{p.name.toUpperCase()}</p><p className="text-2xl font-black">{_fcs(p.fairRent,rentCurrency)}</p><p className="text-xs" style={{color:BG_GREY}}>{p.rentPct.toFixed(1)}% of total</p></div>)}</div>,
       stats:[{label:'RENT',value:_fc(rentAmount,rentCurrency)},{label:'UTILITIES',value:_fc(utilitiesAmount,rentCurrency)},{label:'TOTAL',value:_fc(total,rentCurrency)},{label:'TENANTS',value:rentPeople.length}],
-      copyText:copyText,
+      copyText,
       details:<>
         {renderDetailCards('ROOMMATE DATA',rentData,p=>({name:p.name,rows:[{label:'ROOM SIZE',value:`${formatNumber(p.roomSize.toFixed(0))} ${getMeasurementLabel(rentMeasurement).toLowerCase()}`},{label:'WEALTH',value:_fc(p.wealth,rentCurrency)}],summaryRows:[{label:'MONTHLY RENT',value:_fcs(p.fairRent,rentCurrency)},{label:'% OF TOTAL',value:`${p.rentPct.toFixed(1)}%`}]}))}
         <DashedDivider/>
@@ -1789,7 +1681,6 @@ const Comrade = () => {
 
   return null;
 };
-
 
 
 
