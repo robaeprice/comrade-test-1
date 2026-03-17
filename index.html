@@ -28,6 +28,7 @@
 
 
 
+
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -430,7 +431,20 @@ const AdvancedSettingsToggle = ({isOpen, onToggle}) => (
   </button>
 );
 
-const CalcStep = ({onCalculate, weighting, onWeighting, navigateToFaq, hasFloor=false, floor, onFloor, hasAdvanced=false, validate, onSave, isSaving, onDeleteGroup}) => {
+const ConflictWarning = ({onReload, onForceSave}) => (
+  <div className="flex items-start gap-3 p-4 border-2 border-black bg-white animate-fadeIn">
+    <ErrorIcon size={16}/>
+    <div className="flex-1">
+      <p className="text-xs font-bold uppercase mb-2">WARNING: This split was recently updated by someone else. Saving will override any changes they made.</p>
+      <div className="flex gap-2">
+        <button onClick={onReload} className={`flex-1 ${CLS_BTN_BLK} hover:bg-gray-800 transition-all`}>RELOAD</button>
+        <button onClick={onForceSave} className={`flex-1 ${CLS_BTN_WHT}`}>SAVE ANYWAY</button>
+      </div>
+    </div>
+  </div>
+);
+
+const CalcStep = ({onCalculate, weighting, onWeighting, navigateToFaq, hasFloor=false, floor, onFloor, hasAdvanced=false, validate, onSave, isSaving, onDeleteGroup, isConflict, onForceSave}) => {
   const [advOpen, setAdvOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [attempted, setAttempted] = useState(false);
@@ -459,18 +473,20 @@ const CalcStep = ({onCalculate, weighting, onWeighting, navigateToFaq, hasFloor=
               <h4 className={CLS_SH}>CONTRIBUTION FLOOR</h4>
               <p className={CLS_P3}>If enabled, no group member pays less than the selected percentage of what they'd owe in an even split, regardless of their wealth.</p>
               <ToggleGroup options={FLOOR_OPTIONS} value={floor} onChange={onFloor} minWidth="80px"/></>}
-              {onDeleteGroup && <><div className={`${CLS_DASHED_T} my-5`}></div>
-              {confirmDelete
-                ? <div className="animate-fadeIn">
-                    <p className="text-xs font-bold uppercase mb-2 text-black">ARE YOU SURE?</p>
-                    <p className={CLS_P3}>This will permanently delete all people and bills for everyone with access to this link. This cannot be undone.</p>
-                    <div className="flex gap-2">
-                      <button onClick={()=>{setConfirmDelete(false);onDeleteGroup();}} className={`flex-1 ${CLS_BTN_BLK} hover:bg-gray-800 transition-all`}>YES, DELETE</button>
-                      <button onClick={()=>setConfirmDelete(false)} className={`flex-1 ${CLS_BTN_WHT}`}>CANCEL</button>
+              {onDeleteGroup && <>
+                <div className={`${CLS_DASHED_T} my-5`}></div>
+                {confirmDelete
+                  ? <div className="animate-fadeIn">
+                      <p className="text-xs font-bold uppercase mb-2 text-black">ARE YOU SURE?</p>
+                      <p className={CLS_P3}>This will permanently delete all people and bills for everyone with access to this link. This cannot be undone.</p>
+                      <div className="flex gap-2">
+                        <button onClick={()=>{setConfirmDelete(false);onDeleteGroup();}} className={`flex-1 ${CLS_BTN_BLK} hover:bg-gray-800 transition-all`}>YES, DELETE</button>
+                        <button onClick={()=>setConfirmDelete(false)} className={`flex-1 ${CLS_BTN_WHT}`}>CANCEL</button>
+                      </div>
                     </div>
-                  </div>
-                : <button onClick={()=>setConfirmDelete(true)} className={`w-full ${CLS_BTN_WHT}`}>DELETE GROUP</button>
-              }</>}
+                  : <button onClick={()=>setConfirmDelete(true)} className={`w-full ${CLS_BTN_WHT}`}>DELETE GROUP</button>
+                }
+              </>}
             </div>
           )}
         </div>
@@ -500,9 +516,11 @@ const CalcStep = ({onCalculate, weighting, onWeighting, navigateToFaq, hasFloor=
         </div>
       )}
       {onSave && (
-        <button onClick={onSave} disabled={isSaving} className={`w-full py-4 font-black text-xl border-2 border-black transition-all uppercase mb-3 ${isSaving?'bg-gray-300 text-gray-500 cursor-not-allowed':'bg-white text-black hover:bg-gray-100'}`}>
-          {isSaving ? 'SAVING...' : 'SAVE CHANGES'}
-        </button>
+        isConflict
+          ? <div className="mb-3"><ConflictWarning onReload={()=>window.location.reload()} onForceSave={onForceSave}/></div>
+          : <button onClick={onSave} disabled={isSaving} className={`w-full py-4 font-black text-xl border-2 border-black transition-all uppercase mb-3 ${isSaving?'bg-gray-300 text-gray-500 cursor-not-allowed':'bg-white text-black hover:bg-gray-100'}`}>
+              {isSaving ? 'SAVING...' : 'SAVE CHANGES'}
+            </button>
       )}
       <button onClick={handleCalculate} className="bg-black text-white w-full py-4 font-black text-xl border-4 border-black hover:bg-gray-800 transition-all uppercase calculate-btn">CALCULATE</button>
     </div>
@@ -814,14 +832,11 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
 
 const _fc=(v,c)=>formatCurrency(v,2,c),_fcs=(v,c)=>formatCurrencySmart(v,c);
 
-// IntroStep is defined outside Comrade so it's stable across renders
 const IntroStep = ({desc, hasSaved, resumeLabel, newLabel, onJump, onClear, onExample, isCollaborative, isSaving, saveError, onGroupSplit, collaborativeBanner, groupSplitPrompt, onStartOver}) => {
   const hasData = hasSaved || isCollaborative;
   const groupSplitButton = groupSplitPrompt || (onGroupSplit ? (
     <div>
-      <button
-        onClick={onGroupSplit}
-        disabled={isSaving}
+      <button onClick={onGroupSplit} disabled={isSaving}
         className={`w-full font-bold py-3 border-2 border-black text-sm transition-all ${isSaving?'bg-gray-300 text-gray-500 cursor-not-allowed':'bg-black text-white hover:bg-gray-800'}`}>
         {isSaving ? 'SAVING...' : 'NEW GROUP SPLIT →'}
       </button>
@@ -844,7 +859,7 @@ const IntroStep = ({desc, hasSaved, resumeLabel, newLabel, onJump, onClear, onEx
         </>
       ) : (
         <div className="flex flex-col gap-3">
-        {saveError && <p className="text-xs font-bold uppercase text-black animate-fadeIn" style={{borderLeft:`3px solid ${DARK}`,paddingLeft:'8px'}}>{saveError}</p>}
+          {saveError && <p className="text-xs font-bold uppercase text-black animate-fadeIn" style={{borderLeft:`3px solid ${DARK}`,paddingLeft:'8px'}}>{saveError}</p>}
           {groupSplitButton}
           <div>
             <button onClick={onClear} className="w-full bg-black text-white py-3 font-bold text-sm border-2 border-black hover:bg-gray-800 transition-all">{newLabel} →</button>
@@ -936,7 +951,7 @@ const Comrade = () => {
   const [isCollaborative, setIsCollaborative] = useState(false);
   const [isSaving, setIsSaving]             = useState(false);
   const [saveError, setSaveError]           = useState('');
-  const [conflictDetected, setConflictDetected] = useState(false);
+  const [conflictSource, setConflictSource] = useState(null); // null | 'top' | 'bottom'
   const [showGroupSplitPrompt, setShowGroupSplitPrompt] = useState(false);
 
   // Form input state
@@ -1020,9 +1035,9 @@ const Comrade = () => {
 
   useEffect(()=>{if(showCopyToast){const t=setTimeout(()=>setShowCopyToast(false),2500);return()=>clearTimeout(t);}},[showCopyToast]);
 
-  const saveSplit = useCallback(async () => {
+  const saveSplit = useCallback(async (source = 'top') => {
     setIsSaving(true);
-    setConflictDetected(false);
+    setConflictSource(null);
     setSaveError('');
     const splitData = {
       people: billPeople, bills: billBills, weighting: billWeighting,
@@ -1044,7 +1059,7 @@ const Comrade = () => {
         }
       } else {
         const res = await fetch(`/api/split/${splitId}`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({...splitData, version:splitVersion}) });
-        if (res.status === 409) { setConflictDetected(true); }
+        if (res.status === 409) { setConflictSource(source); }
         else if (!res.ok) { setSaveError(`Server error ${res.status}`); }
         else { const data = await res.json(); if (data.version) setSplitVersion(data.version); }
       }
@@ -1057,7 +1072,7 @@ const Comrade = () => {
   }, [splitId, splitVersion, billPeople, billBills, billWeighting, billFloor, billCurrency, billWealthMetric]);
 
   const forceSave = useCallback(async () => {
-    setConflictDetected(false);
+    setConflictSource(null);
     setIsSaving(true);
     try {
       const getRes = await fetch(`/api/split/${splitId}`);
@@ -1070,17 +1085,9 @@ const Comrade = () => {
     finally { setIsSaving(false); }
   }, [splitId, splitVersion, billPeople, billBills, billWeighting, billFloor, billCurrency, billWealthMetric]);
 
-  const handleGroupSplitClick = useCallback(() => {
-    if (hasBillSavedData) {
-      setShowGroupSplitPrompt(true);
-    } else {
-      saveSplit();
-    }
-  }, [hasBillSavedData, saveSplit]);
-
   const handleClearAll = useCallback(type=>{
     ({
-      bill:()=>{ setBillPeople([]);setBillBills([]);setCurPersonName('');setCurPersonWealth('');setCurBillDesc('');setCurBillAmt('');setCurBillPaidBy('');setSplitId(null);setSplitVersion(null);setIsCollaborative(false);setConflictDetected(false);setSaveError('');setShowGroupSplitPrompt(false); },
+      bill:()=>{ setBillPeople([]);setBillBills([]);setCurPersonName('');setCurPersonWealth('');setCurBillDesc('');setCurBillAmt('');setCurBillPaidBy('');setSplitId(null);setSplitVersion(null);setIsCollaborative(false);setConflictSource(null);setSaveError('');setShowGroupSplitPrompt(false); },
       sale:()=>{ setProductName('');setNumberAvailable('');setSaleBuyers([]);setCurBuyerName('');setCurBuyerWealth('');setCurBuyerOffer('');try{localStorage.removeItem(SALE_KEY);}catch{} },
       vote:()=>{ setVoteDecision('');setVoteOptions([]);setVoteParticipants([]);setCurParticipantName('');setCurParticipantWealth('');setCurParticipantVote('');setCurOptionText('');try{localStorage.removeItem(VOTE_KEY);}catch{} },
       rent:()=>{ setTotalRent('');setTotalUtilities('');setRentPeople([]);setCurRoommateName('');setCurRoommateRoomSize('');setCurRoommateWealth('');try{localStorage.removeItem(RENT_KEY);}catch{} },
@@ -1113,6 +1120,7 @@ const Comrade = () => {
   const clearStorage = useCallback(()=>{
     try{localStorage.removeItem(BILL_KEY);}catch{}
     setBillPeople([]);setBillBills([]);setBillWeighting('standard');setBillFloor('off');setBillCurrency('USD');setBillWealthMetric('salary');
+    setSplitId(null);setSplitVersion(null);setIsCollaborative(false);setConflictSource(null);setSaveError('');setShowGroupSplitPrompt(false);
     try{localStorage.removeItem(VOTE_KEY);}catch{}
     setVoteDecision('');setVoteOptions([]);setVoteParticipants([]);setVoteWeighting('standard');setVoteCurrency('USD');setVoteWealthMetric('salary');
     try{localStorage.removeItem(SALE_KEY);}catch{}
@@ -1121,133 +1129,28 @@ const Comrade = () => {
     setTotalRent('');setTotalUtilities('');setRentPeople([]);setRentWeighting('standard');setRentFloor('off');setRentCurrency('USD');setRentWealthMetric('salary');setRentMeasurement('sqft');
   },[]);
 
-  // All useMemos before any conditional returns
-  const billCalculations = useMemo(()=>{
-    if(page!=='bill-results'||!billPeople.length) return{total:0,peopleData:[],transactions:[]};
-    const total=billBills.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
-    const taw=billPeople.reduce((s,pp)=>s+applyWeighting(parseFloat(pp.wealth)||0,billWeighting),0);
-    let shares=billPeople.map(p=>{
-      const w=parseFloat(p.wealth)||0,paid=billBills.filter(b=>b.paidBy===p.name).reduce((s,b)=>s+(parseFloat(b.amount)||0),0),aw=applyWeighting(w,billWeighting);
-      const fs=taw>0?(aw/taw)*total:total/billPeople.length;
-      return{...p,wealth:w,paid,fairShare:fs,adjustedWealth:aw};
-    });
-    if(billFloor!=='off'){
-      const minPayment=(parseFloat(billFloor)/100)*(total/billPeople.length);
-      let changed=true;
-      while(changed){
-        changed=false;
-        const below=shares.filter(p=>p.fairShare<minPayment-0.001);
-        if(!below.length) break;
-        changed=true;
-        const deficit=below.reduce((s,p)=>s+(minPayment-p.fairShare),0);
-        below.forEach(p=>{p.fairShare=minPayment;});
-        const above=shares.filter(p=>p.fairShare>minPayment+0.001);
-        const totalAW=above.reduce((s,p)=>s+p.adjustedWealth,0);
-        above.forEach(p=>{p.fairShare+=totalAW>0?(p.adjustedWealth/totalAW)*deficit:deficit/above.length;});
-      }
-    }
-    const peopleData=shares.map(p=>({...p,paidPct:total>0?(p.paid/total)*100:0,fairPct:total>0?(p.fairShare/total)*100:0}));
-    const settlements=peopleData.map(p=>({name:p.name,balance:p.paid-p.fairShare})).filter(s=>Math.abs(s.balance)>0.01);
-    const payers=settlements.filter(s=>s.balance<0).sort((a,b)=>a.balance-b.balance);
-    const receivers=settlements.filter(s=>s.balance>0).sort((a,b)=>b.balance-a.balance);
-    const transactions=[];let pi=0,ri=0;
-    const pc=payers.map(p=>({...p})),rc=receivers.map(r=>({...r}));
-    while(pi<pc.length&&ri<rc.length){
-      const amt=Math.min(-pc[pi].balance,rc[ri].balance);
-      transactions.push({from:pc[pi].name,to:rc[ri].name,amount:amt});
-      pc[pi].balance+=amt;rc[ri].balance-=amt;
-      if(Math.abs(pc[pi].balance)<0.01)pi++;if(Math.abs(rc[ri].balance)<0.01)ri++;
-    }
-    return{total,peopleData,transactions};
-  },[billPeople,billBills,billWeighting,billFloor,page]);
-
-  const saleCalculations = useMemo(()=>{
-    if(page!=='sale-results'||!saleBuyers.length) return{rankedBuyers:[],avgOffer:0};
-    const rankedBuyers=saleBuyers.map(b=>{
-      const w=parseFloat(b.wealth)||1,o=parseFloat(b.offer)||0,aw=applyWeighting(w,saleWeighting);
-      return{...b,wealth:w,offer:o,needScore:(o/aw)*100,adjustedWealth:aw};
-    }).sort((a,b)=>b.needScore-a.needScore);
-    const totalOffers=rankedBuyers.reduce((s,b)=>s+b.offer,0);
-    return{rankedBuyers,avgOffer:rankedBuyers.length?totalOffers/rankedBuyers.length:0};
-  },[saleBuyers,saleWeighting,page]);
-
-  const voteCalculations = useMemo(()=>{
-    if(page!=='vote-results'||!voteParticipants.length) return{participantsData:[],totalVotingPower:0,voteBreakdown:[]};
-    const totalW=voteParticipants.reduce((s,p)=>s+(parseFloat(p.wealth)||0),0),avgW=totalW/voteParticipants.length;
-    const participantsData=voteParticipants.map(p=>{
-      const w=parseFloat(p.wealth)||0,aw=applyWeighting(w,voteWeighting),vp=aw>0?avgW/aw:1;
-      return{...p,wealth:w,votingPower:vp,adjustedWealth:aw};
-    });
-    const totalVP=participantsData.reduce((s,p)=>s+p.votingPower,0);
-    const voteBreakdown=voteOptions.map(opt=>{
-      const voters=participantsData.filter(p=>p.vote===opt.text),pwr=voters.reduce((s,p)=>s+p.votingPower,0);
-      return{option:opt.text,percentage:totalVP>0?(pwr/totalVP)*100:0,voters};
-    }).sort((a,b)=>b.percentage-a.percentage);
-    return{participantsData,totalVotingPower:totalVP,voteBreakdown};
-  },[voteParticipants,voteOptions,voteWeighting,page]);
-
-  const rentCalculations = useMemo(()=>{
-    if(page!=='rent-results'||!rentPeople.length) return{rentAmount:0,utilitiesAmount:0,total:0,totalRoomSize:0,rentData:[],totalRoomValue:0};
-    const rentAmount=parseFloat(totalRent)||0,utilitiesAmount=parseFloat(totalUtilities)||0,total=rentAmount+utilitiesAmount;
-    const trs=rentPeople.reduce((s,p)=>s+(parseFloat(p.roomSize)||0),0);
-    const pd=rentPeople.map(p=>{
-      const rs=parseFloat(p.roomSize)||0,w=parseFloat(p.wealth)||0,rp=trs>0?(rs/trs)*100:0,aw=applyWeighting(w,rentWeighting);
-      return{...p,roomSize:rs,wealth:w,roomPct:rp,adjustedWealth:aw,roomValue:rp*aw};
-    });
-    const trv=pd.reduce((s,p)=>s+p.roomValue,0);
-    let shares=pd.map(p=>({...p,fairRent:trv>0?(p.roomValue/trv)*total:total/rentPeople.length}));
-    if(rentFloor!=='off'){
-      const minPayment=(parseFloat(rentFloor)/100)*(total/rentPeople.length);
-      let changed=true;
-      while(changed){
-        changed=false;
-        const below=shares.filter(p=>p.fairRent<minPayment-0.001);
-        if(!below.length) break;
-        changed=true;
-        const deficit=below.reduce((s,p)=>s+(minPayment-p.fairRent),0);
-        below.forEach(p=>{p.fairRent=minPayment;});
-        const above=shares.filter(p=>p.fairRent>minPayment+0.001);
-        const totalRV=above.reduce((s,p)=>s+p.roomValue,0);
-        above.forEach(p=>{p.fairRent+=totalRV>0?(p.roomValue/totalRV)*deficit:deficit/above.length;});
-      }
-    }
-    const rentData=shares.map(p=>({...p,rentPct:total>0?(p.fairRent/total)*100:100/rentPeople.length})).sort((a,b)=>b.fairRent-a.fairRent);
-    return{rentAmount,utilitiesAmount,total,totalRoomSize:trs,rentData,totalRoomValue:trv};
-  },[rentPeople,totalRent,totalUtilities,rentWeighting,rentFloor,page]);
-
-  const lp = {onNavigate:navigateTo, showCopyToast, copyToastMsg, loadedAt, onClearStorage:clearStorage};
-
-  // Collaborative banner JSX (inline, not a component)
   const shareUrl = splitId ? `${window.location.origin}/split/${splitId}` : null;
-  const collaborativeBanner = (isCollaborative || conflictDetected) ? (
+
+  const collaborativeBanner = isCollaborative ? (
     <div className="mb-4">
-      {conflictDetected && (
-        <div className="flex items-start gap-3 p-4 mb-3 border-2 border-black bg-white animate-fadeIn">
-          <ErrorIcon size={16}/>
-          <div className="flex-1">
-            <p className="text-xs font-bold uppercase mb-2">WARNING: This split was recently updated by someone else. Saving will override any changes they made.</p>
-            <div className="flex gap-2">
-              <button onClick={()=>window.location.reload()} className={`flex-1 ${CLS_BTN_BLK} hover:bg-gray-800 transition-all`}>RELOAD</button>
-              <button onClick={forceSave} className={`flex-1 ${CLS_BTN_WHT}`}>SAVE ANYWAY</button>
-            </div>
-          </div>
-        </div>
-      )}
-      {shareUrl && !conflictDetected && (
+      {shareUrl && (
         <div className="p-4 border-2 border-dashed border-gray-400 bg-white mb-3 animate-fadeIn">
-          <p className="text-xs font-bold uppercase mb-2">GROUP SPLIT</p>
-          <p style={{color:'#9CA3AF',fontSize:'10px'}} className="mb-3 leading-relaxed">Share this link with friends to let them add expenses and wealth information. Save your data after making changes, and press Calculate when you're ready to settle up.</p>
+          <p className="font-bold text-xs uppercase mb-2 text-black text-center">GROUP SPLIT</p>
+          <p style={{color:'#9CA3AF',fontSize:'10px'}} className="mb-3 leading-relaxed">Share this link with friends to let them add expenses and see results. Save your data after making changes, and press Calculate when you're ready to settle up.</p>
           <div className="flex gap-2 items-center">
             <p className="text-xs flex-1 break-all" style={{color:'#6B7280'}}>{shareUrl}</p>
             <button onClick={()=>copyToClipboard(shareUrl,'LINK COPIED!')} className={CLS_BTN_BLK} style={{flexShrink:0}}>COPY</button>
           </div>
         </div>
       )}
-      <button onClick={saveSplit} disabled={isSaving} className={`w-full font-bold py-3 border-2 border-black text-sm transition-all ${isSaving?'bg-gray-300 text-gray-500 cursor-not-allowed':'bg-black text-white hover:bg-gray-800'}`}>
-        {isSaving ? 'SAVING...' : 'SAVE CHANGES'}
-      </button>
+      {conflictSource === 'top'
+        ? <ConflictWarning onReload={()=>window.location.reload()} onForceSave={forceSave}/>
+        : <button onClick={()=>saveSplit('top')} disabled={isSaving} className={`w-full font-bold py-3 border-2 border-black text-sm transition-all ${isSaving?'bg-gray-300 text-gray-500 cursor-not-allowed':'bg-black text-white hover:bg-gray-800'}`}>{isSaving?'SAVING...':'SAVE CHANGES'}</button>
+      }
     </div>
   ) : null;
+
+  const lp = {onNavigate:navigateTo, showCopyToast, copyToastMsg, loadedAt, onClearStorage:clearStorage};
 
   const renderEmailSignup = () => (
     <div className={`bg-white p-6 ${CLS_DASHED}`}>
@@ -1313,6 +1216,99 @@ const Comrade = () => {
     {q:"IT'S AWKWARD ASKING MY FRIENDS HOW MUCH MONEY THEY HAVE. WHAT SHOULD I DO?",render:<p className={CLS_PARA}>Do it anyway.{' '}<a href="https://www.hbs.edu/ris/Publication%20Files/23-039_f20d86a0-a1cf-4bd6-8066-74ccc6f2c3cf.pdf" target="_blank" rel="noopener noreferrer" className={CLS_A}>Studies</a>{' '}have found{' '}<a href="https://www.nytimes.com/interactive/2020/02/19/magazine/salary-sharing.html" target="_blank" rel="noopener noreferrer" className={CLS_A}>breaking</a>{' '}the{' '}<a href="https://www.businessinsider.com/salary-pay-transparency-jobs-income-taboo-equity-2023-1" target="_blank" rel="noopener noreferrer" className={CLS_A}>taboos</a>{' '}around sharing information about wealth makes society better.</p>},
     {q:'IS THIS SERIOUS?',a:'What do you think?'},
   ];
+
+  const billCalculations = useMemo(()=>{
+    if(!billPeople.length) return{total:0,peopleData:[],transactions:[]};
+    const total=billBills.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
+    const taw=billPeople.reduce((s,pp)=>s+applyWeighting(parseFloat(pp.wealth)||0,billWeighting),0);
+    let shares=billPeople.map(p=>{
+      const w=parseFloat(p.wealth)||0,paid=billBills.filter(b=>b.paidBy===p.name).reduce((s,b)=>s+(parseFloat(b.amount)||0),0),aw=applyWeighting(w,billWeighting);
+      const fs=taw>0?(aw/taw)*total:total/billPeople.length;
+      return{...p,wealth:w,paid,fairShare:fs,adjustedWealth:aw};
+    });
+    if(billFloor!=='off'){
+      const minPayment=(parseFloat(billFloor)/100)*(total/billPeople.length);
+      let changed=true;
+      while(changed){
+        changed=false;
+        const below=shares.filter(p=>p.fairShare<minPayment-0.001);
+        if(!below.length) break;
+        changed=true;
+        const deficit=below.reduce((s,p)=>s+(minPayment-p.fairShare),0);
+        below.forEach(p=>{p.fairShare=minPayment;});
+        const above=shares.filter(p=>p.fairShare>minPayment+0.001);
+        const totalAW=above.reduce((s,p)=>s+p.adjustedWealth,0);
+        above.forEach(p=>{p.fairShare+=totalAW>0?(p.adjustedWealth/totalAW)*deficit:deficit/above.length;});
+      }
+    }
+    const peopleData=shares.map(p=>({...p,paidPct:total>0?(p.paid/total)*100:0,fairPct:total>0?(p.fairShare/total)*100:0}));
+    const settlements=peopleData.map(p=>({name:p.name,balance:p.paid-p.fairShare})).filter(s=>Math.abs(s.balance)>0.01);
+    const payers=settlements.filter(s=>s.balance<0).sort((a,b)=>a.balance-b.balance);
+    const receivers=settlements.filter(s=>s.balance>0).sort((a,b)=>b.balance-a.balance);
+    const transactions=[];let pi=0,ri=0;
+    const pc=payers.map(p=>({...p})),rc=receivers.map(r=>({...r}));
+    while(pi<pc.length&&ri<rc.length){
+      const amt=Math.min(-pc[pi].balance,rc[ri].balance);
+      transactions.push({from:pc[pi].name,to:rc[ri].name,amount:amt});
+      pc[pi].balance+=amt;rc[ri].balance-=amt;
+      if(Math.abs(pc[pi].balance)<0.01)pi++;if(Math.abs(rc[ri].balance)<0.01)ri++;
+    }
+    return{total,peopleData,transactions};
+  },[billPeople,billBills,billWeighting,billFloor]);
+
+  const saleCalculations = useMemo(()=>{
+    if(!saleBuyers.length) return{rankedBuyers:[],avgOffer:0};
+    const rankedBuyers=saleBuyers.map(b=>{
+      const w=parseFloat(b.wealth)||1,o=parseFloat(b.offer)||0,aw=applyWeighting(w,saleWeighting);
+      return{...b,wealth:w,offer:o,needScore:(o/aw)*100,adjustedWealth:aw};
+    }).sort((a,b)=>b.needScore-a.needScore);
+    const totalOffers=rankedBuyers.reduce((s,b)=>s+b.offer,0);
+    return{rankedBuyers,avgOffer:rankedBuyers.length?totalOffers/rankedBuyers.length:0};
+  },[saleBuyers,saleWeighting]);
+
+  const voteCalculations = useMemo(()=>{
+    if(!voteParticipants.length) return{participantsData:[],totalVotingPower:0,voteBreakdown:[]};
+    const totalW=voteParticipants.reduce((s,p)=>s+(parseFloat(p.wealth)||0),0),avgW=totalW/voteParticipants.length;
+    const participantsData=voteParticipants.map(p=>{
+      const w=parseFloat(p.wealth)||0,aw=applyWeighting(w,voteWeighting),vp=aw>0?avgW/aw:1;
+      return{...p,wealth:w,votingPower:vp,adjustedWealth:aw};
+    });
+    const totalVP=participantsData.reduce((s,p)=>s+p.votingPower,0);
+    const voteBreakdown=voteOptions.map(opt=>{
+      const voters=participantsData.filter(p=>p.vote===opt.text),pwr=voters.reduce((s,p)=>s+p.votingPower,0);
+      return{option:opt.text,percentage:totalVP>0?(pwr/totalVP)*100:0,voters};
+    }).sort((a,b)=>b.percentage-a.percentage);
+    return{participantsData,totalVotingPower:totalVP,voteBreakdown};
+  },[voteParticipants,voteOptions,voteWeighting]);
+
+  const rentCalculations = useMemo(()=>{
+    if(!rentPeople.length) return{rentAmount:0,utilitiesAmount:0,total:0,totalRoomSize:0,rentData:[],totalRoomValue:0};
+    const rentAmount=parseFloat(totalRent)||0,utilitiesAmount=parseFloat(totalUtilities)||0,total=rentAmount+utilitiesAmount;
+    const trs=rentPeople.reduce((s,p)=>s+(parseFloat(p.roomSize)||0),0);
+    const pd=rentPeople.map(p=>{
+      const rs=parseFloat(p.roomSize)||0,w=parseFloat(p.wealth)||0,rp=trs>0?(rs/trs)*100:0,aw=applyWeighting(w,rentWeighting);
+      return{...p,roomSize:rs,wealth:w,roomPct:rp,adjustedWealth:aw,roomValue:rp*aw};
+    });
+    const trv=pd.reduce((s,p)=>s+p.roomValue,0);
+    let shares=pd.map(p=>({...p,fairRent:trv>0?(p.roomValue/trv)*total:total/rentPeople.length}));
+    if(rentFloor!=='off'){
+      const minPayment=(parseFloat(rentFloor)/100)*(total/rentPeople.length);
+      let changed=true;
+      while(changed){
+        changed=false;
+        const below=shares.filter(p=>p.fairRent<minPayment-0.001);
+        if(!below.length) break;
+        changed=true;
+        const deficit=below.reduce((s,p)=>s+(minPayment-p.fairRent),0);
+        below.forEach(p=>{p.fairRent=minPayment;});
+        const above=shares.filter(p=>p.fairRent>minPayment+0.001);
+        const totalRV=above.reduce((s,p)=>s+p.roomValue,0);
+        above.forEach(p=>{p.fairRent+=totalRV>0?(p.roomValue/totalRV)*deficit:deficit/above.length;});
+      }
+    }
+    const rentData=shares.map(p=>({...p,rentPct:total>0?(p.fairRent/total)*100:100/rentPeople.length})).sort((a,b)=>b.fairRent-a.fairRent);
+    return{rentAmount,utilitiesAmount,total,totalRoomSize:trs,rentData,totalRoomValue:trv};
+  },[rentPeople,totalRent,totalUtilities,rentWeighting,rentFloor]);
 
   if(page==='home') return (
     <Layout {...lp}>
@@ -1430,6 +1426,7 @@ const Comrade = () => {
       isSaving,
       saveError,
       onGroupSplit: isCollaborative ? null : ()=>{ if(hasBillSavedData){setShowGroupSplitPrompt(true);}else{saveSplit();} },
+      collaborativeBanner,
       groupSplitPrompt: showGroupSplitPrompt ? (
         <div className="border-2 border-dashed border-gray-400 p-4 bg-gray-50 animate-fadeIn">
           <p className="font-bold text-xs uppercase mb-1 text-black">YOU'VE ALREADY ENTERED SOME DATA</p>
@@ -1440,20 +1437,29 @@ const Comrade = () => {
           </div>
         </div>
       ) : null,
-      collaborativeBanner,
     },
-    calc: {onCalculate:()=>navigateTo('bill-results'),weighting:billWeighting,onWeighting:setBillWeighting,navigateToFaq,hasFloor:true,floor:billFloor,onFloor:setBillFloor,onSave:isCollaborative?saveSplit:null,isSaving,onDeleteGroup:isCollaborative?async()=>{
-      handleClearAll('bill');
-      try {
-        await fetch(`/api/split/${splitId}`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({people:[],bills:[],weighting:billWeighting,floor:billFloor,currency:billCurrency,wealthMetric:billWealthMetric,version:splitVersion})});
-      } catch(e){console.error('Delete group failed:',e);}
-    }:null,validate:()=>_errs([
-      [billPeople.length===0,'No people added'],
-      [billBills.length===0,'No bills added'],
-      [billBills.length>0&&!billBills.some(b=>parseFloat(b.amount)>0),'No bills have a valid amount'],
-      [billBills.some(b=>!b.paidBy),'Some bills have no payer assigned'],
-      [billBills.some(b=>b.paidBy&&!billPeople.some(p=>p.name===b.paidBy)),'Some bills are assigned to people who have been removed'],
-    ])},
+    calc: {
+      onCalculate:()=>navigateTo('bill-results'),
+      weighting:billWeighting, onWeighting:setBillWeighting,
+      navigateToFaq, hasFloor:true, floor:billFloor, onFloor:setBillFloor,
+      onSave: isCollaborative ? ()=>saveSplit('bottom') : null,
+      isSaving,
+      isConflict: conflictSource === 'bottom',
+      onForceSave: forceSave,
+      onDeleteGroup: isCollaborative ? async()=>{
+        handleClearAll('bill');
+        try {
+          await fetch(`/api/split/${splitId}`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({people:[],bills:[],weighting:billWeighting,floor:billFloor,currency:billCurrency,wealthMetric:billWealthMetric,version:splitVersion})});
+        } catch(e){console.error('Delete group failed:',e);}
+      } : null,
+      validate:()=>_errs([
+        [billPeople.length===0,'No people added'],
+        [billBills.length===0,'No bills added'],
+        [billBills.length>0&&!billBills.some(b=>parseFloat(b.amount)>0),'No bills have a valid amount'],
+        [billBills.some(b=>!b.paidBy),'Some bills have no payer assigned'],
+        [billBills.some(b=>b.paidBy&&!billPeople.some(p=>p.name===b.paidBy)),'Some bills are assigned to people who have been removed'],
+      ]),
+    },
     midSteps:[
       ()=>(
         <div>
@@ -1527,7 +1533,7 @@ const Comrade = () => {
 
   if(page==='sale-entry') return EntryPage({
     steps: SALE_STEPS,
-    intro: {desc:"If you're selling something, make sure it goes to the potential buyer who needs it the most — not just whoever offers to pay the most. Comrade takes into account prospective purchasers' financial resources to help you understand how much your product is truly worth to them.",hasSaved:hasSaleSavedData,resumeLabel:"RESUME SALE →",newLabel:"NEW SALE",onJump:()=>jump(1),onClear:()=>{handleClearAll('sale');jump(1);},onExample:()=>loadExample('sale')},
+    intro: {desc:"If you're selling something, make sure it goes to the potential buyer who needs it the most — not just whoever offers to pay the most. Comrade takes into account prospective purchasers' financial resources to help you understand how much your product is truly worth to them.",hasSaved:hasSaleSavedData,resumeLabel:"RESUME SALE →",newLabel:"NEW SALE",onJump:()=>jump(1),onClear:()=>jump(1),onStartOver:()=>handleClearAll('sale'),onExample:()=>loadExample('sale')},
     calc: {onCalculate:()=>navigateTo('sale-results'),weighting:saleWeighting,onWeighting:setSaleWeighting,navigateToFaq,hasAdvanced:true,validate:()=>_errs([
       [!productName.trim(),'No product name entered'],
       [saleBuyers.length===0,'No buyers added'],
@@ -1582,7 +1588,7 @@ const Comrade = () => {
 
   if(page==='vote-entry') return EntryPage({
     steps: VOTE_STEPS,
-    intro: {desc:"Make group decisions more equitably with Comrade. If your friends, classmates, or coworkers are grappling with a dispute, give more voting power to those with less wealth.",hasSaved:hasVoteSavedData,resumeLabel:"RESUME VOTE →",newLabel:"NEW VOTE",onJump:()=>jump(1),onClear:()=>{handleClearAll('vote');jump(1);},onExample:()=>loadExample('vote')},
+    intro: {desc:"Make group decisions more equitably with Comrade. If your friends, classmates, or coworkers are grappling with a dispute, give more voting power to those with less wealth.",hasSaved:hasVoteSavedData,resumeLabel:"RESUME VOTE →",newLabel:"NEW VOTE",onJump:()=>jump(1),onClear:()=>jump(1),onStartOver:()=>handleClearAll('vote'),onExample:()=>loadExample('vote')},
     calc: {onCalculate:()=>navigateTo('vote-results'),weighting:voteWeighting,onWeighting:setVoteWeighting,navigateToFaq,hasAdvanced:true,validate:()=>_errs([
       [!voteDecision.trim(),'No decision or question entered'],
       [voteOptions.length===0,'No voting options added'],
@@ -1652,7 +1658,7 @@ const Comrade = () => {
 
   if(page==='rent-entry') return EntryPage({
     steps: RENT_STEPS,
-    intro: {desc:"Figuring out rent splits with roommates is a fraught process. Decide it more fairly with Comrade by accounting for both room size and tenants' financial resources. Larger rooms and higher earners both pay more.",hasSaved:hasRentSavedData,resumeLabel:"RESUME SPLIT →",newLabel:"NEW SPLIT",onJump:()=>jump(1),onClear:()=>{handleClearAll('rent');jump(1);},onExample:()=>loadExample('rent')},
+    intro: {desc:"Figuring out rent splits with roommates is a fraught process. Decide it more fairly with Comrade by accounting for both room size and tenants' financial resources. Larger rooms and higher earners both pay more.",hasSaved:hasRentSavedData,resumeLabel:"RESUME SPLIT →",newLabel:"NEW SPLIT",onJump:()=>jump(1),onClear:()=>jump(1),onStartOver:()=>handleClearAll('rent'),onExample:()=>loadExample('rent')},
     calc: {onCalculate:()=>navigateTo('rent-results'),weighting:rentWeighting,onWeighting:setRentWeighting,navigateToFaq,hasFloor:true,floor:rentFloor,onFloor:setRentFloor,validate:()=>_errs([
       [!parseFloat(totalRent),'No rent amount entered'],
       [rentPeople.length===0,'No tenants added'],
