@@ -8,7 +8,7 @@ module.exports = async function handler(req, res) {
   try {
     const splitData = req.body;
     const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-    const id = Array.from({length: 12}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+    const id = Array.from({length: 8}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
 
     const blob = {
       ...splitData,
