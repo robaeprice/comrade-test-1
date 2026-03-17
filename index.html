@@ -26,6 +26,7 @@
 
      
 
+
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -428,8 +429,9 @@ const AdvancedSettingsToggle = ({isOpen, onToggle}) => (
   </button>
 );
 
-const CalcStep = ({onCalculate, weighting, onWeighting, navigateToFaq, hasFloor=false, floor, onFloor, hasAdvanced=false, validate, onSave, isSaving}) => {
+const CalcStep = ({onCalculate, weighting, onWeighting, navigateToFaq, hasFloor=false, floor, onFloor, hasAdvanced=false, validate, onSave, isSaving, onDeleteGroup}) => {
   const [advOpen, setAdvOpen] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [attempted, setAttempted] = useState(false);
   const errors = validate ? validate() : [];
   const showErrors = attempted && errors.length > 0;
@@ -456,6 +458,18 @@ const CalcStep = ({onCalculate, weighting, onWeighting, navigateToFaq, hasFloor=
               <h4 className={CLS_SH}>CONTRIBUTION FLOOR</h4>
               <p className={CLS_P3}>If enabled, no group member pays less than the selected percentage of what they'd owe in an even split, regardless of their wealth.</p>
               <ToggleGroup options={FLOOR_OPTIONS} value={floor} onChange={onFloor} minWidth="80px"/></>}
+              {onDeleteGroup && <><div className={`${CLS_DASHED_T} my-5`}></div>
+              {confirmDelete
+                ? <div className="animate-fadeIn">
+                    <p className="text-xs font-bold uppercase mb-2 text-black">ARE YOU SURE?</p>
+                    <p className={CLS_P3}>This will permanently delete all people and bills for everyone with access to this link. This cannot be undone.</p>
+                    <div className="flex gap-2">
+                      <button onClick={()=>{setConfirmDelete(false);onDeleteGroup();}} className={`flex-1 ${CLS_BTN_BLK} hover:bg-gray-800 transition-all`}>YES, DELETE</button>
+                      <button onClick={()=>setConfirmDelete(false)} className={`flex-1 ${CLS_BTN_WHT}`}>CANCEL</button>
+                    </div>
+                  </div>
+                : <button onClick={()=>setConfirmDelete(true)} className={`w-full ${CLS_BTN_WHT}`}>DELETE GROUP</button>
+              }</>}
             </div>
           )}
         </div>
@@ -800,14 +814,15 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
 const _fc=(v,c)=>formatCurrency(v,2,c),_fcs=(v,c)=>formatCurrencySmart(v,c);
 
 // IntroStep is defined outside Comrade so it's stable across renders
-const IntroStep = ({desc, hasSaved, resumeLabel, newLabel, onJump, onClear, onExample, isCollaborative, isSaving, onGroupSplit, collaborativeBanner, groupSplitPrompt}) => {
+const IntroStep = ({desc, hasSaved, resumeLabel, newLabel, onJump, onClear, onExample, isCollaborative, isSaving, onGroupSplit, collaborativeBanner, groupSplitPrompt, onStartOver}) => {
+  const hasData = hasSaved || isCollaborative;
   const groupSplitButton = groupSplitPrompt || (onGroupSplit ? (
     <div>
       <button
         onClick={onGroupSplit}
         disabled={isSaving}
-        className={`w-full font-bold py-3 border-2 border-black text-sm transition-all ${isSaving?'bg-gray-300 text-gray-500 cursor-not-allowed':hasSaved?'bg-white text-black hover:bg-gray-100':'bg-black text-white hover:bg-gray-800'}`}>
-        {isSaving ? 'SAVING...' : hasSaved ? 'NEW GROUP SPLIT' : 'NEW GROUP SPLIT →'}
+        className={`w-full font-bold py-3 border-2 border-black text-sm transition-all ${isSaving?'bg-gray-300 text-gray-500 cursor-not-allowed':'bg-black text-white hover:bg-gray-800'}`}>
+        {isSaving ? 'SAVING...' : 'NEW GROUP SPLIT →'}
       </button>
       <p style={{color:'#9CA3AF',fontSize:'10px'}} className="mt-1 leading-relaxed">Syncs data to the cloud, allows friends to add expenses and see results.</p>
     </div>
@@ -816,23 +831,28 @@ const IntroStep = ({desc, hasSaved, resumeLabel, newLabel, onJump, onClear, onEx
   return (
     <div>
       <p className={CLS_P5}>{desc}</p>
-      {collaborativeBanner}
-      <div className="flex flex-col gap-3">
-        {hasSaved && !isCollaborative && (
-          <button onClick={onJump} className="w-full bg-black text-white py-3 font-bold text-sm border-2 border-black hover:bg-gray-800 transition-all">{resumeLabel}</button>
-        )}
-        {!hasSaved && groupSplitButton}
-        <div>
-          <button onClick={onClear} className={`w-full font-bold border-2 border-black transition-all ${(hasSaved||isCollaborative)?'bg-white text-black py-2 px-4 text-xs hover:bg-gray-100':'bg-black text-white py-3 text-sm hover:bg-gray-800'}`}>
-            {(hasSaved||isCollaborative) ? newLabel : `${newLabel} →`}
-          </button>
-          <p style={{color:'#9CA3AF',fontSize:'10px'}} className="mt-1 leading-relaxed">All calculation takes place on your device. No data is shared.</p>
+      {hasData ? (
+        <>
+          {collaborativeBanner}
+          <div className="flex flex-col gap-3">
+            {hasSaved && !isCollaborative && (
+              <button onClick={onJump} className="w-full bg-black text-white py-3 font-bold text-sm border-2 border-black hover:bg-gray-800 transition-all">{resumeLabel}</button>
+            )}
+            <button onClick={onStartOver} className={`w-full ${CLS_BTN_WHT}`}>START OVER</button>
+          </div>
+        </>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {groupSplitButton}
+          <div>
+            <button onClick={onClear} className="w-full bg-black text-white py-3 font-bold text-sm border-2 border-black hover:bg-gray-800 transition-all">{newLabel} →</button>
+            <p style={{color:'#9CA3AF',fontSize:'10px'}} className="mt-1 leading-relaxed">All calculation takes place on your device. No data is shared.</p>
+          </div>
+          {onExample && (
+            <button onClick={onExample} className={`w-full ${CLS_BTN_WHT}`}>TRY AN EXAMPLE</button>
+          )}
         </div>
-        {hasSaved && !isCollaborative && groupSplitButton}
-        {onExample && (
-          <button onClick={onExample} className={`w-full ${CLS_BTN_WHT}`}>TRY AN EXAMPLE</button>
-        )}
-      </div>
+      )}
     </div>
   );
 };
@@ -1043,6 +1063,20 @@ const Comrade = () => {
     }
   }, [splitId, splitVersion, billPeople, billBills, billWeighting, billFloor, billCurrency, billWealthMetric]);
 
+  const forceSave = useCallback(async () => {
+    setConflictDetected(false);
+    setIsSaving(true);
+    try {
+      const getRes = await fetch(`/api/split/${splitId}`);
+      const current = await getRes.json();
+      const latestVersion = current.version || splitVersion;
+      const splitData = { people:billPeople, bills:billBills, weighting:billWeighting, floor:billFloor, currency:billCurrency, wealthMetric:billWealthMetric };
+      const res = await fetch(`/api/split/${splitId}`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({...splitData, version:latestVersion}) });
+      if (res.ok) { const data = await res.json(); if (data.version) setSplitVersion(data.version); }
+    } catch (err) { console.error('Force save failed:', err); }
+    finally { setIsSaving(false); }
+  }, [splitId, splitVersion, billPeople, billBills, billWeighting, billFloor, billCurrency, billWealthMetric]);
+
   const handleGroupSplitClick = useCallback(() => {
     if (hasBillSavedData) {
       setShowGroupSplitPrompt(true);
@@ -1201,7 +1235,7 @@ const Comrade = () => {
             <p className="text-xs font-bold uppercase mb-2">WARNING: This split was recently updated by someone else. Saving will override any changes they made.</p>
             <div className="flex gap-2">
               <button onClick={()=>window.location.reload()} className={`flex-1 ${CLS_BTN_BLK} hover:bg-gray-800 transition-all`}>RELOAD</button>
-              <button onClick={()=>{setConflictDetected(false);saveSplit();}} className={`flex-1 ${CLS_BTN_WHT}`}>SAVE ANYWAY</button>
+              <button onClick={forceSave} className={`flex-1 ${CLS_BTN_WHT}`}>SAVE ANYWAY</button>
             </div>
           </div>
         </div>
@@ -1396,7 +1430,8 @@ const Comrade = () => {
       resumeLabel: isCollaborative ? "RESUME GROUP SPLIT →" : "RESUME PRIVATE SPLIT →",
       newLabel: "NEW PRIVATE SPLIT",
       onJump: ()=>jump(1),
-      onClear: ()=>{ setShowGroupSplitPrompt(false); handleClearAll('bill'); jump(1); },
+      onClear: ()=>jump(1),
+      onStartOver: ()=>handleClearAll('bill'),
       onExample: isCollaborative ? null : ()=>loadExample('bill'),
       isCollaborative,
       isSaving,
@@ -1413,7 +1448,12 @@ const Comrade = () => {
       ) : null,
       collaborativeBanner,
     },
-    calc: {onCalculate:()=>navigateTo('bill-results'),weighting:billWeighting,onWeighting:setBillWeighting,navigateToFaq,hasFloor:true,floor:billFloor,onFloor:setBillFloor,onSave:isCollaborative?saveSplit:null,isSaving,validate:()=>_errs([
+    calc: {onCalculate:()=>navigateTo('bill-results'),weighting:billWeighting,onWeighting:setBillWeighting,navigateToFaq,hasFloor:true,floor:billFloor,onFloor:setBillFloor,onSave:isCollaborative?saveSplit:null,isSaving,onDeleteGroup:isCollaborative?async()=>{
+      handleClearAll('bill');
+      try {
+        await fetch(`/api/split/${splitId}`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({people:[],bills:[],weighting:billWeighting,floor:billFloor,currency:billCurrency,wealthMetric:billWealthMetric,version:splitVersion})});
+      } catch(e){console.error('Delete group failed:',e);}
+    }:null,validate:()=>_errs([
       [billPeople.length===0,'No people added'],
       [billBills.length===0,'No bills added'],
       [billBills.length>0&&!billBills.some(b=>parseFloat(b.amount)>0),'No bills have a valid amount'],
@@ -1682,7 +1722,6 @@ const Comrade = () => {
 
   return null;
 };
-
 
 
 // Render the app
