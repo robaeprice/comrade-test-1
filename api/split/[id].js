@@ -1,3 +1,18 @@
+const { Ratelimit } = require('@upstash/ratelimit');
+const { Redis } = require('@upstash/redis');
+
+const ratelimit = new Ratelimit({
+  redis: Redis.fromEnv(),
+  limiter: Ratelimit.slidingWindow(30, '1 m'),
+});
+
+module.exports = async function handler(req, res) {
+  const ip = req.headers['x-forwarded-for'] ?? '127.0.0.1';
+  const { success } = await ratelimit.limit(ip);
+  if (!success) return res.status(429).json({ error: 'Too many requests' });
+
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  // ... rest of the file unchanged below here
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
