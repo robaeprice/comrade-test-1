@@ -25,6 +25,7 @@
 
 
      
+
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -484,7 +485,7 @@ const CalcStep = ({onCalculate, weighting, onWeighting, navigateToFaq, hasFloor=
         </div>
       )}
       {onSave && (
-        <button onClick={onSave} disabled={isSaving} className={`w-full py-4 font-black text-xl border-4 border-black transition-all uppercase mb-3 ${isSaving?'bg-gray-300 text-gray-500 cursor-not-allowed':'bg-white text-black hover:bg-gray-100'}`}>
+        <button onClick={onSave} disabled={isSaving} className={`w-full py-4 font-black text-xl border-2 border-black transition-all uppercase mb-3 ${isSaving?'bg-gray-300 text-gray-500 cursor-not-allowed':'bg-white text-black hover:bg-gray-100'}`}>
           {isSaving ? 'SAVING...' : 'SAVE CHANGES'}
         </button>
       )}
@@ -963,7 +964,7 @@ const Comrade = () => {
             setSplitId(id);
             setSplitVersion(data.version);
             setIsCollaborative(true);
-            setEntryOpen([0,1,2,3]);
+            editModeRef.current = true;
             setPage('bill-entry');
           }
         })
