@@ -24,6 +24,7 @@
         const { useState, useCallback, useEffect, useMemo, useRef } = React;
 
 
+        
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -47,35 +48,34 @@ const CLS_DASHED   = 'border-2 border-dashed border-gray-400';
 const CLS_DASHED_T = 'border-t border-dashed border-gray-400';
 const CLS_BTN_BLK  = 'bg-black text-white px-4 py-2 font-bold border-2 border-black text-xs';
 const CLS_BTN_WHT  = 'bg-white text-black font-bold py-2 px-4 border-2 border-black text-xs hover:bg-gray-100 transition-all';
-const CLS_BTN_ACT = 'bg-black text-white px-6 py-2 font-bold border-2 border-black hover:bg-gray-800 transition-all w-full';
-
-const CLS_H3      = 'text-lg font-bold mb-4 text-black uppercase tracking-wider';
-const CLS_LABEL   = 'text-xs font-bold mb-2 text-black uppercase tracking-wider';
-const CLS_BAR_BG  = 'flex-1 bg-gray-200 h-6 relative overflow-hidden border border-gray-400';
-const CLS_BAR     = 'h-6 bar-animate flex items-center justify-end pr-2 sf';
-const CLS_TOTAL   = 'flex justify-between items-center pt-3';
-const CLS_NAME    = 'text-xs text-black font-bold uppercase';
-const S_DARK  = {backgroundColor:DARK,color:BG_GREY,borderColor:DARK};
-const CLS_FB  = 'font-bold mb-2';
-const S_PANEL = {border:'2px dashed #9CA3AF',borderTop:'none',padding:'20px'};
+const CLS_BTN_ACT  = 'bg-black text-white px-6 py-2 font-bold border-2 border-black hover:bg-gray-800 transition-all w-full';
+const CLS_H3       = 'text-lg font-bold mb-4 text-black uppercase tracking-wider';
+const CLS_LABEL    = 'text-xs font-bold mb-2 text-black uppercase tracking-wider';
+const CLS_BAR_BG   = 'flex-1 bg-gray-200 h-6 relative overflow-hidden border border-gray-400';
+const CLS_BAR      = 'h-6 bar-animate flex items-center justify-end pr-2 sf';
+const CLS_TOTAL    = 'flex justify-between items-center pt-3';
+const CLS_NAME     = 'text-xs text-black font-bold uppercase';
+const S_DARK   = {backgroundColor:DARK,color:BG_GREY,borderColor:DARK};
+const CLS_FB   = 'font-bold mb-2';
+const S_PANEL  = {border:'2px dashed #9CA3AF',borderTop:'none',padding:'20px'};
 const NP = {min:'0',step:'0.01',inputMode:'decimal'};
-const CLS_JBH   = 'flex justify-between items-start mb-3 border-b border-dashed border-gray-400 pb-2';
-const CLS_H2C   = 'text-2xl font-black mb-4 text-black uppercase tracking-wider text-center';
-const CLS_DEL   = 'text-black font-bold text-xl ml-3 hover:text-gray-600 leading-none';
-const CLS_CUR   = 'cursor-pointer hover:underline font-bold sf';
-const CLS_CP    = 'currency-pattern text-xs text-black uppercase tracking-wider sf';
-const CLS_I1    = 'flex-1 p-2 border-2 border-gray-400 bg-white uppercase';
-const CLS_FBU   = 'font-bold text-black uppercase mb-1';
-const CLS_FIG   = 'flex items-center gap-2';
-const CLS_P3    = 'text-xs mb-3 text-black';
-const CLS_BR    = 'text-xs font-bold text-black w-24 text-right';
-const CLS_PARA3 = 'leading-relaxed text-xs mb-3';
-const CLS_FBSM  = 'font-bold text-sm text-black uppercase';
-const CLS_ROW3  = 'flex flex-col sm:flex-row gap-2 mb-3';
-const CLS_FBS   = 'font-black text-black uppercase sf';
-const CLS_BL    = 'text-xs text-black w-20 font-bold';
-const CLS_FG4   = 'flex gap-4 items-start';
-const CLS_FBT   = 'font-black text-black text-xs sf';
+const CLS_JBH    = 'flex justify-between items-start mb-3 border-b border-dashed border-gray-400 pb-2';
+const CLS_H2C    = 'text-2xl font-black mb-4 text-black uppercase tracking-wider text-center';
+const CLS_DEL    = 'text-black font-bold text-xl ml-3 hover:text-gray-600 leading-none';
+const CLS_CUR    = 'cursor-pointer hover:underline font-bold sf';
+const CLS_CP     = 'currency-pattern text-xs text-black uppercase tracking-wider sf';
+const CLS_I1     = 'flex-1 p-2 border-2 border-gray-400 bg-white uppercase';
+const CLS_FBU    = 'font-bold text-black uppercase mb-1';
+const CLS_FIG    = 'flex items-center gap-2';
+const CLS_P3     = 'text-xs mb-3 text-black';
+const CLS_BR     = 'text-xs font-bold text-black w-24 text-right';
+const CLS_PARA3  = 'leading-relaxed text-xs mb-3';
+const CLS_FBSM   = 'font-bold text-sm text-black uppercase';
+const CLS_ROW3   = 'flex flex-col sm:flex-row gap-2 mb-3';
+const CLS_FBS    = 'font-black text-black uppercase sf';
+const CLS_BL     = 'text-xs text-black w-20 font-bold';
+const CLS_FG4    = 'flex gap-4 items-start';
+const CLS_FBT    = 'font-black text-black text-xs sf';
 const CLS_PARA   = 'leading-relaxed text-xs';
 const CLS_STEP_P = 'text-xs mb-4 text-black leading-relaxed';
 const CLS_XS     = 'text-xs text-black';
@@ -88,7 +88,7 @@ const CLS_P5     = 'text-xs mb-5 text-black leading-relaxed';
 const CLS_ROW    = 'flex flex-col sm:flex-row gap-2 mb-2';
 const CLS_FBTXU  = 'font-bold text-black mb-1 text-xs uppercase';
 const FLOOR_OPTIONS = [{value:'off',label:'OFF'},{value:'10',label:'10%'},{value:'25',label:'25%'},{value:'50',label:'50%'}];
-const _errs=c=>c.flatMap(([t,m])=>t?[m]:[]);
+const _errs = c => c.flatMap(([t,m])=>t?[m]:[]);
 
 const BG_STYLE = {
   backgroundImage:'repeating-linear-gradient(135deg,#ffd700 0px,#ff8c00 525px,#ffd700 1050px)',
@@ -180,13 +180,12 @@ const CalculateIcon = ({size=20}) => <Icon size={size}><line x1="4" y1="9" x2="2
 const ListIcon = ({size=20}) => <Icon size={size}><rect x="4" y="5" width="3" height="3" fill={DARK}/><rect x="4" y="10" width="3" height="3" fill={DARK}/><rect x="4" y="15" width="3" height="3" fill={DARK}/><line x1="9" y1="6.5" x2="20" y2="6.5" stroke={DARK} strokeWidth="2"/><line x1="9" y1="11.5" x2="20" y2="11.5" stroke={DARK} strokeWidth="2"/><line x1="9" y1="16.5" x2="20" y2="16.5" stroke={DARK} strokeWidth="2"/></Icon>;
 const ReceiptLineIcon = ({size=20}) => <Icon size={size}><rect x="4" y="2" width="16" height="20" rx="1" fill={DARK}/><line x1="7" y1="7" x2="17" y2="7" stroke={BG_GREY} strokeWidth="1.5" strokeLinecap="round"/><line x1="7" y1="11" x2="17" y2="11" stroke={BG_GREY} strokeWidth="1.5" strokeLinecap="round"/><line x1="7" y1="15" x2="13" y2="15" stroke={BG_GREY} strokeWidth="1.5" strokeLinecap="round"/></Icon>;
 const ErrorIcon = ({size=20}) => <Icon size={size}><line x1="4" y1="4" x2="20" y2="20" stroke={DARK} strokeWidth="3"/><line x1="20" y1="4" x2="4" y2="20" stroke={DARK} strokeWidth="3"/></Icon>;
-const ShareIcon = ({size=20}) => <svg aria-hidden="true" width={size} height={size} viewBox="0 0 24 24" style={{flexShrink:0}}><circle cx="18" cy="5" r="3" fill="none" stroke="currentColor" strokeWidth="2"/><circle cx="6" cy="12" r="3" fill="none" stroke="currentColor" strokeWidth="2"/><circle cx="18" cy="19" r="3" fill="none" stroke="currentColor" strokeWidth="2"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" stroke="currentColor" strokeWidth="2"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" stroke="currentColor" strokeWidth="2"/></svg>;
 
 const BILL_STEPS = [
-  {label:'SPLIT BILLS',icon:<BillIcon size={22}/>},
-  {label:'PEOPLE',     icon:<PersonIcon size={22}/>},
-  {label:'BILLS',      icon:<ReceiptLineIcon size={22}/>},
-  {label:'CALCULATE',  icon:<CalculateIcon size={22}/>},
+  {label:'SPLIT BILLS', icon:<BillIcon size={22}/>},
+  {label:'PEOPLE',      icon:<PersonIcon size={22}/>},
+  {label:'BILLS',       icon:<ReceiptLineIcon size={22}/>},
+  {label:'CALCULATE',   icon:<CalculateIcon size={22}/>},
 ];
 const SALE_STEPS = [
   {label:'SELL',      icon:<TagIcon size={22}/>},
@@ -202,10 +201,10 @@ const VOTE_STEPS = [
   {label:'CALCULATE', icon:<CalculateIcon size={22}/>},
 ];
 const RENT_STEPS = [
-  {label:'SPLIT RENT',icon:<HouseIcon size={22}/>},
-  {label:'COSTS',     icon:<BillIcon size={22}/>},
-  {label:'TENANTS',   icon:<PersonIcon size={22}/>},
-  {label:'CALCULATE', icon:<CalculateIcon size={22}/>},
+  {label:'SPLIT RENT', icon:<HouseIcon size={22}/>},
+  {label:'COSTS',      icon:<BillIcon size={22}/>},
+  {label:'TENANTS',    icon:<PersonIcon size={22}/>},
+  {label:'CALCULATE',  icon:<CalculateIcon size={22}/>},
 ];
 
 const scrollToStep = i => setTimeout(() => {
@@ -237,9 +236,9 @@ const FaqItem = ({q,a,render,border,forceOpen,onForceOpenConsumed}) => {
 
 const DetailToggleButton = ({show, onClick}) => (
   <div style={{borderTop:'2px dashed #9CA3AF', borderBottom:'2px dashed #9CA3AF', marginBottom:'24px'}}>
-    <button onClick={onClick} style={{background:'transparent', border:'0', width:'100%', display:'flex', alignItems:'center', gap:'12px', padding:'20px', cursor:'pointer', textAlign:'left'}} className="hover:opacity-60 transition-all">
-      <span style={{flex:1, fontWeight:900, fontSize:'14px', color:DARK, textTransform:'uppercase', letterSpacing:'0.05em', lineHeight:1.3}}>{show ? 'HIDE BREAKDOWN' : 'SHOW BREAKDOWN'}</span>
-      <span style={{fontSize:'24px', fontWeight:900, color:DARK, lineHeight:1, flexShrink:0}}>{show ? '−' : '+'}</span>
+    <button onClick={onClick} style={{background:'transparent',border:'0',width:'100%',display:'flex',alignItems:'center',gap:'12px',padding:'20px',cursor:'pointer',textAlign:'left'}} className="hover:opacity-60 transition-all">
+      <span style={{flex:1,fontWeight:900,fontSize:'14px',color:DARK,textTransform:'uppercase',letterSpacing:'0.05em',lineHeight:1.3}}>{show ? 'HIDE BREAKDOWN' : 'SHOW BREAKDOWN'}</span>
+      <span style={{fontSize:'24px',fontWeight:900,color:DARK,lineHeight:1,flexShrink:0}}>{show ? '−' : '+'}</span>
     </button>
   </div>
 );
@@ -257,13 +256,12 @@ const AboutBanner = () => (
   </div></div>
 );
 
-const SubHedF = ({text}) => (
+const SubHed = ({text}) => (
   <div style={{marginTop:'28px',marginBottom:'16px'}}>
     <p style={{color:DARK,fontSize:'13px',fontWeight:900,letterSpacing:'1.5px',textTransform:'uppercase',lineHeight:1.4,marginBottom:'6px'}}>{text}</p>
     <div style={{borderTop:`4px solid ${DARK}`}}/>
   </div>
 );
-const SubHed = SubHedF;
 
 const FaqBanner = () => (
   <div className="mb-6"><div className="bg-white p-4">
@@ -322,11 +320,9 @@ const ToggleGroup = ({options, value, onChange, minWidth='60px', justify='center
 const CurrencySelector = ({value, onChange}) => (
   <ToggleGroup options={[{value:'USD',label:'$'},{value:'EUR',label:'€'},{value:'GBP',label:'£'}]} value={value} onChange={onChange} minWidth="50px" fontSize="15px"/>
 );
-
 const WealthMetricSelector = ({value, onChange}) => (
   <ToggleGroup options={[{value:'salary',label:'SALARY'},{value:'networth',label:'NET WORTH'}]} value={value} onChange={onChange} minWidth="100px"/>
 );
-
 const CurrencyWealthSettings = ({currency, onCurrency, wealth, onWealth, pad='p-3'}) => (
   <div className={`${CLS_DASHED} ${pad} mb-5 bg-gray-50`}>
     <p className={CLS_LABEL}>CURRENCY:</p>
@@ -338,9 +334,6 @@ const CurrencyWealthSettings = ({currency, onCurrency, wealth, onWealth, pad='p-
 );
 
 const DashedDivider = () => <div className="border-t-2 border-dashed border-gray-400 my-6"/>;
-const PrivacyNote = ({onFaq}) => (
-  <p className="text-xs mt-4 leading-relaxed" style={{color:'#9CA3AF',fontSize:'10px'}}>Your data never leaves your device. <span className="underline cursor-pointer hover:text-gray-500" onClick={onFaq}>Learn more</span></p>
-);
 const CurrencyDivider = () => (
   <div className="flex items-center gap-4 my-6">
     <div className="flex-1 border-t-4" style={{borderColor:DARK}}></div>
@@ -353,22 +346,18 @@ const BlackBoxStats = ({stats}) => (
     {stats.map(({label,value})=><div key={label} className="text-xs" style={{color:BG_GREY}}><span>{label}: </span><span className="font-bold">{value}</span></div>)}
   </div>
 );
-
 const WeightingButtons = ({value,onChange}) => (
   <ToggleGroup options={[{value:'none',label:'OFF'},{value:'gentle',label:'LOW'},{value:'standard',label:'MID'},{value:'strong',label:'HIGH'}]} value={value} onChange={onChange} minWidth="80px"/>
 );
-
 const numericChange = (onChange) => (e) => {
   const val = e.target.value;
   if (val === '' || /^\d*\.?\d*$/.test(val)) onChange(e);
 };
-
 const FormInput = ({type='text',value,onChange,placeholder,className='',style,...props}) => {
   const base="w-full p-2 border-2 border-gray-400 bg-white uppercase";
   if(type==='textarea') return <textarea value={value} onChange={onChange} placeholder={placeholder} className={`${base} ${className}`} style={{fontSize:'16px',...style}} {...props}/>;
   return <input type={type} value={value} onChange={type==='number'?numericChange(onChange):onChange} placeholder={placeholder} className={`${base} ${className}`} style={{fontSize:'16px',...style}} {...props}/>;
 };
-
 const ItemList = ({items,onDelete,renderItem,receiptStyle,formatTotal,getAmount}) => {
   if(!items.length) return null;
   if(receiptStyle) {
@@ -489,7 +478,7 @@ const CalcStep = ({onCalculate, weighting, onWeighting, navigateToFaq, hasFloor=
             </svg>
             <div>
               <p className="text-xs font-bold uppercase mb-2 text-black">ERROR</p>
-              {errors.map((e,i)=><p key={i} className="text-xs uppercase text-black" style={{marginBottom: i<errors.length-1?'4px':0}}>— {e}</p>)}
+              {errors.map((e,i)=><p key={i} className="text-xs uppercase text-black" style={{marginBottom:i<errors.length-1?'4px':0}}>— {e}</p>)}
             </div>
           </div>
         </div>
@@ -655,20 +644,11 @@ const HomeAccordion = ({navigateTo}) => {
         {openSection==='how'&&(
           <div style={S_PANEL}>
             <div className="space-y-6">
-              <div className={CLS_FG4}>
-                <div className={CLS_NUM} style={S_DARK}>1</div>
-                <div><h3 className={CLS_FBU}>ADD YOUR GROUP</h3><p className={CLS_XS}>Enter everyone's names, and incomes or net worth</p></div>
-              </div>
+              <div className={CLS_FG4}><div className={CLS_NUM} style={S_DARK}>1</div><div><h3 className={CLS_FBU}>ADD YOUR GROUP</h3><p className={CLS_XS}>Enter everyone's names, and incomes or net worth</p></div></div>
               <PeopleAvatars />
-              <div className={CLS_FG4}>
-                <div className={CLS_NUM} style={S_DARK}>2</div>
-                <div><h3 className={CLS_FBU}>ENTER YOUR BILLS</h3><p className={CLS_XS}>List what was spent, and who paid</p></div>
-              </div>
+              <div className={CLS_FG4}><div className={CLS_NUM} style={S_DARK}>2</div><div><h3 className={CLS_FBU}>ENTER YOUR BILLS</h3><p className={CLS_XS}>List what was spent, and who paid</p></div></div>
               <MockReceipt />
-              <div className={CLS_FG4}>
-                <div className={CLS_NUM} style={S_DARK}>3</div>
-                <div><h3 className={CLS_FBU}>GET FAIR RESULTS</h3><p className={CLS_XS}>See who owes what, based on ability to pay</p></div>
-              </div>
+              <div className={CLS_FG4}><div className={CLS_NUM} style={S_DARK}>3</div><div><h3 className={CLS_FBU}>GET FAIR RESULTS</h3><p className={CLS_XS}>See who owes what, based on ability to pay</p></div></div>
               <ResultPieChart />
             </div>
             <div className="mt-6 flex flex-col max-w-xs mx-auto" style={{gap:'12px'}}>
@@ -688,7 +668,7 @@ const HomeAccordion = ({navigateTo}) => {
 let _legalCount = 0;
 let _legalTimer = null;
 
-const FooterNav = ({onNavigate, onClearStorage, currentPage}) => {
+const FooterNav = ({onNavigate, onClearStorage}) => {
   const [toast, setToast] = useState(false);
   const handleLegalClick = () => {
     _legalCount++;
@@ -705,8 +685,8 @@ const FooterNav = ({onNavigate, onClearStorage, currentPage}) => {
   };
   const resetCount = dest => { _legalCount = 0; clearTimeout(_legalTimer); onNavigate(dest); };
   const navItem = (dest, label, handler) => (
-      <span onClick={handler || (() => resetCount(dest))} className={CLS_CUR} style={{color:DARK}}>{label}</span>
-    );
+    <span onClick={handler || (() => resetCount(dest))} className={CLS_CUR} style={{color:DARK}}>{label}</span>
+  );
   return (
     <div className="footer-nav text-xs mt-4 mb-4">
       {navItem('home','HOME')}
@@ -739,7 +719,7 @@ const ReceiptBottom = () => (
   </svg>
 );
 
-const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClearStorage,currentPage}) => (
+const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClearStorage}) => (
   <div style={BG_STYLE}>
     <BgSymbols />
     <div style={{position:'relative',zIndex:1}}>
@@ -779,12 +759,7 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
             <div className="bg-white mb-4 pt-3 pb-3 border-b-2 border-dashed border-gray-400">
               <div role="button" tabIndex={0} aria-label="Go to home" className="cursor-pointer text-center" onClick={()=>onNavigate('home')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&onNavigate('home')}>
                 <div className={CLS_CP} style={{marginBottom:'2px'}}>{'$ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £'}</div>
-                <img
-                  src="/logo.svg"
-                  alt="COMRADE"
-                  style={{width:'100%',display:'block',marginBottom:'6px',marginTop:'4px'}}
-                  onError={e=>{e.target.style.display='none';e.target.nextSibling.style.display='flex';}}
-                />
+                <img src="/logo.svg" alt="COMRADE" style={{width:'100%',display:'block',marginBottom:'6px',marginTop:'4px'}} onError={e=>{e.target.style.display='none';e.target.nextSibling.style.display='flex';}}/>
                 <div style={{display:'none',justifyContent:'space-between',alignItems:'baseline',width:'100%',marginBottom:'-2px',marginTop:'4px'}}>
                   {'COMRADE'.split('').map((c,i)=>(
                     <span key={i} style={{fontFamily:'Sixtyfour,monospace',fontWeight:900,color:DARK,fontSize:'clamp(24px,9vw,72px)',lineHeight:1}}>{c}</span>
@@ -796,7 +771,7 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
             </div>
             {children}
             <CurrencyDivider />
-            <FooterNav onNavigate={onNavigate} onClearStorage={onClearStorage} currentPage={currentPage}/>
+            <FooterNav onNavigate={onNavigate} onClearStorage={onClearStorage}/>
             <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 464 73" width="100%" style={{display:'block',marginBottom:'8px'}}>
               <rect x="0" y="0" width="464" height="73" fill={BG_GREY}/>
               <g transform="translate(10, 3)" fill={DARK}>
@@ -818,20 +793,43 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
 
 const _fc=(v,c)=>formatCurrency(v,2,c),_fcs=(v,c)=>formatCurrencySmart(v,c);
 
-const IntroStep = ({desc, hasSaved, resumeLabel, newLabel, onJump, onClear, onExample, onPrivacyFaq, collaborativeBanner}) => (
-  <div>
-    <p className={CLS_P5}>{desc}</p>
-    {collaborativeBanner && collaborativeBanner}
-    <div className="flex flex-col gap-3">
-      {hasSaved&&<button onClick={onJump} className="w-full bg-black text-white py-3 font-bold text-sm border-2 border-black hover:bg-gray-800 transition-all">{resumeLabel}</button>}
-      <div>
-        <button onClick={onClear} className={`w-full font-bold border-2 border-black transition-all ${hasSaved?'bg-white text-black py-2 px-4 text-xs hover:bg-gray-100':'bg-black text-white py-3 text-sm hover:bg-gray-800'}`}>{hasSaved?newLabel:`${newLabel} →`}</button>
-        <p style={{color:'#9CA3AF',fontSize:'10px'}} className="mt-1 leading-relaxed">All calculation takes place on your device. No data is shared.</p>
-      </div>
-      {onExample && <button onClick={onExample} className={`w-full ${CLS_BTN_WHT}`}>TRY AN EXAMPLE</button>}
+// IntroStep is defined outside Comrade so it's stable across renders
+const IntroStep = ({desc, hasSaved, resumeLabel, newLabel, onJump, onClear, onExample, isCollaborative, isSaving, onGroupSplit, collaborativeBanner, groupSplitPrompt}) => {
+  const groupSplitButton = groupSplitPrompt || (onGroupSplit ? (
+    <div>
+      <button
+        onClick={onGroupSplit}
+        disabled={isSaving}
+        className={`w-full font-bold py-3 border-2 border-black text-sm transition-all ${isSaving?'bg-gray-300 text-gray-500 cursor-not-allowed':hasSaved?'bg-white text-black hover:bg-gray-100':'bg-black text-white hover:bg-gray-800'}`}>
+        {isSaving ? 'SAVING...' : hasSaved ? 'NEW GROUP SPLIT' : 'NEW GROUP SPLIT →'}
+      </button>
+      <p style={{color:'#9CA3AF',fontSize:'10px'}} className="mt-1 leading-relaxed">Syncs data to the cloud, allows friends to add expenses and see results.</p>
     </div>
-  </div>
-);
+  ) : null);
+
+  return (
+    <div>
+      <p className={CLS_P5}>{desc}</p>
+      {collaborativeBanner}
+      <div className="flex flex-col gap-3">
+        {hasSaved && !isCollaborative && (
+          <button onClick={onJump} className="w-full bg-black text-white py-3 font-bold text-sm border-2 border-black hover:bg-gray-800 transition-all">{resumeLabel}</button>
+        )}
+        {!hasSaved && groupSplitButton}
+        <div>
+          <button onClick={onClear} className={`w-full font-bold border-2 border-black transition-all ${(hasSaved||isCollaborative)?'bg-white text-black py-2 px-4 text-xs hover:bg-gray-100':'bg-black text-white py-3 text-sm hover:bg-gray-800'}`}>
+            {(hasSaved||isCollaborative) ? newLabel : `${newLabel} →`}
+          </button>
+          <p style={{color:'#9CA3AF',fontSize:'10px'}} className="mt-1 leading-relaxed">All calculation takes place on your device. No data is shared.</p>
+        </div>
+        {hasSaved && !isCollaborative && groupSplitButton}
+        {onExample && (
+          <button onClick={onExample} className={`w-full ${CLS_BTN_WHT}`}>TRY AN EXAMPLE</button>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const Comrade = () => {
   useEffect(()=>{
@@ -845,7 +843,20 @@ const Comrade = () => {
   },[]);
 
   const [copyToastMsg, setCopyToastMsg] = useState('');
+  const [showCopyToast, setShowCopyToast] = useState(false);
   const copyToClipboard = useCallback((t, msg='COPIED TO CLIPBOARD!')=>{navigator.clipboard.writeText(t);setCopyToastMsg(msg);setShowCopyToast(true);},[]);
+
+  const [page, setPage] = useState('home');
+  const [faqOpenIndex, setFaqOpenIndex] = useState(null);
+  const [loadedAt, setLoadedAt] = useState(formatTimestamp);
+  const [randomQuote, setRandomQuote] = useState('');
+  const [lastQuoteIndices, setLastQuoteIndices] = useState([]);
+  const [signupEmail, setSignupEmail] = useState('');
+  const [signupStatus, setSignupStatus] = useState('');
+  const [showDetails, setShowDetails] = useState(false);
+  const [entryOpen, setEntryOpen] = useState([0]);
+  const editModeRef = useRef(false);
+
   const navigateTo = useCallback((p, opts={})=>{
     window.history.pushState({page:p},'',`#${p}`);
     if(opts.faqIndex != null) setFaqOpenIndex(opts.faqIndex);
@@ -854,8 +865,84 @@ const Comrade = () => {
   const navigateToFaq = useCallback(()=>navigateTo('faq'),[navigateTo]);
   const navigateToPrivacyFaq = useCallback(()=>navigateTo('about'),[navigateTo]);
 
+  const jump = useCallback(i => { setEntryOpen([i]); scrollToStep(i); }, []);
+  const toggleEntry = useCallback(i => setEntryOpen(prev => prev.includes(i) ? prev.filter(x => x !== i) : [...prev, i]), []);
+
+  // Bill state
+  const [billPeople, setBillPeople]         = useState(_b0.billPeople||[]);
+  const [billBills, setBillBills]           = useState(_b0.billBills||[]);
+  const [billWeighting, setBillWeighting]   = useState(_b0.billWeighting||'standard');
+  const [billFloor, setBillFloor]           = useState(_b0.billFloor||'off');
+  const [billCurrency, setBillCurrency]     = useState(_b0.billCurrency||'USD');
+  const [billWealthMetric, setBillWealthMetric] = useState(_b0.billWealthMetric||'salary');
+
+  // Sale state
+  const [productName, setProductName]       = useState(_s0.productName||'');
+  const [numberAvailable, setNumberAvailable] = useState(_s0.numberAvailable||'');
+  const [saleBuyers, setSaleBuyers]         = useState(_s0.saleBuyers||[]);
+  const [saleWeighting, setSaleWeighting]   = useState(_s0.saleWeighting||'standard');
+  const [saleCurrency, setSaleCurrency]     = useState(_s0.saleCurrency||'USD');
+  const [saleWealthMetric, setSaleWealthMetric] = useState(_s0.saleWealthMetric||'salary');
+
+  // Vote state
+  const [voteDecision, setVoteDecision]     = useState(_v0.voteDecision||'');
+  const [voteOptions, setVoteOptions]       = useState(_v0.voteOptions||[]);
+  const [voteParticipants, setVoteParticipants] = useState(_v0.voteParticipants||[]);
+  const [voteWeighting, setVoteWeighting]   = useState(_v0.voteWeighting||'standard');
+  const [voteCurrency, setVoteCurrency]     = useState(_v0.voteCurrency||'USD');
+  const [voteWealthMetric, setVoteWealthMetric] = useState(_v0.voteWealthMetric||'salary');
+
+  // Rent state
+  const [totalRent, setTotalRent]           = useState(_r0.totalRent||'');
+  const [totalUtilities, setTotalUtilities] = useState(_r0.totalUtilities||'');
+  const [rentPeople, setRentPeople]         = useState(_r0.rentPeople||[]);
+  const [rentWeighting, setRentWeighting]   = useState(_r0.rentWeighting||'standard');
+  const [rentFloor, setRentFloor]           = useState(_r0.rentFloor||'off');
+  const [rentCurrency, setRentCurrency]     = useState(_r0.rentCurrency||'USD');
+  const [rentWealthMetric, setRentWealthMetric] = useState(_r0.rentWealthMetric||'salary');
+  const [rentMeasurement, setRentMeasurement] = useState(_r0.rentMeasurement||'sqft');
+
+  // Collaborative state
+  const [splitId, setSplitId]               = useState(null);
+  const [splitVersion, setSplitVersion]     = useState(null);
+  const [isCollaborative, setIsCollaborative] = useState(false);
+  const [isSaving, setIsSaving]             = useState(false);
+  const [conflictDetected, setConflictDetected] = useState(false);
+  const [showGroupSplitPrompt, setShowGroupSplitPrompt] = useState(false);
+
+  // Form input state
+  const [curPersonName, setCurPersonName]   = useState('');
+  const [curPersonWealth, setCurPersonWealth] = useState('');
+  const [curBillDesc, setCurBillDesc]       = useState('');
+  const [curBillAmt, setCurBillAmt]         = useState('');
+  const [curBillPaidBy, setCurBillPaidBy]   = useState('');
+  const [curBuyerName, setCurBuyerName]     = useState('');
+  const [curBuyerWealth, setCurBuyerWealth] = useState('');
+  const [curBuyerOffer, setCurBuyerOffer]   = useState('');
+  const [curOptionText, setCurOptionText]   = useState('');
+  const [curParticipantName, setCurParticipantName]   = useState('');
+  const [curParticipantWealth, setCurParticipantWealth] = useState('');
+  const [curParticipantVote, setCurParticipantVote]   = useState('');
+  const [curRoommateName, setCurRoommateName]         = useState('');
+  const [curRoommateRoomSize, setCurRoommateRoomSize] = useState('');
+  const [curRoommateWealth, setCurRoommateWealth]     = useState('');
+
+  const hasBillSavedData = billPeople.length>0 || billBills.length>0;
+  const hasSaleSavedData = saleBuyers.length>0 || !!productName;
+  const hasVoteSavedData = voteParticipants.length>0 || !!voteDecision;
+  const hasRentSavedData = rentPeople.length>0 || !!totalRent;
+
+  // Persist to localStorage
   useEffect(()=>{
-    const pathMatch = window.location.pathname.match(/^\/split\/([a-z0-9]{12})$/);
+    saveToStorage(BILL_KEY,{billPeople,billBills,billCurrency,billWealthMetric,billWeighting,billFloor});
+    saveToStorage(VOTE_KEY,{voteDecision,voteOptions,voteParticipants,voteCurrency,voteWealthMetric,voteWeighting});
+    saveToStorage(SALE_KEY,{productName,numberAvailable,saleBuyers,saleCurrency,saleWealthMetric,saleWeighting});
+    saveToStorage(RENT_KEY,{totalRent,totalUtilities,rentPeople,rentCurrency,rentWealthMetric,rentWeighting,rentFloor,rentMeasurement});
+  },[billPeople,billBills,billCurrency,billWealthMetric,billWeighting,billFloor,voteDecision,voteOptions,voteParticipants,voteCurrency,voteWealthMetric,voteWeighting,productName,numberAvailable,saleBuyers,saleCurrency,saleWealthMetric,saleWeighting,totalRent,totalUtilities,rentPeople,rentCurrency,rentWealthMetric,rentWeighting,rentFloor,rentMeasurement]);
+
+  // Load split from URL path on mount
+  useEffect(()=>{
+    const pathMatch = window.location.pathname.match(/^\/split\/([a-z0-9]{8})$/);
     if (pathMatch) {
       const id = pathMatch[1];
       fetch(`/api/split/${id}`)
@@ -871,6 +958,7 @@ const Comrade = () => {
             setSplitId(id);
             setSplitVersion(data.version);
             setIsCollaborative(true);
+            setEntryOpen([0,1,2,3]);
             setPage('bill-entry');
           }
         })
@@ -883,86 +971,7 @@ const Comrade = () => {
     return()=>window.removeEventListener('popstate',onPop);
   },[]);
 
-  const [loadedAt,setLoadedAt] = useState(formatTimestamp);
-  const [page,setPage] = useState('home');
-  const [faqOpenIndex,setFaqOpenIndex] = useState(null);
-  const [showCopyToast,setShowCopyToast] = useState(false);
-  const [randomQuote,setRandomQuote] = useState('');
-  const [lastQuoteIndices,setLastQuoteIndices] = useState([]);
-  const [signupEmail,setSignupEmail] = useState('');
-  const [signupStatus,setSignupStatus] = useState('');
-
-  const [billPeople,setBillPeople]             = useState(_b0.billPeople||[]);
-  const [billBills,setBillBills]               = useState(_b0.billBills||[]);
-  const [billWeighting,setBillWeighting]       = useState(_b0.billWeighting||'standard');
-  const [billFloor,setBillFloor]               = useState(_b0.billFloor||'off');
-  const [billCurrency,setBillCurrency]         = useState(_b0.billCurrency||'USD');
-  const [billWealthMetric,setBillWealthMetric] = useState(_b0.billWealthMetric||'salary');
-
-  const [productName,setProductName]           = useState(_s0.productName||'');
-  const [numberAvailable,setNumberAvailable]   = useState(_s0.numberAvailable||'');
-  const [saleBuyers,setSaleBuyers]             = useState(_s0.saleBuyers||[]);
-  const [saleWeighting,setSaleWeighting]       = useState(_s0.saleWeighting||'standard');
-  const [saleCurrency,setSaleCurrency]         = useState(_s0.saleCurrency||'USD');
-  const [saleWealthMetric,setSaleWealthMetric] = useState(_s0.saleWealthMetric||'salary');
-
-  const [voteDecision,setVoteDecision]         = useState(_v0.voteDecision||'');
-  const [voteOptions,setVoteOptions]           = useState(_v0.voteOptions||[]);
-  const [voteParticipants,setVoteParticipants] = useState(_v0.voteParticipants||[]);
-  const [voteWeighting,setVoteWeighting]       = useState(_v0.voteWeighting||'standard');
-  const [voteCurrency,setVoteCurrency]         = useState(_v0.voteCurrency||'USD');
-  const [voteWealthMetric,setVoteWealthMetric] = useState(_v0.voteWealthMetric||'salary');
-
-  const [totalRent,setTotalRent]               = useState(_r0.totalRent||'');
-  const [totalUtilities,setTotalUtilities]     = useState(_r0.totalUtilities||'');
-  const [rentPeople,setRentPeople]             = useState(_r0.rentPeople||[]);
-  const [rentWeighting,setRentWeighting]       = useState(_r0.rentWeighting||'standard');
-  const [rentFloor,setRentFloor]               = useState(_r0.rentFloor||'off');
-  const [rentCurrency,setRentCurrency]         = useState(_r0.rentCurrency||'USD');
-  const [rentWealthMetric,setRentWealthMetric] = useState(_r0.rentWealthMetric||'salary');
-  const [rentMeasurement,setRentMeasurement]   = useState(_r0.rentMeasurement||'sqft');
-
-  const [splitId, setSplitId]                 = useState(null);
-  const [splitVersion, setSplitVersion]       = useState(null);
-  const [isCollaborative, setIsCollaborative] = useState(false);
-  const [isSaving, setIsSaving]               = useState(false);
-  const [conflictDetected, setConflictDetected] = useState(false);
-
-  const hasBillSavedData = billPeople.length>0 || billBills.length>0;
-  const hasSaleSavedData = saleBuyers.length>0  || !!productName;
-  const hasVoteSavedData = voteParticipants.length>0 || !!voteDecision;
-  const hasRentSavedData = rentPeople.length>0  || !!totalRent;
-
-  const [curPersonName,setCurPersonName]         = useState('');
-  const [curPersonWealth,setCurPersonWealth]     = useState('');
-  const [curBillDesc,setCurBillDesc]             = useState('');
-  const [curBillAmt,setCurBillAmt]               = useState('');
-  const [curBillPaidBy,setCurBillPaidBy]         = useState('');
-  const [curBuyerName,setCurBuyerName]           = useState('');
-  const [curBuyerWealth,setCurBuyerWealth]       = useState('');
-  const [curBuyerOffer,setCurBuyerOffer]         = useState('');
-  const [curOptionText,setCurOptionText]               = useState('');
-  const [curParticipantName,setCurParticipantName]     = useState('');
-  const [curParticipantWealth,setCurParticipantWealth] = useState('');
-  const [curParticipantVote,setCurParticipantVote]     = useState('');
-  const [curRoommateName,setCurRoommateName]         = useState('');
-  const [curRoommateRoomSize,setCurRoommateRoomSize] = useState('');
-  const [curRoommateWealth,setCurRoommateWealth]     = useState('');
-  const [entryOpen, setEntryOpen] = useState([0]);
-  const [showDetails,setShowDetails] = useState(false);
-
-  const jump = useCallback(i => { setEntryOpen([i]); scrollToStep(i); }, []);
-  const toggleEntry = useCallback(i => setEntryOpen(prev => prev.includes(i) ? prev.filter(x => x !== i) : [...prev, i]), []);
-
-  useEffect(()=>{
-    saveToStorage(BILL_KEY,{billPeople,billBills,billCurrency,billWealthMetric,billWeighting,billFloor});
-    saveToStorage(VOTE_KEY,{voteDecision,voteOptions,voteParticipants,voteCurrency,voteWealthMetric,voteWeighting});
-    saveToStorage(SALE_KEY,{productName,numberAvailable,saleBuyers,saleCurrency,saleWealthMetric,saleWeighting});
-    saveToStorage(RENT_KEY,{totalRent,totalUtilities,rentPeople,rentCurrency,rentWealthMetric,rentWeighting,rentFloor,rentMeasurement});
-  },[billPeople,billBills,billCurrency,billWealthMetric,billWeighting,billFloor,voteDecision,voteOptions,voteParticipants,voteCurrency,voteWealthMetric,voteWeighting,productName,numberAvailable,saleBuyers,saleCurrency,saleWealthMetric,saleWeighting,totalRent,totalUtilities,rentPeople,rentCurrency,rentWealthMetric,rentWeighting,rentFloor,rentMeasurement]);
-
-  const editModeRef = useRef(false);
-
+  // Page change effects
   useEffect(()=>{
     window.scrollTo({top:0,behavior:'instant'});
     setLoadedAt(formatTimestamp());
@@ -1006,6 +1015,7 @@ const Comrade = () => {
           setSplitVersion(1);
           setIsCollaborative(true);
           window.history.pushState({ page: 'bill-entry' }, '', `/split/${data.id}`);
+          setEntryOpen(prev => prev.includes(1) ? prev : [...prev, 1]);
         }
       } else {
         const res = await fetch(`/api/split/${splitId}`, {
@@ -1026,6 +1036,14 @@ const Comrade = () => {
       setIsSaving(false);
     }
   }, [splitId, splitVersion, billPeople, billBills, billWeighting, billFloor, billCurrency, billWealthMetric]);
+
+  const handleGroupSplitClick = useCallback(() => {
+    if (hasBillSavedData) {
+      setShowGroupSplitPrompt(true);
+    } else {
+      saveSplit();
+    }
+  }, [hasBillSavedData, saveSplit]);
 
   const handleClearAll = useCallback(type=>{
     ({
@@ -1070,6 +1088,7 @@ const Comrade = () => {
     setTotalRent('');setTotalUtilities('');setRentPeople([]);setRentWeighting('standard');setRentFloor('off');setRentCurrency('USD');setRentWealthMetric('salary');setRentMeasurement('sqft');
   },[]);
 
+  // All useMemos before any conditional returns
   const billCalculations = useMemo(()=>{
     if(page!=='bill-results'||!billPeople.length) return{total:0,peopleData:[],transactions:[]};
     const total=billBills.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
@@ -1163,18 +1182,19 @@ const Comrade = () => {
     return{rentAmount,utilitiesAmount,total,totalRoomSize:trs,rentData,totalRoomValue:trv};
   },[rentPeople,totalRent,totalUtilities,rentWeighting,rentFloor,page]);
 
-  const lp = {onNavigate:navigateTo, showCopyToast, copyToastMsg, loadedAt, onClearStorage:clearStorage, currentPage:page};
+  const lp = {onNavigate:navigateTo, showCopyToast, copyToastMsg, loadedAt, onClearStorage:clearStorage};
 
+  // Collaborative banner JSX (inline, not a component)
   const shareUrl = splitId ? `${window.location.origin}/split/${splitId}` : null;
-  const collaborativeBanner = (
+  const collaborativeBanner = (isCollaborative || conflictDetected) ? (
     <div className="mb-4">
       {conflictDetected && (
         <div className="flex items-start gap-3 p-4 mb-3 border-2 border-black bg-white animate-fadeIn">
           <ErrorIcon size={16}/>
           <div className="flex-1">
-            <p className="text-xs font-bold uppercase mb-2">THIS SPLIT WAS UPDATED BY SOMEONE ELSE</p>
+            <p className="text-xs font-bold uppercase mb-2">WARNING: This split was recently updated by someone else.</p>
             <div className="flex gap-2">
-              <button onClick={()=>window.location.reload()} className={`flex-1 ${CLS_BTN_BLK} hover:bg-gray-800 transition-all`}>REFRESH</button>
+              <button onClick={()=>window.location.reload()} className={`flex-1 ${CLS_BTN_BLK} hover:bg-gray-800 transition-all`}>RELOAD</button>
               <button onClick={()=>{setConflictDetected(false);saveSplit();}} className={`flex-1 ${CLS_BTN_WHT}`}>SAVE ANYWAY</button>
             </div>
           </div>
@@ -1183,24 +1203,18 @@ const Comrade = () => {
       {shareUrl && !conflictDetected && (
         <div className="p-4 border-2 border-dashed border-gray-400 bg-white mb-3 animate-fadeIn">
           <p className="text-xs font-bold uppercase mb-2">GROUP SPLIT</p>
-          <p style={{color:'#9CA3AF',fontSize:'10px'}} className="mb-3 leading-relaxed">Share this link with friends to let them add expenses and wealth information. Save your data after making changes, and press "calculate" when you're all ready to settle up.</p>
+          <p style={{color:'#9CA3AF',fontSize:'10px'}} className="mb-3 leading-relaxed">Share this link with friends to let them add expenses and wealth information. Save your data after making changes, and press Calculate when you're ready to settle up.</p>
           <div className="flex gap-2 items-center">
             <p className="text-xs flex-1 break-all" style={{color:'#6B7280'}}>{shareUrl}</p>
             <button onClick={()=>copyToClipboard(shareUrl,'LINK COPIED!')} className={CLS_BTN_BLK} style={{flexShrink:0}}>COPY</button>
           </div>
         </div>
       )}
-      <div>
-        <button
-          onClick={saveSplit}
-          disabled={isSaving}
-          className={`w-full font-bold py-3 border-2 border-black text-sm transition-all ${isSaving ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-black text-white hover:bg-gray-800'}`}>
-          {isSaving ? 'SAVING...' : splitId ? 'SAVE CHANGES' : 'NEW GROUP SPLIT →'}
-        </button>
-        {!splitId && <p style={{color:'#9CA3AF',fontSize:'10px'}} className="mt-1 leading-relaxed">Sync data to the cloud, allow friends to add expenses.</p>}
-      </div>
+      <button onClick={saveSplit} disabled={isSaving} className={`w-full font-bold py-3 border-2 border-black text-sm transition-all ${isSaving?'bg-gray-300 text-gray-500 cursor-not-allowed':'bg-black text-white hover:bg-gray-800'}`}>
+        {isSaving ? 'SAVING...' : 'SAVE CHANGES'}
+      </button>
     </div>
-  );
+  ) : null;
 
   const renderEmailSignup = () => (
     <div className={`bg-white p-6 ${CLS_DASHED}`}>
@@ -1358,8 +1372,8 @@ const Comrade = () => {
           {heading:null,text:'© 2026 Comrade. All rights reserved.'},
         ].map((item,i)=>(
           <React.Fragment key={i}>
-            {(i===2||i===5)&&<div className={`${CLS_DASHED_T} my-4`}/>}
-            {i>0&&i!==2&&i!==5&&<div className="my-3"/>}
+            {(i===2||i===6)&&<div className={`${CLS_DASHED_T} my-4`}/>}
+            {i>0&&i!==2&&i!==6&&<div className="my-3"/>}
             {item.heading&&<p className="font-bold text-xs uppercase tracking-wider mb-2">{item.heading}</p>}
             <p className={CLS_PARA}>{item.text}</p>
           </React.Fragment>
@@ -1369,9 +1383,31 @@ const Comrade = () => {
   );
 
   if(page==='bill-entry') return EntryPage({
-    steps:BILL_STEPS,
-    intro:{desc:"From meals to vacations, taxis to tickets, handle your shared expenses with friends more fairly. Comrade combines and simplifies group bills, while using information about group members' finances to decide how much everyone should pay.",hasSaved:hasBillSavedData,resumeLabel:isCollaborative?"RESUME GROUP SPLIT →":"RESUME PRIVATE SPLIT →",newLabel:"NEW PRIVATE SPLIT",onJump:()=>jump(1),onClear:()=>{handleClearAll('bill');jump(1);},onExample:isCollaborative?null:()=>loadExample('bill'),onPrivacyFaq:navigateToPrivacyFaq,collaborativeBanner},
-    calc:{onCalculate:()=>navigateTo('bill-results'),weighting:billWeighting,onWeighting:setBillWeighting,navigateToFaq,hasFloor:true,floor:billFloor,onFloor:setBillFloor,validate:()=>_errs([
+    steps: BILL_STEPS,
+    intro: {
+      desc: "From meals to vacations, taxis to tickets, handle your shared expenses with friends more fairly. Comrade combines and simplifies group bills, while using information about group members' finances to decide how much everyone should pay.",
+      hasSaved: hasBillSavedData,
+      resumeLabel: isCollaborative ? "RESUME GROUP SPLIT →" : "RESUME PRIVATE SPLIT →",
+      newLabel: "NEW PRIVATE SPLIT",
+      onJump: ()=>jump(1),
+      onClear: ()=>{ setShowGroupSplitPrompt(false); handleClearAll('bill'); jump(1); },
+      onExample: isCollaborative ? null : ()=>loadExample('bill'),
+      isCollaborative,
+      isSaving,
+      onGroupSplit: isCollaborative ? null : handleGroupSplitClick,
+      groupSplitPrompt: showGroupSplitPrompt ? (
+        <div className="border-2 border-dashed border-gray-400 p-4 bg-gray-50 animate-fadeIn">
+          <p className="font-bold text-xs uppercase mb-1 text-black">YOU'VE ALREADY ENTERED SOME DATA</p>
+          <p className="text-xs text-black mb-4 leading-relaxed">Keep the people and bills you've already added, or start fresh?</p>
+          <div className="flex flex-col gap-2">
+            <button onClick={()=>{setShowGroupSplitPrompt(false);saveSplit();}} className="w-full bg-white text-black py-2 font-bold text-xs border-2 border-black hover:bg-gray-100 transition-all">USE EXISTING DATA →</button>
+            <button onClick={async()=>{handleClearAll('bill');setShowGroupSplitPrompt(false);setIsSaving(true);try{const r=await fetch('/api/split',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({people:[],bills:[],weighting:billWeighting,floor:billFloor,currency:billCurrency,wealthMetric:billWealthMetric})});const d=await r.json();if(d.id){setSplitId(d.id);setSplitVersion(1);setIsCollaborative(true);window.history.pushState({page:'bill-entry'},'',`/split/${d.id}`);setEntryOpen(prev=>prev.includes(1)?prev:[...prev,1]);}}catch(e){console.error(e);}finally{setIsSaving(false);}}} className="w-full bg-white text-black py-2 font-bold text-xs border-2 border-black hover:bg-gray-100 transition-all">START FRESH →</button>
+          </div>
+        </div>
+      ) : null,
+      collaborativeBanner,
+    },
+    calc: {onCalculate:()=>navigateTo('bill-results'),weighting:billWeighting,onWeighting:setBillWeighting,navigateToFaq,hasFloor:true,floor:billFloor,onFloor:setBillFloor,validate:()=>_errs([
       [billPeople.length===0,'No people added'],
       [billBills.length===0,'No bills added'],
       [billBills.length>0&&!billBills.some(b=>parseFloat(b.amount)>0),'No bills have a valid amount'],
@@ -1392,7 +1428,7 @@ const Comrade = () => {
             ?<ItemList items={billPeople} onDelete={id=>setBillPeople(billPeople.filter(p=>p.id!==id))} renderItem={p=><><p className={CLS_NAME}>{p.name}</p><p className={CLS_XS}>{getWealthMetricLabel(billWealthMetric)}: {formatCurrency(p.wealth,2,billCurrency)}</p></>}/>
             :<EmptyState msg="No people added yet"/>
           }
-          <div className="mt-6">{NavButton({label:"CONTINUE →", onClick:()=>jump(2)})}</div>
+          <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(2)}/></div>
         </div>
       ),
       ()=>(
@@ -1411,7 +1447,7 @@ const Comrade = () => {
             ?<ItemList items={billBills} onDelete={id=>setBillBills(billBills.filter(b=>b.id!==id))} renderItem={b=><><p className="text-black font-bold uppercase">{b.description}</p><p className="text-black text-xs">{b.paidBy||'Unknown'}</p></>} receiptStyle formatTotal={t=>formatCurrency(t,2,billCurrency)} getAmount={b=>b.amount}/>
             :<EmptyState msg="No bills added yet" cls="mb-4"/>
           }
-          <div className="mt-6">{NavButton({label:"CONTINUE →", onClick:()=>jump(3)})}</div>
+          <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(3)}/></div>
         </div>
       ),
     ]
@@ -1426,7 +1462,7 @@ const Comrade = () => {
         ?<p className="text-lg font-bold">ALL SETTLED! EVERYONE'S SQUARE.</p>
         :<div className="space-y-3">{transactions.map((t,i)=><div key={i} className="text-sm leading-relaxed pb-2" style={{borderBottom:`1px dashed ${BG_GREY}`}}><span className="font-semibold">{t.from.toUpperCase()}</span><span> PAYS </span><span className="font-semibold">{t.to.toUpperCase()}</span><br/><span className="font-black text-2xl">{_fcs(t.amount,billCurrency)}</span></div>)}</div>,
       stats:[{label:'TOTAL BILLS',value:billBills.length},{label:'TOTAL',value:_fc(total,billCurrency)},{label:'PEOPLE',value:billPeople.length}],
-      copyText:copyText,
+      copyText,
       details:<>
         {renderDetailCards('PARTICIPANT DATA',[...peopleData].sort((a,b)=>b.wealth-a.wealth),p=>{const bal=p.paid-p.fairShare;return{name:p.name,rows:[{label:'WEALTH',value:_fc(p.wealth,billCurrency)},{label:'PAID',value:`${_fc(p.paid,billCurrency)} (${p.paidPct.toFixed(1)}%)`},{label:'FAIR SHARE',value:`${_fcs(p.fairShare,billCurrency)} (${p.fairPct.toFixed(1)}%)`}],summaryRows:[{label:'BALANCE',value:`${bal>0.01?'+':''}${_fcs(bal,billCurrency)}`}]};})}
         <DashedDivider/>
@@ -1450,9 +1486,9 @@ const Comrade = () => {
   }
 
   if(page==='sale-entry') return EntryPage({
-    steps:SALE_STEPS,
-    intro:{desc:"If you're selling something, make sure it goes to the potential buyer who needs it the most — not just whoever offers to pay the most. Comrade takes into account prospective purchasers' financial resources to help you understand how much your product is truly worth to them.",hasSaved:hasSaleSavedData,resumeLabel:"RESUME SALE →",newLabel:"NEW SALE",onJump:()=>jump(1),onClear:()=>{handleClearAll('sale');jump(1);},onExample:()=>loadExample('sale'),onPrivacyFaq:navigateToPrivacyFaq},
-    calc:{onCalculate:()=>navigateTo('sale-results'),weighting:saleWeighting,onWeighting:setSaleWeighting,navigateToFaq,hasAdvanced:true,validate:()=>_errs([
+    steps: SALE_STEPS,
+    intro: {desc:"If you're selling something, make sure it goes to the potential buyer who needs it the most — not just whoever offers to pay the most. Comrade takes into account prospective purchasers' financial resources to help you understand how much your product is truly worth to them.",hasSaved:hasSaleSavedData,resumeLabel:"RESUME SALE →",newLabel:"NEW SALE",onJump:()=>jump(1),onClear:()=>{handleClearAll('sale');jump(1);},onExample:()=>loadExample('sale')},
+    calc: {onCalculate:()=>navigateTo('sale-results'),weighting:saleWeighting,onWeighting:setSaleWeighting,navigateToFaq,hasAdvanced:true,validate:()=>_errs([
       [!productName.trim(),'No product name entered'],
       [saleBuyers.length===0,'No buyers added'],
     ])},
@@ -1462,7 +1498,7 @@ const Comrade = () => {
           <p className={CLS_STEP_P}>List what you're selling, and how many items are available.</p>
           <FormInput value={productName} onChange={e=>setProductName(e.target.value)} placeholder="PRODUCT NAME" className="mb-2"/>
           <FormInput type="number" value={numberAvailable} onChange={e=>setNumberAvailable(e.target.value)} placeholder="NUMBER AVAILABLE" min="1" step="1" inputMode="numeric"/>
-          <div className="mt-6">{NavButton({label:"CONTINUE →", onClick:()=>jump(2)})}</div>
+          <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(2)}/></div>
         </div>
       ),
       ()=>(
@@ -1476,7 +1512,7 @@ const Comrade = () => {
           <FormInput type="number" value={curBuyerWealth} onChange={e=>setCurBuyerWealth(e.target.value)} placeholder={`${getCurrencySymbol(saleCurrency)} ${getWealthMetricLabel(saleWealthMetric)}`} {...NP} className="mb-3"/>
           <button onClick={()=>{if(curBuyerName.trim()){setSaleBuyers([...saleBuyers,{id:Date.now(),name:curBuyerName,wealth:curBuyerWealth,offer:curBuyerOffer}]);setCurBuyerName('');setCurBuyerWealth('');setCurBuyerOffer('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD BUYER</button>
           {saleBuyers.length>0?<ItemList items={saleBuyers} onDelete={id=>setSaleBuyers(saleBuyers.filter(b=>b.id!==id))} renderItem={b=><><p className={CLS_NAME}>{b.name}</p><p className={CLS_XS}>{getWealthMetricLabel(saleWealthMetric)}: {formatCurrency(b.wealth,2,saleCurrency)}</p><p className={CLS_XS}>Offer: {formatCurrency(b.offer,2,saleCurrency)}</p></>}/>:<EmptyState msg="No buyers added yet"/>}
-          <div className="mt-6">{NavButton({label:"CONTINUE →", onClick:()=>jump(3)})}</div>
+          <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(3)}/></div>
         </div>
       ),
     ]
@@ -1493,7 +1529,7 @@ const Comrade = () => {
         ?<p className="text-lg font-bold">PERFECT TIE. EVERYONE HAS EQUAL CLAIM.</p>
         :<>{winners.map((w,i)=><div key={w.id} className="mb-3 pb-3" style={{borderBottom:`1px dashed ${BG_GREY}`}}><p className="text-3xl font-black mb-2">{w.name.toUpperCase()}</p><p className="text-xl font-semibold">OFFER: {_fc(w.offer,saleCurrency)}</p><p className="text-xs" style={{color:BG_GREY}}>NEED SCORE: {w.needScore<0.01?w.needScore.toExponential(4):w.needScore.toFixed(2)}%</p></div>)}</>,
       stats:[{label:'PRODUCT',value:productName.toUpperCase()||'N/A'},{label:'AVAILABLE',value:numAvail},{label:'AVG OFFER',value:_fc(avgOffer,saleCurrency)}],
-      copyText:copyText,
+      copyText,
       details:<>
         {renderDetailCards('BUYER DATA',rankedBuyers,(b,i)=>({name:`#${i+1} ${b.name}`,cardClassName:`p-4 border-2 ${i<numAvail?'border-black bg-gray-100':'border-gray-400 bg-white'}`,titleExtra:<span className={`px-2 py-1 text-xs font-bold border sf ${i<numAvail?'bg-black text-white border-black':'bg-white text-black border-black'}`}>{i<numAvail?'SELECTED':'NOT SELECTED'}</span>,rows:[{label:'WEALTH',value:_fc(b.wealth,saleCurrency)},{label:'OFFER',value:_fc(b.offer,saleCurrency)}],summaryRows:[{label:'NEED SCORE',value:`${b.needScore<0.01?b.needScore.toExponential(4):b.needScore.toFixed(2)}%`}]}))}
         <DashedDivider/>
@@ -1505,9 +1541,9 @@ const Comrade = () => {
   }
 
   if(page==='vote-entry') return EntryPage({
-    steps:VOTE_STEPS,
-    intro:{desc:"Make group decisions more equitably with Comrade. If your friends, classmates, or coworkers are grappling with a dispute, give more voting power to those with less wealth.",hasSaved:hasVoteSavedData,resumeLabel:"RESUME VOTE →",newLabel:"NEW VOTE",onJump:()=>jump(1),onClear:()=>{handleClearAll('vote');jump(1);},onExample:()=>loadExample('vote'),onPrivacyFaq:navigateToPrivacyFaq},
-    calc:{onCalculate:()=>navigateTo('vote-results'),weighting:voteWeighting,onWeighting:setVoteWeighting,navigateToFaq,hasAdvanced:true,validate:()=>_errs([
+    steps: VOTE_STEPS,
+    intro: {desc:"Make group decisions more equitably with Comrade. If your friends, classmates, or coworkers are grappling with a dispute, give more voting power to those with less wealth.",hasSaved:hasVoteSavedData,resumeLabel:"RESUME VOTE →",newLabel:"NEW VOTE",onJump:()=>jump(1),onClear:()=>{handleClearAll('vote');jump(1);},onExample:()=>loadExample('vote')},
+    calc: {onCalculate:()=>navigateTo('vote-results'),weighting:voteWeighting,onWeighting:setVoteWeighting,navigateToFaq,hasAdvanced:true,validate:()=>_errs([
       [!voteDecision.trim(),'No decision or question entered'],
       [voteOptions.length===0,'No voting options added'],
       [voteParticipants.length===0,'No participants added'],
@@ -1518,7 +1554,7 @@ const Comrade = () => {
         <div>
           <p className={CLS_STEP_P}>Enter the question the group is voting on.</p>
           <FormInput type="textarea" value={voteDecision} onChange={e=>setVoteDecision(e.target.value)} placeholder="DECISION TO BE MADE" rows={4}/>
-          <div className="mt-6">{NavButton({label:"CONTINUE →", onClick:()=>jump(2)})}</div>
+          <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(2)}/></div>
         </div>
       ),
       ()=>(
@@ -1527,7 +1563,7 @@ const Comrade = () => {
           <FormInput value={curOptionText} onChange={e=>setCurOptionText(e.target.value)} placeholder="OPTION TEXT" className="mb-3"/>
           <button onClick={()=>{if(curOptionText.trim()){setVoteOptions([...voteOptions,{id:Date.now(),text:curOptionText}]);setCurOptionText('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD OPTION</button>
           {voteOptions.length>0?<div className="space-y-0">{voteOptions.map(opt=><div key={opt.id} className="flex justify-between items-center text-xs text-black border-b border-dashed border-gray-400 pb-2 pt-2"><p className="font-bold text-black uppercase flex-1">{opt.text}</p><button onClick={()=>setVoteOptions(voteOptions.filter(o=>o.id!==opt.id))} className={CLS_DEL}>×</button></div>)}</div>:<EmptyState msg="No options added yet"/>}
-          <div className="mt-6">{NavButton({label:"CONTINUE →", onClick:()=>jump(3)})}</div>
+          <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(3)}/></div>
         </div>
       ),
       ()=>(
@@ -1544,7 +1580,7 @@ const Comrade = () => {
           <FormInput type="number" value={curParticipantWealth} onChange={e=>setCurParticipantWealth(e.target.value)} placeholder={`${getCurrencySymbol(voteCurrency)} ${getWealthMetricLabel(voteWealthMetric)}`} {...NP} className="mb-3"/>
           <button onClick={()=>{if(curParticipantName.trim()){setVoteParticipants([...voteParticipants,{id:Date.now(),name:curParticipantName,wealth:curParticipantWealth,vote:curParticipantVote}]);setCurParticipantName('');setCurParticipantWealth('');setCurParticipantVote('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD PERSON</button>
           {voteParticipants.length>0?<ItemList items={voteParticipants} onDelete={id=>setVoteParticipants(voteParticipants.filter(p=>p.id!==id))} renderItem={p=><><p className={CLS_NAME}>{p.name}</p><p className={CLS_XS}>{getWealthMetricLabel(voteWealthMetric)}: {formatCurrency(p.wealth,2,voteCurrency)}</p><p className={CLS_XS}>Vote: {p.vote||'Not selected'}</p></>}/>:<EmptyState msg="No people added yet"/>}
-          <div className="mt-6">{NavButton({label:"CONTINUE →", onClick:()=>jump(4)})}</div>
+          <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(4)}/></div>
         </div>
       ),
     ]
@@ -1559,7 +1595,7 @@ const Comrade = () => {
       entryPage:"vote-entry", title:"DECISION",
       summary:<><p className="text-lg mb-6 font-semibold">{voteDecision.toUpperCase()}</p>{isTie?<p className="text-xl font-bold">PERFECT TIE. NO CLEAR WINNER.</p>:winner?<><p className="text-sm mb-2">WINNING OPTION:</p><p className="text-3xl font-black mb-2">{winner.option.toUpperCase()}</p><p className="text-xl font-semibold">{winner.percentage.toFixed(1)}% OF VOTING POWER</p></>:<p className="text-lg font-bold">NO VOTES CAST</p>}</>,
       stats:[{label:'PARTICIPANTS',value:voteParticipants.length},{label:'OPTIONS',value:voteOptions.length}],
-      copyText:copyText,
+      copyText,
       details:<>
         <div className="mb-6"><h3 className={CLS_H3}>VOTE BREAKDOWN</h3><div className="space-y-4">{voteBreakdown.map((item,i)=><div key={i} className="border-2 border-gray-400 p-4"><div className={CLS_JBH}><p className={CLS_FBSM}>{item.option}</p><span className="px-2 py-1 text-xs font-bold border sf" style={S_DARK}>{item.percentage.toFixed(1)}%</span></div><p className="text-xs text-black mb-2 font-bold">VOTERS ({item.voters.length}):</p><div className="space-y-1">{item.voters.map(v=><p key={v.name} className={CLS_XS}>• {v.name} (Power: {v.votingPower.toFixed(2)})</p>)}</div></div>)}</div></div>
         <DashedDivider/>
@@ -1575,9 +1611,9 @@ const Comrade = () => {
   }
 
   if(page==='rent-entry') return EntryPage({
-    steps:RENT_STEPS,
-    intro:{desc:"Figuring out rent splits with roommates is a fraught process. Decide it more fairly with Comrade by accounting for both room size and tenants' financial resources. Larger rooms and higher earners both pay more.",hasSaved:hasRentSavedData,resumeLabel:"RESUME SPLIT →",newLabel:"NEW SPLIT",onJump:()=>jump(1),onClear:()=>{handleClearAll('rent');jump(1);},onExample:()=>loadExample('rent'),onPrivacyFaq:navigateToPrivacyFaq},
-    calc:{onCalculate:()=>navigateTo('rent-results'),weighting:rentWeighting,onWeighting:setRentWeighting,navigateToFaq,hasFloor:true,floor:rentFloor,onFloor:setRentFloor,validate:()=>_errs([
+    steps: RENT_STEPS,
+    intro: {desc:"Figuring out rent splits with roommates is a fraught process. Decide it more fairly with Comrade by accounting for both room size and tenants' financial resources. Larger rooms and higher earners both pay more.",hasSaved:hasRentSavedData,resumeLabel:"RESUME SPLIT →",newLabel:"NEW SPLIT",onJump:()=>jump(1),onClear:()=>{handleClearAll('rent');jump(1);},onExample:()=>loadExample('rent')},
+    calc: {onCalculate:()=>navigateTo('rent-results'),weighting:rentWeighting,onWeighting:setRentWeighting,navigateToFaq,hasFloor:true,floor:rentFloor,onFloor:setRentFloor,validate:()=>_errs([
       [!parseFloat(totalRent),'No rent amount entered'],
       [rentPeople.length===0,'No tenants added'],
       [rentPeople.some(p=>!(parseFloat(p.roomSize)>0)),'Some tenants are missing a room size'],
@@ -1592,7 +1628,7 @@ const Comrade = () => {
           </div>
           <FormInput type="number" value={totalRent} onChange={e=>setTotalRent(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} MONTHLY RENT`} {...NP} className="mb-2"/>
           <FormInput type="number" value={totalUtilities} onChange={e=>setTotalUtilities(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} MONTHLY UTILITIES`} {...NP}/>
-          <div className="mt-6">{NavButton({label:"CONTINUE →", onClick:()=>jump(2)})}</div>
+          <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(2)}/></div>
         </div>
       ),
       ()=>(
@@ -1611,7 +1647,7 @@ const Comrade = () => {
           <FormInput type="number" value={curRoommateWealth} onChange={e=>setCurRoommateWealth(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} ${getWealthMetricLabel(rentWealthMetric)}`} {...NP} className="mb-3"/>
           <button onClick={()=>{if(curRoommateName.trim()){setRentPeople([...rentPeople,{id:Date.now(),name:curRoommateName,roomSize:curRoommateRoomSize,wealth:curRoommateWealth}]);setCurRoommateName('');setCurRoommateRoomSize('');setCurRoommateWealth('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD TENANT</button>
           {rentPeople.length>0?<ItemList items={rentPeople} onDelete={id=>setRentPeople(rentPeople.filter(p=>p.id!==id))} renderItem={p=><><p className={CLS_NAME}>{p.name}</p><p className={CLS_XS}>Room: {formatNumber((parseFloat(p.roomSize)||0).toFixed(0))} {getMeasurementLabel(rentMeasurement).toLowerCase()}</p><p className={CLS_XS}>{getWealthMetricLabel(rentWealthMetric)}: {formatCurrency(p.wealth,2,rentCurrency)}</p></>}/>:<EmptyState msg="No tenants added yet"/>}
-          <div className="mt-6">{NavButton({label:"CONTINUE →", onClick:()=>jump(3)})}</div>
+          <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(3)}/></div>
         </div>
       ),
     ]
@@ -1624,7 +1660,7 @@ const Comrade = () => {
       entryPage:"rent-entry", title:"MONTHLY PAYMENTS",
       summary:<div className="space-y-3">{rentData.map(p=><div key={p.id} className="pb-2" style={{borderBottom:`1px dashed ${BG_GREY}`}}><p className="text-lg font-semibold">{p.name.toUpperCase()}</p><p className="text-2xl font-black">{_fcs(p.fairRent,rentCurrency)}</p><p className="text-xs" style={{color:BG_GREY}}>{p.rentPct.toFixed(1)}% of total</p></div>)}</div>,
       stats:[{label:'RENT',value:_fc(rentAmount,rentCurrency)},{label:'UTILITIES',value:_fc(utilitiesAmount,rentCurrency)},{label:'TOTAL',value:_fc(total,rentCurrency)},{label:'TENANTS',value:rentPeople.length}],
-      copyText:copyText,
+      copyText,
       details:<>
         {renderDetailCards('ROOMMATE DATA',rentData,p=>({name:p.name,rows:[{label:'ROOM SIZE',value:`${formatNumber(p.roomSize.toFixed(0))} ${getMeasurementLabel(rentMeasurement).toLowerCase()}`},{label:'WEALTH',value:_fc(p.wealth,rentCurrency)}],summaryRows:[{label:'MONTHLY RENT',value:_fcs(p.fairRent,rentCurrency)},{label:'% OF TOTAL',value:`${p.rentPct.toFixed(1)}%`}]}))}
         <DashedDivider/>
