@@ -36,9 +36,9 @@ module.exports = async (req, res) => {
 
     // Replace og:url
     html = html.replace(
-      'og:url" content="https://comrade.money"',
-      'og:url" content="' + splitUrl + '"'
-    );
+  /<meta\s+property=["']og:url["'][^>]*>/i,
+  `<meta property="og:url" content="${splitUrl}" />`
+);
 
     // Replace meta description
   html = html.replace(
