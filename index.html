@@ -442,7 +442,7 @@ const ConflictWarning = ({onReload, onForceSave}) => (
   </div>
 );
 
-const CalcStep = ({onCalculate, weighting, onWeighting, navigateToFaq, hasFloor=false, floor, onFloor, hasAdvanced=false, validate, onSave, isSaving, onDeleteGroup, isConflict, onForceSave}) => {
+const CalcStep = ({onCalculate, weighting, onWeighting, navigateToFaq, hasFloor=false, floor, onFloor, hasAdvanced=false, validate, onSave, isSaving, saveSuccess, onDeleteGroup, isConflict, onForceSave}) => {
   const [advOpen, setAdvOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [attempted, setAttempted] = useState(false);
@@ -516,8 +516,8 @@ const CalcStep = ({onCalculate, weighting, onWeighting, navigateToFaq, hasFloor=
       {onSave && (
         isConflict
           ? <div className="mb-3"><ConflictWarning onReload={()=>window.location.reload()} onForceSave={onForceSave}/></div>
-          : <button onClick={onSave} disabled={isSaving} className={`w-full py-4 font-black text-xl border-2 border-black transition-all uppercase mb-3 ${isSaving?'bg-gray-300 text-gray-500 cursor-not-allowed':'bg-white text-black hover:bg-gray-100'}`}>
-              {isSaving ? 'SAVING...' : 'SAVE CHANGES'}
+          : <button onClick={onSave} disabled={isSaving||saveSuccess} className={`w-full py-4 font-black text-xl border-2 border-black transition-all uppercase mb-3 ${saveSuccess?'bg-white text-black':isSaving?'bg-gray-400 text-gray-600 cursor-not-allowed':'bg-white text-black hover:bg-gray-100'}`}>
+              {saveSuccess ? 'SAVED!' : isSaving ? 'SAVING...' : 'SAVE CHANGES'}
             </button>
       )}
       <button onClick={handleCalculate} className="bg-black text-white w-full py-4 font-black text-xl border-4 border-black hover:bg-gray-800 transition-all uppercase calculate-btn">CALCULATE</button>
@@ -835,7 +835,7 @@ const IntroStep = ({desc, hasSaved, resumeLabel, newLabel, onJump, onClear, onEx
   const groupSplitButton = groupSplitPrompt || (onGroupSplit ? (
     <div>
       <button onClick={onGroupSplit} disabled={isSaving}
-        className={`w-full font-bold py-3 border-2 border-black text-sm transition-all ${isSaving?'bg-gray-300 text-gray-500 cursor-not-allowed':'bg-black text-white hover:bg-gray-800'}`}>
+        className={`w-full font-bold py-3 border-2 border-black text-sm transition-all ${isSaving?'bg-gray-400 text-gray-600 cursor-not-allowed':'bg-black text-white hover:bg-gray-800'}`}>
         {isSaving ? 'SAVING...' : 'NEW GROUP SPLIT →'}
       </button>
       <p style={{color:'#9CA3AF',fontSize:'10px'}} className="mt-1 leading-relaxed">Syncs data to the cloud, allows friends to add expenses and see results.</p>
@@ -952,6 +952,7 @@ const Comrade = () => {
   const [conflictSource, setConflictSource] = useState(null); // null | 'top' | 'bottom'
   const [showGroupSplitPrompt, setShowGroupSplitPrompt] = useState(false);
   const [splitNotFound, setSplitNotFound]   = useState(false);
+  const [saveSuccess, setSaveSuccess]       = useState(false);
 
   // Form input state
   const [curPersonName, setCurPersonName]   = useState('');
@@ -969,6 +970,11 @@ const Comrade = () => {
   const [curRoommateName, setCurRoommateName]         = useState('');
   const [curRoommateRoomSize, setCurRoommateRoomSize] = useState('');
   const [curRoommateWealth, setCurRoommateWealth]     = useState('');
+
+  // Partial bill participation state
+  const [curBillParticipants, setCurBillParticipants] = useState([]);
+  const [participantSelectorOpen, setParticipantSelectorOpen] = useState(false);
+  const [pendingParticipants, setPendingParticipants] = useState([]);
 
   const hasBillSavedData = billPeople.length>0 || billBills.length>0;
   const hasSaleSavedData = saleBuyers.length>0 || !!productName;
@@ -1060,6 +1066,7 @@ const Comrade = () => {
           setIsCollaborative(true);
           window.history.pushState({ page: 'bill-entry' }, '', `/split/${data.id}`);
           setEntryOpen(prev => prev.includes(1) ? prev : [...prev, 1]);
+          setTimeout(()=>{const el=document.getElementById('accordion-step-0');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},150);
         } else {
           setSaveError(data.error || 'Unexpected response from server');
         }
@@ -1067,7 +1074,7 @@ const Comrade = () => {
         const res = await fetch(`/api/split/${splitId}`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({...splitData, version:splitVersion}) });
         if (res.status === 409) { setConflictSource(source); }
         else if (!res.ok) { setSaveError(`Server error ${res.status}`); }
-        else { const data = await res.json(); if (data.version) setSplitVersion(data.version); }
+        else { const data = await res.json(); if (data.version) setSplitVersion(data.version); setSaveSuccess(true); setTimeout(()=>setSaveSuccess(false),2500); }
       }
     } catch (err) {
       setSaveError(`Network error: ${err.message}`);
@@ -1086,14 +1093,14 @@ const Comrade = () => {
       const latestVersion = current.version || splitVersion;
       const splitData = { people:billPeople, bills:billBills, weighting:billWeighting, floor:billFloor, currency:billCurrency, wealthMetric:billWealthMetric };
       const res = await fetch(`/api/split/${splitId}`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({...splitData, version:latestVersion}) });
-      if (res.ok) { const data = await res.json(); if (data.version) setSplitVersion(data.version); }
+      if (res.ok) { const data = await res.json(); if (data.version) setSplitVersion(data.version); setSaveSuccess(true); setTimeout(()=>setSaveSuccess(false),2500); }
     } catch (err) { console.error('Force save failed:', err); }
     finally { setIsSaving(false); }
   }, [splitId, splitVersion, billPeople, billBills, billWeighting, billFloor, billCurrency, billWealthMetric]);
 
   const handleClearAll = useCallback(type=>{
     ({
-      bill:()=>{ setBillPeople([]);setBillBills([]);setCurPersonName('');setCurPersonWealth('');setCurBillDesc('');setCurBillAmt('');setCurBillPaidBy('');setSplitId(null);setSplitVersion(null);setIsCollaborative(false);setConflictSource(null);setSaveError('');setShowGroupSplitPrompt(false); },
+      bill:()=>{ setBillPeople([]);setBillBills([]);setCurPersonName('');setCurPersonWealth('');setCurBillDesc('');setCurBillAmt('');setCurBillPaidBy('');setCurBillParticipants([]);setParticipantSelectorOpen(false);setPendingParticipants([]);setSplitId(null);setSplitVersion(null);setIsCollaborative(false);setConflictSource(null);setSaveError('');setShowGroupSplitPrompt(false); },
       sale:()=>{ setProductName('');setNumberAvailable('');setSaleBuyers([]);setCurBuyerName('');setCurBuyerWealth('');setCurBuyerOffer('');try{localStorage.removeItem(SALE_KEY);}catch{} },
       vote:()=>{ setVoteDecision('');setVoteOptions([]);setVoteParticipants([]);setCurParticipantName('');setCurParticipantWealth('');setCurParticipantVote('');setCurOptionText('');try{localStorage.removeItem(VOTE_KEY);}catch{} },
       rent:()=>{ setTotalRent('');setTotalUtilities('');setRentPeople([]);setCurRoommateName('');setCurRoommateRoomSize('');setCurRoommateWealth('');try{localStorage.removeItem(RENT_KEY);}catch{} },
@@ -1105,7 +1112,7 @@ const Comrade = () => {
   const loadExample = useCallback(type=>{
     const data=EXAMPLE_DATA[type], base=Date.now();
     ({
-      bill:()=>{ setBillPeople(data.people.map((p,i)=>({...p,id:base+i})));setBillBills(data.bills.map((b,i)=>({...b,id:base+100+i})));setCurPersonName('');setCurPersonWealth('');setCurBillDesc('');setCurBillAmt('');setCurBillPaidBy('');setEntryOpen([0,1,2,3]); },
+      bill:()=>{ setBillPeople(data.people.map((p,i)=>({...p,id:base+i})));setBillBills(data.bills.map((b,i)=>({...b,id:base+100+i})));setCurPersonName('');setCurPersonWealth('');setCurBillDesc('');setCurBillAmt('');setCurBillPaidBy('');setCurBillParticipants([]);setParticipantSelectorOpen(false);setPendingParticipants([]);setEntryOpen([0,1,2,3]); },
       sale:()=>{ setProductName(data.productName);setNumberAvailable(data.numberAvailable);setSaleBuyers(data.buyers.map((b,i)=>({...b,id:base+i})));setCurBuyerName('');setCurBuyerWealth('');setCurBuyerOffer('');setEntryOpen([0,1,2,3]); },
       vote:()=>{ setVoteDecision(data.decision);setVoteOptions(data.options.map((o,i)=>({...o,id:base+i})));setVoteParticipants(data.participants.map((p,i)=>({...p,id:base+100+i})));setCurParticipantName('');setCurParticipantWealth('');setCurParticipantVote('');setCurOptionText('');setEntryOpen([0,1,2,3,4]); },
       rent:()=>{ setTotalRent(data.totalRent);setTotalUtilities(data.totalUtilities);setRentPeople(data.people.map((p,i)=>({...p,id:base+i})));setCurRoommateName('');setCurRoommateRoomSize('');setCurRoommateWealth('');setEntryOpen([0,1,2,3]); },
@@ -1127,6 +1134,7 @@ const Comrade = () => {
     try{localStorage.removeItem(BILL_KEY);}catch{}
     setBillPeople([]);setBillBills([]);setBillWeighting('standard');setBillFloor('off');setBillCurrency('USD');setBillWealthMetric('salary');
     setSplitId(null);setSplitVersion(null);setIsCollaborative(false);setConflictSource(null);setSaveError('');setShowGroupSplitPrompt(false);
+    setCurBillParticipants([]);setParticipantSelectorOpen(false);setPendingParticipants([]);
     try{localStorage.removeItem(VOTE_KEY);}catch{}
     setVoteDecision('');setVoteOptions([]);setVoteParticipants([]);setVoteWeighting('standard');setVoteCurrency('USD');setVoteWealthMetric('salary');
     try{localStorage.removeItem(SALE_KEY);}catch{}
@@ -1143,15 +1151,17 @@ const Comrade = () => {
         <div className="p-4 border-2 border-dashed border-gray-400 bg-white mb-3 animate-fadeIn">
           <p className="font-bold text-xs uppercase mb-2 text-black text-center">GROUP SPLIT</p>
           <p style={{color:'#9CA3AF',fontSize:'10px'}} className="mb-3 leading-relaxed">Share this link with friends to let them add expenses and see results. Save your data after making changes, and press Calculate when you're ready to settle up.</p>
-          <div className="flex gap-2 items-center">
-            <p className="text-xs flex-1 break-all" style={{color:'#6B7280'}}>{shareUrl}</p>
-            <button onClick={()=>copyToClipboard(shareUrl,'LINK COPIED!')} className={CLS_BTN_BLK} style={{flexShrink:0}}>COPY</button>
+          <div>
+            <p className="text-xs break-all mb-2" style={{color:'#6B7280'}}>{shareUrl}</p>
+            <div className="flex justify-end">
+              <button onClick={()=>copyToClipboard(shareUrl,'LINK COPIED!')} className={CLS_BTN_BLK} style={{flexShrink:0}}>COPY LINK</button>
+            </div>
           </div>
         </div>
       )}
       {conflictSource === 'top'
         ? <ConflictWarning onReload={()=>window.location.reload()} onForceSave={forceSave}/>
-        : <button onClick={()=>saveSplit('top')} disabled={isSaving} className={`w-full font-bold py-3 border-2 border-black text-sm transition-all ${isSaving?'bg-gray-300 text-gray-500 cursor-not-allowed':'bg-black text-white hover:bg-gray-800'}`}>{isSaving?'SAVING...':'SAVE CHANGES'}</button>
+        : <button onClick={()=>saveSplit('top')} disabled={isSaving||saveSuccess} className={`w-full font-bold py-3 border-2 border-black text-sm transition-all ${saveSuccess?'bg-black text-white':isSaving?'bg-gray-400 text-gray-600 cursor-not-allowed':'bg-black text-white hover:bg-gray-800'}`}>{saveSuccess?'SAVED!':isSaving?'SAVING...':'SAVE CHANGES'}</button>
       }
     </div>
   ) : null;
@@ -1177,8 +1187,8 @@ const Comrade = () => {
   const renderResultsFooter = (copyText, entryPage) => (
     <>
       <div className="flex flex-col gap-3 max-w-xs mx-auto">
-        <button onClick={()=>copyToClipboard(copyText,'RESULTS COPIED!')} className={CLS_BTN_ACT}>COPY RESULTS</button>
         <button onClick={()=>{editModeRef.current=true;navigateTo(entryPage);}} className={CLS_BTN_ACT}>EDIT DETAILS</button>
+        <button onClick={()=>copyToClipboard(copyText,'RESULTS COPIED!')} className={CLS_BTN_ACT}>COPY RESULTS</button>
         <button onClick={()=>navigateTo('home')} className="bg-white text-black px-6 py-2 font-bold border-2 border-black hover:bg-gray-100 transition-all w-full">RETURN HOME</button>
       </div>
       <div className="my-4 text-center py-6"><MotivationalQuote randomQuote={randomQuote}/></div>
@@ -1224,14 +1234,24 @@ const Comrade = () => {
   ];
 
   const billCalculations = useMemo(()=>{
-    if(!billPeople.length) return{total:0,peopleData:[],transactions:[]};
+    if(!billPeople.length) return{total:0,peopleData:[],transactions:[],hasPartialBills:false};
     const total=billBills.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
-    const taw=billPeople.reduce((s,pp)=>s+applyWeighting(parseFloat(pp.wealth)||0,billWeighting),0);
+    const hasPartialBills=billBills.some(b=>b.participants&&b.participants.length>0);
     let shares=billPeople.map(p=>{
       const w=parseFloat(p.wealth)||0,paid=billBills.filter(b=>b.paidBy===p.name).reduce((s,b)=>s+(parseFloat(b.amount)||0),0),aw=applyWeighting(w,billWeighting);
-      const fs=taw>0?(aw/taw)*total:total/billPeople.length;
-      return{...p,wealth:w,paid,fairShare:fs,adjustedWealth:aw};
+      return{...p,wealth:w,paid,fairShare:0,adjustedWealth:aw};
     });
+    for(const bill of billBills){
+      const amt=parseFloat(bill.amount)||0;
+      if(amt===0) continue;
+      const partNames=(bill.participants&&bill.participants.length>0)?bill.participants:shares.map(p=>p.name);
+      const parts=shares.filter(p=>partNames.includes(p.name));
+      const taw=parts.reduce((s,p)=>s+p.adjustedWealth,0);
+      for(const part of parts){
+        const idx=shares.findIndex(p=>p.name===part.name);
+        if(idx>=0) shares[idx].fairShare+=taw>0?(part.adjustedWealth/taw)*amt:amt/parts.length;
+      }
+    }
     if(billFloor!=='off'){
       const minPayment=(parseFloat(billFloor)/100)*(total/billPeople.length);
       let changed=true;
@@ -1259,7 +1279,7 @@ const Comrade = () => {
       pc[pi].balance+=amt;rc[ri].balance-=amt;
       if(Math.abs(pc[pi].balance)<0.01)pi++;if(Math.abs(rc[ri].balance)<0.01)ri++;
     }
-    return{total,peopleData,transactions};
+    return{total,peopleData,transactions,hasPartialBills};
   },[billPeople,billBills,billWeighting,billFloor]);
 
   const saleCalculations = useMemo(()=>{
@@ -1364,7 +1384,7 @@ const Comrade = () => {
       </div>
       <SubHed text="Free to use, no registration required, privacy-first"/>
       <div className="space-y-4 text-black mb-2">
-        <p className={CLS_PARA}>Financial information is sensitive stuff. That's why Comrade has no user accounts, no tracking, and no covert fees or subscriptions.</p>
+        <p className={CLS_PARA}>Financial information is sensitive stuff. That's why Comrade has no user accounts, no tracking, and no cookies — plus no fees or subscriptions.</p>
         <p className={CLS_PARA}>The information entered for Private Splits never leaves your device. Group Splits are stored securely, and expire automatically after 30 days. Either way, your financial data is never associated with your identity, never sold, and never used for anything beyond the calculation in front of you.</p>
       </div>
       <SubHed text="More than just bill-splitting"/>
@@ -1400,15 +1420,16 @@ const Comrade = () => {
       <div className="text-black">
         {[{heading:'TERMS OF USE',text:'This application is provided for informational purposes only, on an "as is" basis, without warranty of any kind.'},
           {heading:null,text:'Users are solely responsible for their own actions. The creators of Comrade are not liable for any outcomes, disputes, unintended consequences, or bad decisions resulting from the use of Comrade and its calculations. Sorry!'},
-          {heading:'PRIVACY POLICY',text:'Any financial information entered into private splits is stored only on your device, and all calculations are performed locally — nothing is sent to Comrade.'},
-          {heading:null,text:'Group splits store data on Comrade\'s servers for up to 30 days, after which they expire automatically. This data is accessible to anyone with the split link, and is never associated with your identity.'},
+          {heading:'PRIVACY POLICY',text:'Any financial information entered into Private Splits is stored only on your device, and all calculations are performed locally — nothing is sent to Comrade.'},
+          {heading:null,text:'Group Splits store data on Comrade\'s servers for up to 30 days, after which they expire automatically. This data is accessible to people with the split link, and is not associated with any other markers of your identity.'},
+          {heading:null,text:'Comrade does not sell user data, or use it for any purpose other than performing the requested calculations.'},
           {heading:null,text:'Comrade uses Vercel Analytics to collect anonymous, aggregated data about site visits, including page views and unique visitor counts. No personal or financial information is collected through analytics, and no cookies are used.'},
-          {heading:null,text:'By entering your email address, you consent to Comrade and its team contacting you about updates to the app, news, and other projects they may be working on. Comrade will not sell your personal information to third parties. You can unsubscribe at any time.'},
+          {heading:null,text:'By entering your email address, you consent to Comrade and its team contacting you about updates to the app, news, and other projects they may be working on. Comrade will not sell your contact information to third parties. You can unsubscribe at any time.'},
           {heading:null,text:'© 2026 Comrade. All rights reserved.'},
         ].map((item,i)=>(
           <React.Fragment key={i}>
-            {(i===2||i===6)&&<div className={`${CLS_DASHED_T} my-4`}/>}
-            {i>0&&i!==2&&i!==6&&<div className="my-3"/>}
+            {(i===2||i===7)&&<div className={`${CLS_DASHED_T} my-4`}/>}
+            {i>0&&i!==2&&i!==7&&<div className="my-3"/>}
             {item.heading&&<p className="font-bold text-xs uppercase tracking-wider mb-2">{item.heading}</p>}
             <p className={CLS_PARA}>{item.text}</p>
           </React.Fragment>
@@ -1445,7 +1466,7 @@ const Comrade = () => {
           <p className="text-xs text-black mb-4 leading-relaxed">Keep the people and bills you've already added, or start fresh?</p>
           <div className="flex flex-col gap-2">
             <button onClick={()=>{setShowGroupSplitPrompt(false);saveSplit();}} className="w-full bg-white text-black py-2 font-bold text-xs border-2 border-black hover:bg-gray-100 transition-all">USE EXISTING DATA →</button>
-            <button onClick={async()=>{handleClearAll('bill');setShowGroupSplitPrompt(false);setIsSaving(true);try{const r=await fetch('/api/split',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({people:[],bills:[],weighting:billWeighting,floor:billFloor,currency:billCurrency,wealthMetric:billWealthMetric})});const d=await r.json();if(d.id){setSplitId(d.id);setSplitVersion(1);setIsCollaborative(true);window.history.pushState({page:'bill-entry'},'',`/split/${d.id}`);setEntryOpen(prev=>prev.includes(1)?prev:[...prev,1]);}}catch(e){console.error(e);}finally{setIsSaving(false);}}} className="w-full bg-white text-black py-2 font-bold text-xs border-2 border-black hover:bg-gray-100 transition-all">START FRESH →</button>
+            <button onClick={async()=>{handleClearAll('bill');setShowGroupSplitPrompt(false);setIsSaving(true);try{const r=await fetch('/api/split',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({people:[],bills:[],weighting:billWeighting,floor:billFloor,currency:billCurrency,wealthMetric:billWealthMetric})});const d=await r.json();if(d.id){setSplitId(d.id);setSplitVersion(1);setIsCollaborative(true);window.history.pushState({page:'bill-entry'},'',`/split/${d.id}`);setEntryOpen(prev=>prev.includes(1)?prev:[...prev,1]);setTimeout(()=>{const el=document.getElementById('accordion-step-0');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},150);}}catch(e){console.error(e);}finally{setIsSaving(false);}}} className="w-full bg-white text-black py-2 font-bold text-xs border-2 border-black hover:bg-gray-100 transition-all">START FRESH →</button>
           </div>
         </div>
       ) : null,
@@ -1456,6 +1477,7 @@ const Comrade = () => {
       navigateToFaq, hasFloor:true, floor:billFloor, onFloor:setBillFloor,
       onSave: isCollaborative ? ()=>saveSplit('bottom') : null,
       isSaving,
+      saveSuccess,
       isConflict: conflictSource === 'bottom',
       onForceSave: forceSave,
       onDeleteGroup: isCollaborative ? async()=>{
@@ -1470,6 +1492,7 @@ const Comrade = () => {
         [billBills.length>0&&!billBills.some(b=>parseFloat(b.amount)>0),'No bills have a valid amount'],
         [billBills.some(b=>!b.paidBy),'Some bills have no payer assigned'],
         [billBills.some(b=>b.paidBy&&!billPeople.some(p=>p.name===b.paidBy)),'Some bills are assigned to people who have been removed'],
+        [billBills.some(b=>b.participants&&b.participants.length>0&&b.participants.some(pn=>!billPeople.some(pp=>pp.name===pn))),'Some bills include participants who have been removed'],
       ]),
     },
     midSteps:[
@@ -1500,9 +1523,37 @@ const Comrade = () => {
               {billPeople.map((p,j)=><option key={p.id||j} value={p.name}>{p.name}</option>)}
             </select>
           </div>
-          <button onClick={()=>{if(curBillDesc.trim()){setBillBills([...billBills,{id:Date.now(),description:curBillDesc,amount:curBillAmt,paidBy:curBillPaidBy}]);setCurBillDesc('');setCurBillAmt('');setCurBillPaidBy('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD BILL</button>
+          {billPeople.length>0&&(
+            <div className="mb-3">
+              {!participantSelectorOpen?(
+                <button onClick={()=>{setPendingParticipants(curBillParticipants.length>0?[...curBillParticipants]:billPeople.map(p=>p.name));setParticipantSelectorOpen(true);}} className="w-full flex justify-between items-center p-2 border border-dashed border-gray-400 bg-white" style={{textAlign:'left'}}>
+                  <span className="text-xs font-bold uppercase tracking-wider"><span style={{color:DARK}}>PARTICIPANTS: </span><span style={{color:'#9CA3AF'}}>{curBillParticipants.length===0?'ALL':curBillParticipants.length<=3?curBillParticipants.join(', '):curBillParticipants.slice(0,3).join(', ')+' +'+String(curBillParticipants.length-3)}</span></span>
+                  <span className="text-black font-bold" style={{lineHeight:1,fontSize:'14px'}}>&#9662;</span>
+                </button>
+              ):(
+                <div className="border-2 border-dashed border-gray-400 bg-gray-50 p-3 animate-fadeIn">
+                  <p className="text-xs font-bold text-black uppercase tracking-wider mb-3">SELECT PARTICIPANTS:</p>
+                  <div className="space-y-0 mb-3">
+                    {billPeople.map(p=>(
+                      <div key={p.id} onClick={()=>setPendingParticipants(prev=>prev.includes(p.name)?prev.filter(n=>n!==p.name):[...prev,p.name])} className="flex items-center gap-3 cursor-pointer py-2 hover:opacity-70">
+                        <div style={{width:16,height:16,border:'2px solid '+DARK,flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center',background:pendingParticipants.includes(p.name)?DARK:'white'}}>
+                          {pendingParticipants.includes(p.name)&&<svg width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5.5 4,8 8.5,2" fill="none" stroke={BG_GREY} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                        </div>
+                        <span className="text-xs font-bold text-black uppercase">{p.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={()=>{setCurBillParticipants(pendingParticipants.length===billPeople.length?[]:[...pendingParticipants]);setParticipantSelectorOpen(false);}} disabled={pendingParticipants.length===0} className={'flex-1 px-4 py-2 font-bold border-2 border-black text-xs transition-all '+(pendingParticipants.length===0?'bg-gray-300 text-gray-500 cursor-not-allowed':'bg-black text-white hover:bg-gray-800')}>CONFIRM</button>
+                    <button onClick={()=>setParticipantSelectorOpen(false)} className={'flex-1 '+CLS_BTN_WHT}>CANCEL</button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          <button onClick={()=>{if(curBillDesc.trim()){setBillBills([...billBills,{id:Date.now(),description:curBillDesc,amount:curBillAmt,paidBy:curBillPaidBy,participants:curBillParticipants}]);setCurBillDesc('');setCurBillAmt('');setCurBillPaidBy('');setCurBillParticipants([]);setParticipantSelectorOpen(false);setPendingParticipants([]);}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD BILL</button>
           {billBills.length>0
-            ?<ItemList items={billBills} onDelete={id=>setBillBills(billBills.filter(b=>b.id!==id))} renderItem={b=><><p className="text-black font-bold uppercase">{b.description}</p><p className="text-black text-xs">{b.paidBy||'Unknown'}</p></>} receiptStyle formatTotal={t=>formatCurrency(t,2,billCurrency)} getAmount={b=>b.amount}/>
+            ?<ItemList items={billBills} onDelete={id=>setBillBills(billBills.filter(b=>b.id!==id))} renderItem={b=>{const isP=b.participants&&b.participants.length>0;const pL=isP?(b.participants.length<=3?b.participants.join(', '):b.participants.slice(0,3).join(', ')+' +'+String(b.participants.length-3)):null;return <><p className="text-black font-bold uppercase">{b.description}</p><p className="text-black text-xs">{b.paidBy||'Unknown'}{isP&&(' ('+pL+')')}</p></>;}} receiptStyle formatTotal={t=>formatCurrency(t,2,billCurrency)} getAmount={b=>b.amount}/>
             :<EmptyState msg="No bills added yet" cls="mb-4"/>
           }
           <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(3)}/></div>
@@ -1512,7 +1563,7 @@ const Comrade = () => {
   });
 
   if(page==='bill-results'){
-    const {total,peopleData,transactions}=billCalculations;
+    const {total,peopleData,transactions,hasPartialBills}=billCalculations;
     const copyText=`Comrade | Bill-splitting results\n\nTotal: ${_fc(total,billCurrency)}\n\nSettlements:\n${transactions.length===0?'All settled!':transactions.map(t=>`${t.from} pays ${t.to} ${_fcs(t.amount,billCurrency)}`).join('\n')}\n\nBreakdown:\n${peopleData.map(p=>`${p.name}: Paid ${_fc(p.paid,billCurrency)}, fair share ${_fcs(p.fairShare,billCurrency)}`).join('\n')}\n\nCalculated using www.comrade.money, the fairer way to split bills with friends`;
     return ResultsPage({
       entryPage:"bill-entry", title:"YOUR SETTLEMENT",
@@ -1526,7 +1577,7 @@ const Comrade = () => {
         <DashedDivider/>
         <div className="mb-6">
           <h3 className={CLS_H3}>BILL RECAP</h3>
-          <div className="space-y-3 mb-4">{billBills.map((b,i)=><div key={b.id||i} className="flex justify-between items-start text-xs text-black border-b border-dashed border-gray-400 pb-2"><div className="flex-1"><p className="font-bold text-black uppercase">{b.description}</p><p className="text-black text-xs">{b.paidBy||'Unknown'}</p></div><span className="font-bold text-black ml-4">{_fc(b.amount,billCurrency)}</span></div>)}</div>
+          <div className="space-y-3 mb-4">{billBills.map((b,i)=>{const isP=b.participants&&b.participants.length>0;const pL=isP?(b.participants.length<=3?b.participants.join(', '):b.participants.slice(0,3).join(', ')+' +'+String(b.participants.length-3)):null;return <div key={b.id||i} className="flex justify-between items-start text-xs text-black border-b border-dashed border-gray-400 pb-2"><div className="flex-1"><p className="font-bold text-black uppercase">{b.description}</p><p className="text-black text-xs">{b.paidBy||'Unknown'}{isP&&(' ('+pL+')')}</p></div><span className="font-bold text-black ml-4">{_fc(b.amount,billCurrency)}</span></div>;})}</div>
           <div className={CLS_TOTAL}><span className={CLS_FBS}>TOTAL</span><span className={CLS_FBT}>{_fc(total,billCurrency)}</span></div>
         </div>
         <DashedDivider/>
@@ -1534,7 +1585,31 @@ const Comrade = () => {
         <DashedDivider/>
         {renderBarVisualization('PAYMENT VISUALIZATION',[...peopleData].sort((a,b)=>b.wealth-a.wealth),[{label:'PAID',getValue:p=>p.paid,displayValue:p=>`${p.paidPct.toFixed(0)}%`,rightLabel:p=>_fc(p.paid,billCurrency)},{label:'FAIR',getValue:p=>p.fairShare,displayValue:p=>`${p.fairPct.toFixed(0)}%`,rightLabel:p=>_fcs(p.fairShare,billCurrency)}],p=>p.name)}
         <DashedDivider/>
-        {renderMathSection(billWeighting,[
+        {hasPartialBills?(
+          <>
+            <div className="mb-6">
+              <h3 className={CLS_H3}>THE MATH</h3>
+              <div className="bg-white p-6 border-2 border-gray-400">
+                <div className="space-y-3 text-xs text-black">
+                  {billWeighting!=='none'?(<>
+                    <p className={CLS_FB}>PER-BILL CALCULATION:</p>
+                    <p className="text-xs text-black mb-3">Each bill is split among its participants proportionally to their adjusted wealth ({getWeightingLabel(billWeighting)} weighting).</p>
+                    <div className={`${CLS_DASHED_T} my-3`}></div>
+                    <p className={CLS_FB}>FINAL FAIR SHARES:</p>
+                    {renderMathRow(peopleData,p=>`${_fcs(p.fairShare,billCurrency)} (${p.fairPct.toFixed(1)}%)`)}
+                  </>):(<>
+                    <p className={CLS_FB}>PER-BILL CALCULATION (NO WEIGHTING):</p>
+                    <p className="text-xs text-black mb-3">Each bill is split equally among its participants.</p>
+                    <div className={`${CLS_DASHED_T} my-3`}></div>
+                    <p className={CLS_FB}>FINAL FAIR SHARES:</p>
+                    {renderMathRow(peopleData,p=>`${_fcs(p.fairShare,billCurrency)} (${p.fairPct.toFixed(1)}%)`)}
+                  </>)}
+                </div>
+              </div>
+            </div>
+            <DashedDivider/>
+          </>
+        ):renderMathSection(billWeighting,[
           <div key="s1">{renderAdjustedWealthStep(1,peopleData,billWeighting)}<div className={`flex justify-between mt-2 pt-2 ${CLS_DASHED_T} font-bold`}><span>TOTAL:</span><span className="font-mono">{formatSmartNumber(peopleData.reduce((s,p)=>s+p.adjustedWealth,0))}</span></div></div>,
           <div key="s2"><p className={CLS_FB}>2. FAIR SHARE %:</p>{renderMathRow(peopleData,p=>{const ta=peopleData.reduce((s,pp)=>s+pp.adjustedWealth,0);return`${formatSmartNumber(p.adjustedWealth)} ÷ ${formatSmartNumber(ta)} = ${p.fairPct.toFixed(1)}%`;})}</div>,
           <div key="s3"><p className={CLS_FB}>3. AMOUNT OWED:</p>{renderMathRow(peopleData,p=>`${p.fairPct.toFixed(1)}% × ${_fc(total,billCurrency)} = ${_fcs(p.fairShare,billCurrency)}`)}</div>
@@ -1740,7 +1815,6 @@ const Comrade = () => {
 
   return null;
 };
-
 
 
 
