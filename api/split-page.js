@@ -12,16 +12,16 @@ module.exports = async (req, res) => {
     const splitUrl = `${origin}/split/${splitId}`;
 
     // Replace <title>
-    html = html.replace(
-      '<title>Comrade \u2014 the fairer way to split bills with friends</title>',
-      '<title>Join my Group Split on Comrade!</title>'
-    );
+   html = html.replace(
+  /<title>.*?<\/title>/i,
+  '<title>Join my Group Split on Comrade!</title>'
+);
 
     // Replace og:title
-    html = html.replace(
-      'og:title" content="Comrade \u2014 the fairer way to split bills with friends"',
-      'og:title" content="Join my Group Split on Comrade!"'
-    );
+   html = html.replace(
+  /<meta property="og:title" content=".*?">/i,
+  '<meta property="og:title" content="Join my Group Split on Comrade!">'
+);
 
     // Replace og:description
     html = html.replace(
