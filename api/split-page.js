@@ -1,0 +1,51 @@
+module.exports = async (req, res) => {
+  try {
+    const protocol = req.headers['x-forwarded-proto'] || 'https';
+    const host = req.headers['host'];
+    const origin = `${protocol}://${host}`;
+
+    const response = await fetch(`${origin}/index.html`);
+    if (!response.ok) throw new Error('Failed to fetch index.html');
+    let html = await response.text();
+
+    const splitId = req.query.id || '';
+    const splitUrl = `${origin}/split/${splitId}`;
+
+    // Replace <title>
+    html = html.replace(
+      '<title>Comrade \u2014 the fairer way to split bills with friends</title>',
+      '<title>Join my Group Split on Comrade!</title>'
+    );
+
+    // Replace og:title
+    html = html.replace(
+      'og:title" content="Comrade \u2014 the fairer way to split bills with friends"',
+      'og:title" content="Join my Group Split on Comrade!"'
+    );
+
+    // Replace og:description
+    html = html.replace(
+      "og:description\" content=\"Wealth isn't evenly distributed. Costs shouldn't be either.\"",
+      'og:description" content="The fairer way to split bills with friends."'
+    );
+
+    // Replace og:url
+    html = html.replace(
+      'og:url" content="https://comrade.money"',
+      'og:url" content="' + splitUrl + '"'
+    );
+
+    // Replace meta description
+    html = html.replace(
+      "name=\"description\" content=\"Wealth isn't evenly distributed. Costs shouldn't be either Free to use, privacy-first, no registration required.\"",
+      'name="description" content="The fairer way to split bills with friends."'
+    );
+
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    return res.send(html);
+  } catch (err) {
+    console.error('split-page error:', err);
+    res.writeHead(302, { Location: '/' });
+    return res.end();
+  }
+};
