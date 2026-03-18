@@ -18,9 +18,9 @@ module.exports = async (req, res) => {
 );
 
     // Replace og:title
-   html = html.replace(
-  /<meta property="og:title" content=".*?">/i,
-  '<meta property="og:title" content="Join my Group Split on Comrade!">'
+  html = html.replace(
+  /<meta\s+property=["']og:title["'][^>]*>/i,
+  '<meta property="og:title" content="Join my Group Split on Comrade!" />'
 );
 
     html = html.replace(
@@ -52,6 +52,8 @@ module.exports = async (req, res) => {
     '<meta name="twitter:title" content="Join my Group Split on Comrade!" />\n</head>'
   );
 }
+
+    
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     return res.send(html);
   } catch (err) {
