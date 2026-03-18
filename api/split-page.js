@@ -23,6 +23,11 @@ module.exports = async (req, res) => {
   '<meta property="og:title" content="Join my Group Split on Comrade!">'
 );
 
+    html = html.replace(
+  /<meta name="twitter:title" content=".*?">/i,
+  '<meta name="twitter:title" content="Join my Group Split on Comrade!">'
+);
+    
     // Replace og:description
     html = html.replace(
       "og:description\" content=\"Wealth isn't evenly distributed. Costs shouldn't be either.\"",
