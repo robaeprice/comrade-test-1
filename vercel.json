@@ -1,6 +1,7 @@
 {
   "trailingSlash": false,
   "rewrites": [
+    { "source": "/split/:id", "destination": "/api/split-page?id=:id" },
     { "source": "/split/:id", "destination": "/index.html" }
   ]
 }
