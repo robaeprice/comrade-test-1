@@ -46,6 +46,12 @@ module.exports = async (req, res) => {
   '<meta name="description" content="The fairer way to split bills with friends." />'
 );
 
+    if (!html.match(/twitter:title/i)) {
+  html = html.replace(
+    '</head>',
+    '<meta name="twitter:title" content="Join my Group Split on Comrade!" />\n</head>'
+  );
+}
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     return res.send(html);
   } catch (err) {
