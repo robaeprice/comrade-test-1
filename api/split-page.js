@@ -41,10 +41,10 @@ module.exports = async (req, res) => {
     );
 
     // Replace meta description
-    html = html.replace(
-      "name=\"description\" content=\"Wealth isn't evenly distributed. Costs shouldn't be either Free to use, privacy-first, no registration required.\"",
-      'name="description" content="The fairer way to split bills with friends."'
-    );
+  html = html.replace(
+  /<meta\s+name=["']description["'][^>]*>/i,
+  '<meta name="description" content="The fairer way to split bills with friends." />'
+);
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     return res.send(html);
