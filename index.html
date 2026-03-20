@@ -24,7 +24,6 @@
     <script type="text/babel">
         const { useState, useCallback, useEffect, useMemo, useRef } = React;
 
-
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -1196,7 +1195,7 @@ const Comrade = () => {
           <p className="font-bold text-xs uppercase mb-2 text-black text-center">GROUP SPLIT</p>
           <p style={{color:'#9CA3AF',fontSize:'10px'}} className="mb-3 leading-relaxed">Share this link with friends to let them add expenses and see results. Save your data after making changes, and press Calculate when you're ready to settle up.</p>
           <div>
-            <p className="text-xs break-all mb-2" style={{color:'#6B7280'}}>{shareUrl}</p>
+            <p className="text-xs mb-2" style={{color:'#6B7280',overflowWrap:'break-word',wordBreak:'keep-all'}}>{shareUrl.replace(/^https?:\/\/(www\.)?/,'').split('/').reduce((a,s,i)=>i===0?[s]:[...a,'/\u200B',s],[])}</p>
             <div className="flex justify-end">
               <button onClick={()=>copyToClipboard(shareUrl,'LINK COPIED!')} className={CLS_BTN_BLK} style={{flexShrink:0}}>COPY LINK</button>
             </div>
@@ -1411,7 +1410,7 @@ const Comrade = () => {
       <SubHed text="More than just bill-splitting"/>
       <div className="space-y-4 text-black mb-2">
         <p className={CLS_PARA}>Beyond handling group bills, Comrade offers a number of other features.</p>
-        <p className={CLS_PARA}>There is a tool to help decide <span className={CLS_LNK} onClick={()=>navigateTo('rent-entry')}>rent splits</span> in apartments more fairly, another to assist when <span className={CLS_LNK} onClick={()=>navigateTo('sale-entry')}>selling an item</span> to ensure the buyer is the person who values it most highly, and an experimental tool for <span className={CLS_LNK} onClick={()=>navigateTo('vote-entry')}>voting on decisions</span>.</p>
+        <p className={CLS_PARA}>There is a tool to help decide <span className={CLS_LNK} onClick={()=>navigateTo('rent-entry')}>rent splits</span> in apartments more equitably, another to assist when <span className={CLS_LNK} onClick={()=>navigateTo('sale-entry')}>selling an item</span> to ensure the buyer is the person who values it most highly, and an experimental tool for <span className={CLS_LNK} onClick={()=>navigateTo('vote-entry')}>voting on decisions</span>.</p>
         <p className={CLS_PARA}>All are built around the same core mechanism — using wealth data to <span className={CLS_LNK} onClick={()=>navigateTo('faq',{faqIndex:2})}>weight</span> people's input fairly.</p>
       </div>
       <SubHed text="Get in touch"/>
@@ -1443,15 +1442,14 @@ const Comrade = () => {
           {heading:null,text:'Users are solely responsible for their own actions. The creators of Comrade are not liable for any outcomes, disputes, unintended consequences, or bad decisions resulting from the use of Comrade and its calculations. Sorry!'},
           {heading:'PRIVACY POLICY',text:'Any financial information entered into Private Splits is stored only on your device, and all calculations are performed locally — nothing is sent to Comrade.'},
           {heading:null,text:'Group Splits store data on Comrade\'s servers for up to 30 days, after which they expire automatically. This data is accessible to people with the split link, and is not associated with any other markers of your identity.'},
-          {heading:null,text:'Users can delete their data at any time by using the "Delete Group" feature under Advanced Settings.'},
-          {heading:null,text:'Comrade does not sell user data, or use it for any purpose other than performing the requested calculations.'},
+          {heading:null,text:'Comrade does not sell user data, or use it for any purpose other than performing the requested calculations. Users can delete their data at any time by using the "Delete Group" feature under Advanced Settings.'},
           {heading:null,text:'Comrade uses Vercel Analytics to collect anonymous, aggregated data about site visits, including page views and unique visitor counts. No personal or financial information is collected through analytics, and no cookies are used.'},
           {heading:null,text:'By entering your email address, you consent to Comrade and its team contacting you about updates to the app, news, and other projects they may be working on. Comrade will not sell your contact information to third parties. You can unsubscribe at any time.'},
           {heading:null,text:'© 2026 Comrade. All rights reserved.'},
         ].map((item,i)=>(
           <React.Fragment key={i}>
-            {(i===2||i===8)&&<div className={`${CLS_DASHED_T} my-4`}/>}
-            {i>0&&i!==2&&i!==8&&<div className="my-3"/>}
+            {(i===2||i===7)&&<div className={`${CLS_DASHED_T} my-4`}/>}
+            {i>0&&i!==2&&i!==7&&<div className="my-3"/>}
             {item.heading&&<p className="font-bold text-xs uppercase tracking-wider mb-2">{item.heading}</p>}
             <p className={CLS_PARA}>{item.text}</p>
           </React.Fragment>
@@ -1858,7 +1856,6 @@ const Comrade = () => {
 
   return null;
 };
-
 
 
 
