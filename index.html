@@ -27,6 +27,7 @@
 
      
 
+
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -35,6 +36,23 @@ const formatCurrencySmart = (v, c='USD') => `${getCurrencySymbol(c)}${formatSmar
 const getWeightingLabel = w => ({none:'OFF',gentle:'LOW',standard:'MID',strong:'HIGH'})[w]||'MID';
 const getWealthMetricLabel = m => m === 'networth' ? 'NET WORTH' : 'SALARY';
 const getMeasurementLabel = m => m === 'sqm' ? 'SQ M' : 'SQ FT';
+const sortByW = a => [...a].sort((x,y)=>y.wealth-x.wealth);
+const applyCap = (items, capVal, total, count, shareKey, weightKey) => {
+  if(capVal==='off') return;
+  const max=parseFloat(capVal)*(total/count);
+  let changed=true;
+  while(changed){
+    changed=false;
+    const above=items.filter(p=>p[shareKey]>max+0.001);
+    if(!above.length) break;
+    changed=true;
+    const surplus=above.reduce((s,p)=>s+(p[shareKey]-max),0);
+    above.forEach(p=>{p[shareKey]=max;});
+    const below=items.filter(p=>p[shareKey]<max-0.001);
+    const tw=below.reduce((s,p)=>s+p[weightKey],0);
+    below.forEach(p=>{p[shareKey]+=tw>0?(p[weightKey]/tw)*surplus:surplus/below.length;});
+  }
+};
 
 const applyWeighting = (wealth, weighting) => {
   if (weighting === 'none') return 1;
@@ -62,9 +80,7 @@ const CLS_FB   = 'font-bold mb-2';
 const S_PANEL  = {border:'2px dashed #9CA3AF',borderTop:'none',padding:'20px'};
 const NP = {min:'0',step:'0.01',inputMode:'decimal'};
 const CLS_JBH    = 'flex justify-between items-start mb-3 border-b border-dashed border-gray-400 pb-2';
-const CLS_H2C    = 'text-2xl font-black mb-4 text-black uppercase tracking-wider text-center';
 const CLS_DEL    = 'text-black font-bold text-xl ml-3 hover:text-gray-600 leading-none';
-const CLS_CUR    = 'cursor-pointer hover:underline font-bold sf';
 const CLS_CP     = 'currency-pattern text-xs text-black uppercase tracking-wider sf';
 const CLS_I1     = 'flex-1 p-2 border-2 border-gray-400 bg-white uppercase';
 const CLS_FBU    = 'font-bold text-black uppercase mb-1';
@@ -89,7 +105,7 @@ const CLS_A      = 'underline hover:text-gray-600';
 const CLS_P5     = 'text-xs mb-5 text-black leading-relaxed';
 const CLS_ROW    = 'flex flex-col sm:flex-row gap-2 mb-2';
 const CLS_FBTXU  = 'font-bold text-black mb-1 text-xs uppercase';
-const FLOOR_OPTIONS = [{value:'off',label:'OFF'},{value:'10',label:'10%'},{value:'25',label:'25%'},{value:'50',label:'50%'}];
+const CAP_OPTIONS = [{value:'off',label:'OFF'},{value:'1.5',label:'1.5X'},{value:'2',label:'2X'},{value:'3',label:'3X'}];
 const _errs = c => c.flatMap(([t,m])=>t?[m]:[]);
 
 const BG_STYLE = {
@@ -108,7 +124,7 @@ const BgSymbols = () => {
       <defs>
         <pattern id="currencyPattern" x="0" y="0" width={w} height={h} patternUnits="userSpaceOnUse">
           {positions.map(({x,y,sym},i)=>(
-            <text key={i} x={x} y={y} fontFamily="Sixtyfour,monospace" fontSize={fs} fill={BG_GREY} fillOpacity={op} fontWeight="bold">{sym}</text>
+            <text key={i} x={x} y={y} fontFamily="Sixtyfour,monospace" fontSize={fs} fill={BG_GREY} fillOpacity={op} fontWeight="bold" textAnchor="middle">{sym}</text>
           ))}
         </pattern>
       </defs>
@@ -396,23 +412,24 @@ const ItemList = ({items,onDelete,renderItem,receiptStyle,formatTotal,getAmount}
   );
 };
 
-const AccordionPage = ({steps,openIndices,onToggle,renderContent}) => (
+const AccordionPage = ({steps,openIndices,onToggle,renderContent,locked}) => (
   <div>
     {steps.map((s,i)=>{
       const isOpen=openIndices.includes(i);
+      const isLocked=locked&&i>0;
       return (
         <div key={i} id={`accordion-step-${i}`} className={i>0?'border-t-2 border-dashed border-gray-400':''}>
-          <button onClick={(e)=>{const opening=!isOpen;onToggle(i);if(opening)setTimeout(()=>e.currentTarget.scrollIntoView({behavior:'smooth',block:'start'}),0);}} aria-expanded={isOpen} className="w-full flex items-center justify-between py-4 px-1 text-left hover:opacity-60 transition-all">
-            <div className="flex items-center gap-3" style={{opacity:isOpen?1:0.5}}>
+          <button onClick={(e)=>{if(isLocked)return;const opening=!isOpen;onToggle(i);if(opening)setTimeout(()=>e.currentTarget.scrollIntoView({behavior:'smooth',block:'start'}),0);}} aria-expanded={isOpen} className={`w-full flex items-center justify-between py-4 px-1 text-left ${isLocked?'':'hover:opacity-60'} transition-all`} style={isLocked?{cursor:'default'}:{}}>
+            <div className="flex items-center gap-3" style={{opacity:isLocked?0.3:isOpen?1:0.5}}>
               {s.icon}
               <div>
                 {i>0&&<p className="text-xs text-gray-500 font-bold uppercase">STEP {i} OF {steps.length-1}</p>}
                 <p className="font-black text-xl uppercase text-black leading-tight">{s.label}</p>
               </div>
             </div>
-            <span className="text-3xl font-black text-black ml-4 leading-none flex-shrink-0">{isOpen?'−':'+'}</span>
+            {!isLocked&&<span className="text-3xl font-black text-black ml-4 leading-none flex-shrink-0">{isOpen?'−':'+'}</span>}
           </button>
-          {isOpen&&<div className="pb-4 px-1 animate-fadeIn">{renderContent(i)}</div>}
+          {isOpen&&!isLocked&&<div className="pb-4 px-1 animate-fadeIn">{renderContent(i)}</div>}
         </div>
       );
     })}
@@ -468,9 +485,9 @@ const CalcStep = ({onCalculate, weighting, onWeighting, navigateToFaq, hasFloor=
               <p className={CLS_P3}>Decide how much wealth should affect Comrade's calculations.</p>
               <WeightingButtons value={weighting} onChange={onWeighting}/>
               {hasFloor&&<><div className={`${CLS_DASHED_T} my-5`}></div>
-              <h4 className={CLS_SH}>CONTRIBUTION FLOOR</h4>
-              <p className={CLS_P3}>If enabled, no group member pays less than the selected percentage of what they'd owe in an even split, regardless of their wealth.</p>
-              <ToggleGroup options={FLOOR_OPTIONS} value={floor} onChange={onFloor} minWidth="80px"/></>}
+              <h4 className={CLS_SH}>CONTRIBUTION CAP</h4>
+              <p className={CLS_P3}>If enabled, no group member pays more than the selected multiple of what they'd owe in an even split.</p>
+              <ToggleGroup options={CAP_OPTIONS} value={floor} onChange={onFloor} minWidth="80px"/></>}
               {onDeleteGroup && <>
                 <div className={`${CLS_DASHED_T} my-5`}></div>
                 {confirmDelete
@@ -526,7 +543,7 @@ const CalcStep = ({onCalculate, weighting, onWeighting, navigateToFaq, hasFloor=
 };
 
 const renderWealthPieChart = data => {
-  const sorted=[...data].sort((a,b)=>b.wealth-a.wealth);
+  const sorted=sortByW(data);
   const total=sorted.reduce((s,p)=>s+p.wealth,0);
   const colors=['#333333','#555555','#777777','#999999','#AAAAAA','#BBBBBB','#CCCCCC','#DDDDDD'];
   return(
@@ -602,7 +619,7 @@ const renderAdjustedWealthStep = (num,data,weighting) => (
     {renderMathRow(data,p=>{
       if(weighting==='gentle') return `√${formatNumber(p.wealth.toFixed(0))} = ${formatNumber(p.adjustedWealth.toFixed(2))}`;
       if(weighting==='standard') return formatNumber(p.wealth.toFixed(2));
-      if(weighting==='strong') return `${formatNumber(p.wealth.toFixed(0))}² = ${formatSmartNumber(p.adjustedWealth)}`;
+      if(weighting==='strong') return `${formatNumber(p.wealth.toFixed(0))}² = ${_fsn(p.adjustedWealth)}`;
       return '';
     })}
   </div>
@@ -722,7 +739,7 @@ const FooterNav = ({onNavigate, onClearStorage}) => {
   };
   const resetCount = dest => { _legalCount = 0; clearTimeout(_legalTimer); onNavigate(dest); };
   const navItem = (dest, label, handler) => (
-    <span onClick={handler || (() => resetCount(dest))} className={CLS_CUR} style={{color:DARK}}>{label}</span>
+    <span onClick={handler || (() => resetCount(dest))} className="cursor-pointer hover:underline font-bold sf" style={{color:DARK}}>{label}</span>
   );
   return (
     <div className="footer-nav text-xs mt-4 mb-4">
@@ -828,10 +845,10 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
   </div>
 );
 
-const _fc=(v,c)=>formatCurrency(v,2,c),_fcs=(v,c)=>formatCurrencySmart(v,c);
+const _fc=(v,c)=>formatCurrency(v,2,c),_fcs=(v,c)=>formatCurrencySmart(v,c),_fsn=formatSmartNumber;
 
-const IntroStep = ({desc, hasSaved, resumeLabel, newLabel, onJump, onClear, onExample, isCollaborative, isSaving, saveError, onGroupSplit, collaborativeBanner, groupSplitPrompt, onStartOver}) => {
-  const hasData = hasSaved || isCollaborative;
+const IntroStep = ({desc, hasSaved, resumeLabel, newLabel, onJump, onClear, onExample, isCollaborative, isSaving, saveError, onGroupSplit, collaborativeBanner, groupSplitPrompt, onStartOver, activated}) => {
+  const hasData = hasSaved || isCollaborative || activated;
   const groupSplitButton = groupSplitPrompt || (onGroupSplit ? (
     <div>
       <button onClick={onGroupSplit} disabled={isSaving}
@@ -849,7 +866,7 @@ const IntroStep = ({desc, hasSaved, resumeLabel, newLabel, onJump, onClear, onEx
         <>
           {collaborativeBanner}
           <div className="flex flex-col gap-3">
-            {hasSaved && !isCollaborative && (
+            {(hasSaved || activated) && !isCollaborative && (
               <button onClick={onJump} className="w-full bg-black text-white py-3 font-bold text-sm border-2 border-black hover:bg-gray-800 transition-all">{resumeLabel}</button>
             )}
             <button onClick={onStartOver} className={`w-full ${CLS_BTN_WHT}`}>START OVER</button>
@@ -891,12 +908,13 @@ const Comrade = () => {
   const [faqOpenIndex, setFaqOpenIndex] = useState(null);
   const [loadedAt, setLoadedAt] = useState(formatTimestamp);
   const [randomQuote, setRandomQuote] = useState('');
-  const [lastQuoteIndices, setLastQuoteIndices] = useState([]);
+  const [,setLastQuoteIndices] = useState([]);
   const [signupEmail, setSignupEmail] = useState('');
   const [signupStatus, setSignupStatus] = useState('');
   const [showDetails, setShowDetails] = useState(false);
   const [entryOpen, setEntryOpen] = useState([0]);
   const editModeRef = useRef(false);
+  const [billActivated, setBillActivated] = useState(false);
 
   const navigateTo = useCallback((p, opts={})=>{
     window.history.pushState({page:p},'',`#${p}`);
@@ -904,7 +922,6 @@ const Comrade = () => {
     setPage(p);
   },[]);
   const navigateToFaq = useCallback(()=>navigateTo('faq'),[navigateTo]);
-  const navigateToPrivacyFaq = useCallback(()=>navigateTo('about'),[navigateTo]);
 
   const jump = useCallback(i => { setEntryOpen([i]); scrollToStep(i); }, []);
   const toggleEntry = useCallback(i => setEntryOpen(prev => prev.includes(i) ? prev.filter(x => x !== i) : [...prev, i]), []);
@@ -1033,7 +1050,12 @@ const Comrade = () => {
     setLoadedAt(formatTimestamp());
     setShowDetails(false);
     if(page==='vote-entry') { setEntryOpen(editModeRef.current?[0,1,2,3,4]:[0]); }
-    else if(['bill-entry','sale-entry','rent-entry'].includes(page)) { setEntryOpen(editModeRef.current?[0,1,2,3]:[0]); }
+    else if(page==='bill-entry') {
+      const shouldActivate = hasBillSavedData || isCollaborative || editModeRef.current;
+      setBillActivated(shouldActivate);
+      setEntryOpen(editModeRef.current?[0,1,2,3]:[0]);
+    }
+    else if(['sale-entry','rent-entry'].includes(page)) { setEntryOpen(editModeRef.current?[0,1,2,3]:[0]); }
     editModeRef.current = false;
     if(['bill-results','sale-results','vote-results','rent-results'].includes(page)){
       setLastQuoteIndices(prev=>{
@@ -1100,7 +1122,7 @@ const Comrade = () => {
 
   const handleClearAll = useCallback(type=>{
     ({
-      bill:()=>{ setBillPeople([]);setBillBills([]);setCurPersonName('');setCurPersonWealth('');setCurBillDesc('');setCurBillAmt('');setCurBillPaidBy('');setCurBillParticipants([]);setParticipantSelectorOpen(false);setPendingParticipants([]);setSplitId(null);setSplitVersion(null);setIsCollaborative(false);setConflictSource(null);setSaveError('');setShowGroupSplitPrompt(false); },
+      bill:()=>{ setBillPeople([]);setBillBills([]);setCurPersonName('');setCurPersonWealth('');setCurBillDesc('');setCurBillAmt('');setCurBillPaidBy('');setCurBillParticipants([]);setParticipantSelectorOpen(false);setPendingParticipants([]);setSplitId(null);setSplitVersion(null);setIsCollaborative(false);setConflictSource(null);setSaveError('');setShowGroupSplitPrompt(false);setBillActivated(false); },
       sale:()=>{ setProductName('');setNumberAvailable('');setSaleBuyers([]);setCurBuyerName('');setCurBuyerWealth('');setCurBuyerOffer('');try{localStorage.removeItem(SALE_KEY);}catch{} },
       vote:()=>{ setVoteDecision('');setVoteOptions([]);setVoteParticipants([]);setCurParticipantName('');setCurParticipantWealth('');setCurParticipantVote('');setCurOptionText('');try{localStorage.removeItem(VOTE_KEY);}catch{} },
       rent:()=>{ setTotalRent('');setTotalUtilities('');setRentPeople([]);setCurRoommateName('');setCurRoommateRoomSize('');setCurRoommateWealth('');try{localStorage.removeItem(RENT_KEY);}catch{} },
@@ -1133,7 +1155,7 @@ const Comrade = () => {
   const clearStorage = useCallback(()=>{
     try{localStorage.removeItem(BILL_KEY);}catch{}
     setBillPeople([]);setBillBills([]);setBillWeighting('standard');setBillFloor('off');setBillCurrency('USD');setBillWealthMetric('salary');
-    setSplitId(null);setSplitVersion(null);setIsCollaborative(false);setConflictSource(null);setSaveError('');setShowGroupSplitPrompt(false);
+    setSplitId(null);setSplitVersion(null);setIsCollaborative(false);setConflictSource(null);setSaveError('');setShowGroupSplitPrompt(false);setBillActivated(false);
     setCurBillParticipants([]);setParticipantSelectorOpen(false);setPendingParticipants([]);
     try{localStorage.removeItem(VOTE_KEY);}catch{}
     setVoteDecision('');setVoteOptions([]);setVoteParticipants([]);setVoteWeighting('standard');setVoteCurrency('USD');setVoteWealthMetric('salary');
@@ -1213,20 +1235,20 @@ const Comrade = () => {
     </Layout>
   );
 
-  const EntryPage = ({steps, intro, calc, midSteps, banner}) => {
+  const EntryPage = ({steps, intro, calc, midSteps, banner, locked}) => {
     const rc = i => {
       if (i === 0) return <IntroStep {...intro}/>;
       if (i === steps.length - 1) return <CalcStep {...calc}/>;
       return midSteps[i - 1]();
     };
-    return <Layout {...lp}>{banner && <div className="mb-4">{banner}</div>}<AccordionPage steps={steps} openIndices={entryOpen} onToggle={toggleEntry} renderContent={rc}/></Layout>;
+    return <Layout {...lp}>{banner && <div className="mb-4">{banner}</div>}<AccordionPage steps={steps} openIndices={entryOpen} onToggle={toggleEntry} renderContent={rc} locked={locked}/></Layout>;
   };
 
   const FAQ_ITEMS = [
     {q:'HOW DOES THIS WORK?',a:`Comrade uses wealth data to decide how much each person should pay. It combines all the bills and the amounts already paid, then looks at each person's wealth in relation to others in the group to establish what proportion of the total amount each person should actually be responsible for.`},
     {q:'WHAT DO YOU DO WITH MY FINANCIAL INFORMATION?',render:<><p className={CLS_PARA3}>Your financial information is used for nothing beyond calculating your results.</p><p className={CLS_PARA3}>In Private Splits, these calculations are performed by your device, and your data is only stored locally. It is never sent to Comrade, and is automatically wiped after 30 days of inactivity.</p><p className={CLS_PARA3}>In Group Splits, your data is securely synced to Comrade's servers, and is accessible only to your friends who you share the group link with. Again, your data is wiped after 30 days.</p><p className={CLS_PARA}>If a user signs up for email updates, their email is shared with Comrade only, and is not associated with any financial data.</p></>},
     {q:'WHAT IS "WEIGHTING"?',a:`Weighting is the level of emphasis placed on each user's relative wealth (salary/net worth). By default, each person's responsibility is directly proportional to their wealth.\n\nFor example, let's say Fred and George each paid $100 on shared bills. Fred earns $50,000 a year, while George brings in $100,000. With regular ("Mid") weighting, because George makes twice as much money as Fred, he should pay twice as much. So far, he only paid 50% — $100 — meaning he owes Fred another $33.33.\n\nIn settings, you can also select "High" weighting, which emphasizes wealth differences even more by using squared wealth values for calculations; or "Low" weighting, which uses square-root values for more gentle adjustments. There is also an option to forego weighting entirely.`},
-    {q:'WHAT IS A "CONTRIBUTION FLOOR"?',a:`A contribution floor sets a minimum amount that any group member must pay, regardless of their wealth. It's expressed as a percentage of what they'd owe in an even split.\n\nFor example, if three people are splitting $300 and the floor is set to 25%, no one pays less than $25 — that's 25% of an equal $100 share.\n\nBy default, the contribution floor is deactivated.`},
+    {q:'WHAT IS A "CONTRIBUTION CAP"?',a:`A contribution cap sets a maximum amount that any group member must pay, regardless of their wealth. It's expressed as a multiple of what they'd owe in an even split.\n\nFor example, if three people are splitting $300 and the cap is set to 2x, no one pays more than $200 — that's twice the equal $100 share.\n\nBy default, the contribution cap is deactivated.`},
     {q:'HOW DO GROUP SPLITS WORK?',render:<><p className={CLS_PARA3}>When you start a Group Split, Comrade generates a shareable link you can send to your group. Anyone with the link can view the split, add or remove people and expenses, and calculate results — with no account required.</p><p className={CLS_PARA3}>Group Splits are stored securely and expire after 30 days of inactivity.</p><p className={CLS_PARA}>Anyone with the link to a Group Split can access all the data in it.</p></>},
     {q:'IS COMRADE AVAILABLE ON THE APP STORE?',render:<p className={CLS_PARA}>Not yet! For now, Comrade is fully functional on mobile and desktop via our website, <a href="https://www.comrade.money" target="_blank" rel="noopener noreferrer" className={CLS_A}>www.comrade.money</a>. If you'd like to use a standalone app, or have other feedback or feature requests, please get in touch.</p>},
     {q:"IT'S AWKWARD ASKING MY FRIENDS HOW MUCH MONEY THEY HAVE. WHAT SHOULD I DO?",render:<p className={CLS_PARA}>Do it anyway.{' '}<a href="https://www.hbs.edu/ris/Publication%20Files/23-039_f20d86a0-a1cf-4bd6-8066-74ccc6f2c3cf.pdf" target="_blank" rel="noopener noreferrer" className={CLS_A}>Studies</a>{' '}have found{' '}<a href="https://www.nytimes.com/interactive/2020/02/19/magazine/salary-sharing.html" target="_blank" rel="noopener noreferrer" className={CLS_A}>breaking</a>{' '}the{' '}<a href="https://www.businessinsider.com/salary-pay-transparency-jobs-income-taboo-equity-2023-1" target="_blank" rel="noopener noreferrer" className={CLS_A}>taboos</a>{' '}around sharing information about wealth makes society better.</p>},
@@ -1234,39 +1256,30 @@ const Comrade = () => {
   ];
 
   const billCalculations = useMemo(()=>{
-    if(!billPeople.length) return{total:0,peopleData:[],transactions:[],hasPartialBills:false};
+    if(!billPeople.length) return{total:0,peopleData:[],transactions:[],hasPartialBills:false,billDetails:[]};
     const total=billBills.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
-    const hasPartialBills=billBills.some(b=>b.participants&&b.participants.length>0);
+    const hasPartialBills=billBills.some(b=>b.participants?.length>0);
     let shares=billPeople.map(p=>{
       const w=parseFloat(p.wealth)||0,paid=billBills.filter(b=>b.paidBy===p.name).reduce((s,b)=>s+(parseFloat(b.amount)||0),0),aw=applyWeighting(w,billWeighting);
       return{...p,wealth:w,paid,fairShare:0,adjustedWealth:aw};
     });
+    const billDetails=[];
     for(const bill of billBills){
       const amt=parseFloat(bill.amount)||0;
       if(amt===0) continue;
-      const partNames=(bill.participants&&bill.participants.length>0)?bill.participants:shares.map(p=>p.name);
+      const partNames=bill.participants?.length>0?bill.participants:shares.map(p=>p.name);
       const parts=shares.filter(p=>partNames.includes(p.name));
       const taw=parts.reduce((s,p)=>s+p.adjustedWealth,0);
+      const detail={desc:bill.description,amount:amt,isPartial:bill.participants?.length>0,shares:[]};
       for(const part of parts){
         const idx=shares.findIndex(p=>p.name===part.name);
-        if(idx>=0) shares[idx].fairShare+=taw>0?(part.adjustedWealth/taw)*amt:amt/parts.length;
+        const share=taw>0?(part.adjustedWealth/taw)*amt:amt/parts.length;
+        if(idx>=0) shares[idx].fairShare+=share;
+        detail.shares.push({name:part.name,aw:part.adjustedWealth,taw,share});
       }
+      billDetails.push(detail);
     }
-    if(billFloor!=='off'){
-      const minPayment=(parseFloat(billFloor)/100)*(total/billPeople.length);
-      let changed=true;
-      while(changed){
-        changed=false;
-        const below=shares.filter(p=>p.fairShare<minPayment-0.001);
-        if(!below.length) break;
-        changed=true;
-        const deficit=below.reduce((s,p)=>s+(minPayment-p.fairShare),0);
-        below.forEach(p=>{p.fairShare=minPayment;});
-        const above=shares.filter(p=>p.fairShare>minPayment+0.001);
-        const totalAW=above.reduce((s,p)=>s+p.adjustedWealth,0);
-        above.forEach(p=>{p.fairShare+=totalAW>0?(p.adjustedWealth/totalAW)*deficit:deficit/above.length;});
-      }
-    }
+    applyCap(shares, billFloor, total, billPeople.length, 'fairShare', 'adjustedWealth');
     const peopleData=shares.map(p=>({...p,paidPct:total>0?(p.paid/total)*100:0,fairPct:total>0?(p.fairShare/total)*100:0}));
     const settlements=peopleData.map(p=>({name:p.name,balance:p.paid-p.fairShare})).filter(s=>Math.abs(s.balance)>0.01);
     const payers=settlements.filter(s=>s.balance<0).sort((a,b)=>a.balance-b.balance);
@@ -1279,7 +1292,7 @@ const Comrade = () => {
       pc[pi].balance+=amt;rc[ri].balance-=amt;
       if(Math.abs(pc[pi].balance)<0.01)pi++;if(Math.abs(rc[ri].balance)<0.01)ri++;
     }
-    return{total,peopleData,transactions,hasPartialBills};
+    return{total,peopleData,transactions,hasPartialBills,billDetails};
   },[billPeople,billBills,billWeighting,billFloor]);
 
   const saleCalculations = useMemo(()=>{
@@ -1317,21 +1330,7 @@ const Comrade = () => {
     });
     const trv=pd.reduce((s,p)=>s+p.roomValue,0);
     let shares=pd.map(p=>({...p,fairRent:trv>0?(p.roomValue/trv)*total:total/rentPeople.length}));
-    if(rentFloor!=='off'){
-      const minPayment=(parseFloat(rentFloor)/100)*(total/rentPeople.length);
-      let changed=true;
-      while(changed){
-        changed=false;
-        const below=shares.filter(p=>p.fairRent<minPayment-0.001);
-        if(!below.length) break;
-        changed=true;
-        const deficit=below.reduce((s,p)=>s+(minPayment-p.fairRent),0);
-        below.forEach(p=>{p.fairRent=minPayment;});
-        const above=shares.filter(p=>p.fairRent>minPayment+0.001);
-        const totalRV=above.reduce((s,p)=>s+p.roomValue,0);
-        above.forEach(p=>{p.fairRent+=totalRV>0?(p.roomValue/totalRV)*deficit:deficit/above.length;});
-      }
-    }
+    applyCap(shares, rentFloor, total, rentPeople.length, 'fairRent', 'roomValue');
     const rentData=shares.map(p=>({...p,rentPct:total>0?(p.fairRent/total)*100:100/rentPeople.length})).sort((a,b)=>b.fairRent-a.fairRent);
     return{rentAmount,utilitiesAmount,total,totalRoomSize:trs,rentData,totalRoomValue:trv};
   },[rentPeople,totalRent,totalUtilities,rentWeighting,rentFloor]);
@@ -1416,20 +1415,21 @@ const Comrade = () => {
 
   if(page==='legal') return (
     <Layout {...lp}>
-      <h2 className={CLS_H2C}>LEGAL</h2>
+      <h2 className="text-2xl font-black mb-4 text-black uppercase tracking-wider text-center">LEGAL</h2>
       <div className="text-black">
         {[{heading:'TERMS OF USE',text:'This application is provided for informational purposes only, on an "as is" basis, without warranty of any kind.'},
           {heading:null,text:'Users are solely responsible for their own actions. The creators of Comrade are not liable for any outcomes, disputes, unintended consequences, or bad decisions resulting from the use of Comrade and its calculations. Sorry!'},
           {heading:'PRIVACY POLICY',text:'Any financial information entered into Private Splits is stored only on your device, and all calculations are performed locally — nothing is sent to Comrade.'},
           {heading:null,text:'Group Splits store data on Comrade\'s servers for up to 30 days, after which they expire automatically. This data is accessible to people with the split link, and is not associated with any other markers of your identity.'},
+          {heading:null,text:'Users can delete their data at any time by using the "Delete Group" feature under Advanced Settings.'},
           {heading:null,text:'Comrade does not sell user data, or use it for any purpose other than performing the requested calculations.'},
           {heading:null,text:'Comrade uses Vercel Analytics to collect anonymous, aggregated data about site visits, including page views and unique visitor counts. No personal or financial information is collected through analytics, and no cookies are used.'},
           {heading:null,text:'By entering your email address, you consent to Comrade and its team contacting you about updates to the app, news, and other projects they may be working on. Comrade will not sell your contact information to third parties. You can unsubscribe at any time.'},
           {heading:null,text:'© 2026 Comrade. All rights reserved.'},
         ].map((item,i)=>(
           <React.Fragment key={i}>
-            {(i===2||i===7)&&<div className={`${CLS_DASHED_T} my-4`}/>}
-            {i>0&&i!==2&&i!==7&&<div className="my-3"/>}
+            {(i===2||i===8)&&<div className={`${CLS_DASHED_T} my-4`}/>}
+            {i>0&&i!==2&&i!==8&&<div className="my-3"/>}
             {item.heading&&<p className="font-bold text-xs uppercase tracking-wider mb-2">{item.heading}</p>}
             <p className={CLS_PARA}>{item.text}</p>
           </React.Fragment>
@@ -1440,6 +1440,7 @@ const Comrade = () => {
 
   if(page==='bill-entry') return EntryPage({
     steps: BILL_STEPS,
+    locked: !billActivated && !isCollaborative,
     banner: splitNotFound ? (
       <div className="border-2 border-dashed border-gray-400 p-4 bg-gray-50 animate-fadeIn">
         <p className="font-bold text-xs uppercase mb-1 text-black">SPLIT NOT FOUND</p>
@@ -1449,16 +1450,17 @@ const Comrade = () => {
     intro: {
       desc: "From dinners to vacations, dates to work drinks, handle your shared expenses more fairly. Comrade combines and simplifies group bills, while using information about group members' finances to decide how much everyone should pay.",
       hasSaved: hasBillSavedData,
+      activated: billActivated && !isCollaborative,
       resumeLabel: isCollaborative ? "RESUME GROUP SPLIT →" : "RESUME PRIVATE SPLIT →",
       newLabel: "NEW PRIVATE SPLIT",
       onJump: ()=>{setSplitNotFound(false);jump(1);},
-      onClear: ()=>{setSplitNotFound(false);jump(1);},
-      onStartOver: ()=>{setSplitNotFound(false);handleClearAll('bill');},
-      onExample: isCollaborative ? null : ()=>{setSplitNotFound(false);loadExample('bill');},
+      onClear: ()=>{setSplitNotFound(false);setBillActivated(true);jump(1);},
+      onStartOver: ()=>{setSplitNotFound(false);setBillActivated(false);handleClearAll('bill');},
+      onExample: isCollaborative ? null : ()=>{setSplitNotFound(false);setBillActivated(true);loadExample('bill');},
       isCollaborative,
       isSaving,
       saveError,
-      onGroupSplit: isCollaborative ? null : ()=>{ setSplitNotFound(false); if(hasBillSavedData){setShowGroupSplitPrompt(true);}else{saveSplit();} },
+      onGroupSplit: isCollaborative ? null : ()=>{ setSplitNotFound(false); if(hasBillSavedData){setBillActivated(true);setShowGroupSplitPrompt(true);}else{saveSplit();} },
       collaborativeBanner,
       groupSplitPrompt: showGroupSplitPrompt ? (
         <div className="border-2 border-dashed border-gray-400 p-4 bg-gray-50 animate-fadeIn">
@@ -1466,7 +1468,7 @@ const Comrade = () => {
           <p className="text-xs text-black mb-4 leading-relaxed">Keep the people and bills you've already added, or start fresh?</p>
           <div className="flex flex-col gap-2">
             <button onClick={()=>{setShowGroupSplitPrompt(false);saveSplit();}} className="w-full bg-white text-black py-2 font-bold text-xs border-2 border-black hover:bg-gray-100 transition-all">USE EXISTING DATA →</button>
-            <button onClick={async()=>{handleClearAll('bill');setShowGroupSplitPrompt(false);setIsSaving(true);try{const r=await fetch('/api/split',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({people:[],bills:[],weighting:billWeighting,floor:billFloor,currency:billCurrency,wealthMetric:billWealthMetric})});const d=await r.json();if(d.id){setSplitId(d.id);setSplitVersion(1);setIsCollaborative(true);window.history.pushState({page:'bill-entry'},'',`/split/${d.id}`);setEntryOpen(prev=>prev.includes(1)?prev:[...prev,1]);setTimeout(()=>{const el=document.getElementById('accordion-step-0');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},150);}}catch(e){console.error(e);}finally{setIsSaving(false);}}} className="w-full bg-white text-black py-2 font-bold text-xs border-2 border-black hover:bg-gray-100 transition-all">START FRESH →</button>
+            <button onClick={async()=>{handleClearAll('bill');setShowGroupSplitPrompt(false);setIsSaving(true);try{const r=await fetch('/api/split',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({people:[],bills:[],weighting:billWeighting,floor:billFloor,currency:billCurrency,wealthMetric:billWealthMetric})});const d=await r.json();if(d.id){setSplitId(d.id);setSplitVersion(1);setIsCollaborative(true);setBillActivated(true);window.history.pushState({page:'bill-entry'},'',`/split/${d.id}`);setEntryOpen(prev=>prev.includes(1)?prev:[...prev,1]);setTimeout(()=>{const el=document.getElementById('accordion-step-0');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},150);}}catch(e){console.error(e);}finally{setIsSaving(false);}}} className="w-full bg-white text-black py-2 font-bold text-xs border-2 border-black hover:bg-gray-100 transition-all">START FRESH →</button>
           </div>
         </div>
       ) : null,
@@ -1492,7 +1494,7 @@ const Comrade = () => {
         [billBills.length>0&&!billBills.some(b=>parseFloat(b.amount)>0),'No bills have a valid amount'],
         [billBills.some(b=>!b.paidBy),'Some bills have no payer assigned'],
         [billBills.some(b=>b.paidBy&&!billPeople.some(p=>p.name===b.paidBy)),'Some bills are assigned to people who have been removed'],
-        [billBills.some(b=>b.participants&&b.participants.length>0&&b.participants.some(pn=>!billPeople.some(pp=>pp.name===pn))),'Some bills include participants who have been removed'],
+        [billBills.some(b=>b.participants?.length>0&&b.participants.some(pn=>!billPeople.some(pp=>pp.name===pn))),'Some bills include participants who have been removed'],
       ]),
     },
     midSteps:[
@@ -1506,7 +1508,7 @@ const Comrade = () => {
           </div>
           <button onClick={()=>{if(curPersonName.trim()){setBillPeople([...billPeople,{id:Date.now(),name:curPersonName,wealth:curPersonWealth}]);setCurPersonName('');setCurPersonWealth('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD PERSON</button>
           {billPeople.length>0
-            ?<ItemList items={billPeople} onDelete={id=>setBillPeople(billPeople.filter(p=>p.id!==id))} renderItem={p=><><p className={CLS_NAME}>{p.name}</p><p className={CLS_XS}>{getWealthMetricLabel(billWealthMetric)}: {formatCurrency(p.wealth,2,billCurrency)}</p></>}/>
+            ?<ItemList items={billPeople} onDelete={id=>setBillPeople(billPeople.filter(p=>p.id!==id))} renderItem={p=><><p className={CLS_NAME}>{p.name}</p><p className={CLS_XS}>{getWealthMetricLabel(billWealthMetric)}: {_fc(p.wealth,billCurrency)}</p></>}/>
             :<EmptyState msg="No people added yet"/>
           }
           <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(2)}/></div>
@@ -1523,13 +1525,18 @@ const Comrade = () => {
               {billPeople.map((p,j)=><option key={p.id||j} value={p.name}>{p.name}</option>)}
             </select>
           </div>
-          {billPeople.length>0&&(
-            <div className="mb-3">
+          <div className="mb-3">
               {!participantSelectorOpen?(
-                <button onClick={()=>{setPendingParticipants(curBillParticipants.length>0?[...curBillParticipants]:billPeople.map(p=>p.name));setParticipantSelectorOpen(true);}} className="w-full flex justify-between items-center p-2 border border-dashed border-gray-400 bg-white" style={{textAlign:'left'}}>
-                  <span className="text-xs font-bold uppercase tracking-wider"><span style={{color:DARK}}>PARTICIPANTS: </span><span style={{color:'#9CA3AF'}}>{curBillParticipants.length===0?'ALL':curBillParticipants.length<=3?curBillParticipants.join(', '):curBillParticipants.slice(0,3).join(', ')+' +'+String(curBillParticipants.length-3)}</span></span>
+                <button onClick={()=>{if(billPeople.length>0)setPendingParticipants(curBillParticipants.length>0?[...curBillParticipants]:billPeople.map(p=>p.name));setParticipantSelectorOpen(true);}} className="w-full flex justify-between items-center p-2 border border-dashed border-gray-400 bg-white" style={{textAlign:'left'}}>
+                  <span className="text-xs font-bold uppercase tracking-wider"><span style={{color:DARK}}>PARTICIPANTS: </span><span style={{color:'#9CA3AF'}}>{billPeople.length===0?'N/A':curBillParticipants.length===0?'ALL':curBillParticipants.length<=3?curBillParticipants.join(', '):curBillParticipants.slice(0,3).join(', ')+' +'+String(curBillParticipants.length-3)}</span></span>
                   <span className="text-black font-bold" style={{lineHeight:1,fontSize:'14px'}}>&#9662;</span>
                 </button>
+              ):billPeople.length===0?(
+                <div className="border-2 border-dashed border-gray-400 bg-gray-50 p-3 animate-fadeIn">
+                  <p className="text-xs font-bold text-black uppercase tracking-wider mb-2">PARTICIPANTS</p>
+                  <p className="text-xs text-black mb-3 leading-relaxed">Go back to the previous step and add some people first.</p>
+                  <button onClick={()=>setParticipantSelectorOpen(false)} className={CLS_BTN_WHT + ' w-full'}>CLOSE</button>
+                </div>
               ):(
                 <div className="border-2 border-dashed border-gray-400 bg-gray-50 p-3 animate-fadeIn">
                   <p className="text-xs font-bold text-black uppercase tracking-wider mb-3">SELECT PARTICIPANTS:</p>
@@ -1550,10 +1557,9 @@ const Comrade = () => {
                 </div>
               )}
             </div>
-          )}
           <button onClick={()=>{if(curBillDesc.trim()){setBillBills([...billBills,{id:Date.now(),description:curBillDesc,amount:curBillAmt,paidBy:curBillPaidBy,participants:curBillParticipants}]);setCurBillDesc('');setCurBillAmt('');setCurBillPaidBy('');setCurBillParticipants([]);setParticipantSelectorOpen(false);setPendingParticipants([]);}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD BILL</button>
           {billBills.length>0
-            ?<ItemList items={billBills} onDelete={id=>setBillBills(billBills.filter(b=>b.id!==id))} renderItem={b=>{const isP=b.participants&&b.participants.length>0;const pL=isP?(b.participants.length<=3?b.participants.join(', '):b.participants.slice(0,3).join(', ')+' +'+String(b.participants.length-3)):null;return <><p className="text-black font-bold uppercase">{b.description}</p><p className="text-black text-xs">{b.paidBy||'Unknown'}{isP&&(' ('+pL+')')}</p></>;}} receiptStyle formatTotal={t=>formatCurrency(t,2,billCurrency)} getAmount={b=>b.amount}/>
+            ?<ItemList items={billBills} onDelete={id=>setBillBills(billBills.filter(b=>b.id!==id))} renderItem={b=>{const pL=b.participants?.length>0?b.participants.join(', '):null;return <><p className="text-black font-bold uppercase">{b.description}</p><p className="text-black text-xs">{b.paidBy||'Unknown'}{pL&&(' ('+pL+')')}</p></>;}} receiptStyle formatTotal={t=>_fc(t,billCurrency)} getAmount={b=>b.amount}/>
             :<EmptyState msg="No bills added yet" cls="mb-4"/>
           }
           <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(3)}/></div>
@@ -1563,8 +1569,8 @@ const Comrade = () => {
   });
 
   if(page==='bill-results'){
-    const {total,peopleData,transactions,hasPartialBills}=billCalculations;
-    const copyText=`Comrade | Bill-splitting results\n\nTotal: ${_fc(total,billCurrency)}\n\nSettlements:\n${transactions.length===0?'All settled!':transactions.map(t=>`${t.from} pays ${t.to} ${_fcs(t.amount,billCurrency)}`).join('\n')}\n\nBreakdown:\n${peopleData.map(p=>`${p.name}: Paid ${_fc(p.paid,billCurrency)}, fair share ${_fcs(p.fairShare,billCurrency)}`).join('\n')}\n\nCalculated using www.comrade.money, the fairer way to split bills with friends`;
+    const {total,peopleData,transactions,hasPartialBills,billDetails}=billCalculations;
+    const copyText=`💰 Comrade | Bill-splitting results\n\nTotal: ${_fc(total,billCurrency)}\n\n💸 Who pays who:\n${transactions.length===0?'All settled!':transactions.map(t=>`${t.from} pays ${t.to} ${_fcs(t.amount,billCurrency)}`).join('\n')}\n\n📊 Breakdown:\n${peopleData.map(p=>`${p.name}: Paid ${_fc(p.paid,billCurrency)} → fair share ${_fcs(p.fairShare,billCurrency)}`).join('\n')}\n\nCalculated using www.comrade.money, the fairer way to split bills with friends`;
     return ResultsPage({
       entryPage:"bill-entry", title:"YOUR SETTLEMENT",
       summary:transactions.length===0
@@ -1573,17 +1579,17 @@ const Comrade = () => {
       stats:[{label:'TOTAL BILLS',value:billBills.length},{label:'TOTAL',value:_fc(total,billCurrency)},{label:'PEOPLE',value:billPeople.length}],
       copyText,
       details:<>
-        {renderDetailCards('PARTICIPANT DATA',[...peopleData].sort((a,b)=>b.wealth-a.wealth),p=>{const bal=p.paid-p.fairShare;return{name:p.name,rows:[{label:'WEALTH',value:_fc(p.wealth,billCurrency)},{label:'PAID',value:`${_fc(p.paid,billCurrency)} (${p.paidPct.toFixed(1)}%)`},{label:'FAIR SHARE',value:`${_fcs(p.fairShare,billCurrency)} (${p.fairPct.toFixed(1)}%)`}],summaryRows:[{label:'BALANCE',value:`${bal>0.01?'+':''}${_fcs(bal,billCurrency)}`}]};})}
+        {renderDetailCards('PARTICIPANT DATA',sortByW(peopleData),p=>{const bal=p.paid-p.fairShare;return{name:p.name,rows:[{label:'WEALTH',value:_fc(p.wealth,billCurrency)},{label:'PAID',value:`${_fc(p.paid,billCurrency)} (${p.paidPct.toFixed(1)}%)`},{label:'FAIR SHARE',value:`${_fcs(p.fairShare,billCurrency)} (${p.fairPct.toFixed(1)}%)`}],summaryRows:[{label:'BALANCE',value:`${bal>0.01?'+':''}${_fcs(bal,billCurrency)}`}]};})}
         <DashedDivider/>
         <div className="mb-6">
           <h3 className={CLS_H3}>BILL RECAP</h3>
-          <div className="space-y-3 mb-4">{billBills.map((b,i)=>{const isP=b.participants&&b.participants.length>0;const pL=isP?(b.participants.length<=3?b.participants.join(', '):b.participants.slice(0,3).join(', ')+' +'+String(b.participants.length-3)):null;return <div key={b.id||i} className="flex justify-between items-start text-xs text-black border-b border-dashed border-gray-400 pb-2"><div className="flex-1"><p className="font-bold text-black uppercase">{b.description}</p><p className="text-black text-xs">{b.paidBy||'Unknown'}{isP&&(' ('+pL+')')}</p></div><span className="font-bold text-black ml-4">{_fc(b.amount,billCurrency)}</span></div>;})}</div>
+          <div className="space-y-3 mb-4">{billBills.map((b,i)=>{const pL=b.participants?.length>0?b.participants.join(', '):null;return <div key={b.id||i} className="flex justify-between items-start text-xs text-black border-b border-dashed border-gray-400 pb-2"><div className="flex-1"><p className="font-bold text-black uppercase">{b.description}</p><p className="text-black text-xs">{b.paidBy||'Unknown'}{pL&&(' ('+pL+')')}</p></div><span className="font-bold text-black ml-4">{_fc(b.amount,billCurrency)}</span></div>;})}</div>
           <div className={CLS_TOTAL}><span className={CLS_FBS}>TOTAL</span><span className={CLS_FBT}>{_fc(total,billCurrency)}</span></div>
         </div>
         <DashedDivider/>
         <div className="mb-6"><h3 className={CLS_H3}>WEALTH VISUALIZATION</h3>{renderWealthPieChart(peopleData)}</div>
         <DashedDivider/>
-        {renderBarVisualization('PAYMENT VISUALIZATION',[...peopleData].sort((a,b)=>b.wealth-a.wealth),[{label:'PAID',getValue:p=>p.paid,displayValue:p=>`${p.paidPct.toFixed(0)}%`,rightLabel:p=>_fc(p.paid,billCurrency)},{label:'FAIR',getValue:p=>p.fairShare,displayValue:p=>`${p.fairPct.toFixed(0)}%`,rightLabel:p=>_fcs(p.fairShare,billCurrency)}],p=>p.name)}
+        {renderBarVisualization('PAYMENT VISUALIZATION',sortByW(peopleData),[{label:'PAID',getValue:p=>p.paid,displayValue:p=>`${p.paidPct.toFixed(0)}%`,rightLabel:p=>_fc(p.paid,billCurrency)},{label:'FAIR',getValue:p=>p.fairShare,displayValue:p=>`${p.fairPct.toFixed(0)}%`,rightLabel:p=>_fcs(p.fairShare,billCurrency)}],p=>p.name)}
         <DashedDivider/>
         {hasPartialBills?(
           <>
@@ -1592,16 +1598,28 @@ const Comrade = () => {
               <div className="bg-white p-6 border-2 border-gray-400">
                 <div className="space-y-3 text-xs text-black">
                   {billWeighting!=='none'?(<>
-                    <p className={CLS_FB}>PER-BILL CALCULATION:</p>
-                    <p className="text-xs text-black mb-3">Each bill is split among its participants proportionally to their adjusted wealth ({getWeightingLabel(billWeighting)} weighting).</p>
+                    {renderAdjustedWealthStep(1,peopleData,billWeighting)}
                     <div className={`${CLS_DASHED_T} my-3`}></div>
-                    <p className={CLS_FB}>FINAL FAIR SHARES:</p>
+                    <p className={CLS_FB}>2. PER-BILL SHARES ({getWeightingLabel(billWeighting)} WEIGHTING):</p>
+                    {billDetails.map((d,i)=>(
+                      <div key={i} className={i>0?`pt-3 ${CLS_DASHED_T}`:''}>
+                        <p className="font-bold uppercase mb-1">{d.desc} ({_fc(d.amount,billCurrency)}){d.isPartial?' — PARTIAL':''}</p>
+                        {d.shares.map((s,j)=><div key={j} className={CLS_JBM}><span>{s.name}:</span><span className="font-mono">{_fsn(s.aw)} ÷ {_fsn(s.taw)} × {_fc(d.amount,billCurrency)} = {_fcs(s.share,billCurrency)}</span></div>)}
+                      </div>
+                    ))}
+                    <div className={`${CLS_DASHED_T} my-3`}></div>
+                    <p className={CLS_FB}>3. TOTAL FAIR SHARES:</p>
                     {renderMathRow(peopleData,p=>`${_fcs(p.fairShare,billCurrency)} (${p.fairPct.toFixed(1)}%)`)}
                   </>):(<>
-                    <p className={CLS_FB}>PER-BILL CALCULATION (NO WEIGHTING):</p>
-                    <p className="text-xs text-black mb-3">Each bill is split equally among its participants.</p>
+                    <p className={CLS_FB}>1. PER-BILL SHARES (NO WEIGHTING):</p>
+                    {billDetails.map((d,i)=>(
+                      <div key={i} className={i>0?`pt-3 ${CLS_DASHED_T}`:''}>
+                        <p className="font-bold uppercase mb-1">{d.desc} ({_fc(d.amount,billCurrency)}){d.isPartial?' — PARTIAL':''}</p>
+                        {d.shares.map((s,j)=><div key={j} className={CLS_JBM}><span>{s.name}:</span><span className="font-mono">{_fc(d.amount,billCurrency)} ÷ {d.shares.length} = {_fcs(s.share,billCurrency)}</span></div>)}
+                      </div>
+                    ))}
                     <div className={`${CLS_DASHED_T} my-3`}></div>
-                    <p className={CLS_FB}>FINAL FAIR SHARES:</p>
+                    <p className={CLS_FB}>2. TOTAL FAIR SHARES:</p>
                     {renderMathRow(peopleData,p=>`${_fcs(p.fairShare,billCurrency)} (${p.fairPct.toFixed(1)}%)`)}
                   </>)}
                 </div>
@@ -1610,8 +1628,8 @@ const Comrade = () => {
             <DashedDivider/>
           </>
         ):renderMathSection(billWeighting,[
-          <div key="s1">{renderAdjustedWealthStep(1,peopleData,billWeighting)}<div className={`flex justify-between mt-2 pt-2 ${CLS_DASHED_T} font-bold`}><span>TOTAL:</span><span className="font-mono">{formatSmartNumber(peopleData.reduce((s,p)=>s+p.adjustedWealth,0))}</span></div></div>,
-          <div key="s2"><p className={CLS_FB}>2. FAIR SHARE %:</p>{renderMathRow(peopleData,p=>{const ta=peopleData.reduce((s,pp)=>s+pp.adjustedWealth,0);return`${formatSmartNumber(p.adjustedWealth)} ÷ ${formatSmartNumber(ta)} = ${p.fairPct.toFixed(1)}%`;})}</div>,
+          <div key="s1">{renderAdjustedWealthStep(1,peopleData,billWeighting)}<div className={`flex justify-between mt-2 pt-2 ${CLS_DASHED_T} font-bold`}><span>TOTAL:</span><span className="font-mono">{_fsn(peopleData.reduce((s,p)=>s+p.adjustedWealth,0))}</span></div></div>,
+          <div key="s2"><p className={CLS_FB}>2. FAIR SHARE %:</p>{renderMathRow(peopleData,p=>{const ta=peopleData.reduce((s,pp)=>s+pp.adjustedWealth,0);return`${_fsn(p.adjustedWealth)} ÷ ${_fsn(ta)} = ${p.fairPct.toFixed(1)}%`;})}</div>,
           <div key="s3"><p className={CLS_FB}>3. AMOUNT OWED:</p>{renderMathRow(peopleData,p=>`${p.fairPct.toFixed(1)}% × ${_fc(total,billCurrency)} = ${_fcs(p.fairShare,billCurrency)}`)}</div>
         ],<div><p className={CLS_FB}>EQUAL SPLIT (NO WEIGHTING):</p>{renderMathRow(peopleData,p=>`${_fc(total,billCurrency)} ÷ ${peopleData.length} = ${_fcs(p.fairShare,billCurrency)}`)}</div>)}
       </>
@@ -1644,7 +1662,7 @@ const Comrade = () => {
           </div>
           <FormInput type="number" value={curBuyerWealth} onChange={e=>setCurBuyerWealth(e.target.value)} placeholder={`${getCurrencySymbol(saleCurrency)} ${getWealthMetricLabel(saleWealthMetric)}`} {...NP} className="mb-3"/>
           <button onClick={()=>{if(curBuyerName.trim()){setSaleBuyers([...saleBuyers,{id:Date.now(),name:curBuyerName,wealth:curBuyerWealth,offer:curBuyerOffer}]);setCurBuyerName('');setCurBuyerWealth('');setCurBuyerOffer('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD BUYER</button>
-          {saleBuyers.length>0?<ItemList items={saleBuyers} onDelete={id=>setSaleBuyers(saleBuyers.filter(b=>b.id!==id))} renderItem={b=><><p className={CLS_NAME}>{b.name}</p><p className={CLS_XS}>{getWealthMetricLabel(saleWealthMetric)}: {formatCurrency(b.wealth,2,saleCurrency)}</p><p className={CLS_XS}>Offer: {formatCurrency(b.offer,2,saleCurrency)}</p></>}/>:<EmptyState msg="No buyers added yet"/>}
+          {saleBuyers.length>0?<ItemList items={saleBuyers} onDelete={id=>setSaleBuyers(saleBuyers.filter(b=>b.id!==id))} renderItem={b=><><p className={CLS_NAME}>{b.name}</p><p className={CLS_XS}>{getWealthMetricLabel(saleWealthMetric)}: {_fc(b.wealth,saleCurrency)}</p><p className={CLS_XS}>Offer: {_fc(b.offer,saleCurrency)}</p></>}/>:<EmptyState msg="No buyers added yet"/>}
           <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(3)}/></div>
         </div>
       ),
@@ -1655,7 +1673,7 @@ const Comrade = () => {
     const {rankedBuyers,avgOffer}=saleCalculations;
     const numAvail=parseInt(numberAvailable)||1,winners=rankedBuyers.slice(0,numAvail);
     const isTie=rankedBuyers.length>1&&rankedBuyers[0].needScore===rankedBuyers[1].needScore&&rankedBuyers[0].needScore>0;
-    const copyText=`Comrade | Selling results\n\nProduct: ${productName||'Unnamed'}\nQuantity: ${numAvail}\n\nSelected buyer${winners.length>1?'s':''}:\n${winners.map(w=>`${w.name} - ${_fc(w.offer,saleCurrency)}`).join('\n')}\n\nAll buyers ranked:\n${rankedBuyers.map((b,i)=>`${i+1}. ${b.name} - Offer: ${_fc(b.offer,saleCurrency)}, need score: ${b.needScore.toFixed(4)}%`).join('\n')}\n\nCalculated using www.comrade.money, the fairer way to handle selling things`;
+    const copyText=`💰 Comrade | Selling results\n\nProduct: ${productName||'Unnamed'}\nQuantity: ${numAvail}\n\n💸 Selected buyer${winners.length>1?'s':''}:\n${winners.map(w=>`${w.name} → ${_fc(w.offer,saleCurrency)}`).join('\n')}\n\n📊 All buyers ranked:\n${rankedBuyers.map((b,i)=>`${i+1}. ${b.name} → Offer: ${_fc(b.offer,saleCurrency)} → need score: ${b.needScore.toFixed(4)}%`).join('\n')}\n\nCalculated using www.comrade.money, the fairer way to handle selling things`;
     return ResultsPage({
       entryPage:"sale-entry", title:`SELECTED BUYER${winners.length>1?'S':''}`,
       summary:isTie
@@ -1668,7 +1686,7 @@ const Comrade = () => {
         <DashedDivider/>
         {renderBarVisualization('NEED SCORE VISUALIZATION',rankedBuyers,[{getValue:b=>b.needScore,displayValue:b=>`${b.needScore<0.01?b.needScore.toExponential(2):b.needScore.toFixed(1)}%`,rightLabel:(_,i)=>`#${i+1}`}],b=>b.name)}
         <DashedDivider/>
-        {renderMathSection(saleWeighting,[renderAdjustedWealthStep(1,rankedBuyers,saleWeighting),<div key="s2"><p className={CLS_FB}>2. NEED SCORE (OFFER ÷ ADJUSTED WEALTH × 100):</p>{renderMathRow(rankedBuyers,b=>`${_fc(b.offer,saleCurrency)} ÷ ${formatSmartNumber(b.adjustedWealth)} × 100 = ${b.needScore<0.01?b.needScore.toExponential(2):b.needScore.toFixed(2)}%`)}</div>],<div><p className={CLS_FB}>NO WEIGHTING - RANKED BY OFFER AMOUNT:</p>{rankedBuyers.map((b,i)=><div key={b.id} className={CLS_JBM}><span>#{i+1} {b.name}:</span><span className="font-mono">{_fc(b.offer,saleCurrency)}</span></div>)}</div>)}
+        {renderMathSection(saleWeighting,[renderAdjustedWealthStep(1,rankedBuyers,saleWeighting),<div key="s2"><p className={CLS_FB}>2. NEED SCORE (OFFER ÷ ADJUSTED WEALTH × 100):</p>{renderMathRow(rankedBuyers,b=>`${_fc(b.offer,saleCurrency)} ÷ ${_fsn(b.adjustedWealth)} × 100 = ${b.needScore<0.01?b.needScore.toExponential(2):b.needScore.toFixed(2)}%`)}</div>],<div><p className={CLS_FB}>NO WEIGHTING - RANKED BY OFFER AMOUNT:</p>{rankedBuyers.map((b,i)=><div key={b.id} className={CLS_JBM}><span>#{i+1} {b.name}:</span><span className="font-mono">{_fc(b.offer,saleCurrency)}</span></div>)}</div>)}
       </>
     });
   }
@@ -1718,7 +1736,7 @@ const Comrade = () => {
           </div>
           <FormInput type="number" value={curParticipantWealth} onChange={e=>setCurParticipantWealth(e.target.value)} placeholder={`${getCurrencySymbol(voteCurrency)} ${getWealthMetricLabel(voteWealthMetric)}`} {...NP} className="mb-3"/>
           <button onClick={()=>{if(curParticipantName.trim()){setVoteParticipants([...voteParticipants,{id:Date.now(),name:curParticipantName,wealth:curParticipantWealth,vote:curParticipantVote}]);setCurParticipantName('');setCurParticipantWealth('');setCurParticipantVote('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD PERSON</button>
-          {voteParticipants.length>0?<ItemList items={voteParticipants} onDelete={id=>setVoteParticipants(voteParticipants.filter(p=>p.id!==id))} renderItem={p=><><p className={CLS_NAME}>{p.name}</p><p className={CLS_XS}>{getWealthMetricLabel(voteWealthMetric)}: {formatCurrency(p.wealth,2,voteCurrency)}</p><p className={CLS_XS}>Vote: {p.vote||'Not selected'}</p></>}/>:<EmptyState msg="No people added yet"/>}
+          {voteParticipants.length>0?<ItemList items={voteParticipants} onDelete={id=>setVoteParticipants(voteParticipants.filter(p=>p.id!==id))} renderItem={p=><><p className={CLS_NAME}>{p.name}</p><p className={CLS_XS}>{getWealthMetricLabel(voteWealthMetric)}: {_fc(p.wealth,voteCurrency)}</p><p className={CLS_XS}>Vote: {p.vote||'Not selected'}</p></>}/>:<EmptyState msg="No people added yet"/>}
           <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(4)}/></div>
         </div>
       ),
@@ -1729,7 +1747,7 @@ const Comrade = () => {
     const {participantsData,totalVotingPower,voteBreakdown}=voteCalculations;
     const winner=voteBreakdown.length>0?voteBreakdown[0]:null;
     const isTie=voteBreakdown.length>1&&voteBreakdown[0].percentage===voteBreakdown[1].percentage;
-    const copyText=`Comrade | Voting results\n\nDecision: ${voteDecision}\n\nWinner: ${winner?`${winner.option} (${winner.percentage.toFixed(1)}%)`:'None'}\n\nBreakdown:\n${voteBreakdown.map((b,i)=>`${i+1}. ${b.option}: ${b.percentage.toFixed(1)}% (${b.voters.length} voter${b.voters.length!==1?'s':''})`).join('\n')}\n\nCalculated using www.comrade.money, the fairer way to make group decisions`;
+    const copyText=`💰 Comrade | Voting results\n\nDecision: ${voteDecision}\n\n🏆 Winner: ${winner?`${winner.option} (${winner.percentage.toFixed(1)}%)`:'None'}\n\n📊 Breakdown:\n${voteBreakdown.map((b,i)=>`${i+1}. ${b.option}: ${b.percentage.toFixed(1)}% (${b.voters.length} voter${b.voters.length!==1?'s':''})`).join('\n')}\n\nCalculated using www.comrade.money, the fairer way to make group decisions`;
     return ResultsPage({
       entryPage:"vote-entry", title:"DECISION",
       summary:<><p className="text-lg mb-6 font-semibold">{voteDecision.toUpperCase()}</p>{isTie?<p className="text-xl font-bold">PERFECT TIE. NO CLEAR WINNER.</p>:winner?<><p className="text-sm mb-2">WINNING OPTION:</p><p className="text-3xl font-black mb-2">{winner.option.toUpperCase()}</p><p className="text-xl font-semibold">{winner.percentage.toFixed(1)}% OF VOTING POWER</p></>:<p className="text-lg font-bold">NO VOTES CAST</p>}</>,
@@ -1738,13 +1756,13 @@ const Comrade = () => {
       details:<>
         <div className="mb-6"><h3 className={CLS_H3}>VOTE BREAKDOWN</h3><div className="space-y-4">{voteBreakdown.map((item,i)=><div key={i} className="border-2 border-gray-400 p-4"><div className={CLS_JBH}><p className={CLS_FBSM}>{item.option}</p><span className="px-2 py-1 text-xs font-bold border sf" style={S_DARK}>{item.percentage.toFixed(1)}%</span></div><p className="text-xs text-black mb-2 font-bold">VOTERS ({item.voters.length}):</p><div className="space-y-1">{item.voters.map(v=><p key={v.name} className={CLS_XS}>• {v.name} (Power: {v.votingPower.toFixed(2)})</p>)}</div></div>)}</div></div>
         <DashedDivider/>
-        {renderDetailCards('PARTICIPANT DATA',[...participantsData].sort((a,b)=>b.wealth-a.wealth),p=>({name:p.name,rows:[{label:'WEALTH',value:formatCurrency(p.wealth,2,voteCurrency)},{label:'VOTE',value:p.vote||'NO VOTE'}],summaryRows:[{label:'VOTING POWER',value:p.votingPower.toFixed(2)}]}))}
+        {renderDetailCards('PARTICIPANT DATA',sortByW(participantsData),p=>({name:p.name,rows:[{label:'WEALTH',value:_fc(p.wealth,voteCurrency)},{label:'VOTE',value:p.vote||'NO VOTE'}],summaryRows:[{label:'VOTING POWER',value:p.votingPower.toFixed(2)}]}))}
         <DashedDivider/>
         <div className="mb-6"><h3 className={CLS_H3}>VOTE DISTRIBUTION</h3><div className="space-y-3">{(()=>{const mx=Math.max(...voteBreakdown.map(b=>b.percentage));return voteBreakdown.map((item,idx)=>{const up=participantsData.length>0?(participantsData.filter(p=>p.vote===item.option).length/participantsData.length)*100:0;const rows=[{lbl:'WEIGHTED',pct:item.percentage},{lbl:'UNWEIGHTED',pct:up}];return(<div key={idx} className="mb-4"><p className={CLS_FBTXU}>{item.option}</p><div className="space-y-1">{rows.map(({lbl,pct},bi)=>{const barW=mx>0?(pct/mx)*100:0;return(<div key={bi} className={CLS_FIG}><span className="text-xs text-black w-24 font-bold">{lbl}:</span><div className={CLS_BAR_BG}><div className={CLS_BAR} style={{width:`${barW}%`,animationDelay:`${idx*0.1+bi*0.05}s`,backgroundColor:DARK}}>{barW>15&&<span className="text-xs font-bold" style={{color:BG_GREY}}>{pct.toFixed(1)}%</span>}</div></div><span className="text-xs font-bold text-black w-16 text-right">{pct.toFixed(1)}%</span></div>);})}</div></div>);});})()}</div></div>
         <DashedDivider/>
         <div className="mb-6"><h3 className={CLS_H3}>WEALTH VISUALIZATION</h3>{renderWealthPieChart(participantsData)}</div>
         <DashedDivider/>
-        {renderMathSection(voteWeighting,[renderAdjustedWealthStep(1,participantsData,voteWeighting),<div key="v2"><p className={CLS_FB}>2. AVERAGE WEALTH:</p><div className={CLS_JBM}><span>TOTAL:</span><span className="font-mono">{formatSmartNumber(participantsData.reduce((s,p)=>s+p.wealth,0))}</span></div><div className={CLS_JBM}><span>AVERAGE:</span><span className="font-mono">{formatSmartNumber(participantsData.reduce((s,p)=>s+p.wealth,0)/participantsData.length)}</span></div></div>,<div key="v3"><p className={CLS_FB}>3. VOTING POWER (AVG ÷ ADJUSTED):</p>{renderMathRow(participantsData,p=>{const avg=participantsData.reduce((s,pp)=>s+pp.wealth,0)/participantsData.length;return`${formatSmartNumber(avg)} ÷ ${formatSmartNumber(p.adjustedWealth)} = ${p.votingPower.toFixed(2)}`;})}<div className={`flex justify-between mt-2 pt-2 ${CLS_DASHED_T} font-bold`}><span>TOTAL POWER:</span><span className="font-mono">{totalVotingPower.toFixed(2)}</span></div></div>],<div><p className={CLS_FB}>EQUAL VOTING POWER (NO WEIGHTING):</p>{renderMathRow(participantsData,()=>'1 vote')}</div>)}
+        {renderMathSection(voteWeighting,[renderAdjustedWealthStep(1,participantsData,voteWeighting),<div key="v2"><p className={CLS_FB}>2. AVERAGE WEALTH:</p><div className={CLS_JBM}><span>TOTAL:</span><span className="font-mono">{_fsn(participantsData.reduce((s,p)=>s+p.wealth,0))}</span></div><div className={CLS_JBM}><span>AVERAGE:</span><span className="font-mono">{_fsn(participantsData.reduce((s,p)=>s+p.wealth,0)/participantsData.length)}</span></div></div>,<div key="v3"><p className={CLS_FB}>3. VOTING POWER (AVG ÷ ADJUSTED):</p>{renderMathRow(participantsData,p=>{const avg=participantsData.reduce((s,pp)=>s+pp.wealth,0)/participantsData.length;return`${_fsn(avg)} ÷ ${_fsn(p.adjustedWealth)} = ${p.votingPower.toFixed(2)}`;})}<div className={`flex justify-between mt-2 pt-2 ${CLS_DASHED_T} font-bold`}><span>TOTAL POWER:</span><span className="font-mono">{totalVotingPower.toFixed(2)}</span></div></div>],<div><p className={CLS_FB}>EQUAL VOTING POWER (NO WEIGHTING):</p>{renderMathRow(participantsData,()=>'1 vote')}</div>)}
       </>
     });
   }
@@ -1785,7 +1803,7 @@ const Comrade = () => {
           </div>
           <FormInput type="number" value={curRoommateWealth} onChange={e=>setCurRoommateWealth(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} ${getWealthMetricLabel(rentWealthMetric)}`} {...NP} className="mb-3"/>
           <button onClick={()=>{if(curRoommateName.trim()){setRentPeople([...rentPeople,{id:Date.now(),name:curRoommateName,roomSize:curRoommateRoomSize,wealth:curRoommateWealth}]);setCurRoommateName('');setCurRoommateRoomSize('');setCurRoommateWealth('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD TENANT</button>
-          {rentPeople.length>0?<ItemList items={rentPeople} onDelete={id=>setRentPeople(rentPeople.filter(p=>p.id!==id))} renderItem={p=><><p className={CLS_NAME}>{p.name}</p><p className={CLS_XS}>Room: {formatNumber((parseFloat(p.roomSize)||0).toFixed(0))} {getMeasurementLabel(rentMeasurement).toLowerCase()}</p><p className={CLS_XS}>{getWealthMetricLabel(rentWealthMetric)}: {formatCurrency(p.wealth,2,rentCurrency)}</p></>}/>:<EmptyState msg="No tenants added yet"/>}
+          {rentPeople.length>0?<ItemList items={rentPeople} onDelete={id=>setRentPeople(rentPeople.filter(p=>p.id!==id))} renderItem={p=><><p className={CLS_NAME}>{p.name}</p><p className={CLS_XS}>Room: {formatNumber((parseFloat(p.roomSize)||0).toFixed(0))} {getMeasurementLabel(rentMeasurement).toLowerCase()}</p><p className={CLS_XS}>{getWealthMetricLabel(rentWealthMetric)}: {_fc(p.wealth,rentCurrency)}</p></>}/>:<EmptyState msg="No tenants added yet"/>}
           <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(3)}/></div>
         </div>
       ),
@@ -1794,7 +1812,7 @@ const Comrade = () => {
 
   if(page==='rent-results'){
     const {rentAmount,utilitiesAmount,total,totalRoomSize,rentData,totalRoomValue}=rentCalculations;
-    const copyText=`Comrade | Rent-splitting results\n\nTotal: ${_fc(total,rentCurrency)}/month\nRent: ${_fc(rentAmount,rentCurrency)}\nUtilities: ${_fc(utilitiesAmount,rentCurrency)}\n\nBreakdown:\n${rentData.map(p=>`${p.name}: ${_fcs(p.fairRent,rentCurrency)} (${p.rentPct.toFixed(1)}%)`).join('\n')}\n\nCalculated using www.comrade.money, the fairer way to calculate rent splits`;
+    const copyText=`💰 Comrade | Rent-splitting results\n\nTotal: ${_fc(total,rentCurrency)}/month\nRent: ${_fc(rentAmount,rentCurrency)}\nUtilities: ${_fc(utilitiesAmount,rentCurrency)}\n\n📊 Breakdown:\n${rentData.map(p=>`${p.name}: ${_fcs(p.fairRent,rentCurrency)} → ${p.rentPct.toFixed(1)}% of total`).join('\n')}\n\nCalculated using www.comrade.money, the fairer way to calculate rent splits`;
     return ResultsPage({
       entryPage:"rent-entry", title:"MONTHLY PAYMENTS",
       summary:<div className="space-y-3">{rentData.map(p=><div key={p.id} className="pb-2" style={{borderBottom:`1px dashed ${BG_GREY}`}}><p className="text-lg font-semibold">{p.name.toUpperCase()}</p><p className="text-2xl font-black">{_fcs(p.fairRent,rentCurrency)}</p><p className="text-xs" style={{color:BG_GREY}}>{p.rentPct.toFixed(1)}% of total</p></div>)}</div>,
@@ -1808,13 +1826,14 @@ const Comrade = () => {
         <DashedDivider/>
         <div className="mb-6"><h3 className={CLS_H3}>WEALTH VISUALIZATION</h3>{renderWealthPieChart(rentData)}</div>
         <DashedDivider/>
-        {renderMathSection(rentWeighting,[<div key="r1"><p className={CLS_FB}>1. ROOM SIZE %:</p>{renderMathRow(rentData,p=>`${formatNumber(p.roomSize.toFixed(0))} ÷ ${formatNumber(totalRoomSize.toFixed(0))} = ${p.roomPct.toFixed(1)}%`)}</div>,renderAdjustedWealthStep(2,rentData,rentWeighting),<div key="r3"><p className={CLS_FB}>3. ROOM VALUE (ROOM % × ADJUSTED WEALTH):</p>{renderMathRow(rentData,p=>`${p.roomPct.toFixed(1)}% × ${formatSmartNumber(p.adjustedWealth)} = ${formatSmartNumber(p.roomValue)}`)}<div className={`flex justify-between mt-2 pt-2 ${CLS_DASHED_T} font-bold`}><span>TOTAL VALUE:</span><span className="font-mono">{formatSmartNumber(totalRoomValue)}</span></div></div>,<div key="r4"><p className={CLS_FB}>4. RENT OWED (VALUE % × TOTAL):</p>{renderMathRow(rentData,p=>`${p.rentPct.toFixed(1)}% × ${_fc(total,rentCurrency)} = ${_fcs(p.fairRent,rentCurrency)}`)}</div>],<><div><p className={CLS_FB}>1. ROOM SIZE % (NO WEALTH WEIGHTING):</p>{renderMathRow(rentData,p=>`${formatNumber(p.roomSize.toFixed(0))} ÷ ${formatNumber(totalRoomSize.toFixed(0))} = ${p.roomPct.toFixed(1)}%`)}</div><div className={`${CLS_DASHED_T} my-3`}></div><div><p className={CLS_FB}>2. RENT OWED (ROOM % × TOTAL):</p>{renderMathRow(rentData,p=>`${p.rentPct.toFixed(1)}% × ${_fc(total,rentCurrency)} = ${_fcs(p.fairRent,rentCurrency)}`)}</div></>)}
+        {renderMathSection(rentWeighting,[<div key="r1"><p className={CLS_FB}>1. ROOM SIZE %:</p>{renderMathRow(rentData,p=>`${formatNumber(p.roomSize.toFixed(0))} ÷ ${formatNumber(totalRoomSize.toFixed(0))} = ${p.roomPct.toFixed(1)}%`)}</div>,renderAdjustedWealthStep(2,rentData,rentWeighting),<div key="r3"><p className={CLS_FB}>3. ROOM VALUE (ROOM % × ADJUSTED WEALTH):</p>{renderMathRow(rentData,p=>`${p.roomPct.toFixed(1)}% × ${_fsn(p.adjustedWealth)} = ${_fsn(p.roomValue)}`)}<div className={`flex justify-between mt-2 pt-2 ${CLS_DASHED_T} font-bold`}><span>TOTAL VALUE:</span><span className="font-mono">{_fsn(totalRoomValue)}</span></div></div>,<div key="r4"><p className={CLS_FB}>4. RENT OWED (VALUE % × TOTAL):</p>{renderMathRow(rentData,p=>`${p.rentPct.toFixed(1)}% × ${_fc(total,rentCurrency)} = ${_fcs(p.fairRent,rentCurrency)}`)}</div>],<><div><p className={CLS_FB}>1. ROOM SIZE % (NO WEALTH WEIGHTING):</p>{renderMathRow(rentData,p=>`${formatNumber(p.roomSize.toFixed(0))} ÷ ${formatNumber(totalRoomSize.toFixed(0))} = ${p.roomPct.toFixed(1)}%`)}</div><div className={`${CLS_DASHED_T} my-3`}></div><div><p className={CLS_FB}>2. RENT OWED (ROOM % × TOTAL):</p>{renderMathRow(rentData,p=>`${p.rentPct.toFixed(1)}% × ${_fc(total,rentCurrency)} = ${_fcs(p.fairRent,rentCurrency)}`)}</div></>)}
       </>
     });
   }
 
   return null;
 };
+
 
 
 // Render the app
