@@ -25,8 +25,6 @@
         const { useState, useCallback, useEffect, useMemo, useRef } = React;
 
 
-     
-
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -819,7 +817,7 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
                     ))}
                   </div>
                 </div>
-                <span style={{fontFamily:'Sixtyfour,monospace',fontWeight:900,color:DARK,fontSize:'24px',lineHeight:1}}>$€£</span>
+                <span style={{fontFamily:'Sixtyfour,monospace',fontWeight:900,color:DARK,fontSize:'30px',lineHeight:1}}>$€£</span>
               </div>
             ):(
             <div className="bg-white mb-4 pt-3 pb-3 border-b-2 border-dashed border-gray-400">
@@ -1201,7 +1199,7 @@ const Comrade = () => {
     </div>
   ) : null;
 
-  const lp = {onNavigate:navigateTo, showCopyToast, copyToastMsg, loadedAt, onClearStorage:clearStorage};
+  const lp = {onNavigate:navigateTo, showCopyToast, copyToastMsg, loadedAt, onClearStorage:clearStorage, compact: page !== 'home'};
 
   const renderEmailSignup = () => (
     <div className={`bg-white p-6 ${CLS_DASHED}`}>
@@ -1235,8 +1233,8 @@ const Comrade = () => {
     <button onClick={onClick} className="bg-black text-white w-full py-3 font-bold border-2 border-black text-sm hover:bg-gray-800 transition-all mt-2">{label}</button>
   );
 
-  const ResultsPage = ({entryPage, title, summary, stats, details, copyText, compact}) => (
-    <Layout {...lp} compact={compact}>
+  const ResultsPage = ({entryPage, title, summary, stats, details, copyText}) => (
+    <Layout {...lp}>
       <div className="p-8 mb-4 border-4 sf" style={S_DARK}>
         <h3 className="text-xl font-black mb-4 uppercase tracking-wider pb-2" style={{borderBottom:`2px solid ${BG_GREY}`}}>{title}</h3>
         {summary}
@@ -1248,13 +1246,13 @@ const Comrade = () => {
     </Layout>
   );
 
-  const EntryPage = ({steps, intro, calc, midSteps, banner, locked, compact}) => {
+  const EntryPage = ({steps, intro, calc, midSteps, banner, locked}) => {
     const rc = i => {
       if (i === 0) return <IntroStep {...intro}/>;
       if (i === steps.length - 1) return <CalcStep {...calc}/>;
       return midSteps[i - 1]();
     };
-    return <Layout {...lp} compact={compact}>{banner && <div className="mb-4">{banner}</div>}<AccordionPage steps={steps} openIndices={entryOpen} onToggle={toggleEntry} renderContent={rc} locked={locked}/></Layout>;
+    return <Layout {...lp}>{banner && <div className="mb-4">{banner}</div>}<AccordionPage steps={steps} openIndices={entryOpen} onToggle={toggleEntry} renderContent={rc} locked={locked}/></Layout>;
   };
 
   const FAQ_ITEMS = [
@@ -1782,7 +1780,6 @@ const Comrade = () => {
 
   if(page==='rent-entry') return EntryPage({
     steps: RENT_STEPS,
-    compact: true,
     intro: {desc:"Figuring out rent splits with roommates is a fraught process. Decide it more fairly with Comrade by accounting for both room size and tenants' financial resources. Larger rooms and higher earners both pay more.",hasSaved:hasRentSavedData,resumeLabel:"RESUME SPLIT →",newLabel:"NEW SPLIT",onJump:()=>jump(1),onClear:()=>jump(1),onStartOver:()=>handleClearAll('rent'),onExample:()=>loadExample('rent')},
     calc: {onCalculate:()=>navigateTo('rent-results'),weighting:rentWeighting,onWeighting:setRentWeighting,navigateToFaq,hasFloor:true,floor:rentFloor,onFloor:setRentFloor,validate:()=>_errs([
       [!parseFloat(totalRent),'No rent amount entered'],
@@ -1828,7 +1825,7 @@ const Comrade = () => {
     const {rentAmount,utilitiesAmount,total,totalRoomSize,rentData,totalRoomValue}=rentCalculations;
     const copyText=`💰 Comrade | Rent-splitting results\n\nTotal: ${_fc(total,rentCurrency)}/month\nRent: ${_fc(rentAmount,rentCurrency)}\nUtilities: ${_fc(utilitiesAmount,rentCurrency)}\n\n📊 Breakdown:\n${rentData.map(p=>`${p.name}: ${_fcs(p.fairRent,rentCurrency)} → ${p.rentPct.toFixed(1)}% of total`).join('\n')}\n\nCalculated using www.comrade.money, the fairer way to calculate rent splits`;
     return ResultsPage({
-      entryPage:"rent-entry", title:"MONTHLY PAYMENTS", compact:true,
+      entryPage:"rent-entry", title:"MONTHLY PAYMENTS",
       summary:<div className="space-y-3">{rentData.map(p=><div key={p.id} className="pb-2" style={{borderBottom:`1px dashed ${BG_GREY}`}}><p className="text-lg font-semibold">{p.name.toUpperCase()}</p><p className="text-2xl font-black">{_fcs(p.fairRent,rentCurrency)}</p><p className="text-xs" style={{color:BG_GREY}}>{p.rentPct.toFixed(1)}% of total</p></div>)}</div>,
       stats:[{label:'RENT',value:_fc(rentAmount,rentCurrency)},{label:'UTILITIES',value:_fc(utilitiesAmount,rentCurrency)},{label:'TOTAL',value:_fc(total,rentCurrency)},{label:'TENANTS',value:rentPeople.length}],
       copyText,
@@ -1847,7 +1844,6 @@ const Comrade = () => {
 
   return null;
 };
-
 
 
 
