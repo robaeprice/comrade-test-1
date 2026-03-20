@@ -25,6 +25,7 @@
         const { useState, useCallback, useEffect, useMemo, useRef } = React;
 
 
+
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -886,11 +887,11 @@ const IntroStep = ({desc, hasSaved, resumeLabel, newLabel, onJump, onClear, onEx
           {saveError && <p className="text-xs font-bold uppercase text-black animate-fadeIn" style={{borderLeft:`3px solid ${DARK}`,paddingLeft:'8px'}}>{saveError}</p>}
           {groupSplitButton}
           <div>
-            <button onClick={onClear} className="w-full bg-black text-white py-3 font-bold text-sm border-2 border-black hover:bg-gray-800 transition-all">{newLabel} →</button>
+            <button onClick={onClear} className={`w-full font-bold py-3 text-sm border-2 border-black transition-all ${onGroupSplit?'bg-white text-black hover:bg-gray-100':'bg-black text-white hover:bg-gray-800'}`}>{newLabel} →</button>
             <p style={{color:'#9CA3AF',fontSize:'10px'}} className="mt-1 leading-relaxed">All calculation takes place on your device. No data is shared.</p>
           </div>
           {onExample && (
-            <button onClick={onExample} className={`w-full ${CLS_BTN_WHT}`}>TRY AN EXAMPLE</button>
+            <button onClick={onExample} className="w-full bg-white text-black font-bold py-3 border-2 border-black text-sm hover:bg-gray-100 transition-all">TRY AN EXAMPLE</button>
           )}
         </div>
       )}
@@ -1196,7 +1197,6 @@ const Comrade = () => {
     <div className="mb-4">
       {shareUrl && (
         <div className="p-4 border-2 border-dashed border-gray-400 bg-white mb-3 animate-fadeIn">
-          <p className="font-bold text-xs uppercase mb-2 text-black text-center">{groupName||'GROUP SPLIT'}</p>
           <p className={CLS_LABEL}>GROUP NAME (OPTIONAL)</p>
           <FormInput value={groupName} onChange={e=>setGroupName(e.target.value.slice(0,20))} placeholder="ENTER GROUP NAME HERE" maxLength={20} className="mb-3"/>
           <div>
@@ -1205,9 +1205,9 @@ const Comrade = () => {
               <button onClick={()=>copyToClipboard(shareUrl,'LINK COPIED!')} className={CLS_BTN_BLK} style={{flexShrink:0}}>COPY LINK</button>
             </div>
           </div>
-          <div style={{color:'#9CA3AF',fontSize:'10px'}} className="mt-3 leading-relaxed">
-            <p style={{marginBottom:'4px'}}>• Share the group link with friends to let them add expenses and see results.</p>
-            <p style={{marginBottom:'4px'}}>• Save your data after making changes so they sync to the cloud.</p>
+          <div style={{color:'#6B7280',fontSize:'10px'}} className="mt-3 leading-relaxed">
+            <p style={{marginBottom:'4px'}}>• Share the group link with friends to let them add expenses and wealth data.</p>
+            <p style={{marginBottom:'4px'}}>• Save your data after making changes so it syncs to the cloud.</p>
             <p>• Press calculate to settle up and see everyone's fair share.</p>
           </div>
         </div>
@@ -1253,12 +1253,13 @@ const Comrade = () => {
     <button onClick={onClick} className="bg-black text-white w-full py-3 font-bold border-2 border-black text-sm hover:bg-gray-800 transition-all mt-2">{label}</button>
   );
 
-  const ResultsPage = ({entryPage, title, summary, stats, details, copyText}) => (
+  const ResultsPage = ({entryPage, title, summary, stats, details, copyText, boxExtra}) => (
     <Layout {...lp}>
       <div className="p-8 mb-4 border-4 sf" style={S_DARK}>
         <h3 className="text-xl font-black mb-4 uppercase tracking-wider pb-2" style={{borderBottom:`2px solid ${BG_GREY}`}}>{title}</h3>
         {summary}
         <BlackBoxStats stats={stats}/>
+        {boxExtra}
       </div>
       <DetailToggleButton show={showDetails} onClick={()=>setShowDetails(!showDetails)}/>
       {showDetails&&<div className="animate-fadeIn">{details}</div>}
@@ -1603,6 +1604,13 @@ const Comrade = () => {
     const copyText=`💰 Comrade | ${groupName?groupName+' b':'B'}ill-splitting results\n\nTotal: ${_fc(total,billCurrency)}\n\n💸 Who pays who:\n${transactions.length===0?'All settled!':transactions.map(t=>`${t.from} pays ${t.to} ${_fcs(t.amount,billCurrency)}`).join('\n')}\n\n📊 Breakdown:\n${peopleData.map(p=>`${p.name}: Paid ${_fc(p.paid,billCurrency)} → fair share ${_fcs(p.fairShare,billCurrency)}`).join('\n')}\n\nCalculated using www.comrade.money, the fairer way to split bills with friends`;
     return ResultsPage({
       entryPage:"bill-entry", title:groupName?`${groupName.toUpperCase()} SETTLEMENT`:"YOUR SETTLEMENT",
+      boxExtra:(
+        <div className="mt-4 pt-3 border-t-2 border-dashed" style={{borderColor:BG_GREY,textAlign:'right'}}>
+          <img src="/logo.svg" alt="Comrade" style={{height:'24px',display:'inline-block',filter:'brightness(0) invert(1)',opacity:0.8,marginBottom:'6px'}} onError={e=>{e.target.style.display='none';}}/>
+          <p style={{color:BG_GREY,fontSize:'9px',opacity:0.8,letterSpacing:'1px'}}>WWW.COMRADE.MONEY</p>
+          <p style={{color:BG_GREY,fontSize:'9px',opacity:0.6,letterSpacing:'0.5px',marginTop:'2px'}}>THE FAIRER WAY TO SPLIT BILLS WITH FRIENDS</p>
+        </div>
+      ),
       summary:transactions.length===0
         ?<p className="text-lg font-bold">ALL SETTLED! EVERYONE'S SQUARE.</p>
         :<div className="space-y-3">{transactions.map((t,i)=><div key={i} className="text-sm leading-relaxed pb-2" style={{borderBottom:`1px dashed ${BG_GREY}`}}><span className="font-semibold">{t.from.toUpperCase()}</span><span> PAYS </span><span className="font-semibold">{t.to.toUpperCase()}</span><br/><span className="font-black text-2xl">{_fcs(t.amount,billCurrency)}</span></div>)}</div>,
@@ -1866,7 +1874,6 @@ const Comrade = () => {
 
   return null;
 };
-
 
 
 // Render the app
