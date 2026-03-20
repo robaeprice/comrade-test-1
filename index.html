@@ -25,7 +25,6 @@
         const { useState, useCallback, useEffect, useMemo, useRef } = React;
 
 
-
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -856,6 +855,7 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
 );
 
 const _fc=(v,c)=>formatCurrency(v,2,c),_fcs=(v,c)=>formatCurrencySmart(v,c),_fsn=formatSmartNumber;
+const BoxBranding=({tagline})=>(<div className="mt-4 pt-3 border-t-2 border-dashed" style={{borderColor:BG_GREY,textAlign:'right'}}><p style={{color:BG_GREY,fontSize:'12px',letterSpacing:'1px',marginBottom:'2px'}}>$€£</p><p style={{color:BG_GREY,fontSize:'9px',opacity:0.8,letterSpacing:'1px'}}>WWW.COMRADE.MONEY</p><p style={{color:BG_GREY,fontSize:'9px',opacity:0.6,letterSpacing:'0.5px',marginTop:'2px'}}>{tagline}</p></div>);
 
 const IntroStep = ({desc, hasSaved, resumeLabel, newLabel, onJump, onClear, onExample, isCollaborative, isSaving, saveError, onGroupSplit, collaborativeBanner, groupSplitPrompt, onStartOver, activated}) => {
   const hasData = hasSaved || isCollaborative || activated;
@@ -1604,13 +1604,7 @@ const Comrade = () => {
     const copyText=`💰 Comrade | ${groupName?groupName+' b':'B'}ill-splitting results\n\nTotal: ${_fc(total,billCurrency)}\n\n💸 Who pays who:\n${transactions.length===0?'All settled!':transactions.map(t=>`${t.from} pays ${t.to} ${_fcs(t.amount,billCurrency)}`).join('\n')}\n\n📊 Breakdown:\n${peopleData.map(p=>`${p.name}: Paid ${_fc(p.paid,billCurrency)} → fair share ${_fcs(p.fairShare,billCurrency)}`).join('\n')}\n\nCalculated using www.comrade.money, the fairer way to split bills with friends`;
     return ResultsPage({
       entryPage:"bill-entry", title:groupName?`${groupName.toUpperCase()} SETTLEMENT`:"YOUR SETTLEMENT",
-      boxExtra:(
-        <div className="mt-4 pt-3 border-t-2 border-dashed" style={{borderColor:BG_GREY,textAlign:'right'}}>
-          <img src="/logo.svg" alt="Comrade" style={{height:'24px',display:'inline-block',filter:'brightness(0) invert(1)',opacity:0.8,marginBottom:'6px'}} onError={e=>{e.target.style.display='none';}}/>
-          <p style={{color:BG_GREY,fontSize:'9px',opacity:0.8,letterSpacing:'1px'}}>WWW.COMRADE.MONEY</p>
-          <p style={{color:BG_GREY,fontSize:'9px',opacity:0.6,letterSpacing:'0.5px',marginTop:'2px'}}>THE FAIRER WAY TO SPLIT BILLS WITH FRIENDS</p>
-        </div>
-      ),
+      boxExtra:<BoxBranding tagline="THE FAIRER WAY TO SPLIT BILLS WITH FRIENDS"/>,
       summary:transactions.length===0
         ?<p className="text-lg font-bold">ALL SETTLED! EVERYONE'S SQUARE.</p>
         :<div className="space-y-3">{transactions.map((t,i)=><div key={i} className="text-sm leading-relaxed pb-2" style={{borderBottom:`1px dashed ${BG_GREY}`}}><span className="font-semibold">{t.from.toUpperCase()}</span><span> PAYS </span><span className="font-semibold">{t.to.toUpperCase()}</span><br/><span className="font-black text-2xl">{_fcs(t.amount,billCurrency)}</span></div>)}</div>,
@@ -1715,6 +1709,7 @@ const Comrade = () => {
     const copyText=`💰 Comrade | Selling results\n\nProduct: ${productName||'Unnamed'}\nQuantity: ${numAvail}\n\n💸 Selected buyer${winners.length>1?'s':''}:\n${winners.map(w=>`${w.name} → ${_fc(w.offer,saleCurrency)}`).join('\n')}\n\n📊 All buyers ranked:\n${rankedBuyers.map((b,i)=>`${i+1}. ${b.name} → Offer: ${_fc(b.offer,saleCurrency)} → need score: ${b.needScore.toFixed(4)}%`).join('\n')}\n\nCalculated using www.comrade.money, the fairer way to handle selling things`;
     return ResultsPage({
       entryPage:"sale-entry", title:`SELECTED BUYER${winners.length>1?'S':''}`,
+      boxExtra:<BoxBranding tagline="THE FAIRER WAY TO HANDLE SELLING THINGS"/>,
       summary:isTie
         ?<p className="text-lg font-bold">PERFECT TIE. EVERYONE HAS EQUAL CLAIM.</p>
         :<>{winners.map((w,i)=><div key={w.id} className="mb-3 pb-3" style={{borderBottom:`1px dashed ${BG_GREY}`}}><p className="text-3xl font-black mb-2">{w.name.toUpperCase()}</p><p className="text-xl font-semibold">OFFER: {_fc(w.offer,saleCurrency)}</p><p className="text-xs" style={{color:BG_GREY}}>NEED SCORE: {w.needScore<0.01?w.needScore.toExponential(4):w.needScore.toFixed(2)}%</p></div>)}</>,
@@ -1790,6 +1785,7 @@ const Comrade = () => {
     const copyText=`💰 Comrade | Voting results\n\nDecision: ${voteDecision}\n\n🏆 Winner: ${winner?`${winner.option} (${winner.percentage.toFixed(1)}%)`:'None'}\n\n📊 Breakdown:\n${voteBreakdown.map((b,i)=>`${i+1}. ${b.option}: ${b.percentage.toFixed(1)}% (${b.voters.length} voter${b.voters.length!==1?'s':''})`).join('\n')}\n\nCalculated using www.comrade.money, the fairer way to make group decisions`;
     return ResultsPage({
       entryPage:"vote-entry", title:"DECISION",
+      boxExtra:<BoxBranding tagline="THE FAIRER WAY TO MAKE GROUP DECISIONS"/>,
       summary:<><p className="text-lg mb-6 font-semibold">{voteDecision.toUpperCase()}</p>{isTie?<p className="text-xl font-bold">PERFECT TIE. NO CLEAR WINNER.</p>:winner?<><p className="text-sm mb-2">WINNING OPTION:</p><p className="text-3xl font-black mb-2">{winner.option.toUpperCase()}</p><p className="text-xl font-semibold">{winner.percentage.toFixed(1)}% OF VOTING POWER</p></>:<p className="text-lg font-bold">NO VOTES CAST</p>}</>,
       stats:[{label:'PARTICIPANTS',value:voteParticipants.length},{label:'OPTIONS',value:voteOptions.length}],
       copyText,
@@ -1856,6 +1852,7 @@ const Comrade = () => {
     const copyText=`💰 Comrade | Rent-splitting results\n\nTotal: ${_fc(total,rentCurrency)}/month\nRent: ${_fc(rentAmount,rentCurrency)}\nUtilities: ${_fc(utilitiesAmount,rentCurrency)}\n\n📊 Breakdown:\n${rentData.map(p=>`${p.name}: ${_fcs(p.fairRent,rentCurrency)} → ${p.rentPct.toFixed(1)}% of total`).join('\n')}\n\nCalculated using www.comrade.money, the fairer way to calculate rent splits`;
     return ResultsPage({
       entryPage:"rent-entry", title:"MONTHLY PAYMENTS",
+      boxExtra:<BoxBranding tagline="THE FAIRER WAY TO CALCULATE RENT SPLITS"/>,
       summary:<div className="space-y-3">{rentData.map(p=><div key={p.id} className="pb-2" style={{borderBottom:`1px dashed ${BG_GREY}`}}><p className="text-lg font-semibold">{p.name.toUpperCase()}</p><p className="text-2xl font-black">{_fcs(p.fairRent,rentCurrency)}</p><p className="text-xs" style={{color:BG_GREY}}>{p.rentPct.toFixed(1)}% of total</p></div>)}</div>,
       stats:[{label:'RENT',value:_fc(rentAmount,rentCurrency)},{label:'UTILITIES',value:_fc(utilitiesAmount,rentCurrency)},{label:'TOTAL',value:_fc(total,rentCurrency)},{label:'TENANTS',value:rentPeople.length}],
       copyText,
