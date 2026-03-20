@@ -26,6 +26,7 @@
 
         
 
+
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -1197,13 +1198,11 @@ const Comrade = () => {
     <div className="mb-4">
       {shareUrl && (
         <div className="p-4 border-2 border-dashed border-gray-400 bg-white mb-3 animate-fadeIn">
-          <p className={CLS_LABEL}>GROUP NAME</p>
+          <p className="font-bold text-xs uppercase mb-2 text-black text-center">GROUP SPLIT</p>
           <FormInput value={groupName} onChange={e=>setGroupName(e.target.value.slice(0,20))} placeholder="ENTER GROUP NAME HERE" maxLength={20} className="mb-3"/>
-          <div>
-            <p className="text-xs mb-2 text-center" style={{color:'#6B7280',overflowWrap:'break-word',wordBreak:'keep-all'}}>{shareUrl.replace(/^https?:\/\/(www\.)?/,'').split('/').reduce((a,s,i)=>i===0?[s]:[...a,'/\u200B',s],[])}</p>
-            <div className="flex justify-end">
-              <button onClick={()=>copyToClipboard(shareUrl,'LINK COPIED!')} className={CLS_BTN_BLK} style={{flexShrink:0}}>COPY LINK</button>
-            </div>
+          <div className="flex items-center justify-between gap-3 mb-0">
+            <p className="text-xs" style={{color:'#6B7280',overflowWrap:'break-word',wordBreak:'keep-all',flex:1}}>{shareUrl.replace(/^https?:\/\/(www\.)?/,'').split('/').reduce((a,s,i)=>i===0?[s]:[...a,'/\u200B',s],[])}</p>
+            <button onClick={()=>copyToClipboard(shareUrl,'LINK COPIED!')} className={CLS_BTN_BLK} style={{flexShrink:0}}>COPY LINK</button>
           </div>
           <div style={{color:'#6B7280',fontSize:'10px'}} className="mt-3 leading-relaxed">
             <p style={{marginBottom:'4px'}}>• Share the group link with friends to let them add expenses and wealth data.</p>
