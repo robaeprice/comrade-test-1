@@ -20,7 +20,8 @@ module.exports = async (req, res) => {
       if (splitData.result) {
         const parsed = JSON.parse(splitData.result);
         if (parsed.groupName) {
-          ogTitle = `Join ${parsed.groupName} on Comrade!`;
+          const safe = parsed.groupName.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+          ogTitle = `Join ${safe} on Comrade!`;
         }
       }
     } catch (e) {
