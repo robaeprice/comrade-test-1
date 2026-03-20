@@ -24,7 +24,6 @@
     <script type="text/babel">
         const { useState, useCallback, useEffect, useMemo, useRef } = React;
 
-
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -817,7 +816,7 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
                     ))}
                   </div>
                 </div>
-                <span style={{fontFamily:'Sixtyfour,monospace',fontWeight:900,color:'#666666',fontSize:'40px',lineHeight:1}}>$€£</span>
+                <span style={{fontFamily:'Sixtyfour,monospace',fontWeight:900,color:'#666666',fontSize:'40px',lineHeight:'48px',height:'48px',display:'flex',alignItems:'center'}}>$€£</span>
               </div>
             ):(
             <div className="bg-white mb-4 pt-3 pb-3 border-b-2 border-dashed border-gray-400">
@@ -926,6 +925,9 @@ const Comrade = () => {
   const [entryOpen, setEntryOpen] = useState([0]);
   const editModeRef = useRef(false);
   const [billActivated, setBillActivated] = useState(false);
+  const [saleActivated, setSaleActivated] = useState(false);
+  const [voteActivated, setVoteActivated] = useState(false);
+  const [rentActivated, setRentActivated] = useState(false);
 
   const navigateTo = useCallback((p, opts={})=>{
     window.history.pushState({page:p},'',`#${p}`);
@@ -1060,13 +1062,23 @@ const Comrade = () => {
     window.scrollTo({top:0,behavior:'instant'});
     setLoadedAt(formatTimestamp());
     setShowDetails(false);
-    if(page==='vote-entry') { setEntryOpen(editModeRef.current?[0,1,2,3,4]:[0]); }
+    if(page==='vote-entry') {
+      setVoteActivated(hasVoteSavedData || editModeRef.current);
+      setEntryOpen(editModeRef.current?[0,1,2,3,4]:[0]);
+    }
     else if(page==='bill-entry') {
       const shouldActivate = hasBillSavedData || isCollaborative || editModeRef.current;
       setBillActivated(shouldActivate);
       setEntryOpen(editModeRef.current?[0,1,2,3]:[0]);
     }
-    else if(['sale-entry','rent-entry'].includes(page)) { setEntryOpen(editModeRef.current?[0,1,2,3]:[0]); }
+    else if(page==='sale-entry') {
+      setSaleActivated(hasSaleSavedData || editModeRef.current);
+      setEntryOpen(editModeRef.current?[0,1,2,3]:[0]);
+    }
+    else if(page==='rent-entry') {
+      setRentActivated(hasRentSavedData || editModeRef.current);
+      setEntryOpen(editModeRef.current?[0,1,2,3]:[0]);
+    }
     editModeRef.current = false;
     if(['bill-results','sale-results','vote-results','rent-results'].includes(page)){
       setLastQuoteIndices(prev=>{
@@ -1134,9 +1146,9 @@ const Comrade = () => {
   const handleClearAll = useCallback(type=>{
     ({
       bill:()=>{ setBillPeople([]);setBillBills([]);setCurPersonName('');setCurPersonWealth('');setCurBillDesc('');setCurBillAmt('');setCurBillPaidBy('');setCurBillParticipants([]);setParticipantSelectorOpen(false);setPendingParticipants([]);setSplitId(null);setSplitVersion(null);setIsCollaborative(false);setConflictSource(null);setSaveError('');setShowGroupSplitPrompt(false);setBillActivated(false); },
-      sale:()=>{ setProductName('');setNumberAvailable('');setSaleBuyers([]);setCurBuyerName('');setCurBuyerWealth('');setCurBuyerOffer('');try{localStorage.removeItem(SALE_KEY);}catch{} },
-      vote:()=>{ setVoteDecision('');setVoteOptions([]);setVoteParticipants([]);setCurParticipantName('');setCurParticipantWealth('');setCurParticipantVote('');setCurOptionText('');try{localStorage.removeItem(VOTE_KEY);}catch{} },
-      rent:()=>{ setTotalRent('');setTotalUtilities('');setRentPeople([]);setCurRoommateName('');setCurRoommateRoomSize('');setCurRoommateWealth('');try{localStorage.removeItem(RENT_KEY);}catch{} },
+      sale:()=>{ setProductName('');setNumberAvailable('');setSaleBuyers([]);setCurBuyerName('');setCurBuyerWealth('');setCurBuyerOffer('');setSaleActivated(false);try{localStorage.removeItem(SALE_KEY);}catch{} },
+      vote:()=>{ setVoteDecision('');setVoteOptions([]);setVoteParticipants([]);setCurParticipantName('');setCurParticipantWealth('');setCurParticipantVote('');setCurOptionText('');setVoteActivated(false);try{localStorage.removeItem(VOTE_KEY);}catch{} },
+      rent:()=>{ setTotalRent('');setTotalUtilities('');setRentPeople([]);setCurRoommateName('');setCurRoommateRoomSize('');setCurRoommateWealth('');setRentActivated(false);try{localStorage.removeItem(RENT_KEY);}catch{} },
     })[type]?.();
     setEntryOpen([0]);
     setTimeout(()=>window.scrollTo({top:0,behavior:'smooth'}),0);
@@ -1169,11 +1181,11 @@ const Comrade = () => {
     setSplitId(null);setSplitVersion(null);setIsCollaborative(false);setConflictSource(null);setSaveError('');setShowGroupSplitPrompt(false);setBillActivated(false);
     setCurBillParticipants([]);setParticipantSelectorOpen(false);setPendingParticipants([]);
     try{localStorage.removeItem(VOTE_KEY);}catch{}
-    setVoteDecision('');setVoteOptions([]);setVoteParticipants([]);setVoteWeighting('standard');setVoteCurrency('USD');setVoteWealthMetric('salary');
+    setVoteDecision('');setVoteOptions([]);setVoteParticipants([]);setVoteWeighting('standard');setVoteCurrency('USD');setVoteWealthMetric('salary');setVoteActivated(false);
     try{localStorage.removeItem(SALE_KEY);}catch{}
-    setProductName('');setNumberAvailable('');setSaleBuyers([]);setSaleWeighting('standard');setSaleCurrency('USD');setSaleWealthMetric('salary');
+    setProductName('');setNumberAvailable('');setSaleBuyers([]);setSaleWeighting('standard');setSaleCurrency('USD');setSaleWealthMetric('salary');setSaleActivated(false);
     try{localStorage.removeItem(RENT_KEY);}catch{}
-    setTotalRent('');setTotalUtilities('');setRentPeople([]);setRentWeighting('standard');setRentFloor('off');setRentCurrency('USD');setRentWealthMetric('salary');setRentMeasurement('sqft');
+    setTotalRent('');setTotalUtilities('');setRentPeople([]);setRentWeighting('standard');setRentFloor('off');setRentCurrency('USD');setRentWealthMetric('salary');setRentMeasurement('sqft');setRentActivated(false);
   },[]);
 
   const shareUrl = splitId ? `${window.location.origin}/split/${splitId}` : null;
@@ -1649,7 +1661,8 @@ const Comrade = () => {
 
   if(page==='sale-entry') return EntryPage({
     steps: SALE_STEPS,
-    intro: {desc:"If you're selling something, make sure it goes to the potential buyer who needs it the most — not just whoever offers to pay the most. Comrade takes into account prospective purchasers' financial resources to help you understand how much your product is truly worth to them.",hasSaved:hasSaleSavedData,resumeLabel:"RESUME SALE →",newLabel:"NEW SALE",onJump:()=>jump(1),onClear:()=>jump(1),onStartOver:()=>handleClearAll('sale'),onExample:()=>loadExample('sale')},
+    locked: !saleActivated,
+    intro: {desc:"If you're selling something, make sure it goes to the potential buyer who needs it the most — not just whoever offers to pay the most. Comrade takes into account prospective purchasers' financial resources to help you understand how much your product is truly worth to them.",hasSaved:hasSaleSavedData,activated:saleActivated,resumeLabel:"RESUME SALE →",newLabel:"NEW SALE",onJump:()=>jump(1),onClear:()=>{setSaleActivated(true);jump(1);},onStartOver:()=>handleClearAll('sale'),onExample:()=>{setSaleActivated(true);loadExample('sale');}},
     calc: {onCalculate:()=>navigateTo('sale-results'),weighting:saleWeighting,onWeighting:setSaleWeighting,navigateToFaq,hasAdvanced:true,validate:()=>_errs([
       [!productName.trim(),'No product name entered'],
       [saleBuyers.length===0,'No buyers added'],
@@ -1704,13 +1717,14 @@ const Comrade = () => {
 
   if(page==='vote-entry') return EntryPage({
     steps: VOTE_STEPS,
+    locked: !voteActivated,
     banner: (
       <div className={`${CLS_DASHED} p-4 bg-gray-50`}>
         <p className="text-xs font-bold uppercase mb-1 text-black">EXPERIMENTAL</p>
         <p className="text-xs text-black leading-relaxed">Wealth-weighted democracy can lead to unusual outcomes. Use at your own risk.</p>
       </div>
     ),
-    intro: {desc:"Make group decisions more equitably with Comrade. If your friends, classmates, or coworkers are grappling with a dispute, give more voting power to those with less wealth.",hasSaved:hasVoteSavedData,resumeLabel:"RESUME VOTE →",newLabel:"NEW VOTE",onJump:()=>jump(1),onClear:()=>jump(1),onStartOver:()=>handleClearAll('vote'),onExample:()=>loadExample('vote')},
+    intro: {desc:"Make group decisions more equitably with Comrade. If your friends, classmates, or coworkers are grappling with a dispute, give more voting power to those with less wealth.",hasSaved:hasVoteSavedData,activated:voteActivated,resumeLabel:"RESUME VOTE →",newLabel:"NEW VOTE",onJump:()=>jump(1),onClear:()=>{setVoteActivated(true);jump(1);},onStartOver:()=>handleClearAll('vote'),onExample:()=>{setVoteActivated(true);loadExample('vote');}},
     calc: {onCalculate:()=>navigateTo('vote-results'),weighting:voteWeighting,onWeighting:setVoteWeighting,navigateToFaq,hasAdvanced:true,validate:()=>_errs([
       [!voteDecision.trim(),'No decision or question entered'],
       [voteOptions.length===0,'No voting options added'],
@@ -1780,7 +1794,8 @@ const Comrade = () => {
 
   if(page==='rent-entry') return EntryPage({
     steps: RENT_STEPS,
-    intro: {desc:"Figuring out rent splits with roommates is a fraught process. Decide it more fairly with Comrade by accounting for both room size and tenants' financial resources. Larger rooms and higher earners both pay more.",hasSaved:hasRentSavedData,resumeLabel:"RESUME SPLIT →",newLabel:"NEW SPLIT",onJump:()=>jump(1),onClear:()=>jump(1),onStartOver:()=>handleClearAll('rent'),onExample:()=>loadExample('rent')},
+    locked: !rentActivated,
+    intro: {desc:"Figuring out rent splits with roommates is a fraught process. Decide it more fairly with Comrade by accounting for both room size and tenants' financial resources. Larger rooms and higher earners both pay more.",hasSaved:hasRentSavedData,activated:rentActivated,resumeLabel:"RESUME SPLIT →",newLabel:"NEW SPLIT",onJump:()=>jump(1),onClear:()=>{setRentActivated(true);jump(1);},onStartOver:()=>handleClearAll('rent'),onExample:()=>{setRentActivated(true);loadExample('rent');}},
     calc: {onCalculate:()=>navigateTo('rent-results'),weighting:rentWeighting,onWeighting:setRentWeighting,navigateToFaq,hasFloor:true,floor:rentFloor,onFloor:setRentFloor,validate:()=>_errs([
       [!parseFloat(totalRent),'No rent amount entered'],
       [rentPeople.length===0,'No tenants added'],
@@ -1844,8 +1859,6 @@ const Comrade = () => {
 
   return null;
 };
-
-
 
 // Render the app
         const root = ReactDOM.createRoot(document.getElementById('root'));
