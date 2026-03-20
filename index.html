@@ -26,6 +26,7 @@
 
         
 
+
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -1208,7 +1209,7 @@ const Comrade = () => {
           <div style={{color:'#6B7280',fontSize:'10px'}} className="mt-3 leading-relaxed">
             <p style={{marginBottom:'4px'}}>• Share the group link with friends to let them add expenses and wealth data.</p>
             <p style={{marginBottom:'4px'}}>• Save your data after making changes so it syncs to the cloud.</p>
-            <p>• Press calculate to settle up and see everyone's fair share.</p>
+            <p>• Tap calculate to settle up and see everyone's fair share.</p>
           </div>
         </div>
       )}
@@ -1871,7 +1872,6 @@ const Comrade = () => {
 
   return null;
 };
-
 
 
 
