@@ -26,8 +26,6 @@
 
         
 
-
-
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -418,7 +416,7 @@ const AccordionPage = ({steps,openIndices,onToggle,renderContent,locked}) => (
       return (
         <div key={i} id={`accordion-step-${i}`} className={i>0?'border-t-2 border-dashed border-gray-400':''}>
           <button onClick={(e)=>{if(isLocked)return;const opening=!isOpen;onToggle(i);if(opening)setTimeout(()=>e.currentTarget.scrollIntoView({behavior:'smooth',block:'start'}),0);}} aria-expanded={isOpen} className={`w-full flex items-center justify-between py-4 px-1 text-left ${isLocked?'':'hover:opacity-60'} transition-all`} style={isLocked?{cursor:'default'}:{}}>
-            <div className="flex items-center gap-3" style={{opacity:isLocked?0.3:isOpen?1:0.5}}>
+            <div className="flex items-center gap-3" style={{opacity:isLocked?0.3:1}}>
               {s.icon}
               <div>
                 {i>0&&<p className="text-xs text-gray-500 font-bold uppercase">STEP {i} OF {steps.length-1}</p>}
@@ -845,13 +843,13 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
             </svg>
             <div className="flex justify-center gap-6 pb-3">
               <a href="mailto:hello@comrade.money" aria-label="Email" className="hover:opacity-60 transition-all">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="2" stroke={DARK} strokeWidth="3"/><path d="M2 4l10 9 10-9" stroke={DARK} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24"><rect x="1" y="3" width="22" height="18" rx="2" fill={DARK}/><path d="M1 5l11 8 11-8" stroke={BG_GREY} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>
               </a>
               <a href="https://x.com/comradedotmoney" target="_blank" rel="noopener noreferrer" aria-label="X" className="hover:opacity-60 transition-all">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill={DARK} stroke={DARK} strokeWidth="0.5"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill={DARK} stroke={DARK} strokeWidth="0.5"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
               </a>
               <a href="https://instagram.com/comradedotmoney" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="hover:opacity-60 transition-all">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="5" stroke={DARK} strokeWidth="3"/><circle cx="12" cy="12" r="5" stroke={DARK} strokeWidth="3"/><circle cx="17.5" cy="6.5" r="1.5" fill={DARK}/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24"><rect x="1" y="1" width="22" height="22" rx="5" fill={DARK}/><circle cx="12" cy="12" r="5" stroke={BG_GREY} strokeWidth="2" fill="none"/><circle cx="17.5" cy="6.5" r="1.5" fill={BG_GREY}/></svg>
               </a>
             </div>
           </div>
@@ -1740,8 +1738,13 @@ const Comrade = () => {
     locked: !toolActivated,
     banner: (
       <div className={`${CLS_DASHED} p-4 bg-gray-50`}>
-        <p className="text-xs font-bold uppercase mb-1 text-black">EXPERIMENTAL</p>
-        <p className="text-xs text-black leading-relaxed">Wealth-weighted democracy can lead to unusual outcomes. Use at your own risk.</p>
+        <div className="flex gap-3 items-center">
+          <svg aria-hidden="true" width="24" height="30" viewBox="0 0 24 30" fill="none" style={{flexShrink:0,marginTop:'0px'}}><path d="M9 9v7.4L4.2 25.5A1 1 0 005 27h14a1 1 0 00.8-1.5L14 16.4V9" stroke={DARK} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M9 9h6" stroke={DARK} strokeWidth="2.5" strokeLinecap="round"/><path d="M8.5 20L5.2 25.2A1 1 0 006 26.5h12a1 1 0 00.8-1.3L15.5 20z" fill={DARK}/><circle cx="8" cy="4.5" r="1.5" fill={DARK}/><circle cx="11.5" cy="2" r="1.3" fill={DARK}/><circle cx="14.5" cy="5" r="1" fill={DARK}/></svg>
+          <div>
+            <p className="text-xs font-bold uppercase mb-1 text-black">EXPERIMENTAL</p>
+            <p className="text-xs text-black leading-relaxed">Wealth-weighted democracy can lead to unusual outcomes. Use at your own risk.</p>
+          </div>
+        </div>
       </div>
     ),
     intro: {desc:"Make group decisions more equitably with Comrade. If your friends, classmates, or coworkers can't agree on something, give more voting power to those with less wealth.",hasSaved:hasVoteSavedData,activated:toolActivated,resumeLabel:"RESUME VOTE →",newLabel:"NEW VOTE",onJump:()=>jump(1),onClear:()=>{setToolActivated(true);jump(1);},onStartOver:()=>handleClearAll('vote'),onExample:()=>{setToolActivated(true);loadExample('vote');}},
@@ -1881,7 +1884,6 @@ const Comrade = () => {
 
   return null;
 };
-
 
 
 
