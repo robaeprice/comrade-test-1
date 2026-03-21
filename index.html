@@ -26,6 +26,7 @@
 
         
 
+
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -459,6 +460,7 @@ const CalcStep = ({onCalculate, weighting, onWeighting, navigateToFaq, hasFloor=
   const [advOpen, setAdvOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [attempted, setAttempted] = useState(false);
+  const [calculating, setCalculating] = useState(false);
   const errors = validate ? validate() : [];
   const showErrors = attempted && errors.length > 0;
   const handleCalculate = () => {
@@ -466,7 +468,8 @@ const CalcStep = ({onCalculate, weighting, onWeighting, navigateToFaq, hasFloor=
       const errs = validate();
       if (errs.length > 0) { setAttempted(true); return; }
     }
-    onCalculate();
+    setCalculating(true);
+    setTimeout(()=>onCalculate(), 400);
   };
   return (
     <div>
@@ -533,7 +536,7 @@ const CalcStep = ({onCalculate, weighting, onWeighting, navigateToFaq, hasFloor=
               {saveSuccess ? 'SAVED!' : isSaving ? 'SAVING...' : 'SAVE CHANGES'}
             </button>
       )}
-      <button onClick={handleCalculate} className="bg-black text-white w-full py-4 font-black text-xl border-4 border-black hover:bg-gray-800 transition-all uppercase calculate-btn">CALCULATE</button>
+      <button onClick={handleCalculate} disabled={calculating} className={`w-full py-4 font-black text-xl border-4 border-black transition-all uppercase calculate-btn ${calculating?'bg-gray-700 text-gray-400 cursor-wait':'bg-black text-white hover:bg-gray-800'}`}>{calculating?'CALCULATING...':'CALCULATE'}</button>
     </div>
   );
 };
@@ -1173,7 +1176,7 @@ const Comrade = () => {
       vote:()=>{ setVoteDecision(data.decision);setVoteOptions(data.options.map((o,i)=>({...o,id:base+i})));setVoteParticipants(data.participants.map((p,i)=>({...p,id:base+100+i})));setCurParticipantName('');setCurParticipantWealth('');setCurParticipantVote('');setCurOptionText('');setEntryOpen([0,1,2,3,4]); },
       rent:()=>{ setTotalRent(data.totalRent);setTotalUtilities(data.totalUtilities);setRentPeople(data.people.map((p,i)=>({...p,id:base+i})));setCurRoommateName('');setCurRoommateRoomSize('');setCurRoommateWealth('');setEntryOpen([0,1,2,3]); },
     })[type]?.();
-    scrollToStep(1);
+    scrollToStep(2);
   },[]);
 
   const handleEmailSignup = useCallback(e=>{
@@ -1263,7 +1266,7 @@ const Comrade = () => {
 
   const ResultsPage = ({entryPage, title, summary, stats, details, copyText, boxExtra}) => (
     <Layout {...lp}>
-      <div className="p-8 mb-4 border-4 sf" style={S_DARK}>
+      <div className="p-8 mb-4 border-4 sf animate-fadeIn" style={S_DARK}>
         <h3 className="text-xl font-black mb-4 uppercase tracking-wider pb-2" style={{borderBottom:`2px solid ${BG_GREY}`}}>{title}</h3>
         {summary}
         <BlackBoxStats stats={stats}/>
@@ -1424,7 +1427,7 @@ const Comrade = () => {
       <SubHed text="Free to use, no registration required, privacy-first"/>
       <div className="space-y-4 text-black mb-2">
         <p className={CLS_PARA}>Financial information is sensitive stuff. That's why Comrade has no user accounts, no tracking, and no cookies — plus no fees or subscriptions.</p>
-        <p className={CLS_PARA}>The information entered for Private Splits never leaves your device. Group Splits are stored securely, and expire automatically after 30 days. Either way, your financial data is never associated with your identity, never sold, and never used for anything beyond the calculation in front of you.</p>
+        <p className={CLS_PARA}>The information entered for Private Splits never leaves your device. Group Splits are stored securely, and expire automatically after 30 days. Either way, your financial data is never associated with your identity, never sold, and never used for anything apart from the calculation in front of you.</p>
       </div>
       <SubHed text="More than just bill-splitting"/>
       <div className="space-y-4 text-black mb-2">
