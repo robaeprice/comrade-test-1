@@ -27,6 +27,7 @@
         
 
 
+
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -477,7 +478,7 @@ const CalcStep = ({onCalculate, weighting, onWeighting, navigateToFaq, hasFloor=
           <AdvancedSettingsToggle isOpen={advOpen} onToggle={()=>setAdvOpen(o=>!o)}/>
           {advOpen&&(
             <div style={S_PANEL} className="animate-fadeIn">
-              <p className={CLS_P5}>For more information on these controls, please <span className={CLS_LNK} onClick={navigateToFaq}>read our FAQ</span>. If in doubt, keep the default settings.</p>
+              <p className={CLS_P5}>Learn more in our <span className={CLS_LNK} onClick={navigateToFaq}>FAQ</span>. If in doubt, keep the default settings.</p>
               <h4 className={CLS_SH}>WEIGHTING</h4>
               <p className={CLS_P3}>Decide how much wealth should affect Comrade's calculations.</p>
               <WeightingButtons value={weighting} onChange={onWeighting}/>
@@ -506,7 +507,7 @@ const CalcStep = ({onCalculate, weighting, onWeighting, navigateToFaq, hasFloor=
         <>
           <div className="mb-5">
             <h4 className={CLS_SH}>WEIGHTING</h4>
-            <p className={CLS_P3}>Decide how much wealth should affect Comrade's calculations. For more information, <span className={CLS_LNK} onClick={navigateToFaq}>read our FAQ</span>.</p>
+            <p className={CLS_P3}>Decide how much wealth should affect Comrade's calculations. Learn more in our <span className={CLS_LNK} onClick={navigateToFaq}>FAQ</span>.</p>
             <WeightingButtons value={weighting} onChange={onWeighting}/>
           </div>
           <div className={`${CLS_DASHED_T} my-4`}></div>
@@ -842,8 +843,16 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
                 {[[0,4],[6,2],[12,2],[22,8],[34,2],[38,2],[44,8],[56,2],[60,2],[66,8],[78,2],[82,2],[88,2],[94,4],[102,6],[110,2],[120,2],[124,4],[132,2],[140,8],[150,2],[154,8],[164,6],[172,2],[176,2],[182,2],[188,8],[198,2],[204,2],[208,4],[220,2],[230,2],[236,4],[242,2],[246,4],[254,2],[264,2],[270,4],[278,6],[286,8],[296,6],[304,2],[308,2],[316,8],[326,2],[330,4],[342,2],[346,2],[352,2],[356,4],[364,2],[374,4],[380,4],[386,8],[396,6],[404,8],[414,2],[418,4],[428,6],[436,2],[440,4]].map(([x,w],i)=><rect key={i} x={x} y="0" width={w} height="67"/>)}
               </g>
             </svg>
-            <div className="text-center text-xs text-gray-700 pb-3">
-              <a href="mailto:hello@comrade.money" className="hover:underline">HELLO<span style={{padding:'0 0.6em'}}>@</span>COMRADE.MONEY</a>
+            <div className="flex justify-center gap-6 pb-3">
+              <a href="mailto:hello@comrade.money" aria-label="Email" className="hover:opacity-60 transition-all">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="2" stroke={DARK} strokeWidth="3"/><path d="M2 4l10 9 10-9" stroke={DARK} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </a>
+              <a href="https://x.com/comradedotmoney" target="_blank" rel="noopener noreferrer" aria-label="X" className="hover:opacity-60 transition-all">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill={DARK} stroke={DARK} strokeWidth="0.5"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+              </a>
+              <a href="https://instagram.com/comradedotmoney" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="hover:opacity-60 transition-all">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="5" stroke={DARK} strokeWidth="3"/><circle cx="12" cy="12" r="5" stroke={DARK} strokeWidth="3"/><circle cx="17.5" cy="6.5" r="1.5" fill={DARK}/></svg>
+              </a>
             </div>
           </div>
         </div>
@@ -1388,7 +1397,7 @@ const Comrade = () => {
         <div style={{display:'flex',justifyContent:'space-around',alignItems:'center',marginTop:28,marginBottom:28,padding:'0 8px'}}>
           {tools.map(t=><div key={t.route}>{t.icon}</div>)}
         </div>
-        <p className="text-sm text-black text-center mb-6">COMRADE BUILDS PRODUCTS THAT MAKE LIFE FAIRER. CHOOSE FROM OUR FULL LIST OF TOOLS BELOW.</p>
+        <p className="text-sm text-black text-center mb-6">COMRADE BUILDS PRODUCTS THAT MAKE LIFE FAIRER.</p>
         <div style={{maxWidth:'448px',margin:'0 auto'}}>
           {tools.map(t=>(
             <div key={t.route} style={{marginBottom:12}}>
@@ -1672,7 +1681,7 @@ const Comrade = () => {
   if(page==='sale-entry') return EntryPage({
     steps: SALE_STEPS,
     locked: !toolActivated,
-    intro: {desc:"If you're selling something, make sure it goes to the potential buyer who needs it the most — not just whoever offers to pay the most. Comrade takes into account prospective purchasers' financial resources to help you understand how much your product is truly worth to them.",hasSaved:hasSaleSavedData,activated:toolActivated,resumeLabel:"RESUME SALE →",newLabel:"NEW SALE",onJump:()=>jump(1),onClear:()=>{setToolActivated(true);jump(1);},onStartOver:()=>handleClearAll('sale'),onExample:()=>{setToolActivated(true);loadExample('sale');}},
+    intro: {desc:"Selling a product or service? Comrade assesses would-be buyers' bids while factoring in their wealth to show who really needs it most.",hasSaved:hasSaleSavedData,activated:toolActivated,resumeLabel:"RESUME SALE →",newLabel:"NEW SALE",onJump:()=>jump(1),onClear:()=>{setToolActivated(true);jump(1);},onStartOver:()=>handleClearAll('sale'),onExample:()=>{setToolActivated(true);loadExample('sale');}},
     calc: {onCalculate:()=>navigateTo('sale-results'),weighting:saleWeighting,onWeighting:setSaleWeighting,navigateToFaq,hasAdvanced:true,validate:()=>_errs([
       [!productName.trim(),'No product name entered'],
       [saleBuyers.length===0,'No buyers added'],
@@ -1735,7 +1744,7 @@ const Comrade = () => {
         <p className="text-xs text-black leading-relaxed">Wealth-weighted democracy can lead to unusual outcomes. Use at your own risk.</p>
       </div>
     ),
-    intro: {desc:"Make group decisions more equitably with Comrade. If your friends, classmates, or coworkers are grappling with a dispute, give more voting power to those with less wealth.",hasSaved:hasVoteSavedData,activated:toolActivated,resumeLabel:"RESUME VOTE →",newLabel:"NEW VOTE",onJump:()=>jump(1),onClear:()=>{setToolActivated(true);jump(1);},onStartOver:()=>handleClearAll('vote'),onExample:()=>{setToolActivated(true);loadExample('vote');}},
+    intro: {desc:"Make group decisions more equitably with Comrade. If your friends, classmates, or coworkers can't agree on something, give more voting power to those with less wealth.",hasSaved:hasVoteSavedData,activated:toolActivated,resumeLabel:"RESUME VOTE →",newLabel:"NEW VOTE",onJump:()=>jump(1),onClear:()=>{setToolActivated(true);jump(1);},onStartOver:()=>handleClearAll('vote'),onExample:()=>{setToolActivated(true);loadExample('vote');}},
     calc: {onCalculate:()=>navigateTo('vote-results'),weighting:voteWeighting,onWeighting:setVoteWeighting,navigateToFaq,hasAdvanced:true,validate:()=>_errs([
       [!voteDecision.trim(),'No decision or question entered'],
       [voteOptions.length===0,'No voting options added'],
@@ -1807,7 +1816,7 @@ const Comrade = () => {
   if(page==='rent-entry') return EntryPage({
     steps: RENT_STEPS,
     locked: !toolActivated,
-    intro: {desc:"Figuring out rent splits with roommates is a fraught process. Decide it more fairly with Comrade by accounting for both room size and tenants' financial resources. Larger rooms and higher earners both pay more.",hasSaved:hasRentSavedData,activated:toolActivated,resumeLabel:"RESUME SPLIT →",newLabel:"NEW SPLIT",onJump:()=>jump(1),onClear:()=>{setToolActivated(true);jump(1);},onStartOver:()=>handleClearAll('rent'),onExample:()=>{setToolActivated(true);loadExample('rent');}},
+    intro: {desc:"Split rent more fairly. Comrade accounts for both room size and each roommate's wealth. Larger rooms and higher earners pay more.",hasSaved:hasRentSavedData,activated:toolActivated,resumeLabel:"RESUME SPLIT →",newLabel:"NEW SPLIT",onJump:()=>jump(1),onClear:()=>{setToolActivated(true);jump(1);},onStartOver:()=>handleClearAll('rent'),onExample:()=>{setToolActivated(true);loadExample('rent');}},
     calc: {onCalculate:()=>navigateTo('rent-results'),weighting:rentWeighting,onWeighting:setRentWeighting,navigateToFaq,hasFloor:true,floor:rentFloor,onFloor:setRentFloor,validate:()=>_errs([
       [!parseFloat(totalRent),'No rent amount entered'],
       [rentPeople.length===0,'No tenants added'],
@@ -1872,6 +1881,7 @@ const Comrade = () => {
 
   return null;
 };
+
 
 
 
