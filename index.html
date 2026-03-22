@@ -720,7 +720,7 @@ const HomeAccordion = ({navigateTo}) => {
 let _legalCount = 0;
 let _legalTimer = null;
 
-const FooterNav = ({onNavigate, onClearStorage}) => {
+const FooterNav = ({onNavigate, onClearStorage, left}) => {
   const [toast, setToast] = useState(false);
   const handleLegalClick = () => {
     _legalCount++;
@@ -740,7 +740,7 @@ const FooterNav = ({onNavigate, onClearStorage}) => {
     <span onClick={handler || (() => resetCount(dest))} className="cursor-pointer hover:underline font-bold sf" style={{color:DARK}}>{label}</span>
   );
   return (
-    <div className="footer-nav text-xs mt-4 mb-4">
+    <div className="footer-nav text-xs mt-4 mb-4" style={left?{justifyContent:'start'}:undefined}>
       {navItem('about','ABOUT')}
       {navItem('tools','TOOLS')}
       {navItem('faq','FAQ')}
@@ -818,7 +818,7 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
                     ))}
                   </div>
                 </div>
-                <div style={{marginBottom:'-12px'}}><FooterNav onNavigate={onNavigate} onClearStorage={onClearStorage}/></div>
+                <div style={{marginBottom:'-14px',marginTop:'-6px'}}><FooterNav onNavigate={onNavigate} onClearStorage={onClearStorage} left/></div>
               </div>
             ):(
             <div className="bg-white mb-4 pt-3 pb-3 border-b-2 border-dashed border-gray-400">
@@ -1887,7 +1887,6 @@ const Comrade = () => {
 
   return null;
 };
-
 
 
 
