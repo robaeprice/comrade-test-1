@@ -27,6 +27,7 @@
         
 
 
+
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -1490,7 +1491,7 @@ const Comrade = () => {
       </div>
     ) : undefined,
     intro: {
-      desc: "Dinners, vacations, work drinks, dates, whatever — add your group bills, and Comrade splits them according to everyone's ability to pay.",
+      desc: "Dinners, vacations, work drinks, dates, whatever — add your shared bills, and Comrade splits them according to everyone's ability to pay.",
       hasSaved: hasBillSavedData,
       activated: toolActivated && !isCollaborative,
       resumeLabel: isCollaborative ? "RESUME GROUP SPLIT" : "RESUME PRIVATE SPLIT",
