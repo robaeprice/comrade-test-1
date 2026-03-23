@@ -26,6 +26,7 @@
 
         
 
+
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -480,7 +481,7 @@ const CalcStep = ({onCalculate, weighting, onWeighting, navigateToFaq, hasFloor=
             <div style={S_PANEL} className="animate-fadeIn">
               <p className={CLS_P5}>Learn more in our <span className={CLS_LNK} onClick={navigateToFaq}>FAQ</span>. If in doubt, keep the default settings.</p>
               <h4 className={CLS_SH}>WEIGHTING</h4>
-              <p className={CLS_P3}>Decide how much wealth should affect Comrade's calculations.</p>
+              <p className={CLS_P3}>Controls how much wealthier people pay relative to everyone else.</p>
               <WeightingButtons value={weighting} onChange={onWeighting}/>
               {hasFloor&&<><div className={`${CLS_DASHED_T} my-5`}></div>
               <h4 className={CLS_SH}>CONTRIBUTION CAP</h4>
@@ -507,7 +508,7 @@ const CalcStep = ({onCalculate, weighting, onWeighting, navigateToFaq, hasFloor=
         <>
           <div className="mb-5">
             <h4 className={CLS_SH}>WEIGHTING</h4>
-            <p className={CLS_P3}>Decide how much wealth should affect Comrade's calculations. Learn more in our <span className={CLS_LNK} onClick={navigateToFaq}>FAQ</span>.</p>
+            <p className={CLS_P3}>Controls how much wealthier people pay relative to everyone else. Learn more in our <span className={CLS_LNK} onClick={navigateToFaq}>FAQ</span>.</p>
             <WeightingButtons value={weighting} onChange={onWeighting}/>
           </div>
           <div className={`${CLS_DASHED_T} my-4`}></div>
@@ -1898,7 +1899,6 @@ const Comrade = () => {
 
   return null;
 };
-
 
 
 // Render the app
