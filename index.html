@@ -875,7 +875,7 @@ const IntroStep = ({desc, hasSaved, resumeLabel, newLabel, onJump, onClear, onEx
         className={`w-full font-bold py-3 border-2 border-black text-sm transition-all ${isSaving?'bg-gray-400 text-gray-600 cursor-not-allowed':'bg-black text-white hover:bg-gray-800'}`}>
         {isSaving ? 'SAVING...' : 'NEW GROUP SPLIT'}
       </button>
-      <p style={{color:'#9CA3AF',fontSize:'10px'}} className="mt-1 leading-relaxed">Syncs data to the cloud, allows friends to add expenses and see results.</p>
+      <p style={{color:'#9CA3AF',fontSize:'10px'}} className="mt-1 leading-relaxed">Shareable link. Friends can add expenses, see results.</p>
     </div>
   ) : null);
 
@@ -898,7 +898,7 @@ const IntroStep = ({desc, hasSaved, resumeLabel, newLabel, onJump, onClear, onEx
           {groupSplitButton}
           <div>
             <button onClick={onClear} className={`w-full font-bold py-3 text-sm border-2 border-black transition-all ${onGroupSplit?'bg-white text-black hover:bg-gray-100':'bg-black text-white hover:bg-gray-800'}`}>{newLabel}</button>
-            <p style={{color:'#9CA3AF',fontSize:'10px'}} className="mt-1 leading-relaxed">All calculation takes place on your device. No data is shared.</p>
+            <p style={{color:'#9CA3AF',fontSize:'10px'}} className="mt-1 leading-relaxed">On-device only. No data is sent to Comrade's servers.</p>
           </div>
           {onExample && (
             <p className="text-xs text-center text-black">New here? <span onClick={onExample} className={CLS_LNK}>See an example →</span></p>
@@ -1489,7 +1489,7 @@ const Comrade = () => {
       </div>
     ) : undefined,
     intro: {
-      desc: "From dinners to vacations, dates to work drinks, handle your shared expenses more fairly. Comrade combines and simplifies group bills, while using information about group members' finances to decide how much everyone should pay.",
+      desc: "Dinners, vacations, work drinks, dates, whatever — add your group bills, and Comrade splits them according to everyone's ability to pay.",
       hasSaved: hasBillSavedData,
       activated: toolActivated && !isCollaborative,
       resumeLabel: isCollaborative ? "RESUME GROUP SPLIT" : "RESUME PRIVATE SPLIT",
@@ -1633,47 +1633,59 @@ const Comrade = () => {
         <DashedDivider/>
         {renderBarVisualization('PAYMENT VISUALIZATION',sortByW(peopleData),[{label:'PAID',getValue:p=>p.paid,displayValue:p=>`${p.paidPct.toFixed(0)}%`,rightLabel:p=>_fc(p.paid,billCurrency)},{label:'FAIR',getValue:p=>p.fairShare,displayValue:p=>`${p.fairPct.toFixed(0)}%`,rightLabel:p=>_fcs(p.fairShare,billCurrency)}],p=>p.name)}
         <DashedDivider/>
-        {hasPartialBills?(
-          <>
+        {(()=>{
+          if(!hasPartialBills) return renderMathSection(billWeighting,[
+            <div key="s1">{renderAdjustedWealthStep(1,peopleData,billWeighting)}<div className={`flex justify-between mt-2 pt-2 ${CLS_DASHED_T} font-bold`}><span>TOTAL:</span><span className="font-mono">{_fsn(peopleData.reduce((s,p)=>s+p.adjustedWealth,0))}</span></div></div>,
+            <div key="s2"><p className={CLS_FB}>2. FAIR SHARE %:</p>{renderMathRow(peopleData,p=>{const ta=peopleData.reduce((s,pp)=>s+pp.adjustedWealth,0);return`${_fsn(p.adjustedWealth)} ÷ ${_fsn(ta)} = ${p.fairPct.toFixed(1)}%`;})}</div>,
+            <div key="s3"><p className={CLS_FB}>3. AMOUNT OWED:</p>{renderMathRow(peopleData,p=>`${p.fairPct.toFixed(1)}% × ${_fc(total,billCurrency)} = ${_fcs(p.fairShare,billCurrency)}`)}</div>
+          ],<div><p className={CLS_FB}>EQUAL SPLIT (NO WEIGHTING):</p>{renderMathRow(peopleData,p=>`${_fc(total,billCurrency)} ÷ ${peopleData.length} = ${_fcs(p.fairShare,billCurrency)}`)}</div>);
+          const partialDetails=billDetails.filter(d=>d.isPartial);
+          const fullDetails=billDetails.filter(d=>!d.isPartial);
+          const fullTotal=fullDetails.reduce((s,d)=>s+d.amount,0);
+          const taw=peopleData.reduce((s,p)=>s+p.adjustedWealth,0);
+          return <>
             <div className="mb-6">
               <h3 className={CLS_H3}>THE MATH</h3>
               <div className="bg-white p-6 border-2 border-gray-400">
                 <div className="space-y-3 text-xs text-black">
                   {billWeighting!=='none'?(<>
                     {renderAdjustedWealthStep(1,peopleData,billWeighting)}
+                    {fullDetails.length>0&&<><div className={`${CLS_DASHED_T} my-3`}></div>
+                    <p className={CLS_FB}>2. SHARED BILLS ({_fc(fullTotal,billCurrency)}):</p>
+                    {renderMathRow(peopleData,p=>`${_fsn(p.adjustedWealth)} ÷ ${_fsn(taw)} × ${_fc(fullTotal,billCurrency)} = ${_fcs(taw>0?(p.adjustedWealth/taw)*fullTotal:fullTotal/peopleData.length,billCurrency)}`)}</>}
                     <div className={`${CLS_DASHED_T} my-3`}></div>
-                    <p className={CLS_FB}>2. PER-BILL SHARES ({getWeightingLabel(billWeighting)} WEIGHTING):</p>
-                    {billDetails.map((d,i)=>(
+                    <p className={CLS_FB}>{fullDetails.length>0?'3':'2'}. PARTIAL BILLS:</p>
+                    {partialDetails.map((d,i)=>(
                       <div key={i} className={i>0?`pt-3 ${CLS_DASHED_T}`:''}>
-                        <p className="font-bold uppercase mb-1">{d.desc} ({_fc(d.amount,billCurrency)}){d.isPartial?' — PARTIAL':''}</p>
+                        <p className="font-bold uppercase mb-1">{d.desc} ({_fc(d.amount,billCurrency)})</p>
                         {d.shares.map((s,j)=><div key={j} className={CLS_JBM}><span>{s.name}:</span><span className="font-mono">{_fsn(s.aw)} ÷ {_fsn(s.taw)} × {_fc(d.amount,billCurrency)} = {_fcs(s.share,billCurrency)}</span></div>)}
                       </div>
                     ))}
                     <div className={`${CLS_DASHED_T} my-3`}></div>
-                    <p className={CLS_FB}>3. TOTAL FAIR SHARES:</p>
+                    <p className={CLS_FB}>{fullDetails.length>0?'4':'3'}. TOTAL FAIR SHARES:</p>
                     {renderMathRow(peopleData,p=>`${_fcs(p.fairShare,billCurrency)} (${p.fairPct.toFixed(1)}%)`)}
                   </>):(<>
-                    <p className={CLS_FB}>1. PER-BILL SHARES (NO WEIGHTING):</p>
-                    {billDetails.map((d,i)=>(
+                    {fullDetails.length>0&&<>
+                    <p className={CLS_FB}>1. SHARED BILLS ({_fc(fullTotal,billCurrency)}):</p>
+                    {renderMathRow(peopleData,p=>`${_fc(fullTotal,billCurrency)} ÷ ${peopleData.length} = ${_fcs(fullTotal/peopleData.length,billCurrency)}`)}
+                    <div className={`${CLS_DASHED_T} my-3`}></div></>}
+                    <p className={CLS_FB}>{fullDetails.length>0?'2':'1'}. PARTIAL BILLS:</p>
+                    {partialDetails.map((d,i)=>(
                       <div key={i} className={i>0?`pt-3 ${CLS_DASHED_T}`:''}>
-                        <p className="font-bold uppercase mb-1">{d.desc} ({_fc(d.amount,billCurrency)}){d.isPartial?' — PARTIAL':''}</p>
+                        <p className="font-bold uppercase mb-1">{d.desc} ({_fc(d.amount,billCurrency)})</p>
                         {d.shares.map((s,j)=><div key={j} className={CLS_JBM}><span>{s.name}:</span><span className="font-mono">{_fc(d.amount,billCurrency)} ÷ {d.shares.length} = {_fcs(s.share,billCurrency)}</span></div>)}
                       </div>
                     ))}
                     <div className={`${CLS_DASHED_T} my-3`}></div>
-                    <p className={CLS_FB}>2. TOTAL FAIR SHARES:</p>
+                    <p className={CLS_FB}>{fullDetails.length>0?'3':'2'}. TOTAL FAIR SHARES:</p>
                     {renderMathRow(peopleData,p=>`${_fcs(p.fairShare,billCurrency)} (${p.fairPct.toFixed(1)}%)`)}
                   </>)}
                 </div>
               </div>
             </div>
             <DashedDivider/>
-          </>
-        ):renderMathSection(billWeighting,[
-          <div key="s1">{renderAdjustedWealthStep(1,peopleData,billWeighting)}<div className={`flex justify-between mt-2 pt-2 ${CLS_DASHED_T} font-bold`}><span>TOTAL:</span><span className="font-mono">{_fsn(peopleData.reduce((s,p)=>s+p.adjustedWealth,0))}</span></div></div>,
-          <div key="s2"><p className={CLS_FB}>2. FAIR SHARE %:</p>{renderMathRow(peopleData,p=>{const ta=peopleData.reduce((s,pp)=>s+pp.adjustedWealth,0);return`${_fsn(p.adjustedWealth)} ÷ ${_fsn(ta)} = ${p.fairPct.toFixed(1)}%`;})}</div>,
-          <div key="s3"><p className={CLS_FB}>3. AMOUNT OWED:</p>{renderMathRow(peopleData,p=>`${p.fairPct.toFixed(1)}% × ${_fc(total,billCurrency)} = ${_fcs(p.fairShare,billCurrency)}`)}</div>
-        ],<div><p className={CLS_FB}>EQUAL SPLIT (NO WEIGHTING):</p>{renderMathRow(peopleData,p=>`${_fc(total,billCurrency)} ÷ ${peopleData.length} = ${_fcs(p.fairShare,billCurrency)}`)}</div>)}
+          </>;
+        })()}
       </>
     });
   }
