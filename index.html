@@ -27,6 +27,7 @@
         
 
 
+
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -108,7 +109,7 @@ const CAP_OPTIONS = [{value:'off',label:'OFF'},{value:'1.5',label:'1.5X'},{value
 const _errs = c => c.flatMap(([t,m])=>t?[m]:[]);
 
 const BG_STYLE = {
-  backgroundImage:'repeating-linear-gradient(135deg,#ffd700 0px,#ff8c00 525px,#ffd700 1050px)',
+  backgroundImage:'repeating-linear-gradient(135deg,#ffd700 0vw,#ff8c00 106vw,#ffd700 213vw)',
   minHeight:'100vh', position:'relative',
 };
 
@@ -166,7 +167,7 @@ const formatTimestamp = () => {
 const EXAMPLE_DATA = {
   bill: {
     people: [{name:'Lucy',wealth:'32000'},{name:'Susan',wealth:'180000'},{name:'Edmund',wealth:'45000'},{name:'Peter',wealth:'95000'}],
-    bills:  [{description:'Ski passes',amount:'1200',paidBy:'Susan'},{description:'Cabin rental',amount:'2400',paidBy:'Peter'},{description:'Gas',amount:'110',paidBy:'Lucy'},{description:'Groceries',amount:'520',paidBy:'Susan'},{description:'Gear rental',amount:'805',paidBy:'Edmund'}]
+    bills:  [{description:'Ski passes',amount:'1200',paidBy:'Susan'},{description:'Cabin rental',amount:'2400',paidBy:'Peter'},{description:'Gas',amount:'110',paidBy:'Lucy'},{description:'Drinks',amount:'520',paidBy:'Susan',participants:['Lucy','Susan','Peter']},{description:'Gear rental',amount:'805',paidBy:'Edmund'}]
   },
   sale: {
     productName:'Used Honda Civic', numberAvailable:'1',
@@ -481,7 +482,7 @@ const CalcStep = ({onCalculate, weighting, onWeighting, navigateToFaq, hasFloor=
             <div style={S_PANEL} className="animate-fadeIn">
               <p className={CLS_P5}>Learn more in our <span className={CLS_LNK} onClick={navigateToFaq}>FAQ</span>. If in doubt, keep the default settings.</p>
               <h4 className={CLS_SH}>WEIGHTING</h4>
-              <p className={CLS_P3}>Decide how much wealth should affect Comrade's calculations.</p>
+              <p className={CLS_P3}>Controls how much wealthier people pay relative to everyone else.</p>
               <WeightingButtons value={weighting} onChange={onWeighting}/>
               {hasFloor&&<><div className={`${CLS_DASHED_T} my-5`}></div>
               <h4 className={CLS_SH}>CONTRIBUTION CAP</h4>
@@ -508,7 +509,7 @@ const CalcStep = ({onCalculate, weighting, onWeighting, navigateToFaq, hasFloor=
         <>
           <div className="mb-5">
             <h4 className={CLS_SH}>WEIGHTING</h4>
-            <p className={CLS_P3}>Decide how much wealth should affect Comrade's calculations. Learn more in our <span className={CLS_LNK} onClick={navigateToFaq}>FAQ</span>.</p>
+            <p className={CLS_P3}>Controls how much wealthier people pay relative to everyone else. Learn more in our <span className={CLS_LNK} onClick={navigateToFaq}>FAQ</span>.</p>
             <WeightingButtons value={weighting} onChange={onWeighting}/>
           </div>
           <div className={`${CLS_DASHED_T} my-4`}></div>
@@ -742,8 +743,8 @@ const FooterNav = ({onNavigate, onClearStorage}) => {
   );
   return (
     <div className="footer-nav text-xs mt-4 mb-4">
-      {navItem('home','HOME')}
       {navItem('about','ABOUT')}
+      {navItem('tools','TOOLS')}
       {navItem('faq','FAQ')}
       {navItem('legal','LEGAL', handleLegalClick)}
       {toast && (
@@ -874,9 +875,9 @@ const IntroStep = ({desc, hasSaved, resumeLabel, newLabel, onJump, onClear, onEx
     <div>
       <button onClick={onGroupSplit} disabled={isSaving}
         className={`w-full font-bold py-3 border-2 border-black text-sm transition-all ${isSaving?'bg-gray-400 text-gray-600 cursor-not-allowed':'bg-black text-white hover:bg-gray-800'}`}>
-        {isSaving ? 'SAVING...' : 'NEW GROUP SPLIT →'}
+        {isSaving ? 'SAVING...' : 'NEW GROUP SPLIT'}
       </button>
-      <p style={{color:'#9CA3AF',fontSize:'10px'}} className="mt-1 leading-relaxed">Syncs data to the cloud, allows friends to add expenses and see results.</p>
+      <p style={{color:'#9CA3AF',fontSize:'10px'}} className="mt-1 leading-relaxed">Shareable link. Friends can add expenses, see results.</p>
     </div>
   ) : null);
 
@@ -898,11 +899,11 @@ const IntroStep = ({desc, hasSaved, resumeLabel, newLabel, onJump, onClear, onEx
           {saveError && <p className="text-xs font-bold uppercase text-black animate-fadeIn" style={{borderLeft:`3px solid ${DARK}`,paddingLeft:'8px'}}>{saveError}</p>}
           {groupSplitButton}
           <div>
-            <button onClick={onClear} className={`w-full font-bold py-3 text-sm border-2 border-black transition-all ${onGroupSplit?'bg-white text-black hover:bg-gray-100':'bg-black text-white hover:bg-gray-800'}`}>{newLabel} →</button>
-            <p style={{color:'#9CA3AF',fontSize:'10px'}} className="mt-1 leading-relaxed">All calculation takes place on your device. No data is shared.</p>
+            <button onClick={onClear} className={`w-full font-bold py-3 text-sm border-2 border-black transition-all ${onGroupSplit?'bg-white text-black hover:bg-gray-100':'bg-black text-white hover:bg-gray-800'}`}>{newLabel}</button>
+            <p style={{color:'#9CA3AF',fontSize:'10px'}} className="mt-1 leading-relaxed">On-device only. No data is sent to Comrade's servers.</p>
           </div>
           {onExample && (
-            <button onClick={onExample} className="w-full bg-white text-black font-bold py-3 border-2 border-black text-sm hover:bg-gray-100 transition-all">TRY AN EXAMPLE</button>
+            <p className="text-xs text-center text-black">New here? <span onClick={onExample} className={CLS_LNK}>See an example →</span></p>
           )}
         </div>
       )}
@@ -1490,10 +1491,10 @@ const Comrade = () => {
       </div>
     ) : undefined,
     intro: {
-      desc: "From dinners to vacations, dates to work drinks, handle your shared expenses more fairly. Comrade combines and simplifies group bills, while using information about group members' finances to decide how much everyone should pay.",
+      desc: "Dinners, vacations, work drinks, dates, whatever — add your shared bills, and Comrade splits them according to everyone's ability to pay.",
       hasSaved: hasBillSavedData,
       activated: toolActivated && !isCollaborative,
-      resumeLabel: isCollaborative ? "RESUME GROUP SPLIT →" : "RESUME PRIVATE SPLIT →",
+      resumeLabel: isCollaborative ? "RESUME GROUP SPLIT" : "RESUME PRIVATE SPLIT",
       newLabel: "NEW PRIVATE SPLIT",
       onJump: ()=>{setSplitNotFound(false);jump(1);},
       onClear: ()=>{setSplitNotFound(false);setToolActivated(true);jump(1);},
@@ -1509,8 +1510,8 @@ const Comrade = () => {
           <p className="font-bold text-xs uppercase mb-1 text-black">YOU'VE ALREADY ENTERED SOME DATA</p>
           <p className="text-xs text-black mb-4 leading-relaxed">Keep the people and bills you've already added, or start fresh?</p>
           <div className="flex flex-col gap-2">
-            <button onClick={()=>{setShowGroupSplitPrompt(false);saveSplit();}} className="w-full bg-white text-black py-2 font-bold text-xs border-2 border-black hover:bg-gray-100 transition-all">USE EXISTING DATA →</button>
-            <button onClick={async()=>{handleClearAll('bill');setShowGroupSplitPrompt(false);setIsSaving(true);try{const r=await fetch('/api/split',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({people:[],bills:[],weighting:billWeighting,floor:billFloor,currency:billCurrency,wealthMetric:billWealthMetric,groupName:''})});const d=await r.json();if(d.id){setSplitId(d.id);setSplitVersion(1);setIsCollaborative(true);setToolActivated(true);window.history.pushState({page:'bill-entry'},'',`/split/${d.id}`);setEntryOpen(prev=>prev.includes(1)?prev:[...prev,1]);setTimeout(()=>{const el=document.getElementById('accordion-step-0');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},150);}}catch(e){console.error(e);}finally{setIsSaving(false);}}} className="w-full bg-white text-black py-2 font-bold text-xs border-2 border-black hover:bg-gray-100 transition-all">START FRESH →</button>
+            <button onClick={()=>{setShowGroupSplitPrompt(false);saveSplit();}} className="w-full bg-white text-black py-2 font-bold text-xs border-2 border-black hover:bg-gray-100 transition-all">USE EXISTING DATA</button>
+            <button onClick={async()=>{handleClearAll('bill');setShowGroupSplitPrompt(false);setIsSaving(true);try{const r=await fetch('/api/split',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({people:[],bills:[],weighting:billWeighting,floor:billFloor,currency:billCurrency,wealthMetric:billWealthMetric,groupName:''})});const d=await r.json();if(d.id){setSplitId(d.id);setSplitVersion(1);setIsCollaborative(true);setToolActivated(true);window.history.pushState({page:'bill-entry'},'',`/split/${d.id}`);setEntryOpen(prev=>prev.includes(1)?prev:[...prev,1]);setTimeout(()=>{const el=document.getElementById('accordion-step-0');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},150);}}catch(e){console.error(e);}finally{setIsSaving(false);}}} className="w-full bg-white text-black py-2 font-bold text-xs border-2 border-black hover:bg-gray-100 transition-all">START FRESH</button>
           </div>
         </div>
       ) : null,
@@ -1553,7 +1554,7 @@ const Comrade = () => {
             ?<ItemList items={billPeople} onDelete={id=>setBillPeople(billPeople.filter(p=>p.id!==id))} renderItem={p=><><p className={CLS_NAME}>{p.name}</p><p className={CLS_XS}>{getWealthMetricLabel(billWealthMetric)}: {_fc(p.wealth,billCurrency)}</p></>}/>
             :<EmptyState msg="No people added yet"/>
           }
-          <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(2)}/></div>
+          <div className="mt-6"><NavButton label="CONTINUE" onClick={()=>jump(2)}/></div>
         </div>
       ),
       ()=>(
@@ -1604,7 +1605,7 @@ const Comrade = () => {
             ?<ItemList items={billBills} onDelete={id=>setBillBills(billBills.filter(b=>b.id!==id))} renderItem={b=>{const pL=b.participants?.length>0?b.participants.join(', '):null;return <><p className="text-black font-bold uppercase">{b.description}</p><p className="text-black text-xs">{b.paidBy||'Unknown'}{pL&&(' ('+pL+')')}</p></>;}} receiptStyle formatTotal={t=>_fc(t,billCurrency)} getAmount={b=>b.amount}/>
             :<EmptyState msg="No bills added yet" cls="mb-4"/>
           }
-          <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(3)}/></div>
+          <div className="mt-6"><NavButton label="CONTINUE" onClick={()=>jump(3)}/></div>
         </div>
       ),
     ]
@@ -1634,47 +1635,59 @@ const Comrade = () => {
         <DashedDivider/>
         {renderBarVisualization('PAYMENT VISUALIZATION',sortByW(peopleData),[{label:'PAID',getValue:p=>p.paid,displayValue:p=>`${p.paidPct.toFixed(0)}%`,rightLabel:p=>_fc(p.paid,billCurrency)},{label:'FAIR',getValue:p=>p.fairShare,displayValue:p=>`${p.fairPct.toFixed(0)}%`,rightLabel:p=>_fcs(p.fairShare,billCurrency)}],p=>p.name)}
         <DashedDivider/>
-        {hasPartialBills?(
-          <>
+        {(()=>{
+          if(!hasPartialBills) return renderMathSection(billWeighting,[
+            <div key="s1">{renderAdjustedWealthStep(1,peopleData,billWeighting)}<div className={`flex justify-between mt-2 pt-2 ${CLS_DASHED_T} font-bold`}><span>TOTAL:</span><span className="font-mono">{_fsn(peopleData.reduce((s,p)=>s+p.adjustedWealth,0))}</span></div></div>,
+            <div key="s2"><p className={CLS_FB}>2. FAIR SHARE %:</p>{renderMathRow(peopleData,p=>{const ta=peopleData.reduce((s,pp)=>s+pp.adjustedWealth,0);return`${_fsn(p.adjustedWealth)} ÷ ${_fsn(ta)} = ${p.fairPct.toFixed(1)}%`;})}</div>,
+            <div key="s3"><p className={CLS_FB}>3. AMOUNT OWED:</p>{renderMathRow(peopleData,p=>`${p.fairPct.toFixed(1)}% × ${_fc(total,billCurrency)} = ${_fcs(p.fairShare,billCurrency)}`)}</div>
+          ],<div><p className={CLS_FB}>EQUAL SPLIT (NO WEIGHTING):</p>{renderMathRow(peopleData,p=>`${_fc(total,billCurrency)} ÷ ${peopleData.length} = ${_fcs(p.fairShare,billCurrency)}`)}</div>);
+          const partialDetails=billDetails.filter(d=>d.isPartial);
+          const fullDetails=billDetails.filter(d=>!d.isPartial);
+          const fullTotal=fullDetails.reduce((s,d)=>s+d.amount,0);
+          const taw=peopleData.reduce((s,p)=>s+p.adjustedWealth,0);
+          return <>
             <div className="mb-6">
               <h3 className={CLS_H3}>THE MATH</h3>
               <div className="bg-white p-6 border-2 border-gray-400">
                 <div className="space-y-3 text-xs text-black">
                   {billWeighting!=='none'?(<>
                     {renderAdjustedWealthStep(1,peopleData,billWeighting)}
+                    {fullDetails.length>0&&<><div className={`${CLS_DASHED_T} my-3`}></div>
+                    <p className={CLS_FB}>2. SHARED BILLS ({_fc(fullTotal,billCurrency)}):</p>
+                    {renderMathRow(peopleData,p=>`${_fsn(p.adjustedWealth)} ÷ ${_fsn(taw)} × ${_fc(fullTotal,billCurrency)} = ${_fcs(taw>0?(p.adjustedWealth/taw)*fullTotal:fullTotal/peopleData.length,billCurrency)}`)}</>}
                     <div className={`${CLS_DASHED_T} my-3`}></div>
-                    <p className={CLS_FB}>2. PER-BILL SHARES ({getWeightingLabel(billWeighting)} WEIGHTING):</p>
-                    {billDetails.map((d,i)=>(
+                    <p className={CLS_FB}>{fullDetails.length>0?'3':'2'}. PARTIAL BILLS:</p>
+                    {partialDetails.map((d,i)=>(
                       <div key={i} className={i>0?`pt-3 ${CLS_DASHED_T}`:''}>
-                        <p className="font-bold uppercase mb-1">{d.desc} ({_fc(d.amount,billCurrency)}){d.isPartial?' — PARTIAL':''}</p>
+                        <p className="font-bold uppercase mb-1">{d.desc} ({_fc(d.amount,billCurrency)})</p>
                         {d.shares.map((s,j)=><div key={j} className={CLS_JBM}><span>{s.name}:</span><span className="font-mono">{_fsn(s.aw)} ÷ {_fsn(s.taw)} × {_fc(d.amount,billCurrency)} = {_fcs(s.share,billCurrency)}</span></div>)}
                       </div>
                     ))}
                     <div className={`${CLS_DASHED_T} my-3`}></div>
-                    <p className={CLS_FB}>3. TOTAL FAIR SHARES:</p>
+                    <p className={CLS_FB}>{fullDetails.length>0?'4':'3'}. TOTAL FAIR SHARES:</p>
                     {renderMathRow(peopleData,p=>`${_fcs(p.fairShare,billCurrency)} (${p.fairPct.toFixed(1)}%)`)}
                   </>):(<>
-                    <p className={CLS_FB}>1. PER-BILL SHARES (NO WEIGHTING):</p>
-                    {billDetails.map((d,i)=>(
+                    {fullDetails.length>0&&<>
+                    <p className={CLS_FB}>1. SHARED BILLS ({_fc(fullTotal,billCurrency)}):</p>
+                    {renderMathRow(peopleData,p=>`${_fc(fullTotal,billCurrency)} ÷ ${peopleData.length} = ${_fcs(fullTotal/peopleData.length,billCurrency)}`)}
+                    <div className={`${CLS_DASHED_T} my-3`}></div></>}
+                    <p className={CLS_FB}>{fullDetails.length>0?'2':'1'}. PARTIAL BILLS:</p>
+                    {partialDetails.map((d,i)=>(
                       <div key={i} className={i>0?`pt-3 ${CLS_DASHED_T}`:''}>
-                        <p className="font-bold uppercase mb-1">{d.desc} ({_fc(d.amount,billCurrency)}){d.isPartial?' — PARTIAL':''}</p>
+                        <p className="font-bold uppercase mb-1">{d.desc} ({_fc(d.amount,billCurrency)})</p>
                         {d.shares.map((s,j)=><div key={j} className={CLS_JBM}><span>{s.name}:</span><span className="font-mono">{_fc(d.amount,billCurrency)} ÷ {d.shares.length} = {_fcs(s.share,billCurrency)}</span></div>)}
                       </div>
                     ))}
                     <div className={`${CLS_DASHED_T} my-3`}></div>
-                    <p className={CLS_FB}>2. TOTAL FAIR SHARES:</p>
+                    <p className={CLS_FB}>{fullDetails.length>0?'3':'2'}. TOTAL FAIR SHARES:</p>
                     {renderMathRow(peopleData,p=>`${_fcs(p.fairShare,billCurrency)} (${p.fairPct.toFixed(1)}%)`)}
                   </>)}
                 </div>
               </div>
             </div>
             <DashedDivider/>
-          </>
-        ):renderMathSection(billWeighting,[
-          <div key="s1">{renderAdjustedWealthStep(1,peopleData,billWeighting)}<div className={`flex justify-between mt-2 pt-2 ${CLS_DASHED_T} font-bold`}><span>TOTAL:</span><span className="font-mono">{_fsn(peopleData.reduce((s,p)=>s+p.adjustedWealth,0))}</span></div></div>,
-          <div key="s2"><p className={CLS_FB}>2. FAIR SHARE %:</p>{renderMathRow(peopleData,p=>{const ta=peopleData.reduce((s,pp)=>s+pp.adjustedWealth,0);return`${_fsn(p.adjustedWealth)} ÷ ${_fsn(ta)} = ${p.fairPct.toFixed(1)}%`;})}</div>,
-          <div key="s3"><p className={CLS_FB}>3. AMOUNT OWED:</p>{renderMathRow(peopleData,p=>`${p.fairPct.toFixed(1)}% × ${_fc(total,billCurrency)} = ${_fcs(p.fairShare,billCurrency)}`)}</div>
-        ],<div><p className={CLS_FB}>EQUAL SPLIT (NO WEIGHTING):</p>{renderMathRow(peopleData,p=>`${_fc(total,billCurrency)} ÷ ${peopleData.length} = ${_fcs(p.fairShare,billCurrency)}`)}</div>)}
+          </>;
+        })()}
       </>
     });
   }
@@ -1682,7 +1695,7 @@ const Comrade = () => {
   if(page==='sale-entry') return EntryPage({
     steps: SALE_STEPS,
     locked: !toolActivated,
-    intro: {desc:"Selling a product or service? Comrade assesses would-be buyers' bids while factoring in their wealth to show who really needs it most.",hasSaved:hasSaleSavedData,activated:toolActivated,resumeLabel:"RESUME SALE →",newLabel:"NEW SALE",onJump:()=>jump(1),onClear:()=>{setToolActivated(true);jump(1);},onStartOver:()=>handleClearAll('sale'),onExample:()=>{setToolActivated(true);loadExample('sale');}},
+    intro: {desc:"Selling a product or service? Comrade assesses would-be buyers' bids while factoring in their wealth to show who really needs it most.",hasSaved:hasSaleSavedData,activated:toolActivated,resumeLabel:"RESUME SALE",newLabel:"NEW SALE",onJump:()=>jump(1),onClear:()=>{setToolActivated(true);jump(1);},onStartOver:()=>handleClearAll('sale'),onExample:()=>{setToolActivated(true);loadExample('sale');}},
     calc: {onCalculate:()=>navigateTo('sale-results'),weighting:saleWeighting,onWeighting:setSaleWeighting,navigateToFaq,hasAdvanced:true,validate:()=>_errs([
       [!productName.trim(),'No product name entered'],
       [saleBuyers.length===0,'No buyers added'],
@@ -1693,7 +1706,7 @@ const Comrade = () => {
           <p className={CLS_STEP_P}>List what you're selling, and how many items are available.</p>
           <FormInput value={productName} onChange={e=>setProductName(e.target.value)} placeholder="PRODUCT NAME" className="mb-2"/>
           <FormInput type="number" value={numberAvailable} onChange={e=>setNumberAvailable(e.target.value)} placeholder="NUMBER AVAILABLE" min="1" step="1" inputMode="numeric"/>
-          <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(2)}/></div>
+          <div className="mt-6"><NavButton label="CONTINUE" onClick={()=>jump(2)}/></div>
         </div>
       ),
       ()=>(
@@ -1707,7 +1720,7 @@ const Comrade = () => {
           <FormInput type="number" value={curBuyerWealth} onChange={e=>setCurBuyerWealth(e.target.value)} placeholder={`${getCurrencySymbol(saleCurrency)} ${getWealthMetricLabel(saleWealthMetric)}`} {...NP} className="mb-3"/>
           <button onClick={()=>{if(curBuyerName.trim()){setSaleBuyers([...saleBuyers,{id:Date.now(),name:curBuyerName,wealth:curBuyerWealth,offer:curBuyerOffer}]);setCurBuyerName('');setCurBuyerWealth('');setCurBuyerOffer('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD BUYER</button>
           {saleBuyers.length>0?<ItemList items={saleBuyers} onDelete={id=>setSaleBuyers(saleBuyers.filter(b=>b.id!==id))} renderItem={b=><><p className={CLS_NAME}>{b.name}</p><p className={CLS_XS}>{getWealthMetricLabel(saleWealthMetric)}: {_fc(b.wealth,saleCurrency)}</p><p className={CLS_XS}>Offer: {_fc(b.offer,saleCurrency)}</p></>}/>:<EmptyState msg="No buyers added yet"/>}
-          <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(3)}/></div>
+          <div className="mt-6"><NavButton label="CONTINUE" onClick={()=>jump(3)}/></div>
         </div>
       ),
     ]
@@ -1750,7 +1763,7 @@ const Comrade = () => {
         </div>
       </div>
     ),
-    intro: {desc:"Make group decisions more equitably with Comrade. If your friends, classmates, or coworkers can't agree on something, give more voting power to those with less wealth.",hasSaved:hasVoteSavedData,activated:toolActivated,resumeLabel:"RESUME VOTE →",newLabel:"NEW VOTE",onJump:()=>jump(1),onClear:()=>{setToolActivated(true);jump(1);},onStartOver:()=>handleClearAll('vote'),onExample:()=>{setToolActivated(true);loadExample('vote');}},
+    intro: {desc:"Make group decisions more equitably with Comrade. If your friends, classmates, or coworkers can't agree on something, give more voting power to those with less wealth.",hasSaved:hasVoteSavedData,activated:toolActivated,resumeLabel:"RESUME VOTE",newLabel:"NEW VOTE",onJump:()=>jump(1),onClear:()=>{setToolActivated(true);jump(1);},onStartOver:()=>handleClearAll('vote'),onExample:()=>{setToolActivated(true);loadExample('vote');}},
     calc: {onCalculate:()=>navigateTo('vote-results'),weighting:voteWeighting,onWeighting:setVoteWeighting,navigateToFaq,hasAdvanced:true,validate:()=>_errs([
       [!voteDecision.trim(),'No decision or question entered'],
       [voteOptions.length===0,'No voting options added'],
@@ -1762,7 +1775,7 @@ const Comrade = () => {
         <div>
           <p className={CLS_STEP_P}>Enter the question the group is voting on.</p>
           <FormInput type="textarea" value={voteDecision} onChange={e=>setVoteDecision(e.target.value)} placeholder="DECISION TO BE MADE" rows={4}/>
-          <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(2)}/></div>
+          <div className="mt-6"><NavButton label="CONTINUE" onClick={()=>jump(2)}/></div>
         </div>
       ),
       ()=>(
@@ -1771,7 +1784,7 @@ const Comrade = () => {
           <FormInput value={curOptionText} onChange={e=>setCurOptionText(e.target.value)} placeholder="OPTION TEXT" className="mb-3"/>
           <button onClick={()=>{if(curOptionText.trim()){setVoteOptions([...voteOptions,{id:Date.now(),text:curOptionText}]);setCurOptionText('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD OPTION</button>
           {voteOptions.length>0?<div className="space-y-0">{voteOptions.map(opt=><div key={opt.id} className="flex justify-between items-center text-xs text-black border-b border-dashed border-gray-400 pb-2 pt-2"><p className="font-bold text-black uppercase flex-1">{opt.text}</p><button onClick={()=>setVoteOptions(voteOptions.filter(o=>o.id!==opt.id))} className={CLS_DEL}>×</button></div>)}</div>:<EmptyState msg="No options added yet"/>}
-          <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(3)}/></div>
+          <div className="mt-6"><NavButton label="CONTINUE" onClick={()=>jump(3)}/></div>
         </div>
       ),
       ()=>(
@@ -1788,7 +1801,7 @@ const Comrade = () => {
           <FormInput type="number" value={curParticipantWealth} onChange={e=>setCurParticipantWealth(e.target.value)} placeholder={`${getCurrencySymbol(voteCurrency)} ${getWealthMetricLabel(voteWealthMetric)}`} {...NP} className="mb-3"/>
           <button onClick={()=>{if(curParticipantName.trim()){setVoteParticipants([...voteParticipants,{id:Date.now(),name:curParticipantName,wealth:curParticipantWealth,vote:curParticipantVote}]);setCurParticipantName('');setCurParticipantWealth('');setCurParticipantVote('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD PERSON</button>
           {voteParticipants.length>0?<ItemList items={voteParticipants} onDelete={id=>setVoteParticipants(voteParticipants.filter(p=>p.id!==id))} renderItem={p=><><p className={CLS_NAME}>{p.name}</p><p className={CLS_XS}>{getWealthMetricLabel(voteWealthMetric)}: {_fc(p.wealth,voteCurrency)}</p><p className={CLS_XS}>Vote: {p.vote||'Not selected'}</p></>}/>:<EmptyState msg="No people added yet"/>}
-          <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(4)}/></div>
+          <div className="mt-6"><NavButton label="CONTINUE" onClick={()=>jump(4)}/></div>
         </div>
       ),
     ]
@@ -1822,7 +1835,7 @@ const Comrade = () => {
   if(page==='rent-entry') return EntryPage({
     steps: RENT_STEPS,
     locked: !toolActivated,
-    intro: {desc:"Split rent more fairly. Comrade accounts for both room size and each roommate's wealth. Larger rooms and higher earners pay more.",hasSaved:hasRentSavedData,activated:toolActivated,resumeLabel:"RESUME SPLIT →",newLabel:"NEW SPLIT",onJump:()=>jump(1),onClear:()=>{setToolActivated(true);jump(1);},onStartOver:()=>handleClearAll('rent'),onExample:()=>{setToolActivated(true);loadExample('rent');}},
+    intro: {desc:"Split rent more fairly. Comrade accounts for both room size and each roommate's wealth. Larger rooms and higher earners pay more.",hasSaved:hasRentSavedData,activated:toolActivated,resumeLabel:"RESUME SPLIT",newLabel:"NEW RENT-SPLIT",onJump:()=>jump(1),onClear:()=>{setToolActivated(true);jump(1);},onStartOver:()=>handleClearAll('rent'),onExample:()=>{setToolActivated(true);loadExample('rent');}},
     calc: {onCalculate:()=>navigateTo('rent-results'),weighting:rentWeighting,onWeighting:setRentWeighting,navigateToFaq,hasFloor:true,floor:rentFloor,onFloor:setRentFloor,validate:()=>_errs([
       [!parseFloat(totalRent),'No rent amount entered'],
       [rentPeople.length===0,'No tenants added'],
@@ -1838,7 +1851,7 @@ const Comrade = () => {
           </div>
           <FormInput type="number" value={totalRent} onChange={e=>setTotalRent(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} MONTHLY RENT`} {...NP} className="mb-2"/>
           <FormInput type="number" value={totalUtilities} onChange={e=>setTotalUtilities(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} MONTHLY UTILITIES`} {...NP}/>
-          <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(2)}/></div>
+          <div className="mt-6"><NavButton label="CONTINUE" onClick={()=>jump(2)}/></div>
         </div>
       ),
       ()=>(
@@ -1857,7 +1870,7 @@ const Comrade = () => {
           <FormInput type="number" value={curRoommateWealth} onChange={e=>setCurRoommateWealth(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} ${getWealthMetricLabel(rentWealthMetric)}`} {...NP} className="mb-3"/>
           <button onClick={()=>{if(curRoommateName.trim()){setRentPeople([...rentPeople,{id:Date.now(),name:curRoommateName,roomSize:curRoommateRoomSize,wealth:curRoommateWealth}]);setCurRoommateName('');setCurRoommateRoomSize('');setCurRoommateWealth('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD TENANT</button>
           {rentPeople.length>0?<ItemList items={rentPeople} onDelete={id=>setRentPeople(rentPeople.filter(p=>p.id!==id))} renderItem={p=><><p className={CLS_NAME}>{p.name}</p><p className={CLS_XS}>Room: {formatNumber((parseFloat(p.roomSize)||0).toFixed(0))} {getMeasurementLabel(rentMeasurement).toLowerCase()}</p><p className={CLS_XS}>{getWealthMetricLabel(rentWealthMetric)}: {_fc(p.wealth,rentCurrency)}</p></>}/>:<EmptyState msg="No tenants added yet"/>}
-          <div className="mt-6"><NavButton label="CONTINUE →" onClick={()=>jump(3)}/></div>
+          <div className="mt-6"><NavButton label="CONTINUE" onClick={()=>jump(3)}/></div>
         </div>
       ),
     ]
@@ -1887,7 +1900,6 @@ const Comrade = () => {
 
   return null;
 };
-
 
 
 // Render the app
