@@ -26,8 +26,6 @@
 
         
 
-
-
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -855,6 +853,9 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
               <a href="https://instagram.com/comradedotmoney" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="hover:opacity-60 transition-all">
                 <svg width="16" height="16" viewBox="0 0 24 24"><rect x="1" y="1" width="22" height="22" rx="5" fill={DARK}/><circle cx="12" cy="12" r="5" stroke={BG_GREY} strokeWidth="2" fill="none"/><circle cx="17.5" cy="6.5" r="1.5" fill={BG_GREY}/></svg>
               </a>
+              <a href="https://buy.stripe.com/5kQdR84SC3HaefS7GU0ZW00" target="_blank" rel="noopener noreferrer" aria-label="Donate" className="hover:opacity-60 transition-all">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><line x1="8" y1="1.5" x2="8" y2="13.5" stroke={DARK} strokeWidth="1.8" strokeLinecap="round"/><path d="M10.5 4.5C10.5 3.4 9.4 2.5 8 2.5s-2.5.9-2.5 2c0 1.3 1.2 1.8 2.5 2.2 1.3.4 2.5 1 2.5 2.3 0 1.1-1.1 2-2.5 2s-2.5-.9-2.5-2" stroke={DARK} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>
+              </a>
             </div>
           </div>
         </div>
@@ -935,6 +936,7 @@ const Comrade = () => {
   const [signupEmail, setSignupEmail] = useState('');
   const [signupStatus, setSignupStatus] = useState('');
   const [showDetails, setShowDetails] = useState(false);
+  const [showThanks, setShowThanks] = useState(false);
   const [entryOpen, setEntryOpen] = useState([0]);
   const editModeRef = useRef(false);
   const [toolActivated, setToolActivated] = useState(false);
@@ -1063,6 +1065,7 @@ const Comrade = () => {
         .catch(err => console.error('Failed to load split:', err));
       return;
     }
+    if(window.location.hash==='#thanks'){setShowThanks(true);}
     window.history.replaceState({page:'home'},'','#home');
     const onPop = e=>{ const p=e.state?.page||'home'; setPage(p); };
     window.addEventListener('popstate',onPop);
@@ -1385,6 +1388,7 @@ const Comrade = () => {
 
   if(page==='home') return (
     <Layout {...lp}>
+      {showThanks&&<div className="border-2 border-dashed border-gray-400 p-4 mb-4 animate-fadeIn"><p className="text-xs text-black leading-relaxed text-center">Thank you for supporting Comrade! Your assistance helps keep our products free to use and free of ads.</p></div>}
       <p className="text-center text-sm mb-4 text-black leading-relaxed font-bold">THE FAIRER WAY TO SPLIT BILLS WITH FRIENDS.</p>
       <p className="text-center text-sm mb-4 text-black leading-relaxed">COMRADE COMBINES AND SIMPLIFIES GROUP EXPENSES — THEN DIVIDES THEM BASED ON WEALTH.</p>
       <HomeAccordion navigateTo={navigateTo}/>
@@ -1440,9 +1444,9 @@ const Comrade = () => {
         <p className={CLS_PARA}>There is a tool to help decide <span role="link" tabIndex={0} className={CLS_LNK} onClick={()=>navigateTo('rent-entry')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&navigateTo('rent-entry')}>rent splits</span> in apartments more equitably, another to assist when <span role="link" tabIndex={0} className={CLS_LNK} onClick={()=>navigateTo('sale-entry')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&navigateTo('sale-entry')}>selling an item</span> to ensure the buyer is the person who values it most highly, and an experimental tool for <span role="link" tabIndex={0} className={CLS_LNK} onClick={()=>navigateTo('vote-entry')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&navigateTo('vote-entry')}>voting on decisions</span>.</p>
         <p className={CLS_PARA}>All are built around the same core mechanism — using wealth data to <span role="link" tabIndex={0} className={CLS_LNK} onClick={()=>navigateTo('faq',{faqIndex:2})} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&navigateTo('faq',{faqIndex:2})}>weight</span> people's input fairly.</p>
       </div>
-      <SubHed text="Get in touch"/>
+      <SubHed text="More about Comrade"/>
       <div className="text-black mb-6">
-        <p className={CLS_PARA}>Comrade is built with care in Brooklyn, New York. Got questions, feedback, or partnership inquiries? Reach out at <a href="mailto:hello@comrade.money" className={CLS_A}>hello@comrade.money</a></p>
+        <p className={CLS_PARA}>Comrade is a registration-pending public benefit company, built with care in Brooklyn, New York. If you appreciate Comrade, you can <a href="https://buy.stripe.com/5kQdR84SC3HaefS7GU0ZW00" target="_blank" rel="noopener noreferrer" className={CLS_A}>support our work via Stripe</a>. Got questions, feedback, or partnership inquiries? Reach out at <a href="mailto:hello@comrade.money" className={CLS_A}>hello@comrade.money</a></p>
       </div>
       <div className="mb-4">{renderEmailSignup()}</div>
     </Layout>
