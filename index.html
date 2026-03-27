@@ -759,16 +759,28 @@ const zFwd=(ya,yb)=>Array.from({length:_ZN+1},(_,i)=>`${+((i*_ZS).toFixed(3))},$
 const zRev=(ya,yb)=>Array.from({length:_ZN+1},(_,i)=>`${+((_ZN-i)*_ZS).toFixed(3)},${i%2?yb:ya}`).join(' ');
 
 const ReceiptTop = () => (
-  <svg aria-hidden="true" width="100%" height="32" viewBox="0 0 600 32" preserveAspectRatio="none" style={{display:'block'}}>
+<>
+  <svg aria-hidden="true" className="zz-thin" width="100%" height="32" viewBox="0 0 600 32" preserveAspectRatio="none" style={{display:'block'}}>
     <polygon points={`${zFwd(4,14)} 600,32 0,32`} fill={BG_GREY}/>
     <polygon points={`${zFwd(0,10)} ${zRev(4,14)}`} fill={DARK}/>
   </svg>
+  <svg aria-hidden="true" className="zz-thick" width="100%" height="32" viewBox="0 0 600 32" preserveAspectRatio="none" style={{display:'none'}}>
+    <polygon points={`${zFwd(8,18)} 600,32 0,32`} fill={BG_GREY}/>
+    <polygon points={`${zFwd(0,10)} ${zRev(8,18)}`} fill={DARK}/>
+  </svg>
+</>
 );
 const ReceiptBottom = () => (
-  <svg aria-hidden="true" width="100%" height="32" viewBox="0 0 600 32" preserveAspectRatio="none" style={{display:'block',marginTop:'-2px'}}>
+<>
+  <svg aria-hidden="true" className="zz-thin" width="100%" height="32" viewBox="0 0 600 32" preserveAspectRatio="none" style={{display:'block',marginTop:'-2px'}}>
     <polygon points={`0,0 600,0 ${zRev(28,18)}`} fill={BG_GREY}/>
     <polygon points={`${zFwd(32,22)} ${zRev(28,18)}`} fill={DARK}/>
   </svg>
+  <svg aria-hidden="true" className="zz-thick" width="100%" height="32" viewBox="0 0 600 32" preserveAspectRatio="none" style={{display:'none',marginTop:'-2px'}}>
+    <polygon points={`0,0 600,0 ${zRev(24,14)}`} fill={BG_GREY}/>
+    <polygon points={`${zFwd(32,22)} ${zRev(24,14)}`} fill={DARK}/>
+  </svg>
+</>
 );
 
 const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClearStorage,compact}) => (
@@ -797,7 +809,9 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
       @keyframes barGrow { from { width: 0; } }
       .bar-animate { animation: barGrow 0.8s ease-out forwards; }
       button:active { transform: scale(0.97); }
+      .donate-dollar { font-family: Arial, Helvetica, sans-serif !important; }
       @media (max-width: 700px) { .bg-symbols { display: none; } }
+      @media (min-width: 701px) { .receipt-wrapper { border-left-width: 8px; border-right-width: 8px; } .zz-thin { display: none !important; } .zz-thick { display: block !important; } }
       .toggle-4 { display: grid; grid-template-columns: repeat(4, 1fr); width: 100%; }
       @media (max-width: 520px) { .toggle-4 { grid-template-columns: repeat(2, 1fr); } }
       .footer-nav { display: grid; grid-template-columns: repeat(4, auto); justify-content: center; gap: 16px; }
@@ -853,8 +867,8 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
               <a href="https://instagram.com/comradedotmoney" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="hover:opacity-60 transition-all">
                 <svg width="16" height="16" viewBox="0 0 24 24"><rect x="1" y="1" width="22" height="22" rx="5" fill={DARK}/><circle cx="12" cy="12" r="5" stroke={BG_GREY} strokeWidth="2" fill="none"/><circle cx="17.5" cy="6.5" r="1.5" fill={BG_GREY}/></svg>
               </a>
-              <a href="https://buy.stripe.com/5kQdR84SC3HaefS7GU0ZW00" target="_blank" rel="noopener noreferrer" aria-label="Donate" className="hover:opacity-60 transition-all">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><line x1="8" y1="1.5" x2="8" y2="13.5" stroke={DARK} strokeWidth="1.8" strokeLinecap="round"/><path d="M10.5 4.5C10.5 3.4 9.4 2.5 8 2.5s-2.5.9-2.5 2c0 1.3 1.2 1.8 2.5 2.2 1.3.4 2.5 1 2.5 2.3 0 1.1-1.1 2-2.5 2s-2.5-.9-2.5-2" stroke={DARK} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>
+              <a href="https://buy.stripe.com/5kQdR84SC3HaefS7GU0ZW00" target="_blank" rel="noopener noreferrer" aria-label="Support" className="hover:opacity-60 transition-all">
+                <svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7.5" fill={DARK}/><text x="8" y="8" fill={BG_GREY} fontSize="11" fontWeight="bold" textAnchor="middle" dominantBaseline="central" className="donate-dollar">$</text></svg>
               </a>
             </div>
           </div>
@@ -868,6 +882,7 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
 );
 
 const _fc=(v,c)=>formatCurrency(v,2,c),_fcs=(v,c)=>formatCurrencySmart(v,c),_fsn=formatSmartNumber;
+const _ct=(title,sections,tagline)=>['💰 Comrade | '+title,...sections,'Calculated using www.comrade.money, '+tagline].join('\n\n');
 const BoxBranding=({tagline})=>(<div className="mt-4 pt-3 border-t-2 border-dashed" style={{borderColor:BG_GREY,textAlign:'right'}}><p style={{color:BG_GREY,fontSize:'12px',letterSpacing:'1px',marginBottom:'2px'}}>$€£</p><p style={{color:BG_GREY,fontSize:'9px',opacity:0.8,letterSpacing:'1px'}}>WWW.COMRADE.MONEY</p><p style={{color:BG_GREY,fontSize:'9px',opacity:0.6,letterSpacing:'0.5px',marginTop:'2px'}}>{tagline}</p></div>);
 
 const IntroStep = ({desc, hasSaved, resumeLabel, newLabel, onJump, onClear, onExample, isCollaborative, isSaving, saveError, onGroupSplit, collaborativeBanner, groupSplitPrompt, onStartOver, activated}) => {
@@ -944,6 +959,7 @@ const Comrade = () => {
   const navigateTo = useCallback((p, opts={})=>{
     window.history.pushState({page:p},'',`#${p}`);
     if(opts.faqIndex != null) setFaqOpenIndex(opts.faqIndex);
+    setShowThanks(false);
     setPage(p);
   },[]);
   const navigateToFaq = useCallback(()=>navigateTo('faq'),[navigateTo]);
@@ -996,7 +1012,8 @@ const Comrade = () => {
   const [splitNotFound, setSplitNotFound]   = useState(false);
   const [saveSuccess, setSaveSuccess]       = useState(false);
   const [groupName, setGroupName]           = useState('');
-
+  const [collabDirty, setCollabDirty]       = useState(false);
+  const collabReadyRef = useRef(false);
   // Form input state
   const [curPersonName, setCurPersonName]   = useState('');
   const [curPersonWealth, setCurPersonWealth] = useState('');
@@ -1060,6 +1077,7 @@ const Comrade = () => {
             setIsCollaborative(true);
             editModeRef.current = true;
             setPage('bill-entry');
+            setTimeout(()=>{collabReadyRef.current=true;},0);
           }
         })
         .catch(err => console.error('Failed to load split:', err));
@@ -1108,6 +1126,15 @@ const Comrade = () => {
 
   useEffect(()=>{if(showCopyToast){const t=setTimeout(()=>setShowCopyToast(false),2500);return()=>clearTimeout(t);}},[showCopyToast]);
 
+  useEffect(()=>{if(isCollaborative&&collabReadyRef.current)setCollabDirty(true);},[billPeople,billBills,billWeighting,billFloor,billCurrency,billWealthMetric,groupName]);
+
+  useEffect(()=>{
+    if(!collabDirty) return;
+    const handler=e=>{e.preventDefault();};
+    window.addEventListener('beforeunload',handler);
+    return()=>window.removeEventListener('beforeunload',handler);
+  },[collabDirty]);
+
   const saveSplit = useCallback(async (source = 'top') => {
     setIsSaving(true);
     setConflictSource(null);
@@ -1128,7 +1155,7 @@ const Comrade = () => {
           setIsCollaborative(true);
           window.history.pushState({ page: 'bill-entry' }, '', `/split/${data.id}`);
           setEntryOpen(prev => prev.includes(1) ? prev : [...prev, 1]);
-          setTimeout(()=>{const el=document.getElementById('accordion-step-0');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},150);
+          setTimeout(()=>{collabReadyRef.current=true;const el=document.getElementById('accordion-step-0');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},150);
         } else {
           setSaveError(data.error || 'Unexpected response from server');
         }
@@ -1136,7 +1163,7 @@ const Comrade = () => {
         const res = await fetch(`/api/split/${splitId}`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({...splitData, version:splitVersion}) });
         if (res.status === 409) { setConflictSource(source); }
         else if (!res.ok) { setSaveError(`Server error ${res.status}`); }
-        else { const data = await res.json(); if (data.version) setSplitVersion(data.version); setSaveSuccess(true); setTimeout(()=>setSaveSuccess(false),2500); }
+        else { const data = await res.json(); if (data.version) setSplitVersion(data.version); setSaveSuccess(true); setCollabDirty(false); setTimeout(()=>setSaveSuccess(false),2500); }
       }
     } catch (err) {
       setSaveError(`Network error: ${err.message}`);
@@ -1155,14 +1182,14 @@ const Comrade = () => {
       const latestVersion = current.version || splitVersion;
       const splitData = { people:billPeople, bills:billBills, weighting:billWeighting, floor:billFloor, currency:billCurrency, wealthMetric:billWealthMetric, groupName };
       const res = await fetch(`/api/split/${splitId}`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({...splitData, version:latestVersion}) });
-      if (res.ok) { const data = await res.json(); if (data.version) setSplitVersion(data.version); setSaveSuccess(true); setTimeout(()=>setSaveSuccess(false),2500); }
+      if (res.ok) { const data = await res.json(); if (data.version) setSplitVersion(data.version); setSaveSuccess(true); setCollabDirty(false); setTimeout(()=>setSaveSuccess(false),2500); }
     } catch (err) { console.error('Force save failed:', err); }
     finally { setIsSaving(false); }
   }, [splitId, splitVersion, billPeople, billBills, billWeighting, billFloor, billCurrency, billWealthMetric, groupName]);
 
   const handleClearAll = useCallback(type=>{
     ({
-      bill:()=>{ setBillPeople([]);setBillBills([]);setCurPersonName('');setCurPersonWealth('');setCurBillDesc('');setCurBillAmt('');setCurBillPaidBy('');setCurBillParticipants([]);setParticipantSelectorOpen(false);setPendingParticipants([]);setSplitId(null);setSplitVersion(null);setIsCollaborative(false);setConflictSource(null);setSaveError('');setShowGroupSplitPrompt(false);setGroupName(''); },
+      bill:()=>{ setBillPeople([]);setBillBills([]);setCurPersonName('');setCurPersonWealth('');setCurBillDesc('');setCurBillAmt('');setCurBillPaidBy('');setCurBillParticipants([]);setParticipantSelectorOpen(false);setPendingParticipants([]);setSplitId(null);setSplitVersion(null);setIsCollaborative(false);collabReadyRef.current=false;setCollabDirty(false);setConflictSource(null);setSaveError('');setShowGroupSplitPrompt(false);setGroupName(''); },
       sale:()=>{ setProductName('');setNumberAvailable('');setSaleBuyers([]);setCurBuyerName('');setCurBuyerWealth('');setCurBuyerOffer('');try{localStorage.removeItem(SALE_KEY);}catch{} },
       vote:()=>{ setVoteDecision('');setVoteOptions([]);setVoteParticipants([]);setCurParticipantName('');setCurParticipantWealth('');setCurParticipantVote('');setCurOptionText('');try{localStorage.removeItem(VOTE_KEY);}catch{} },
       rent:()=>{ setTotalRent('');setTotalUtilities('');setRentPeople([]);setCurRoommateName('');setCurRoommateRoomSize('');setCurRoommateWealth('');try{localStorage.removeItem(RENT_KEY);}catch{} },
@@ -1196,7 +1223,7 @@ const Comrade = () => {
   const clearStorage = useCallback(()=>{
     try{localStorage.removeItem(BILL_KEY);}catch{}
     setBillPeople([]);setBillBills([]);setBillWeighting('standard');setBillFloor('off');setBillCurrency('USD');setBillWealthMetric('salary');
-    setSplitId(null);setSplitVersion(null);setIsCollaborative(false);setConflictSource(null);setSaveError('');setShowGroupSplitPrompt(false);setToolActivated(false);setGroupName('');
+    setSplitId(null);setSplitVersion(null);setIsCollaborative(false);collabReadyRef.current=false;setCollabDirty(false);setConflictSource(null);setSaveError('');setShowGroupSplitPrompt(false);setToolActivated(false);setGroupName('');
     setCurBillParticipants([]);setParticipantSelectorOpen(false);setPendingParticipants([]);
     try{localStorage.removeItem(VOTE_KEY);}catch{}
     setVoteDecision('');setVoteOptions([]);setVoteParticipants([]);setVoteWeighting('standard');setVoteCurrency('USD');setVoteWealthMetric('salary');
@@ -1267,6 +1294,7 @@ const Comrade = () => {
   const NavButton = ({label,onClick}) => (
     <button onClick={onClick} className="bg-black text-white w-full py-3 font-bold border-2 border-black text-sm hover:bg-gray-800 transition-all mt-2">{label}</button>
   );
+  const contBtn = n => <div className="mt-6"><NavButton label="CONTINUE" onClick={()=>jump(n)}/></div>;
 
   const ResultsPage = ({entryPage, title, summary, stats, details, copyText, boxExtra}) => (
     <Layout {...lp}>
@@ -1388,7 +1416,7 @@ const Comrade = () => {
 
   if(page==='home') return (
     <Layout {...lp}>
-      {showThanks&&<div className="border-2 border-dashed border-gray-400 p-4 mb-4 animate-fadeIn"><p className="text-xs text-black leading-relaxed text-center">Thank you for supporting Comrade! Your assistance helps keep our products free to use and free of ads.</p></div>}
+      {showThanks&&<div className="border-2 border-dashed border-gray-400 p-4 mb-4 bg-gray-50 animate-fadeIn"><p className="text-xs text-black leading-relaxed text-center">Thank you for supporting Comrade! Your assistance helps keep our products free to use and free from ads.</p></div>}
       <p className="text-center text-sm mb-4 text-black leading-relaxed font-bold">THE FAIRER WAY TO SPLIT BILLS WITH FRIENDS.</p>
       <p className="text-center text-sm mb-4 text-black leading-relaxed">COMRADE COMBINES AND SIMPLIFIES GROUP EXPENSES — THEN DIVIDES THEM BASED ON WEALTH.</p>
       <HomeAccordion navigateTo={navigateTo}/>
@@ -1519,7 +1547,7 @@ const Comrade = () => {
           <p className="text-xs text-black mb-4 leading-relaxed">Keep the people and bills you've already added, or start fresh?</p>
           <div className="flex flex-col gap-2">
             <button onClick={()=>{setShowGroupSplitPrompt(false);saveSplit();}} className="w-full bg-white text-black py-2 font-bold text-xs border-2 border-black hover:bg-gray-100 transition-all">USE EXISTING DATA</button>
-            <button onClick={async()=>{handleClearAll('bill');setShowGroupSplitPrompt(false);setIsSaving(true);try{const r=await fetch('/api/split',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({people:[],bills:[],weighting:billWeighting,floor:billFloor,currency:billCurrency,wealthMetric:billWealthMetric,groupName:''})});const d=await r.json();if(d.id){setSplitId(d.id);setSplitVersion(1);setIsCollaborative(true);setToolActivated(true);window.history.pushState({page:'bill-entry'},'',`/split/${d.id}`);setEntryOpen(prev=>prev.includes(1)?prev:[...prev,1]);setTimeout(()=>{const el=document.getElementById('accordion-step-0');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},150);}}catch(e){console.error(e);}finally{setIsSaving(false);}}} className="w-full bg-white text-black py-2 font-bold text-xs border-2 border-black hover:bg-gray-100 transition-all">START FRESH</button>
+            <button onClick={async()=>{handleClearAll('bill');setShowGroupSplitPrompt(false);setIsSaving(true);try{const r=await fetch('/api/split',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({people:[],bills:[],weighting:billWeighting,floor:billFloor,currency:billCurrency,wealthMetric:billWealthMetric,groupName:''})});const d=await r.json();if(d.id){setSplitId(d.id);setSplitVersion(1);setIsCollaborative(true);setToolActivated(true);window.history.pushState({page:'bill-entry'},'',`/split/${d.id}`);setEntryOpen(prev=>prev.includes(1)?prev:[...prev,1]);setTimeout(()=>{collabReadyRef.current=true;const el=document.getElementById('accordion-step-0');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},150);}}catch(e){console.error(e);}finally{setIsSaving(false);}}} className="w-full bg-white text-black py-2 font-bold text-xs border-2 border-black hover:bg-gray-100 transition-all">START FRESH</button>
           </div>
         </div>
       ) : null,
@@ -1562,7 +1590,7 @@ const Comrade = () => {
             ?<ItemList items={billPeople} onDelete={id=>setBillPeople(billPeople.filter(p=>p.id!==id))} renderItem={p=><><p className={CLS_NAME}>{p.name}</p><p className={CLS_XS}>{getWealthMetricLabel(billWealthMetric)}: {_fc(p.wealth,billCurrency)}</p></>}/>
             :<EmptyState msg="No people added yet"/>
           }
-          <div className="mt-6"><NavButton label="CONTINUE" onClick={()=>jump(2)}/></div>
+          {contBtn(2)}
         </div>
       ),
       ()=>(
@@ -1617,7 +1645,7 @@ const Comrade = () => {
             ?<ItemList items={billBills} onDelete={id=>setBillBills(billBills.filter(b=>b.id!==id))} renderItem={b=>{const pL=b.participants?.length>0?b.participants.join(', '):null;return <><p className="text-black font-bold uppercase">{b.description}</p><p className="text-black text-xs">{b.paidBy||'Unknown'}{pL&&(' ('+pL+')')}</p></>;}} receiptStyle formatTotal={t=>_fc(t,billCurrency)} getAmount={b=>b.amount}/>
             :<EmptyState msg="No bills added yet" cls="mb-4"/>
           }
-          <div className="mt-6"><NavButton label="CONTINUE" onClick={()=>jump(3)}/></div>
+          {contBtn(3)}
         </div>
       ),
     ]
@@ -1625,7 +1653,7 @@ const Comrade = () => {
 
   if(page==='bill-results'){
     const {total,peopleData,transactions,hasPartialBills,billDetails,capWasApplied}=billCalculations;
-    const copyText=`💰 Comrade | ${groupName?groupName+' b':'B'}ill-splitting results\n\nTotal: ${_fc(total,billCurrency)}\n\n💸 Who pays who:\n${transactions.length===0?'All settled!':transactions.map(t=>`${t.from} pays ${t.to} ${_fcs(t.amount,billCurrency)}`).join('\n')}\n\n📊 Breakdown:\n${peopleData.map(p=>`${p.name}: Paid ${_fc(p.paid,billCurrency)} → fair share ${_fcs(p.fairShare,billCurrency)}`).join('\n')}\n\nCalculated using www.comrade.money, the fairer way to split bills with friends`;
+    const copyText=_ct(`${groupName?groupName+' b':'B'}ill-splitting results`,[`Total: ${_fc(total,billCurrency)}`,`💸 Who pays who:\n${transactions.length===0?'All settled!':transactions.map(t=>`${t.from} pays ${t.to} ${_fcs(t.amount,billCurrency)}`).join('\n')}`,`📊 Breakdown:\n${peopleData.map(p=>`${p.name}: Paid ${_fc(p.paid,billCurrency)} → fair share ${_fcs(p.fairShare,billCurrency)}`).join('\n')}`],'the fairer way to split bills with friends');
     return ResultsPage({
       entryPage:"bill-entry", title:groupName?`${groupName.toUpperCase()} SETTLEMENT`:"YOUR SETTLEMENT",
       boxExtra:<BoxBranding tagline="THE FAIRER WAY TO SPLIT BILLS WITH FRIENDS"/>,
@@ -1729,7 +1757,7 @@ const Comrade = () => {
           <p className={CLS_STEP_P}>List what you're selling, and how many items are available.</p>
           <FormInput value={productName} onChange={e=>setProductName(e.target.value)} placeholder="PRODUCT NAME" className="mb-2"/>
           <FormInput type="number" value={numberAvailable} onChange={e=>setNumberAvailable(e.target.value)} placeholder="NUMBER AVAILABLE" min="1" step="1" inputMode="numeric"/>
-          <div className="mt-6"><NavButton label="CONTINUE" onClick={()=>jump(2)}/></div>
+          {contBtn(2)}
         </div>
       ),
       ()=>(
@@ -1743,7 +1771,7 @@ const Comrade = () => {
           <FormInput type="number" value={curBuyerWealth} onChange={e=>setCurBuyerWealth(e.target.value)} placeholder={`${getCurrencySymbol(saleCurrency)} ${getWealthMetricLabel(saleWealthMetric)}`} {...NP} className="mb-3"/>
           <button onClick={()=>{if(curBuyerName.trim()){setSaleBuyers([...saleBuyers,{id:Date.now(),name:curBuyerName,wealth:curBuyerWealth,offer:curBuyerOffer}]);setCurBuyerName('');setCurBuyerWealth('');setCurBuyerOffer('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD BUYER</button>
           {saleBuyers.length>0?<ItemList items={saleBuyers} onDelete={id=>setSaleBuyers(saleBuyers.filter(b=>b.id!==id))} renderItem={b=><><p className={CLS_NAME}>{b.name}</p><p className={CLS_XS}>{getWealthMetricLabel(saleWealthMetric)}: {_fc(b.wealth,saleCurrency)}</p><p className={CLS_XS}>Offer: {_fc(b.offer,saleCurrency)}</p></>}/>:<EmptyState msg="No buyers added yet"/>}
-          <div className="mt-6"><NavButton label="CONTINUE" onClick={()=>jump(3)}/></div>
+          {contBtn(3)}
         </div>
       ),
     ]
@@ -1753,7 +1781,7 @@ const Comrade = () => {
     const {rankedBuyers,avgOffer}=saleCalculations;
     const numAvail=parseInt(numberAvailable)||1,winners=rankedBuyers.slice(0,numAvail);
     const isTie=rankedBuyers.length>1&&rankedBuyers[0].needScore===rankedBuyers[1].needScore&&rankedBuyers[0].needScore>0;
-    const copyText=`💰 Comrade | Selling results\n\nProduct: ${productName||'Unnamed'}\nQuantity: ${numAvail}\n\n💸 Selected buyer${winners.length>1?'s':''}:\n${winners.map(w=>`${w.name} → ${_fc(w.offer,saleCurrency)}`).join('\n')}\n\n📊 All buyers ranked:\n${rankedBuyers.map((b,i)=>`${i+1}. ${b.name} → Offer: ${_fc(b.offer,saleCurrency)} → need score: ${b.needScore.toFixed(4)}%`).join('\n')}\n\nCalculated using www.comrade.money, the fairer way to handle selling things`;
+    const copyText=_ct('Selling results',[`Product: ${productName||'Unnamed'}\nQuantity: ${numAvail}`,`💸 Selected buyer${winners.length>1?'s':''}:\n${winners.map(w=>`${w.name} → ${_fc(w.offer,saleCurrency)}`).join('\n')}`,`📊 All buyers ranked:\n${rankedBuyers.map((b,i)=>`${i+1}. ${b.name} → Offer: ${_fc(b.offer,saleCurrency)} → need score: ${b.needScore.toFixed(4)}%`).join('\n')}`],'the fairer way to handle selling things');
     return ResultsPage({
       entryPage:"sale-entry", title:`SELECTED BUYER${winners.length>1?'S':''}`,
       boxExtra:<BoxBranding tagline="THE FAIRER WAY TO HANDLE SELLING THINGS"/>,
@@ -1798,7 +1826,7 @@ const Comrade = () => {
         <div>
           <p className={CLS_STEP_P}>Enter the question the group is voting on.</p>
           <FormInput type="textarea" value={voteDecision} onChange={e=>setVoteDecision(e.target.value)} placeholder="DECISION TO BE MADE" rows={4}/>
-          <div className="mt-6"><NavButton label="CONTINUE" onClick={()=>jump(2)}/></div>
+          {contBtn(2)}
         </div>
       ),
       ()=>(
@@ -1807,7 +1835,7 @@ const Comrade = () => {
           <FormInput value={curOptionText} onChange={e=>setCurOptionText(e.target.value)} placeholder="OPTION TEXT" className="mb-3"/>
           <button onClick={()=>{if(curOptionText.trim()){setVoteOptions([...voteOptions,{id:Date.now(),text:curOptionText}]);setCurOptionText('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD OPTION</button>
           {voteOptions.length>0?<div className="space-y-0">{voteOptions.map(opt=><div key={opt.id} className="flex justify-between items-center text-xs text-black border-b border-dashed border-gray-400 pb-2 pt-2"><p className="font-bold text-black uppercase flex-1">{opt.text}</p><button onClick={()=>setVoteOptions(voteOptions.filter(o=>o.id!==opt.id))} className={CLS_DEL}>×</button></div>)}</div>:<EmptyState msg="No options added yet"/>}
-          <div className="mt-6"><NavButton label="CONTINUE" onClick={()=>jump(3)}/></div>
+          {contBtn(3)}
         </div>
       ),
       ()=>(
@@ -1824,7 +1852,7 @@ const Comrade = () => {
           <FormInput type="number" value={curParticipantWealth} onChange={e=>setCurParticipantWealth(e.target.value)} placeholder={`${getCurrencySymbol(voteCurrency)} ${getWealthMetricLabel(voteWealthMetric)}`} {...NP} className="mb-3"/>
           <button onClick={()=>{if(curParticipantName.trim()){setVoteParticipants([...voteParticipants,{id:Date.now(),name:curParticipantName,wealth:curParticipantWealth,vote:curParticipantVote}]);setCurParticipantName('');setCurParticipantWealth('');setCurParticipantVote('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD PERSON</button>
           {voteParticipants.length>0?<ItemList items={voteParticipants} onDelete={id=>setVoteParticipants(voteParticipants.filter(p=>p.id!==id))} renderItem={p=><><p className={CLS_NAME}>{p.name}</p><p className={CLS_XS}>{getWealthMetricLabel(voteWealthMetric)}: {_fc(p.wealth,voteCurrency)}</p><p className={CLS_XS}>Vote: {p.vote||'Not selected'}</p></>}/>:<EmptyState msg="No people added yet"/>}
-          <div className="mt-6"><NavButton label="CONTINUE" onClick={()=>jump(4)}/></div>
+          {contBtn(4)}
         </div>
       ),
     ]
@@ -1834,7 +1862,7 @@ const Comrade = () => {
     const {participantsData,totalVotingPower,voteBreakdown}=voteCalculations;
     const winner=voteBreakdown.length>0?voteBreakdown[0]:null;
     const isTie=voteBreakdown.length>1&&voteBreakdown[0].percentage===voteBreakdown[1].percentage;
-    const copyText=`💰 Comrade | Voting results\n\nDecision: ${voteDecision}\n\n🏆 Winner: ${winner?`${winner.option} (${winner.percentage.toFixed(1)}%)`:'None'}\n\n📊 Breakdown:\n${voteBreakdown.map((b,i)=>`${i+1}. ${b.option}: ${b.percentage.toFixed(1)}% (${b.voters.length} voter${b.voters.length!==1?'s':''})`).join('\n')}\n\nCalculated using www.comrade.money, the fairer way to make group decisions`;
+    const copyText=_ct('Voting results',[`Decision: ${voteDecision}`,`🏆 Winner: ${winner?`${winner.option} (${winner.percentage.toFixed(1)}%)`:'None'}`,`📊 Breakdown:\n${voteBreakdown.map((b,i)=>`${i+1}. ${b.option}: ${b.percentage.toFixed(1)}% (${b.voters.length} voter${b.voters.length!==1?'s':''})`).join('\n')}`],'the fairer way to make group decisions');
     return ResultsPage({
       entryPage:"vote-entry", title:"DECISION",
       boxExtra:<BoxBranding tagline="THE FAIRER WAY TO MAKE GROUP DECISIONS"/>,
@@ -1872,7 +1900,7 @@ const Comrade = () => {
           </div>
           <FormInput type="number" value={totalRent} onChange={e=>setTotalRent(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} MONTHLY RENT`} {...NP} className="mb-2"/>
           <FormInput type="number" value={totalUtilities} onChange={e=>setTotalUtilities(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} MONTHLY UTILITIES`} {...NP}/>
-          <div className="mt-6"><NavButton label="CONTINUE" onClick={()=>jump(2)}/></div>
+          {contBtn(2)}
         </div>
       ),
       ()=>(
@@ -1891,7 +1919,7 @@ const Comrade = () => {
           <FormInput type="number" value={curRoommateWealth} onChange={e=>setCurRoommateWealth(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} ${getWealthMetricLabel(rentWealthMetric)}`} {...NP} className="mb-3"/>
           <button onClick={()=>{if(curRoommateName.trim()){setRentPeople([...rentPeople,{id:Date.now(),name:curRoommateName,roomSize:curRoommateRoomSize,wealth:curRoommateWealth}]);setCurRoommateName('');setCurRoommateRoomSize('');setCurRoommateWealth('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD TENANT</button>
           {rentPeople.length>0?<ItemList items={rentPeople} onDelete={id=>setRentPeople(rentPeople.filter(p=>p.id!==id))} renderItem={p=><><p className={CLS_NAME}>{p.name}</p><p className={CLS_XS}>Room: {formatNumber((parseFloat(p.roomSize)||0).toFixed(0))} {getMeasurementLabel(rentMeasurement).toLowerCase()}</p><p className={CLS_XS}>{getWealthMetricLabel(rentWealthMetric)}: {_fc(p.wealth,rentCurrency)}</p></>}/>:<EmptyState msg="No tenants added yet"/>}
-          <div className="mt-6"><NavButton label="CONTINUE" onClick={()=>jump(3)}/></div>
+          {contBtn(3)}
         </div>
       ),
     ]
@@ -1899,7 +1927,7 @@ const Comrade = () => {
 
   if(page==='rent-results'){
     const {rentAmount,utilitiesAmount,total,totalRoomSize,rentData,totalRoomValue,rentCapApplied}=rentCalculations;
-    const copyText=`💰 Comrade | Rent-splitting results\n\nTotal: ${_fc(total,rentCurrency)}/month\nRent: ${_fc(rentAmount,rentCurrency)}\nUtilities: ${_fc(utilitiesAmount,rentCurrency)}\n\n📊 Breakdown:\n${rentData.map(p=>`${p.name}: ${_fcs(p.fairRent,rentCurrency)} → ${p.rentPct.toFixed(1)}% of total`).join('\n')}\n\nCalculated using www.comrade.money, the fairer way to calculate rent splits`;
+    const copyText=_ct('Rent-splitting results',[`Total: ${_fc(total,rentCurrency)}/month\nRent: ${_fc(rentAmount,rentCurrency)}\nUtilities: ${_fc(utilitiesAmount,rentCurrency)}`,`📊 Breakdown:\n${rentData.map(p=>`${p.name}: ${_fcs(p.fairRent,rentCurrency)} → ${p.rentPct.toFixed(1)}% of total`).join('\n')}`],'the fairer way to calculate rent splits');
     return ResultsPage({
       entryPage:"rent-entry", title:"MONTHLY PAYMENTS",
       boxExtra:<BoxBranding tagline="THE FAIRER WAY TO CALCULATE RENT SPLITS"/>,
@@ -1933,8 +1961,6 @@ const Comrade = () => {
 
   return null;
 };
-
-
 
 // Render the app
         const root = ReactDOM.createRoot(document.getElementById('root'));
