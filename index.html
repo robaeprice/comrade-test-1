@@ -799,7 +799,7 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
       button:active { transform: scale(0.97); }
       .donate-dollar { font-family: Arial, Helvetica, sans-serif !important; }
       @media (max-width: 700px) { .bg-symbols { display: none; } }
-      @media (min-width: 701px) { .receipt-outer { max-width: 672px; } .receipt-inner { padding-left: 40px; padding-right: 40px; } }
+      @media (min-width: 701px) { .receipt-outer { max-width: 672px; } .receipt-inner { padding-left: 40px; padding-right: 40px; } .receipt-wrapper { filter: drop-shadow(8px 12px 24px rgba(0,0,0,0.55)); } }
       .toggle-4 { display: grid; grid-template-columns: repeat(4, 1fr); width: 100%; }
       @media (max-width: 520px) { .toggle-4 { grid-template-columns: repeat(2, 1fr); } }
       .footer-nav { display: grid; grid-template-columns: repeat(4, auto); justify-content: center; gap: 16px; }
@@ -1949,6 +1949,7 @@ const Comrade = () => {
 
   return null;
 };
+
 
 
 
