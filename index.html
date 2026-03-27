@@ -26,6 +26,7 @@
 
         
 
+
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -759,28 +760,16 @@ const zFwd=(ya,yb)=>Array.from({length:_ZN+1},(_,i)=>`${+((i*_ZS).toFixed(3))},$
 const zRev=(ya,yb)=>Array.from({length:_ZN+1},(_,i)=>`${+((_ZN-i)*_ZS).toFixed(3)},${i%2?yb:ya}`).join(' ');
 
 const ReceiptTop = () => (
-<>
-  <svg aria-hidden="true" className="zz-thin" width="100%" height="32" viewBox="0 0 600 32" preserveAspectRatio="none" style={{display:'block'}}>
+  <svg aria-hidden="true" width="100%" height="32" viewBox="0 0 600 32" preserveAspectRatio="none" style={{display:'block'}}>
     <polygon points={`${zFwd(4,14)} 600,32 0,32`} fill={BG_GREY}/>
     <polygon points={`${zFwd(0,10)} ${zRev(4,14)}`} fill={DARK}/>
   </svg>
-  <svg aria-hidden="true" className="zz-thick" width="100%" height="32" viewBox="0 0 600 32" preserveAspectRatio="none" style={{display:'none'}}>
-    <polygon points={`${zFwd(8,18)} 600,32 0,32`} fill={BG_GREY}/>
-    <polygon points={`${zFwd(0,10)} ${zRev(8,18)}`} fill={DARK}/>
-  </svg>
-</>
 );
 const ReceiptBottom = () => (
-<>
-  <svg aria-hidden="true" className="zz-thin" width="100%" height="32" viewBox="0 0 600 32" preserveAspectRatio="none" style={{display:'block',marginTop:'-2px'}}>
+  <svg aria-hidden="true" width="100%" height="32" viewBox="0 0 600 32" preserveAspectRatio="none" style={{display:'block',marginTop:'-2px'}}>
     <polygon points={`0,0 600,0 ${zRev(28,18)}`} fill={BG_GREY}/>
     <polygon points={`${zFwd(32,22)} ${zRev(28,18)}`} fill={DARK}/>
   </svg>
-  <svg aria-hidden="true" className="zz-thick" width="100%" height="32" viewBox="0 0 600 32" preserveAspectRatio="none" style={{display:'none',marginTop:'-2px'}}>
-    <polygon points={`0,0 600,0 ${zRev(24,14)}`} fill={BG_GREY}/>
-    <polygon points={`${zFwd(32,22)} ${zRev(24,14)}`} fill={DARK}/>
-  </svg>
-</>
 );
 
 const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClearStorage,compact}) => (
@@ -811,7 +800,6 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
       button:active { transform: scale(0.97); }
       .donate-dollar { font-family: Arial, Helvetica, sans-serif !important; }
       @media (max-width: 700px) { .bg-symbols { display: none; } }
-      @media (min-width: 701px) { .receipt-wrapper { border-left-width: 8px; border-right-width: 8px; } .zz-thin { display: none !important; } .zz-thick { display: block !important; } }
       .toggle-4 { display: grid; grid-template-columns: repeat(4, 1fr); width: 100%; }
       @media (max-width: 520px) { .toggle-4 { grid-template-columns: repeat(2, 1fr); } }
       .footer-nav { display: grid; grid-template-columns: repeat(4, auto); justify-content: center; gap: 16px; }
@@ -1961,6 +1949,7 @@ const Comrade = () => {
 
   return null;
 };
+
 
 // Render the app
         const root = ReactDOM.createRoot(document.getElementById('root'));
