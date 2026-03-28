@@ -309,7 +309,7 @@ const ResultPieChart = () => (
     <svg aria-hidden="true" width="80" height="80" viewBox="0 0 80 80">
       <rect width="80" height="80" fill={BG_GREY}/>
       <path d="M 40 5 A 35 35 0 0 1 52.5 71.2 L 40 40 Z" fill="#D1D5DB" stroke={BG_GREY} strokeWidth="2"/>
-      <path d="M 40 40 L 52.5 71.2 A 35 35 0 0 1 8.8 52.5 L 40 40 Z" fill="#9CA3AF" stroke={BG_GREY} strokeWidth="2"/>
+      <path d="M 40 40 L 52.5 71.2 A 35 35 0 0 1 8.8 52.5 L 40 40 Z" fill="#6B7280" stroke={BG_GREY} strokeWidth="2"/>
       <path d="M 40 40 L 8.8 52.5 A 35 35 0 0 1 40 5 L 40 40 Z" fill="#6B7280" stroke={BG_GREY} strokeWidth="2"/>
     </svg>
   </div>
@@ -740,7 +740,7 @@ const FooterNav = ({onNavigate, onClearStorage}) => {
     <span role="link" tabIndex={0} onClick={handler || (() => resetCount(dest))} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&(handler||(()=>resetCount(dest)))()} className="cursor-pointer hover:underline font-bold sf" style={{color:DARK}}>{label}</span>
   );
   return (
-    <div className="footer-nav text-xs mt-4 mb-4">
+    <div className="footer-nav text-xs mt-4 mb-1">
       {navItem('about','ABOUT')}
       {navItem('tools','TOOLS')}
       {navItem('faq','FAQ')}
@@ -824,16 +824,15 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
             ):(
             <div className="bg-white mb-4 pt-3 pb-3 border-b-2 border-dashed border-gray-400">
               <div role="button" tabIndex={0} aria-label="Go to home" className="cursor-pointer text-center" onClick={()=>onNavigate('home')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&onNavigate('home')}>
-                <div className={CLS_CP} style={{marginBottom:'2px'}}>{'$ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £'}</div>
+                <div className={CLS_CP} style={{marginBottom:'2px'}}>{'$ € £ '.repeat(30).trim()}</div>
                 <img src="/logo.svg" alt="COMRADE" style={{width:'100%',display:'block',marginBottom:'6px',marginTop:'4px'}} onError={e=>{e.target.style.display='none';e.target.nextSibling.style.display='flex';}}/>
                 <div style={{display:'none',justifyContent:'space-between',alignItems:'baseline',width:'100%',marginBottom:'-2px',marginTop:'4px'}}>
                   {'COMRADE'.split('').map((c,i)=>(
                     <span key={i} style={{fontFamily:'Sixtyfour,monospace',fontWeight:900,color:DARK,fontSize:'clamp(24px,9vw,72px)',lineHeight:1}}>{c}</span>
                   ))}
                 </div>
-                <div className={CLS_CP} style={{marginTop:'2px'}}>{'$ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £ $ € £'}</div>
+                <div className={CLS_CP} style={{marginTop:'2px'}}>{'$ € £ '.repeat(30).trim()}</div>
               </div>
-              <p className="text-center text-black mt-2" style={{fontSize:'10px',letterSpacing:'1px'}}>{loadedAt}</p>
             </div>
             )}
             {children}
@@ -845,18 +844,19 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
                 {[[0,4],[6,2],[12,2],[22,8],[34,2],[38,2],[44,8],[56,2],[60,2],[66,8],[78,2],[82,2],[88,2],[94,4],[102,6],[110,2],[120,2],[124,4],[132,2],[140,8],[150,2],[154,8],[164,6],[172,2],[176,2],[182,2],[188,8],[198,2],[204,2],[208,4],[220,2],[230,2],[236,4],[242,2],[246,4],[254,2],[264,2],[270,4],[278,6],[286,8],[296,6],[304,2],[308,2],[316,8],[326,2],[330,4],[342,2],[346,2],[352,2],[356,4],[364,2],[374,4],[380,4],[386,8],[396,6],[404,8],[414,2],[418,4],[428,6],[436,2],[440,4]].map(([x,w],i)=><rect key={i} x={x} y="0" width={w} height="67"/>)}
               </g>
             </svg>
+            <p className="text-center text-black font-bold" style={{fontSize:'10px',letterSpacing:'1px',marginBottom:'14px'}}>{loadedAt}</p>
             <div className="flex justify-center gap-6 pb-3">
               <a href="mailto:hello@comrade.money" aria-label="Email" className="hover:opacity-60 transition-all">
-                <svg width="16" height="16" viewBox="0 0 24 24"><rect x="1" y="3" width="22" height="18" rx="2" fill={DARK}/><path d="M1 5l11 8 11-8" stroke={BG_GREY} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24"><rect x="1" y="3" width="22" height="18" rx="2" fill="#6B7280"/><path d="M1 5l11 8 11-8" stroke={BG_GREY} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>
               </a>
               <a href="https://x.com/comradedotmoney" target="_blank" rel="noopener noreferrer" aria-label="X" className="hover:opacity-60 transition-all">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill={DARK} stroke={DARK} strokeWidth="0.5"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="#6B7280" stroke="#6B7280" strokeWidth="0.5"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
               </a>
               <a href="https://instagram.com/comradedotmoney" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="hover:opacity-60 transition-all">
-                <svg width="16" height="16" viewBox="0 0 24 24"><rect x="1" y="1" width="22" height="22" rx="5" fill={DARK}/><circle cx="12" cy="12" r="5" stroke={BG_GREY} strokeWidth="2" fill="none"/><circle cx="17.5" cy="6.5" r="1.5" fill={BG_GREY}/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24"><rect x="1" y="1" width="22" height="22" rx="5" fill="#6B7280"/><circle cx="12" cy="12" r="5" stroke={BG_GREY} strokeWidth="2" fill="none"/><circle cx="17.5" cy="6.5" r="1.5" fill={BG_GREY}/></svg>
               </a>
               <a href="https://buy.stripe.com/5kQdR84SC3HaefS7GU0ZW00" target="_blank" rel="noopener noreferrer" aria-label="Support" className="hover:opacity-60 transition-all">
-                <svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7.5" fill={DARK}/><text x="8" y="8" fill={BG_GREY} fontSize="11" fontWeight="bold" textAnchor="middle" dominantBaseline="central" className="donate-dollar">$</text></svg>
+                <svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7.5" fill="#6B7280"/><text x="8" y="8" fill={BG_GREY} fontSize="11" fontWeight="bold" textAnchor="middle" dominantBaseline="central" className="donate-dollar">$</text></svg>
               </a>
             </div>
           </div>
@@ -1949,6 +1949,8 @@ const Comrade = () => {
 
   return null;
 };
+
+
 
 
 // Render the app
