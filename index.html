@@ -791,7 +791,7 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
       .border-black { border-color: ${DARK} !important; }
       .text-white { color: ${BG_GREY} !important; }
       .hover\\:bg-gray-800:hover { background-color: #2a2a2a !important; }
-      .currency-pattern { overflow: hidden; white-space: nowrap; text-align: center; }
+      .currency-pattern { overflow: hidden; white-space: nowrap; text-align: center; -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent); mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent); }
       @keyframes fadeIn { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
       .animate-fadeIn { animation: fadeIn 0.3s ease-in-out; }
       @keyframes barGrow { from { width: 0; } }
