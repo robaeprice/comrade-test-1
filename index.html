@@ -24,8 +24,7 @@
     <script type="text/babel">
         const { useState, useCallback, useEffect, useMemo, useRef } = React;
 
-        
-
+ 
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -771,7 +770,7 @@ const ReceiptBottom = () => (
   </svg>
 );
 
-const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClearStorage,compact}) => (
+const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClearStorage,compact,splash}) => (
   <div style={BG_STYLE}>
     <BgSymbols />
     <div style={{position:'relative',zIndex:1}}>
@@ -796,6 +795,8 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
       .animate-fadeIn { animation: fadeIn 0.3s ease-in-out; }
       @keyframes barGrow { from { width: 0; } }
       .bar-animate { animation: barGrow 0.8s ease-out forwards; }
+      .splash-screen { position:fixed;inset:0;z-index:9999;background:${DARK};display:flex;align-items:center;justify-content:center;transition:opacity 0.8s ease-out; }
+      .splash-fading { opacity:0; }
       button:active { transform: scale(0.97); }
       .donate-dollar { font-family: Arial, Helvetica, sans-serif !important; }
       @media (max-width: 700px) { .bg-symbols { display: none; } }
@@ -866,6 +867,7 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
     </div>
     </div>
     {showCopyToast&&<div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 px-6 py-3 font-bold z-50 border-2 sf" style={S_DARK}>{copyToastMsg}</div>}
+    {splash&&<div className={`splash-screen${splash==='fading'?' splash-fading':''}`}><span style={{color:BG_GREY,fontSize:'clamp(24px,8vw,48px)',letterSpacing:'12px'}}>$€£</span></div>}
   </div>
 );
 
@@ -940,6 +942,7 @@ const Comrade = () => {
   const [signupStatus, setSignupStatus] = useState('');
   const [showDetails, setShowDetails] = useState(false);
   const [showThanks, setShowThanks] = useState(false);
+  const [splash, setSplash] = useState(true);
   const [entryOpen, setEntryOpen] = useState([0]);
   const editModeRef = useRef(false);
   const [toolActivated, setToolActivated] = useState(false);
@@ -1112,6 +1115,8 @@ const Comrade = () => {
 
   useEffect(()=>{fetch('/quotes.json').then(r=>r.ok?r.json():null).then(q=>{if(q&&q.length)setQuotes(q);}).catch(()=>{});},[]);
 
+  useEffect(()=>{const t1=setTimeout(()=>setSplash('fading'),800);const t2=setTimeout(()=>setSplash(false),1600);return()=>{clearTimeout(t1);clearTimeout(t2);};},[]);
+
   useEffect(()=>{if(showCopyToast){const t=setTimeout(()=>setShowCopyToast(false),2500);return()=>clearTimeout(t);}},[showCopyToast]);
 
   useEffect(()=>{if(isCollaborative&&collabReadyRef.current)setCollabDirty(true);},[billPeople,billBills,billWeighting,billFloor,billCurrency,billWealthMetric,groupName]);
@@ -1249,7 +1254,7 @@ const Comrade = () => {
     </div>
   ) : null;
 
-  const lp = {onNavigate:navigateTo, showCopyToast, copyToastMsg, loadedAt, onClearStorage:clearStorage, compact: page !== 'home'};
+  const lp = {onNavigate:navigateTo, showCopyToast, copyToastMsg, loadedAt, onClearStorage:clearStorage, compact: page !== 'home', splash};
 
   const renderEmailSignup = () => (
     <div className={`bg-white p-6 ${CLS_DASHED}`}>
@@ -1949,9 +1954,6 @@ const Comrade = () => {
 
   return null;
 };
-
-
-
 
 // Render the app
         const root = ReactDOM.createRoot(document.getElementById('root'));
