@@ -36,7 +36,7 @@ module.exports = async function handler(req, res) {
         createdAt: current.createdAt,
         updatedAt: new Date().toISOString()
       };
-      await redisCommand(['SET', id, JSON.stringify(blob), 'EX', '2592000']);
+await redisCommand(['SET', id, JSON.stringify(blob)]);
       return res.status(200).json({ version: blob.version });
     } catch (err) {
       console.error(err);
