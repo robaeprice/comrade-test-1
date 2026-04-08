@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8"> 
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Wealth isn't evenly distributed. Costs shouldn't be either Free to use, privacy-first, no registration required.">
@@ -811,7 +811,9 @@ const CSS_BLOCK = `
   @media (max-width: 320px) { .footer-nav { grid-template-columns: repeat(2, 1fr); justify-items: center; } }
   .hp-mobile { display: block; }
   .hp-desktop { display: none; }
-  @media (min-width: 1060px) { .hp-mobile { display: none; } .hp-desktop { display: flex; gap: 28px; justify-content: center; align-items: flex-start; padding: 20px 24px; } .hp-ribbon-main { max-width: 540px; flex: 1.2; } .hp-ribbon-how { max-width: 420px; flex: 1; margin-top: 50px; } .hp-ribbon-how .receipt-wrapper { filter: drop-shadow(6px 8px 18px rgba(0,0,0,0.45)); } .hp-inner { padding-left: 32px; padding-right: 32px; } .hp-ribbon-main .hp-tagline { font-size: 16px; } }
+  .rp-mobile { display: block; }
+  .rp-desktop { display: none; }
+  @media (min-width: 1060px) { .hp-mobile { display: none; } .hp-desktop { display: flex; gap: 28px; justify-content: center; align-items: flex-start; padding: 20px 24px; } .hp-ribbon-main { max-width: 540px; flex: 1.2; } .hp-ribbon-how { max-width: 420px; flex: 1; margin-top: 50px; } .hp-ribbon-how .receipt-wrapper { filter: drop-shadow(6px 8px 18px rgba(0,0,0,0.45)); } .hp-inner { padding-left: 32px; padding-right: 32px; } .hp-ribbon-main .hp-tagline { font-size: 16px; } .rp-mobile { display: none; } .rp-desktop { display: flex; gap: 28px; justify-content: center; align-items: flex-start; padding: 20px 24px; } .rp-ribbon-main { max-width: 540px; flex: 1.2; } .rp-ribbon-details { max-width: 480px; flex: 1; margin-top: 30px; } .rp-ribbon-details .receipt-wrapper { filter: drop-shadow(6px 8px 18px rgba(0,0,0,0.45)); } .rp-inner { padding-left: 32px; padding-right: 32px; } }
 `;
 
 const FullLogoHeader = ({onNavigate}) => (
@@ -1343,19 +1345,65 @@ const Comrade = () => {
   );
   const contBtn = n => <div className="mt-6"><NavButton label="CONTINUE" onClick={()=>jump(n)}/></div>;
 
-  const ResultsPage = ({entryPage, title, summary, stats, details, copyText, boxExtra}) => (
-    <Layout {...lp}>
+  const ResultsPage = ({entryPage, title, summary, stats, details, copyText, boxExtra}) => {
+    const blackBox = (
       <div className="p-8 mb-4 border-4 sf animate-fadeIn" style={S_DARK}>
         <h3 className="text-xl font-black mb-4 uppercase tracking-wider pb-2" style={{borderBottom:`2px solid ${BG_GREY}`}}>{title}</h3>
         {summary}
         <BlackBoxStats stats={stats}/>
         {boxExtra}
       </div>
-      <DetailToggleButton show={showDetails} onClick={()=>setShowDetails(!showDetails)}/>
-      {showDetails&&<div className="animate-fadeIn">{details}</div>}
-      {renderResultsFooter(copyText, entryPage)}
-    </Layout>
-  );
+    );
+    const footer = renderResultsFooter(copyText, entryPage);
+    const compactHeader = (
+      <div className="mb-4 pt-3 pb-3 border-b-2 border-dashed border-gray-400">
+        <div role="button" tabIndex={0} aria-label="Go to home" className="cursor-pointer" onClick={()=>navigateTo('home')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&navigateTo('home')}>
+          <img src="/logo.svg" alt="COMRADE" style={{height:'48px',display:'block'}} onError={e=>{e.target.style.display='none';e.target.nextSibling.style.display='flex';}}/>
+          <div style={{display:'none',alignItems:'baseline',gap:'4px'}}>
+            {'COMRADE'.split('').map((c,i)=>(
+              <span key={i} style={{fontFamily:'Sixtyfour,monospace',fontWeight:900,color:DARK,fontSize:'24px',lineHeight:1}}>{c}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+    const rpShell = (cls, children) => (
+      <div className={cls}><div className="receipt-wrapper"><ReceiptTop/><div className="receipt-container"><div className="pt-0 px-6 pb-0 rp-inner">{children}</div></div><ReceiptBottom/></div></div>
+    );
+    return (
+      <>
+        <div className="rp-mobile">
+          <Layout {...lp}>
+            {blackBox}
+            <DetailToggleButton show={showDetails} onClick={()=>setShowDetails(!showDetails)}/>
+            {showDetails&&<div className="animate-fadeIn">{details}</div>}
+            {footer}
+          </Layout>
+        </div>
+        <div style={BG_STYLE}>
+          <BgSymbols/>
+          <div style={{position:'relative',zIndex:1}}>
+          <style>{CSS_BLOCK}</style>
+          <div className="rp-desktop">
+            {rpShell('rp-ribbon-main', <>
+              {compactHeader}
+              {blackBox}
+              {footer}
+              <ReceiptFooterContent onNavigate={navigateTo} onClearStorage={clearStorage} loadedAt={loadedAt}/>
+            </>)}
+            {rpShell('rp-ribbon-details', <>
+              <div className="pt-3 pb-3">
+                <h2 className="text-xl font-black text-black text-center mb-6" style={{letterSpacing:'2px'}}>BREAKDOWN</h2>
+                {details}
+              </div>
+            </>)}
+          </div>
+          {showCopyToast&&<div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 px-6 py-3 font-bold z-50 border-2 sf" style={S_DARK}>{copyToastMsg}</div>}
+          </div>
+        </div>
+      </>
+    );
+  };
 
   const EntryPage = ({steps, intro, calc, midSteps, banner, locked}) => {
     const rc = i => {
