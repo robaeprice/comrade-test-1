@@ -25,6 +25,7 @@
         const { useState, useCallback, useEffect, useMemo, useRef } = React;
 
  
+
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -814,7 +815,7 @@ const CSS_BLOCK = `
   @media (max-width: 320px) { .footer-nav { grid-template-columns: repeat(2, 1fr); justify-items: center; } }
   .hp-mobile { display: block; }
   .hp-desktop { display: none; }
-  @media (min-width: 1060px) { .hp-mobile { display: none; } .hp-desktop { display: flex; gap: 28px; justify-content: center; align-items: flex-start; padding: 20px 24px; } .hp-ribbon-main, .hp-ribbon-how { max-width: 480px; flex: 1; } .hp-ribbon-how { margin-top: 50px; } .hp-inner { padding-left: 32px; padding-right: 32px; } }
+  @media (min-width: 1060px) { .hp-mobile { display: none; } .hp-desktop { display: flex; gap: 28px; justify-content: center; align-items: flex-start; padding: 20px 24px; } .hp-ribbon-main { max-width: 540px; flex: 1.2; } .hp-ribbon-how { max-width: 420px; flex: 1; margin-top: 50px; } .hp-ribbon-how .receipt-wrapper { filter: drop-shadow(6px 8px 18px rgba(0,0,0,0.45)); } .hp-inner { padding-left: 32px; padding-right: 32px; } .hp-ribbon-main .hp-tagline { font-size: 16px; } }
 `;
 
 const FullLogoHeader = ({onNavigate}) => (
@@ -1507,10 +1508,14 @@ const Comrade = () => {
         <div className="hp-desktop">
           {receiptShell('hp-ribbon-main', <>
             <FullLogoHeader onNavigate={navigateTo}/>
+            <div style={{height:'24px'}}/>
             {thanksEl}
-            {taglinesEl}
+            <p className="hp-tagline text-center text-sm mb-4 text-black leading-relaxed font-bold">THE FAIRER WAY TO SPLIT BILLS WITH FRIENDS.</p>
+            <div style={{height:'16px'}}/>
+            <p className="hp-tagline text-center text-sm mb-6 text-black leading-relaxed">COMRADE COMBINES AND SIMPLIFIES GROUP EXPENSES — THEN DIVIDES THEM BASED ON WEALTH.</p>
+            <div style={{height:'20px'}}/>
             <div style={{display:'flex',flexDirection:'column',gap:'12px',maxWidth:'448px',margin:'0 auto'}}>
-              <button onClick={()=>navigateTo('bill-entry')} className="w-full bg-black text-white font-bold py-4 px-6 border-2 border-black hover:bg-gray-800 transition-all text-xl">GET STARTED</button>
+              <button onClick={()=>navigateTo('bill-entry')} className="w-full bg-black text-white font-bold py-5 px-6 border-2 border-black hover:bg-gray-800 transition-all text-2xl">GET STARTED</button>
               <div style={{textAlign:'center',marginTop:4}}>
                 <span role="link" tabIndex={0} onClick={()=>navigateTo('tools')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&navigateTo('tools')} style={{fontSize:'14px',color:'#6B7280',letterSpacing:'1px',cursor:'pointer',borderBottom:'1px dashed #6B7280',paddingBottom:'1px',display:'inline-block'}}>SEE ALL TOOLS →</span>
               </div>
@@ -2120,6 +2125,7 @@ const Comrade = () => {
 
   return null;
 };
+
 
 
 // Render the app
