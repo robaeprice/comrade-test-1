@@ -134,6 +134,7 @@ const BILL_KEY  = 'comrade_bill';
 const RENT_KEY  = 'comrade_rent';
 const SALE_KEY  = 'comrade_sale';
 const VOTE_KEY  = 'comrade_vote';
+const BET_KEY   = 'comrade_bet';
 const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
 
 const readStorage = (key) => {
@@ -153,6 +154,7 @@ const _b0 = readStorage(BILL_KEY)||{};
 const _s0 = readStorage(SALE_KEY)||{};
 const _v0 = readStorage(VOTE_KEY)||{};
 const _r0 = readStorage(RENT_KEY)||{};
+const _bt0 = readStorage(BET_KEY)||{};
 
 const formatTimestamp = () => {
   const d=new Date();
@@ -178,6 +180,10 @@ const EXAMPLE_DATA = {
   rent: {
     totalRent:'3600', totalUtilities:'240',
     people:[{name:'Marie',roomSize:'180',wealth:'42000'},{name:'Toulouse',roomSize:'140',wealth:'125000'},{name:'Berlioz',roomSize:'160',wealth:'68000'}]
+  },
+  bet: {
+    betPeople:[{name:'Mike',wealth:'140000'},{name:'Trent',wealth:'52000'},{name:'Rob',wealth:'78000'},{name:'Sue',wealth:'210000'}],
+    betAnchorIdx:'2', betAmount:'100'
   }
 };
 
@@ -188,6 +194,7 @@ const HouseIcon = ({size=20}) => <Icon size={size}><path d="M12 3L2 12h3v8h6v-6h
 const TagIcon = ({size=20}) => <Icon size={size}><path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z" fill={DARK}/></Icon>;
 const ToteFilledIcon = ({size=20}) => <Icon size={size}><rect x="3" y="8" width="18" height="13" rx="1" fill={DARK}/><path d="M8 8V6a4 4 0 018 0v2" fill="none" stroke={DARK} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></Icon>;
 const CheckCircleIcon = ({size=20}) => <Icon size={size}><circle cx="12" cy="12" r="11" fill={DARK}/><polyline points="7,12.5 10.5,16 17,9" fill="none" stroke={BG_GREY} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></Icon>;
+const DiceIcon = ({size=20}) => <Icon size={size}><rect x="2" y="2" width="20" height="20" rx="3" fill={DARK}/><circle cx="8" cy="8" r="1.5" fill={BG_GREY}/><circle cx="16" cy="8" r="1.5" fill={BG_GREY}/><circle cx="12" cy="12" r="1.5" fill={BG_GREY}/><circle cx="8" cy="16" r="1.5" fill={BG_GREY}/><circle cx="16" cy="16" r="1.5" fill={BG_GREY}/></Icon>;
 const QuestionIcon = ({size=20}) => <Icon size={size}><text x="6" y="19" fontFamily="monospace" fontSize="20" fill={DARK} fontWeight="bold">?</text></Icon>;
 const CalculateIcon = ({size=20}) => <Icon size={size}><line x1="4" y1="9" x2="20" y2="9" stroke={DARK} strokeWidth="3.5" strokeLinecap="round"/><line x1="4" y1="15" x2="20" y2="15" stroke={DARK} strokeWidth="3.5" strokeLinecap="round"/></Icon>;
 const ListIcon = ({size=20}) => <Icon size={size}><rect x="4" y="5" width="3" height="3" fill={DARK}/><rect x="4" y="10" width="3" height="3" fill={DARK}/><rect x="4" y="15" width="3" height="3" fill={DARK}/><line x1="9" y1="6.5" x2="20" y2="6.5" stroke={DARK} strokeWidth="2"/><line x1="9" y1="11.5" x2="20" y2="11.5" stroke={DARK} strokeWidth="2"/><line x1="9" y1="16.5" x2="20" y2="16.5" stroke={DARK} strokeWidth="2"/></Icon>;
@@ -218,6 +225,12 @@ const RENT_STEPS = [
   {label:'COSTS',      icon:<BillIcon size={22}/>},
   {label:'TENANTS',    icon:<PersonIcon size={22}/>},
   {label:'CALCULATE',  icon:<CalculateIcon size={22}/>},
+];
+const BET_STEPS = [
+  {label:'BET',       icon:<DiceIcon size={22}/>},
+  {label:'PEOPLE',    icon:<PersonIcon size={22}/>},
+  {label:'THE BET',   icon:<BillIcon size={22}/>},
+  {label:'CALCULATE', icon:<CalculateIcon size={22}/>},
 ];
 
 const scrollToStep = i => setTimeout(() => {
@@ -770,42 +783,107 @@ const ReceiptBottom = () => (
   </svg>
 );
 
-const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClearStorage,compact,splash}) => (
+const CSS_BLOCK = `
+  @import url('https://fonts.googleapis.com/css2?family=Sixtyfour:wght@400&display=swap');
+  * { font-family: 'Sixtyfour', monospace !important; word-wrap: break-word; overflow-wrap: break-word; }
+  html { background-color: #333333; }
+  html, body { overflow-y: auto !important; height: auto !important; }
+  .receipt-wrapper { border-left: 4px solid ${DARK}; border-right: 4px solid ${DARK}; filter: drop-shadow(6px 8px 18px rgba(0,0,0,0.45)); will-change: filter; transform: translateZ(0); }
+  .receipt-container { position: relative; background: ${BG_GREY}; }
+  .bg-white { background-color: ${BG_GREY} !important; }
+  .bg-gray-50 { background-color: #E5E7EB !important; }
+  button { white-space: normal; text-align: center; word-wrap: break-word; overflow-wrap: break-word; word-break: keep-all; hyphens: none; overflow: visible; min-height: fit-content; display: flex; align-items: center; justify-content: center; line-height: 1.3; padding: 0.5rem 1rem; margin-left: auto; margin-right: auto; }
+  button.calculate-btn { font-size: clamp(1rem, 4vw, 1.25rem); }
+  .text-black { color: ${DARK} !important; }
+  .bg-black { background-color: ${DARK} !important; }
+  .border-black { border-color: ${DARK} !important; }
+  .text-white { color: ${BG_GREY} !important; }
+  .hover\\:bg-gray-800:hover { background-color: #2a2a2a !important; }
+  .currency-pattern { overflow: hidden; white-space: nowrap; text-align: center; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+  .animate-fadeIn { animation: fadeIn 0.3s ease-in-out; }
+  @keyframes barGrow { from { width: 0; } }
+  .bar-animate { animation: barGrow 0.8s ease-out forwards; }
+  button:active { transform: scale(0.97); }
+  .donate-dollar { font-family: Arial, Helvetica, sans-serif !important; }
+  @media (max-width: 700px) { .bg-symbols { display: none; } }
+  @media (min-width: 701px) { .receipt-outer { max-width: 672px; } .receipt-inner { padding-left: 40px; padding-right: 40px; } .receipt-wrapper { filter: drop-shadow(8px 12px 24px rgba(0,0,0,0.55)); } }
+  .toggle-4 { display: grid; grid-template-columns: repeat(4, 1fr); width: 100%; }
+  @media (max-width: 520px) { .toggle-4 { grid-template-columns: repeat(2, 1fr); } }
+  .footer-nav { display: grid; grid-template-columns: repeat(4, auto); justify-content: center; gap: 16px; }
+  @media (max-width: 320px) { .footer-nav { grid-template-columns: repeat(2, 1fr); justify-items: center; } }
+  .hp-mobile { display: block; }
+  .hp-desktop { display: none; }
+  @media (min-width: 1060px) { .hp-mobile { display: none; } .hp-desktop { display: flex; gap: 28px; justify-content: center; align-items: flex-start; padding: 20px 24px; } .hp-ribbon-main, .hp-ribbon-how { max-width: 480px; flex: 1; } .hp-ribbon-how { margin-top: 50px; } .hp-inner { padding-left: 32px; padding-right: 32px; } }
+`;
+
+const FullLogoHeader = ({onNavigate}) => (
+  <div className="bg-white mb-4 pt-3 pb-3 border-b-2 border-dashed border-gray-400">
+    <div role="button" tabIndex={0} aria-label="Go to home" className="cursor-pointer text-center" onClick={()=>onNavigate('home')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&onNavigate('home')}>
+      <div className={CLS_CP} style={{marginBottom:'2px'}}>{'$ € £ '.repeat(30).trim()}</div>
+      <img src="/logo.svg" alt="COMRADE" style={{width:'100%',display:'block',marginBottom:'6px',marginTop:'4px'}} onError={e=>{e.target.style.display='none';e.target.nextSibling.style.display='flex';}}/>
+      <div style={{display:'none',justifyContent:'space-between',alignItems:'baseline',width:'100%',marginBottom:'-2px',marginTop:'4px'}}>
+        {'COMRADE'.split('').map((c,i)=>(
+          <span key={i} style={{fontFamily:'Sixtyfour,monospace',fontWeight:900,color:DARK,fontSize:'clamp(24px,9vw,72px)',lineHeight:1}}>{c}</span>
+        ))}
+      </div>
+      <div className={CLS_CP} style={{marginTop:'2px'}}>{'$ € £ '.repeat(30).trim()}</div>
+    </div>
+  </div>
+);
+
+const ReceiptFooterContent = ({onNavigate, onClearStorage, loadedAt}) => (
+  <>
+    <CurrencyDivider />
+    <FooterNav onNavigate={onNavigate} onClearStorage={onClearStorage}/>
+    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 464 73" width="100%" style={{display:'block',marginBottom:'8px'}}>
+      <rect x="0" y="0" width="464" height="73" fill={BG_GREY}/>
+      <g transform="translate(10, 3)" fill={DARK}>
+        {[[0,4],[6,2],[12,2],[22,8],[34,2],[38,2],[44,8],[56,2],[60,2],[66,8],[78,2],[82,2],[88,2],[94,4],[102,6],[110,2],[120,2],[124,4],[132,2],[140,8],[150,2],[154,8],[164,6],[172,2],[176,2],[182,2],[188,8],[198,2],[204,2],[208,4],[220,2],[230,2],[236,4],[242,2],[246,4],[254,2],[264,2],[270,4],[278,6],[286,8],[296,6],[304,2],[308,2],[316,8],[326,2],[330,4],[342,2],[346,2],[352,2],[356,4],[364,2],[374,4],[380,4],[386,8],[396,6],[404,8],[414,2],[418,4],[428,6],[436,2],[440,4]].map(([x,w],i)=><rect key={i} x={x} y="0" width={w} height="67"/>)}
+      </g>
+    </svg>
+    <p className="text-center text-black font-bold" style={{fontSize:'10px',letterSpacing:'1px',marginBottom:'14px'}}>{loadedAt}</p>
+    <div className="flex justify-center gap-6 pb-3">
+      <a href="mailto:hello@comrade.money" aria-label="Email" className="hover:opacity-60 transition-all">
+        <svg width="16" height="16" viewBox="0 0 24 24"><rect x="1" y="3" width="22" height="18" rx="2" fill="#6B7280"/><path d="M1 5l11 8 11-8" stroke={BG_GREY} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>
+      </a>
+      <a href="https://x.com/comradedotmoney" target="_blank" rel="noopener noreferrer" aria-label="X" className="hover:opacity-60 transition-all">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#6B7280" stroke="#6B7280" strokeWidth="0.5"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      </a>
+      <a href="https://instagram.com/comradedotmoney" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="hover:opacity-60 transition-all">
+        <svg width="16" height="16" viewBox="0 0 24 24"><rect x="1" y="1" width="22" height="22" rx="5" fill="#6B7280"/><circle cx="12" cy="12" r="5" stroke={BG_GREY} strokeWidth="2" fill="none"/><circle cx="17.5" cy="6.5" r="1.5" fill={BG_GREY}/></svg>
+      </a>
+      <a href="https://buy.stripe.com/5kQdR84SC3HaefS7GU0ZW00" target="_blank" rel="noopener noreferrer" aria-label="Support" className="hover:opacity-60 transition-all">
+        <svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7.5" fill="#6B7280"/><text x="8" y="8" fill={BG_GREY} fontSize="11" fontWeight="bold" textAnchor="middle" dominantBaseline="central" className="donate-dollar">$</text></svg>
+      </a>
+    </div>
+  </>
+);
+
+const HowItWorksPanel = ({navigateTo}) => (
+  <div className="pt-3 pb-3">
+    <h2 className="text-lg font-black text-black text-center mb-6" style={{letterSpacing:'1px'}}>HOW IT WORKS</h2>
+    <div className={`${CLS_DASHED} p-5`}>
+      <div className="space-y-6">
+        <div className={CLS_FG4}><div className={CLS_NUM} style={S_DARK}>1</div><div><h3 className={CLS_FBU}>ADD YOUR GROUP</h3><p className={CLS_XS}>Enter everyone's names, and incomes or net worth</p></div></div>
+        <PeopleAvatars />
+        <div className={CLS_FG4}><div className={CLS_NUM} style={S_DARK}>2</div><div><h3 className={CLS_FBU}>ENTER YOUR BILLS</h3><p className={CLS_XS}>List what was spent, and who paid</p></div></div>
+        <MockReceipt />
+        <div className={CLS_FG4}><div className={CLS_NUM} style={S_DARK}>3</div><div><h3 className={CLS_FBU}>GET FAIR RESULTS</h3><p className={CLS_XS}>See who owes what, based on ability to pay</p></div></div>
+        <ResultPieChart />
+      </div>
+      <div className="mt-6 flex flex-col max-w-xs mx-auto">
+        <button onClick={()=>navigateTo('about')} className="w-full font-bold py-4 px-8 border-2 border-black hover:bg-gray-100 transition-all text-lg" style={{background:BG_GREY,color:DARK}}>LEARN MORE</button>
+      </div>
+    </div>
+  </div>
+);
+
+const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClearStorage,compact}) => (
   <div style={BG_STYLE}>
     <BgSymbols />
     <div style={{position:'relative',zIndex:1}}>
-    <style>{`
-      @import url('https://fonts.googleapis.com/css2?family=Sixtyfour:wght@400&display=swap');
-      * { font-family: 'Sixtyfour', monospace !important; word-wrap: break-word; overflow-wrap: break-word; }
-      html { background-color: #333333; }
-      html, body { overflow-y: auto !important; height: auto !important; }
-      .receipt-wrapper { border-left: 4px solid ${DARK}; border-right: 4px solid ${DARK}; filter: drop-shadow(6px 8px 18px rgba(0,0,0,0.45)); will-change: filter; transform: translateZ(0); }
-      .receipt-container { position: relative; background: ${BG_GREY}; }
-      .bg-white { background-color: ${BG_GREY} !important; }
-      .bg-gray-50 { background-color: #E5E7EB !important; }
-      button { white-space: normal; text-align: center; word-wrap: break-word; overflow-wrap: break-word; word-break: keep-all; hyphens: none; overflow: visible; min-height: fit-content; display: flex; align-items: center; justify-content: center; line-height: 1.3; padding: 0.5rem 1rem; margin-left: auto; margin-right: auto; }
-      button.calculate-btn { font-size: clamp(1rem, 4vw, 1.25rem); }
-      .text-black { color: ${DARK} !important; }
-      .bg-black { background-color: ${DARK} !important; }
-      .border-black { border-color: ${DARK} !important; }
-      .text-white { color: ${BG_GREY} !important; }
-      .hover\\:bg-gray-800:hover { background-color: #2a2a2a !important; }
-      .currency-pattern { overflow: hidden; white-space: nowrap; text-align: center; }
-      @keyframes fadeIn { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
-      .animate-fadeIn { animation: fadeIn 0.3s ease-in-out; }
-      @keyframes barGrow { from { width: 0; } }
-      .bar-animate { animation: barGrow 0.8s ease-out forwards; }
-      .splash-screen { position:fixed;inset:0;z-index:9999;background:${DARK};display:flex;align-items:center;justify-content:center;transition:opacity 0.8s ease-out; }
-      .splash-fading { opacity:0; }
-      button:active { transform: scale(0.97); }
-      .donate-dollar { font-family: Arial, Helvetica, sans-serif !important; }
-      @media (max-width: 700px) { .bg-symbols { display: none; } }
-      @media (min-width: 701px) { .receipt-outer { max-width: 672px; } .receipt-inner { padding-left: 40px; padding-right: 40px; } .receipt-wrapper { filter: drop-shadow(8px 12px 24px rgba(0,0,0,0.55)); } }
-      .toggle-4 { display: grid; grid-template-columns: repeat(4, 1fr); width: 100%; }
-      @media (max-width: 520px) { .toggle-4 { grid-template-columns: repeat(2, 1fr); } }
-      .footer-nav { display: grid; grid-template-columns: repeat(4, auto); justify-content: center; gap: 16px; }
-      @media (max-width: 320px) { .footer-nav { grid-template-columns: repeat(2, 1fr); justify-items: center; } }
-    `}</style>
+    <style>{CSS_BLOCK}</style>
     <div className="max-w-xl mx-auto px-2 sm:px-0 py-5 receipt-outer">
       <div className="receipt-wrapper">
         <ReceiptTop />
@@ -823,43 +901,10 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
                 </div>
               </div>
             ):(
-            <div className="bg-white mb-4 pt-3 pb-3 border-b-2 border-dashed border-gray-400">
-              <div role="button" tabIndex={0} aria-label="Go to home" className="cursor-pointer text-center" onClick={()=>onNavigate('home')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&onNavigate('home')}>
-                <div className={CLS_CP} style={{marginBottom:'2px'}}>{'$ € £ '.repeat(30).trim()}</div>
-                <img src="/logo.svg" alt="COMRADE" style={{width:'100%',display:'block',marginBottom:'6px',marginTop:'4px'}} onError={e=>{e.target.style.display='none';e.target.nextSibling.style.display='flex';}}/>
-                <div style={{display:'none',justifyContent:'space-between',alignItems:'baseline',width:'100%',marginBottom:'-2px',marginTop:'4px'}}>
-                  {'COMRADE'.split('').map((c,i)=>(
-                    <span key={i} style={{fontFamily:'Sixtyfour,monospace',fontWeight:900,color:DARK,fontSize:'clamp(24px,9vw,72px)',lineHeight:1}}>{c}</span>
-                  ))}
-                </div>
-                <div className={CLS_CP} style={{marginTop:'2px'}}>{'$ € £ '.repeat(30).trim()}</div>
-              </div>
-            </div>
+              <FullLogoHeader onNavigate={onNavigate}/>
             )}
             {children}
-            <CurrencyDivider />
-            <FooterNav onNavigate={onNavigate} onClearStorage={onClearStorage}/>
-            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 464 73" width="100%" style={{display:'block',marginBottom:'8px'}}>
-              <rect x="0" y="0" width="464" height="73" fill={BG_GREY}/>
-              <g transform="translate(10, 3)" fill={DARK}>
-                {[[0,4],[6,2],[12,2],[22,8],[34,2],[38,2],[44,8],[56,2],[60,2],[66,8],[78,2],[82,2],[88,2],[94,4],[102,6],[110,2],[120,2],[124,4],[132,2],[140,8],[150,2],[154,8],[164,6],[172,2],[176,2],[182,2],[188,8],[198,2],[204,2],[208,4],[220,2],[230,2],[236,4],[242,2],[246,4],[254,2],[264,2],[270,4],[278,6],[286,8],[296,6],[304,2],[308,2],[316,8],[326,2],[330,4],[342,2],[346,2],[352,2],[356,4],[364,2],[374,4],[380,4],[386,8],[396,6],[404,8],[414,2],[418,4],[428,6],[436,2],[440,4]].map(([x,w],i)=><rect key={i} x={x} y="0" width={w} height="67"/>)}
-              </g>
-            </svg>
-            <p className="text-center text-black font-bold" style={{fontSize:'10px',letterSpacing:'1px',marginBottom:'14px'}}>{loadedAt}</p>
-            <div className="flex justify-center gap-6 pb-3">
-              <a href="mailto:hello@comrade.money" aria-label="Email" className="hover:opacity-60 transition-all">
-                <svg width="16" height="16" viewBox="0 0 24 24"><rect x="1" y="3" width="22" height="18" rx="2" fill="#6B7280"/><path d="M1 5l11 8 11-8" stroke={BG_GREY} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>
-              </a>
-              <a href="https://x.com/comradedotmoney" target="_blank" rel="noopener noreferrer" aria-label="X" className="hover:opacity-60 transition-all">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="#6B7280" stroke="#6B7280" strokeWidth="0.5"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-              </a>
-              <a href="https://instagram.com/comradedotmoney" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="hover:opacity-60 transition-all">
-                <svg width="16" height="16" viewBox="0 0 24 24"><rect x="1" y="1" width="22" height="22" rx="5" fill="#6B7280"/><circle cx="12" cy="12" r="5" stroke={BG_GREY} strokeWidth="2" fill="none"/><circle cx="17.5" cy="6.5" r="1.5" fill={BG_GREY}/></svg>
-              </a>
-              <a href="https://buy.stripe.com/5kQdR84SC3HaefS7GU0ZW00" target="_blank" rel="noopener noreferrer" aria-label="Support" className="hover:opacity-60 transition-all">
-                <svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7.5" fill="#6B7280"/><text x="8" y="8" fill={BG_GREY} fontSize="11" fontWeight="bold" textAnchor="middle" dominantBaseline="central" className="donate-dollar">$</text></svg>
-              </a>
-            </div>
+            <ReceiptFooterContent onNavigate={onNavigate} onClearStorage={onClearStorage} loadedAt={loadedAt}/>
           </div>
         </div>
         <ReceiptBottom />
@@ -867,7 +912,6 @@ const Layout = ({children,onNavigate,showCopyToast,copyToastMsg,loadedAt,onClear
     </div>
     </div>
     {showCopyToast&&<div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 px-6 py-3 font-bold z-50 border-2 sf" style={S_DARK}>{copyToastMsg}</div>}
-    {splash&&<div className={`splash-screen${splash==='fading'?' splash-fading':''}`}><span style={{color:BG_GREY,fontSize:'clamp(24px,8vw,48px)',letterSpacing:'12px'}}>$€£</span></div>}
   </div>
 );
 
@@ -942,7 +986,6 @@ const Comrade = () => {
   const [signupStatus, setSignupStatus] = useState('');
   const [showDetails, setShowDetails] = useState(false);
   const [showThanks, setShowThanks] = useState(false);
-  const [splash, setSplash] = useState(true);
   const [entryOpen, setEntryOpen] = useState([0]);
   const editModeRef = useRef(false);
   const [toolActivated, setToolActivated] = useState(false);
@@ -992,6 +1035,14 @@ const Comrade = () => {
   const [rentWealthMetric, setRentWealthMetric] = useState(_r0.rentWealthMetric||'salary');
   const [rentMeasurement, setRentMeasurement] = useState(_r0.rentMeasurement||'sqft');
 
+  // Bet state
+  const [betPeople, setBetPeople]             = useState(_bt0.betPeople||[]);
+  const [betAnchorIdx, setBetAnchorIdx]       = useState(_bt0.betAnchorIdx||'');
+  const [betAmount, setBetAmount]             = useState(_bt0.betAmount||'');
+  const [betWeighting, setBetWeighting]       = useState(_bt0.betWeighting||'standard');
+  const [betCurrency, setBetCurrency]         = useState(_bt0.betCurrency||'USD');
+  const [betWealthMetric, setBetWealthMetric] = useState(_bt0.betWealthMetric||'salary');
+
   // Collaborative state
   const [splitId, setSplitId]               = useState(null);
   const [splitVersion, setSplitVersion]     = useState(null);
@@ -1021,6 +1072,8 @@ const Comrade = () => {
   const [curRoommateName, setCurRoommateName]         = useState('');
   const [curRoommateRoomSize, setCurRoommateRoomSize] = useState('');
   const [curRoommateWealth, setCurRoommateWealth]     = useState('');
+  const [curBetterName, setCurBetterName]             = useState('');
+  const [curBetterWealth, setCurBetterWealth]         = useState('');
 
   // Partial bill participation state
   const [curBillParticipants, setCurBillParticipants] = useState([]);
@@ -1031,6 +1084,7 @@ const Comrade = () => {
   const hasSaleSavedData = saleBuyers.length>0 || !!productName;
   const hasVoteSavedData = voteParticipants.length>0 || !!voteDecision;
   const hasRentSavedData = rentPeople.length>0 || !!totalRent;
+  const hasBetSavedData = betPeople.length>0 || !!betAmount;
 
   // Persist to localStorage
   useEffect(()=>{
@@ -1038,7 +1092,8 @@ const Comrade = () => {
     saveToStorage(VOTE_KEY,{voteDecision,voteOptions,voteParticipants,voteCurrency,voteWealthMetric,voteWeighting});
     saveToStorage(SALE_KEY,{productName,numberAvailable,saleBuyers,saleCurrency,saleWealthMetric,saleWeighting});
     saveToStorage(RENT_KEY,{totalRent,totalUtilities,rentPeople,rentCurrency,rentWealthMetric,rentWeighting,rentFloor,rentMeasurement});
-  },[billPeople,billBills,billCurrency,billWealthMetric,billWeighting,billFloor,voteDecision,voteOptions,voteParticipants,voteCurrency,voteWealthMetric,voteWeighting,productName,numberAvailable,saleBuyers,saleCurrency,saleWealthMetric,saleWeighting,totalRent,totalUtilities,rentPeople,rentCurrency,rentWealthMetric,rentWeighting,rentFloor,rentMeasurement]);
+    saveToStorage(BET_KEY,{betPeople,betAnchorIdx,betAmount,betCurrency,betWealthMetric,betWeighting});
+  },[billPeople,billBills,billCurrency,billWealthMetric,billWeighting,billFloor,voteDecision,voteOptions,voteParticipants,voteCurrency,voteWealthMetric,voteWeighting,productName,numberAvailable,saleBuyers,saleCurrency,saleWealthMetric,saleWeighting,totalRent,totalUtilities,rentPeople,rentCurrency,rentWealthMetric,rentWeighting,rentFloor,rentMeasurement,betPeople,betAnchorIdx,betAmount,betCurrency,betWealthMetric,betWeighting]);
 
   // Load split from URL path on mount
   useEffect(()=>{
@@ -1099,9 +1154,12 @@ const Comrade = () => {
     } else if(page==='rent-entry') {
       setToolActivated(hasRentSavedData || em);
       setEntryOpen(em?[0,1,2,3]:[0]);
+    } else if(page==='bet-entry') {
+      setToolActivated(hasBetSavedData || em);
+      setEntryOpen(em?[0,1,2,3]:[0]);
     }
     editModeRef.current = false;
-    if(['bill-results','sale-results','vote-results','rent-results'].includes(page)){
+    if(['bill-results','sale-results','vote-results','rent-results','bet-results'].includes(page)){
       if(quotes){
         setLastQuoteIndices(prev=>{
           let idx,attempts=0;
@@ -1114,8 +1172,6 @@ const Comrade = () => {
   },[page]);
 
   useEffect(()=>{fetch('/quotes.json').then(r=>r.ok?r.json():null).then(q=>{if(q&&q.length)setQuotes(q);}).catch(()=>{});},[]);
-
-  useEffect(()=>{const t1=setTimeout(()=>setSplash('fading'),800);const t2=setTimeout(()=>setSplash(false),1600);return()=>{clearTimeout(t1);clearTimeout(t2);};},[]);
 
   useEffect(()=>{if(showCopyToast){const t=setTimeout(()=>setShowCopyToast(false),2500);return()=>clearTimeout(t);}},[showCopyToast]);
 
@@ -1186,6 +1242,7 @@ const Comrade = () => {
       sale:()=>{ setProductName('');setNumberAvailable('');setSaleBuyers([]);setCurBuyerName('');setCurBuyerWealth('');setCurBuyerOffer('');try{localStorage.removeItem(SALE_KEY);}catch{} },
       vote:()=>{ setVoteDecision('');setVoteOptions([]);setVoteParticipants([]);setCurParticipantName('');setCurParticipantWealth('');setCurParticipantVote('');setCurOptionText('');try{localStorage.removeItem(VOTE_KEY);}catch{} },
       rent:()=>{ setTotalRent('');setTotalUtilities('');setRentPeople([]);setCurRoommateName('');setCurRoommateRoomSize('');setCurRoommateWealth('');try{localStorage.removeItem(RENT_KEY);}catch{} },
+      bet:()=>{ setBetPeople([]);setBetAnchorIdx('');setBetAmount('');setCurBetterName('');setCurBetterWealth('');try{localStorage.removeItem(BET_KEY);}catch{} },
     })[type]?.();
     setToolActivated(false);
     setEntryOpen([0]);
@@ -1199,6 +1256,7 @@ const Comrade = () => {
       sale:()=>{ setProductName(data.productName);setNumberAvailable(data.numberAvailable);setSaleBuyers(data.buyers.map((b,i)=>({...b,id:base+i})));setCurBuyerName('');setCurBuyerWealth('');setCurBuyerOffer('');setEntryOpen([0,1,2,3]); },
       vote:()=>{ setVoteDecision(data.decision);setVoteOptions(data.options.map((o,i)=>({...o,id:base+i})));setVoteParticipants(data.participants.map((p,i)=>({...p,id:base+100+i})));setCurParticipantName('');setCurParticipantWealth('');setCurParticipantVote('');setCurOptionText('');setEntryOpen([0,1,2,3,4]); },
       rent:()=>{ setTotalRent(data.totalRent);setTotalUtilities(data.totalUtilities);setRentPeople(data.people.map((p,i)=>({...p,id:base+i})));setCurRoommateName('');setCurRoommateRoomSize('');setCurRoommateWealth('');setEntryOpen([0,1,2,3]); },
+      bet:()=>{ setBetPeople(data.betPeople.map((p,i)=>({...p,id:base+i})));setBetAnchorIdx(data.betAnchorIdx);setBetAmount(data.betAmount);setCurBetterName('');setCurBetterWealth('');setEntryOpen([0,1,2,3]); },
     })[type]?.();
     scrollToStep(2);
   },[]);
@@ -1224,6 +1282,8 @@ const Comrade = () => {
     setProductName('');setNumberAvailable('');setSaleBuyers([]);setSaleWeighting('standard');setSaleCurrency('USD');setSaleWealthMetric('salary');
     try{localStorage.removeItem(RENT_KEY);}catch{}
     setTotalRent('');setTotalUtilities('');setRentPeople([]);setRentWeighting('standard');setRentFloor('off');setRentCurrency('USD');setRentWealthMetric('salary');setRentMeasurement('sqft');
+    try{localStorage.removeItem(BET_KEY);}catch{}
+    setBetPeople([]);setBetAnchorIdx('');setBetAmount('');setBetWeighting('standard');setBetCurrency('USD');setBetWealthMetric('salary');
   },[]);
 
   const shareUrl = splitId ? `${window.location.origin}/split/${splitId}` : null;
@@ -1254,7 +1314,7 @@ const Comrade = () => {
     </div>
   ) : null;
 
-  const lp = {onNavigate:navigateTo, showCopyToast, copyToastMsg, loadedAt, onClearStorage:clearStorage, compact: page !== 'home', splash};
+  const lp = {onNavigate:navigateTo, showCopyToast, copyToastMsg, loadedAt, onClearStorage:clearStorage, compact: page !== 'home'};
 
   const renderEmailSignup = () => (
     <div className={`bg-white p-6 ${CLS_DASHED}`}>
@@ -1320,7 +1380,6 @@ const Comrade = () => {
     {q:'HOW DO GROUP SPLITS WORK?',render:<><p className={CLS_PARA3}>When you start a Group Split, Comrade generates a shareable link you can send to your group. Anyone with the link can view the split, add or remove people and expenses, and calculate results — with no account required.</p><p className={CLS_PARA3}>Group Splits are stored securely and can be deleted at any time.</p><p className={CLS_PARA}>Anyone with the link to a Group Split can access all the data in it.</p></>},
     {q:'IS COMRADE AVAILABLE ON THE APP STORE?',render:<p className={CLS_PARA}>Not yet! For now, Comrade is fully functional on mobile and desktop via our website, <a href="https://www.comrade.money" target="_blank" rel="noopener noreferrer" className={CLS_A}>www.comrade.money</a>. If you'd like to use a standalone app, or have other feedback or feature requests, please get in touch.</p>},
     {q:"IT'S AWKWARD ASKING MY FRIENDS HOW MUCH MONEY THEY HAVE. WHAT SHOULD I DO?",render:<p className={CLS_PARA}>Do it anyway.{' '}<a href="https://www.hbs.edu/ris/Publication%20Files/23-039_f20d86a0-a1cf-4bd6-8066-74ccc6f2c3cf.pdf" target="_blank" rel="noopener noreferrer" className={CLS_A}>Studies</a>{' '}have found{' '}<a href="https://www.nytimes.com/interactive/2020/02/19/magazine/salary-sharing.html" target="_blank" rel="noopener noreferrer" className={CLS_A}>breaking</a>{' '}the{' '}<a href="https://www.businessinsider.com/salary-pay-transparency-jobs-income-taboo-equity-2023-1" target="_blank" rel="noopener noreferrer" className={CLS_A}>taboos</a>{' '}around sharing information about wealth makes society better.</p>},
-    {q:'IS THIS SERIOUS?',a:'What do you think?'},
   ];
 
   const billCalculations = useMemo(()=>{
@@ -1407,19 +1466,70 @@ const Comrade = () => {
     return{rentAmount,utilitiesAmount,total,totalRoomSize:trs,rentData,totalRoomValue:trv,rentCapApplied};
   },[rentPeople,totalRent,totalUtilities,rentWeighting,rentFloor]);
 
-  if(page==='home') return (
-    <Layout {...lp}>
-      {showThanks&&<div className="border-2 border-dashed border-gray-400 p-4 mb-4 bg-gray-50 animate-fadeIn"><p className="text-xs text-black leading-relaxed text-center">Thank you for supporting Comrade! Your assistance helps keep our products free to use and free from ads.</p></div>}
-      <p className="text-center text-sm mb-4 text-black leading-relaxed font-bold">THE FAIRER WAY TO SPLIT BILLS WITH FRIENDS.</p>
-      <p className="text-center text-sm mb-4 text-black leading-relaxed">COMRADE COMBINES AND SIMPLIFIES GROUP EXPENSES — THEN DIVIDES THEM BASED ON WEALTH.</p>
-      <HomeAccordion navigateTo={navigateTo}/>
-    </Layout>
-  );
+  const betCalculations = useMemo(()=>{
+    if(betPeople.length<2||!betAmount) return{betData:[],pot:0,anchorName:''};
+    const amt=parseFloat(betAmount)||0,anchorIdx=parseInt(betAnchorIdx)||0;
+    const anchor=betPeople[anchorIdx];
+    if(!anchor) return{betData:[],pot:0,anchorName:''};
+    const anchorW=parseFloat(anchor.wealth)||1;
+    const anchorAW=applyWeighting(anchorW,betWeighting);
+    const betData=betPeople.map(p=>{
+      const w=parseFloat(p.wealth)||1,aw=applyWeighting(w,betWeighting);
+      const fairBet=betWeighting==='off'?amt:(aw/anchorAW)*amt;
+      return{...p,wealth:w,adjustedWealth:aw,fairBet};
+    }).sort((a,b)=>b.fairBet-a.fairBet);
+    const pot=betData.reduce((s,p)=>s+p.fairBet,0);
+    return{betData,pot,anchorName:anchor.name};
+  },[betPeople,betAmount,betAnchorIdx,betWeighting]);
+
+  if(page==='home') {
+    const thanksEl = showThanks&&<div className="border-2 border-dashed border-gray-400 p-4 mb-4 bg-gray-50 animate-fadeIn"><p className="text-xs text-black leading-relaxed text-center">Thank you for supporting Comrade! Your assistance helps keep our products free to use and free from ads.</p></div>;
+    const taglinesEl = <><p className="text-center text-sm mb-4 text-black leading-relaxed font-bold">THE FAIRER WAY TO SPLIT BILLS WITH FRIENDS.</p><p className="text-center text-sm mb-4 text-black leading-relaxed">COMRADE COMBINES AND SIMPLIFIES GROUP EXPENSES — THEN DIVIDES THEM BASED ON WEALTH.</p></>;
+    const receiptShell = (cls, children) => (
+      <div className={cls}><div className="receipt-wrapper"><ReceiptTop/><div className="receipt-container"><div className="pt-0 px-6 pb-0 hp-inner">{children}</div></div><ReceiptBottom/></div></div>
+    );
+    return (
+      <div style={BG_STYLE}>
+        <BgSymbols/>
+        <div style={{position:'relative',zIndex:1}}>
+        <style>{CSS_BLOCK}</style>
+        <div className="hp-mobile">
+          <div className="max-w-xl mx-auto px-2 sm:px-0 py-5 receipt-outer">
+            <div className="receipt-wrapper"><ReceiptTop/><div className="receipt-container"><div className="pt-0 px-6 pb-0 receipt-inner">
+              <FullLogoHeader onNavigate={navigateTo}/>
+              {thanksEl}
+              {taglinesEl}
+              <HomeAccordion navigateTo={navigateTo}/>
+              <ReceiptFooterContent onNavigate={navigateTo} onClearStorage={clearStorage} loadedAt={loadedAt}/>
+            </div></div><ReceiptBottom/></div>
+          </div>
+        </div>
+        <div className="hp-desktop">
+          {receiptShell('hp-ribbon-main', <>
+            <FullLogoHeader onNavigate={navigateTo}/>
+            {thanksEl}
+            {taglinesEl}
+            <div style={{display:'flex',flexDirection:'column',gap:'12px',maxWidth:'448px',margin:'0 auto'}}>
+              <button onClick={()=>navigateTo('bill-entry')} className="w-full bg-black text-white font-bold py-4 px-6 border-2 border-black hover:bg-gray-800 transition-all text-xl">GET STARTED</button>
+              <div style={{textAlign:'center',marginTop:4}}>
+                <span role="link" tabIndex={0} onClick={()=>navigateTo('tools')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&navigateTo('tools')} style={{fontSize:'14px',color:'#6B7280',letterSpacing:'1px',cursor:'pointer',borderBottom:'1px dashed #6B7280',paddingBottom:'1px',display:'inline-block'}}>SEE ALL TOOLS →</span>
+              </div>
+            </div>
+            <ReceiptFooterContent onNavigate={navigateTo} onClearStorage={clearStorage} loadedAt={loadedAt}/>
+          </>)}
+          {receiptShell('hp-ribbon-how', <HowItWorksPanel navigateTo={navigateTo}/>)}
+        </div>
+        {showCopyToast&&<div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 px-6 py-3 font-bold z-50 border-2 sf" style={S_DARK}>{copyToastMsg}</div>}
+        </div>
+      </div>
+    );
+  }
 
   if(page==='tools') {
     const tools=[
       {route:'bill-entry',icon:<BillIcon size={22}/>,label:'SPLITTING BILLS?'},
       {route:'rent-entry',icon:<HouseIcon size={22}/>,label:'SPLITTING RENT?'},
+      {route:'bet-entry',icon:<DiceIcon size={22}/>,label:'MAKING A BET?'},
       {route:'sale-entry',icon:<TagIcon size={22}/>,label:'SELLING SOMETHING?'},
       {route:'vote-entry',icon:<CheckCircleIcon size={22}/>,label:'VOTING ON A DECISION?',experimental:true},
     ];
@@ -1462,7 +1572,7 @@ const Comrade = () => {
       <SubHed text="More than just bill-splitting"/>
       <div className="space-y-4 text-black mb-2">
         <p className={CLS_PARA}>Beyond handling group bills, Comrade offers a number of other features.</p>
-        <p className={CLS_PARA}>There is a tool to help decide <span role="link" tabIndex={0} className={CLS_LNK} onClick={()=>navigateTo('rent-entry')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&navigateTo('rent-entry')}>rent splits</span> in apartments more equitably, another to assist when <span role="link" tabIndex={0} className={CLS_LNK} onClick={()=>navigateTo('sale-entry')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&navigateTo('sale-entry')}>selling an item</span> to ensure the buyer is the person who values it most highly, and an experimental tool for <span role="link" tabIndex={0} className={CLS_LNK} onClick={()=>navigateTo('vote-entry')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&navigateTo('vote-entry')}>voting on decisions</span>.</p>
+        <p className={CLS_PARA}>There is a tool to help decide <span role="link" tabIndex={0} className={CLS_LNK} onClick={()=>navigateTo('rent-entry')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&navigateTo('rent-entry')}>rent splits</span> in apartments more equitably, another to assist when <span role="link" tabIndex={0} className={CLS_LNK} onClick={()=>navigateTo('sale-entry')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&navigateTo('sale-entry')}>selling an item</span> to ensure the buyer is the person who values it most highly, an experimental tool for <span role="link" tabIndex={0} className={CLS_LNK} onClick={()=>navigateTo('vote-entry')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&navigateTo('vote-entry')}>voting on decisions</span>, and one for making <span role="link" tabIndex={0} className={CLS_LNK} onClick={()=>navigateTo('bet-entry')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&navigateTo('bet-entry')}>friendly bets</span> fairer.</p>
         <p className={CLS_PARA}>All are built around the same core mechanism — using wealth data to <span role="link" tabIndex={0} className={CLS_LNK} onClick={()=>navigateTo('faq',{faqIndex:2})} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&navigateTo('faq',{faqIndex:2})}>weight</span> people's input fairly.</p>
       </div>
       <SubHed text="More about Comrade"/>
@@ -1952,8 +2062,65 @@ const Comrade = () => {
     });
   }
 
+  if(page==='bet-entry') return EntryPage({
+    steps: BET_STEPS,
+    locked: !toolActivated,
+    intro: {desc:"Betting on an outcome? Running a sweepstake? Playing a game of skill? Comrade calculates how much each player should wager — so the stakes are fair for everyone.",hasSaved:hasBetSavedData,activated:toolActivated,resumeLabel:"RESUME BET",newLabel:"NEW BET",onJump:()=>jump(1),onClear:()=>{setToolActivated(true);jump(1);},onStartOver:()=>handleClearAll('bet'),onExample:()=>{setToolActivated(true);loadExample('bet');}},
+    calc: {onCalculate:()=>navigateTo('bet-results'),weighting:betWeighting,onWeighting:setBetWeighting,navigateToFaq,hasAdvanced:true,validate:()=>_errs([
+      [betPeople.length<2,'Need at least two people'],
+      [!betAmount||parseFloat(betAmount)<=0,'No bet amount entered'],
+      [betAnchorIdx===''||!betPeople[parseInt(betAnchorIdx)],'No lead selected'],
+    ])},
+    midSteps:[
+      ()=>(
+        <div>
+          <p className={CLS_STEP_P}>Add everyone who's in on the bet, along with their financial information.</p>
+          <CurrencyWealthSettings currency={betCurrency} onCurrency={setBetCurrency} wealth={betWealthMetric} onWealth={setBetWealthMetric}/>
+          <FormInput value={curBetterName} onChange={e=>setCurBetterName(e.target.value)} placeholder="NAME" className="mb-2"/>
+          <FormInput type="number" value={curBetterWealth} onChange={e=>setCurBetterWealth(e.target.value)} placeholder={`${getCurrencySymbol(betCurrency)} ${getWealthMetricLabel(betWealthMetric)}`} {...NP} className="mb-3"/>
+          <button onClick={()=>{if(curBetterName.trim()){setBetPeople([...betPeople,{id:Date.now(),name:curBetterName,wealth:curBetterWealth}]);setCurBetterName('');setCurBetterWealth('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD PERSON</button>
+          {betPeople.length>0?<ItemList items={betPeople} onDelete={id=>{const idx=betPeople.findIndex(p=>p.id===id);setBetPeople(betPeople.filter(p=>p.id!==id));if(parseInt(betAnchorIdx)===idx)setBetAnchorIdx('');else if(parseInt(betAnchorIdx)>idx)setBetAnchorIdx(String(parseInt(betAnchorIdx)-1));}} renderItem={b=><><p className={CLS_NAME}>{b.name}</p><p className={CLS_XS}>{getWealthMetricLabel(betWealthMetric)}: {_fc(b.wealth,betCurrency)}</p></>}/>:<EmptyState msg="No people added yet"/>}
+          {contBtn(2)}
+        </div>
+      ),
+      ()=>(
+        <div>
+          <p className={CLS_STEP_P}>Pick the person whose wager will be used to calculate how much everyone else should bet, and enter their amount.</p>
+          <select value={betAnchorIdx} onChange={e=>setBetAnchorIdx(e.target.value)} className={CLS_I1} style={{width:'100%',fontSize:'16px'}} aria-label="Lead person">
+            <option value="">SELECT PERSON</option>
+            {betPeople.map((p,i)=><option key={p.id} value={i}>{p.name.toUpperCase()}</option>)}
+          </select>
+          <FormInput type="number" value={betAmount} onChange={e=>setBetAmount(e.target.value)} placeholder={`${getCurrencySymbol(betCurrency)} BET AMOUNT`} {...NP} className="mt-2"/>
+          {contBtn(3)}
+        </div>
+      ),
+    ]
+  });
+
+  if(page==='bet-results'){
+    const {betData,pot,anchorName}=betCalculations;
+    const copyText=_ct('Betting results',[`Lead: ${anchorName} bets ${_fc(betAmount,betCurrency)}`,`🎲 Fair stakes:\n${betData.map(p=>`${p.name}: ${_fcs(p.fairBet,betCurrency)}`).join('\n')}`,`💰 Winner takes: ${_fcs(pot,betCurrency)}`],'the fairer way to make a bet');
+    return ResultsPage({
+      entryPage:"bet-entry", title:"FAIR STAKES",
+      boxExtra:<BoxBranding tagline="THE FAIRER WAY TO MAKE A BET"/>,
+      summary:<div className="space-y-3">{betData.map(p=><div key={p.id} className="pb-2" style={{borderBottom:`1px dashed ${BG_GREY}`}}><p className="text-lg font-semibold">{p.name.toUpperCase()} <span style={{opacity:0.5}}>BETS</span></p><p className="text-2xl font-black">{_fcs(p.fairBet,betCurrency)}</p></div>)}<div className="pt-2"><p className="text-lg font-semibold"><span style={{opacity:0.5}}>WINNER TAKES</span></p><p className="text-2xl font-black">{_fcs(pot,betCurrency)}</p></div></div>,
+      stats:[{label:'LEAD',value:anchorName.toUpperCase()},{label:'LEAD BET',value:_fc(betAmount,betCurrency)}],
+      copyText,
+      details:<>
+        {renderDetailCards('BETTOR DATA',betData,p=>({name:p.name,rows:[{label:'WEALTH',value:_fc(p.wealth,betCurrency)}],summaryRows:[{label:'FAIR BET',value:_fcs(p.fairBet,betCurrency)}]}))}
+        <DashedDivider/>
+        {(()=>{const evenBet=parseFloat(betAmount)||0;return renderBarVisualization('STAKES VISUALIZATION',betData,[{label:'EVEN',color:'#AAAAAA',getValue:()=>evenBet,displayValue:()=>_fcs(evenBet,betCurrency),rightLabel:()=>_fcs(evenBet,betCurrency)},{label:'FAIR',color:DARK,getValue:p=>p.fairBet,displayValue:p=>_fcs(p.fairBet,betCurrency),rightLabel:p=>_fcs(p.fairBet,betCurrency)}],p=>p.name);})()}
+        <DashedDivider/>
+        <div className="mb-6"><h3 className={CLS_H3}>WEALTH VISUALIZATION</h3>{renderWealthPieChart(betData)}</div>
+        <DashedDivider/>
+        {renderMathSection(betWeighting,[renderAdjustedWealthStep(1,betData,betWeighting),<div key="b2"><p className={CLS_FB}>2. FAIR BET (ADJUSTED WEALTH ÷ LEAD'S ADJUSTED WEALTH × BET):</p>{renderMathRow(betData,p=>`${_fsn(p.adjustedWealth)} ÷ ${_fsn(betData.find(d=>d.name===anchorName)?.adjustedWealth||1)} × ${_fc(betAmount,betCurrency)} = ${_fcs(p.fairBet,betCurrency)}`)}</div>,<div key="b3"><p className={CLS_FB}>3. TOTAL POT:</p><div className={CLS_JBM}><span>WINNER TAKES:</span><span className="font-mono">{_fcs(pot,betCurrency)}</span></div></div>],<div><p className={CLS_FB}>NO WEIGHTING - EVERYONE BETS EQUALLY:</p>{renderMathRow(betData,p=>`${p.name}: ${_fc(betAmount,betCurrency)}`)}<div className={`flex justify-between mt-2 pt-2 ${CLS_DASHED_T} font-bold`}><span>WINNER TAKES:</span><span className="font-mono">{_fcs(betData.length*(parseFloat(betAmount)||0),betCurrency)}</span></div></div>)}
+      </>
+    });
+  }
+
   return null;
 };
+
 
 // Render the app
         const root = ReactDOM.createRoot(document.getElementById('root'));
