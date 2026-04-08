@@ -26,6 +26,7 @@
 
  
 
+
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -322,7 +323,7 @@ const ResultPieChart = () => (
     <svg aria-hidden="true" width="80" height="80" viewBox="0 0 80 80">
       <rect width="80" height="80" fill={BG_GREY}/>
       <path d="M 40 5 A 35 35 0 0 1 52.5 71.2 L 40 40 Z" fill="#D1D5DB" stroke={BG_GREY} strokeWidth="2"/>
-      <path d="M 40 40 L 52.5 71.2 A 35 35 0 0 1 8.8 52.5 L 40 40 Z" fill="#6B7280" stroke={BG_GREY} strokeWidth="2"/>
+      <path d="M 40 40 L 52.5 71.2 A 35 35 0 0 1 8.8 52.5 L 40 40 Z" fill="#9CA3AF" stroke={BG_GREY} strokeWidth="2"/>
       <path d="M 40 40 L 8.8 52.5 A 35 35 0 0 1 40 5 L 40 40 Z" fill="#6B7280" stroke={BG_GREY} strokeWidth="2"/>
     </svg>
   </div>
@@ -362,11 +363,7 @@ const CurrencyWealthSettings = ({currency, onCurrency, wealth, onWealth, pad='p-
 
 const DashedDivider = () => <div className="border-t-2 border-dashed border-gray-400 my-6"/>;
 const CurrencyDivider = () => (
-  <div className="flex items-center gap-4 my-6">
-    <div className="flex-1 border-t-4" style={{borderColor:DARK}}></div>
-    <span className="text-xs font-bold sf">$ € £</span>
-    <div className="flex-1 border-t-4" style={{borderColor:DARK}}></div>
-  </div>
+  <div className="my-6 border-t-2 border-dashed border-gray-400"></div>
 );
 const BlackBoxStats = ({stats}) => (
   <div className="flex flex-wrap gap-x-5 gap-y-1 mt-4 pt-3 border-t-2 border-dashed" style={{borderColor:BG_GREY}}>
@@ -709,7 +706,7 @@ const HomeAccordion = ({navigateTo}) => {
         {openSection==='how'&&(
           <div style={S_PANEL}>
             <div className="space-y-6">
-              <div className={CLS_FG4}><div className={CLS_NUM} style={S_DARK}>1</div><div><h3 className={CLS_FBU}>ADD YOUR GROUP</h3><p className={CLS_XS}>Enter everyone's names, and incomes or net worth</p></div></div>
+              <div className={CLS_FG4}><div className={CLS_NUM} style={S_DARK}>1</div><div><h3 className={CLS_FBU}>ADD YOUR GROUP</h3><p className={CLS_XS}>Enter everyone's names, and salaries or net worth</p></div></div>
               <PeopleAvatars />
               <div className={CLS_FG4}><div className={CLS_NUM} style={S_DARK}>2</div><div><h3 className={CLS_FBU}>ENTER YOUR BILLS</h3><p className={CLS_XS}>List what was spent, and who paid</p></div></div>
               <MockReceipt />
@@ -866,7 +863,7 @@ const HowItWorksPanel = ({navigateTo}) => (
     <h2 className="text-lg font-black text-black text-center mb-6" style={{letterSpacing:'1px'}}>HOW IT WORKS</h2>
     <div className={`${CLS_DASHED} p-5`}>
       <div className="space-y-6">
-        <div className={CLS_FG4}><div className={CLS_NUM} style={S_DARK}>1</div><div><h3 className={CLS_FBU}>ADD YOUR GROUP</h3><p className={CLS_XS}>Enter everyone's names, and incomes or net worth</p></div></div>
+        <div className={CLS_FG4}><div className={CLS_NUM} style={S_DARK}>1</div><div><h3 className={CLS_FBU}>ADD YOUR GROUP</h3><p className={CLS_XS}>Enter everyone's names, and salaries or net worth</p></div></div>
         <PeopleAvatars />
         <div className={CLS_FG4}><div className={CLS_NUM} style={S_DARK}>2</div><div><h3 className={CLS_FBU}>ENTER YOUR BILLS</h3><p className={CLS_XS}>List what was spent, and who paid</p></div></div>
         <MockReceipt />
