@@ -26,6 +26,7 @@
 
  
 
+
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -1313,7 +1314,7 @@ const Comrade = () => {
   const lp = {onNavigate:navigateTo, showCopyToast, copyToastMsg, loadedAt, onClearStorage:clearStorage, compact: page !== 'home'};
 
   const renderEmailSignup = () => (
-    <div className={`bg-white p-6 ${CLS_DASHED}`}>
+    <div className="bg-white p-6 border border-dashed border-gray-400">
       <h3 className="text-lg font-bold text-black uppercase tracking-wider text-center mb-2">LIKE COMRADE?</h3>
       <p className="text-xs text-black text-center mb-4">Get updates and news from the team.</p>
       {signupStatus==='success'
@@ -1813,6 +1814,10 @@ const Comrade = () => {
       stats:[{label:'TOTAL BILLS',value:billBills.length},{label:'TOTAL',value:_fc(total,billCurrency)},{label:'PEOPLE',value:billPeople.length}],
       copyText,
       details:<>
+        <div className="mb-6"><h3 className={CLS_H3}>WEALTH VISUALIZATION</h3>{renderWealthPieChart(peopleData)}</div>
+        <DashedDivider/>
+        {(()=>{const evenShare=total/peopleData.length;const evenPct=100/peopleData.length;return renderBarVisualization('PAYMENT VISUALIZATION',sortByW(peopleData),[{label:'EVEN',color:'#AAAAAA',getValue:()=>evenShare,displayValue:()=>`${evenPct.toFixed(0)}%`,rightLabel:()=>_fc(evenShare,billCurrency)},{label:'PAID',color:'#777777',getValue:p=>p.paid,displayValue:p=>`${p.paidPct.toFixed(0)}%`,rightLabel:p=>_fc(p.paid,billCurrency)},{label:'FAIR',color:DARK,getValue:p=>p.fairShare,displayValue:p=>`${p.fairPct.toFixed(0)}%`,rightLabel:p=>_fcs(p.fairShare,billCurrency)}],p=>p.name);})()}
+        <DashedDivider/>
         {renderDetailCards('PARTICIPANT DATA',sortByW(peopleData),p=>{const bal=p.paid-p.fairShare;return{name:p.name,rows:[{label:'WEALTH',value:_fc(p.wealth,billCurrency)},{label:'PAID',value:`${_fc(p.paid,billCurrency)} (${p.paidPct.toFixed(1)}%)`},{label:'FAIR SHARE',value:`${_fcs(p.fairShare,billCurrency)} (${p.fairPct.toFixed(1)}%)`}],summaryRows:[{label:'BALANCE',value:`${bal>0.01?'+':''}${_fcs(bal,billCurrency)}`}]};})}
         <DashedDivider/>
         <div className="mb-6">
@@ -1820,10 +1825,6 @@ const Comrade = () => {
           <div className="space-y-3 mb-4">{billBills.map((b,i)=>{const pL=b.participants?.length>0?b.participants.join(', '):null;return <div key={b.id||i} className="flex justify-between items-start text-xs text-black border-b border-dashed border-gray-400 pb-2"><div className="flex-1"><p className="font-bold text-black uppercase">{b.description}</p><p className="text-black text-xs">{b.paidBy||'Unknown'}{pL&&(' ('+pL+')')}</p></div><span className="font-bold text-black ml-4">{_fc(b.amount,billCurrency)}</span></div>;})}</div>
           <div className={CLS_TOTAL}><span className={CLS_FBS}>TOTAL</span><span className={CLS_FBT}>{_fc(total,billCurrency)}</span></div>
         </div>
-        <DashedDivider/>
-        <div className="mb-6"><h3 className={CLS_H3}>WEALTH VISUALIZATION</h3>{renderWealthPieChart(peopleData)}</div>
-        <DashedDivider/>
-        {(()=>{const evenShare=total/peopleData.length;const evenPct=100/peopleData.length;return renderBarVisualization('PAYMENT VISUALIZATION',sortByW(peopleData),[{label:'EVEN',color:'#AAAAAA',getValue:()=>evenShare,displayValue:()=>`${evenPct.toFixed(0)}%`,rightLabel:()=>_fc(evenShare,billCurrency)},{label:'PAID',color:'#777777',getValue:p=>p.paid,displayValue:p=>`${p.paidPct.toFixed(0)}%`,rightLabel:p=>_fc(p.paid,billCurrency)},{label:'FAIR',color:DARK,getValue:p=>p.fairShare,displayValue:p=>`${p.fairPct.toFixed(0)}%`,rightLabel:p=>_fcs(p.fairShare,billCurrency)}],p=>p.name);})()}
         <DashedDivider/>
         {(()=>{
           const capMax=billFloor!=='off'?parseFloat(billFloor)*(total/peopleData.length):0;
@@ -1941,9 +1942,9 @@ const Comrade = () => {
       stats:[{label:'PRODUCT',value:productName.toUpperCase()||'N/A'},{label:'AVAILABLE',value:numAvail},{label:'AVG OFFER',value:_fc(avgOffer,saleCurrency)}],
       copyText,
       details:<>
-        {renderDetailCards('BUYER DATA',rankedBuyers,(b,i)=>({name:`#${i+1} ${b.name}`,cardClassName:`p-4 border-2 ${i<numAvail?'border-black bg-gray-100':'border-gray-400 bg-white'}`,titleExtra:<span className={`px-2 py-1 text-xs font-bold border sf ${i<numAvail?'bg-black text-white border-black':'bg-white text-black border-black'}`}>{i<numAvail?'SELECTED':'NOT SELECTED'}</span>,rows:[{label:'WEALTH',value:_fc(b.wealth,saleCurrency)},{label:'OFFER',value:_fc(b.offer,saleCurrency)}],summaryRows:[{label:'NEED SCORE',value:`${b.needScore<0.01?b.needScore.toExponential(4):b.needScore.toFixed(2)}%`}]}))}
-        <DashedDivider/>
         {renderBarVisualization('NEED SCORE VISUALIZATION',rankedBuyers,[{getValue:b=>b.needScore,displayValue:b=>`${b.needScore<0.01?b.needScore.toExponential(2):b.needScore.toFixed(1)}%`,rightLabel:(_,i)=>`#${i+1}`}],b=>b.name)}
+        <DashedDivider/>
+        {renderDetailCards('BUYER DATA',rankedBuyers,(b,i)=>({name:`#${i+1} ${b.name}`,cardClassName:`p-4 border-2 ${i<numAvail?'border-black bg-gray-100':'border-gray-400 bg-white'}`,titleExtra:<span className={`px-2 py-1 text-xs font-bold border sf ${i<numAvail?'bg-black text-white border-black':'bg-white text-black border-black'}`}>{i<numAvail?'SELECTED':'NOT SELECTED'}</span>,rows:[{label:'WEALTH',value:_fc(b.wealth,saleCurrency)},{label:'OFFER',value:_fc(b.offer,saleCurrency)}],summaryRows:[{label:'NEED SCORE',value:`${b.needScore<0.01?b.needScore.toExponential(4):b.needScore.toFixed(2)}%`}]}))}
         <DashedDivider/>
         {renderMathSection(saleWeighting,[renderAdjustedWealthStep(1,rankedBuyers,saleWeighting),<div key="s2"><p className={CLS_FB}>2. NEED SCORE (OFFER ÷ ADJUSTED WEALTH × 100):</p>{renderMathRow(rankedBuyers,b=>`${_fc(b.offer,saleCurrency)} ÷ ${_fsn(b.adjustedWealth)} × 100 = ${b.needScore<0.01?b.needScore.toExponential(2):b.needScore.toFixed(2)}%`)}</div>],<div><p className={CLS_FB}>NO WEIGHTING - RANKED BY OFFER AMOUNT:</p>{rankedBuyers.map((b,i)=><div key={b.id} className={CLS_JBM}><span>#{i+1} {b.name}:</span><span className="font-mono">{_fc(b.offer,saleCurrency)}</span></div>)}</div>)}
       </>
@@ -2020,11 +2021,11 @@ const Comrade = () => {
       stats:[{label:'PARTICIPANTS',value:voteParticipants.length},{label:'OPTIONS',value:voteOptions.length}],
       copyText,
       details:<>
-        {renderDetailCards('PARTICIPANT DATA',sortByW(participantsData),p=>({name:p.name,rows:[{label:'WEALTH',value:_fc(p.wealth,voteCurrency)},{label:'VOTE',value:p.vote||'NO VOTE'}],summaryRows:[{label:'VOTING POWER',value:p.votingPower.toFixed(2)}]}))}
+        <div className="mb-6"><h3 className={CLS_H3}>WEALTH VISUALIZATION</h3>{renderWealthPieChart(participantsData)}</div>
         <DashedDivider/>
         <div className="mb-6"><h3 className={CLS_H3}>VOTE DISTRIBUTION</h3><div className="space-y-3">{(()=>{const mx=Math.max(...voteBreakdown.map(b=>b.percentage));return voteBreakdown.map((item,idx)=>{const up=participantsData.length>0?(participantsData.filter(p=>p.vote===item.option).length/participantsData.length)*100:0;const rows=[{lbl:'WEIGHTED',pct:item.percentage},{lbl:'UNWEIGHTED',pct:up}];return(<div key={idx} className="mb-4"><p className={CLS_FBTXU}>{item.option}</p><div className="space-y-1">{rows.map(({lbl,pct},bi)=>{const barW=mx>0?(pct/mx)*100:0;return(<div key={bi} className={CLS_FIG}><span className="text-xs text-black w-24 font-bold">{lbl}:</span><div className={CLS_BAR_BG}><div className={CLS_BAR} style={{width:`${barW}%`,animationDelay:`${idx*0.1+bi*0.05}s`,backgroundColor:DARK}}>{barW>15&&<span className="text-xs font-bold" style={{color:BG_GREY}}>{pct.toFixed(1)}%</span>}</div></div><span className="text-xs font-bold text-black w-16 text-right">{pct.toFixed(1)}%</span></div>);})}</div></div>);});})()}</div></div>
         <DashedDivider/>
-        <div className="mb-6"><h3 className={CLS_H3}>WEALTH VISUALIZATION</h3>{renderWealthPieChart(participantsData)}</div>
+        {renderDetailCards('PARTICIPANT DATA',sortByW(participantsData),p=>({name:p.name,rows:[{label:'WEALTH',value:_fc(p.wealth,voteCurrency)},{label:'VOTE',value:p.vote||'NO VOTE'}],summaryRows:[{label:'VOTING POWER',value:p.votingPower.toFixed(2)}]}))}
         <DashedDivider/>
         {renderMathSection(voteWeighting,[renderAdjustedWealthStep(1,participantsData,voteWeighting),<div key="v2"><p className={CLS_FB}>2. AVERAGE WEALTH:</p><div className={CLS_JBM}><span>TOTAL:</span><span className="font-mono">{_fsn(participantsData.reduce((s,p)=>s+p.wealth,0))}</span></div><div className={CLS_JBM}><span>AVERAGE:</span><span className="font-mono">{_fsn(participantsData.reduce((s,p)=>s+p.wealth,0)/participantsData.length)}</span></div></div>,<div key="v3"><p className={CLS_FB}>3. VOTING POWER (AVG ÷ ADJUSTED):</p>{renderMathRow(participantsData,p=>{const avg=participantsData.reduce((s,pp)=>s+pp.wealth,0)/participantsData.length;return`${_fsn(avg)} ÷ ${_fsn(p.adjustedWealth)} = ${p.votingPower.toFixed(2)}`;})}</div>,<div key="v4"><p className={CLS_FB}>4. RESULTS BY OPTION:</p>{voteBreakdown.map((item,i)=>{const voters=participantsData.filter(p=>p.vote===item.option);return <div key={i} className={i>0?`pt-2 ${CLS_DASHED_T}`:''} ><p className="font-bold uppercase mb-1">{item.option}</p>{voters.map((v,j)=><div key={j} className={CLS_JBM}><span>{v.name}:</span><span className="font-mono">{v.votingPower.toFixed(2)}</span></div>)}<div className={`${CLS_JBM} font-bold mt-1`}><span>TOTAL:</span><span className="font-mono">{item.percentage.toFixed(1)}%</span></div></div>;})}</div>],<div><p className={CLS_FB}>EQUAL VOTING POWER (NO WEIGHTING):</p>{renderMathRow(participantsData,()=>'1 vote')}</div>)}
       </>
@@ -2085,12 +2086,12 @@ const Comrade = () => {
       stats:[{label:'RENT',value:_fc(rentAmount,rentCurrency)},{label:'UTILITIES',value:_fc(utilitiesAmount,rentCurrency)},{label:'TOTAL',value:_fc(total,rentCurrency)},{label:'TENANTS',value:rentPeople.length}],
       copyText,
       details:<>
-        {renderDetailCards('ROOMMATE DATA',rentData,p=>({name:p.name,rows:[{label:'ROOM SIZE',value:`${formatNumber(p.roomSize.toFixed(0))} ${getMeasurementLabel(rentMeasurement).toLowerCase()}`},{label:'WEALTH',value:_fc(p.wealth,rentCurrency)}],summaryRows:[{label:'MONTHLY RENT',value:_fcs(p.fairRent,rentCurrency)},{label:'% OF TOTAL',value:`${p.rentPct.toFixed(1)}%`}]}))}
+        <div className="mb-6"><h3 className={CLS_H3}>WEALTH VISUALIZATION</h3>{renderWealthPieChart(rentData)}</div>
         <DashedDivider/>
         <div className="mb-6"><h3 className={CLS_H3}>RENT AND ROOM SIZE BREAKDOWN</h3><div className="space-y-3">{rentData.map((p,idx)=>{const mxR=Math.max(...rentData.map(d=>d.fairRent));return <div key={p.id||idx} className="mb-4"><p className={CLS_FBTXU}>{p.name}</p><div className="space-y-1">{[{lbl:'RENT',v:p.fairRent,mx:mxR,disp:`${p.rentPct.toFixed(0)}%`,right:_fcs(p.fairRent,rentCurrency)},{lbl:'ROOM',v:p.roomSize,mx:totalRoomSize,disp:`${p.roomPct.toFixed(0)}%`,right:`${formatNumber(p.roomSize.toFixed(0))} ${getMeasurementLabel(rentMeasurement).toLowerCase()}`}].map(({lbl,v,mx,disp,right},bi)=><div key={bi} className={CLS_FIG}><span className={CLS_BL}>{lbl}:</span><div className={CLS_BAR_BG}><div className={CLS_BAR} style={{width:`${mx>0?(v/mx)*100:0}%`,animationDelay:`${idx*0.1+bi*0.05}s`,backgroundColor:DARK}}>{mx>0&&(v/mx)*100>15&&<span className="text-xs font-bold" style={{color:BG_GREY}}>{disp}</span>}</div></div><span className={CLS_BR}>{right}</span></div>)}</div></div>;})}
         </div></div>
         <DashedDivider/>
-        <div className="mb-6"><h3 className={CLS_H3}>WEALTH VISUALIZATION</h3>{renderWealthPieChart(rentData)}</div>
+        {renderDetailCards('ROOMMATE DATA',rentData,p=>({name:p.name,rows:[{label:'ROOM SIZE',value:`${formatNumber(p.roomSize.toFixed(0))} ${getMeasurementLabel(rentMeasurement).toLowerCase()}`},{label:'WEALTH',value:_fc(p.wealth,rentCurrency)}],summaryRows:[{label:'MONTHLY RENT',value:_fcs(p.fairRent,rentCurrency)},{label:'% OF TOTAL',value:`${p.rentPct.toFixed(1)}%`}]}))}
         <DashedDivider/>
         {(()=>{
           const rentCapMax=rentFloor!=='off'?parseFloat(rentFloor)*(total/rentData.length):0;
@@ -2154,11 +2155,11 @@ const Comrade = () => {
       stats:[{label:'LEAD',value:anchorName.toUpperCase()},{label:'LEAD BET',value:_fc(betAmount,betCurrency)}],
       copyText,
       details:<>
-        {renderDetailCards('BETTOR DATA',betData,p=>({name:p.name,rows:[{label:'WEALTH',value:_fc(p.wealth,betCurrency)}],summaryRows:[{label:'FAIR BET',value:_fcs(p.fairBet,betCurrency)}]}))}
+        <div className="mb-6"><h3 className={CLS_H3}>WEALTH VISUALIZATION</h3>{renderWealthPieChart(betData)}</div>
         <DashedDivider/>
         {(()=>{const evenBet=parseFloat(betAmount)||0;return renderBarVisualization('STAKES VISUALIZATION',betData,[{label:'EVEN',color:'#AAAAAA',getValue:()=>evenBet,displayValue:()=>_fcs(evenBet,betCurrency),rightLabel:()=>_fcs(evenBet,betCurrency)},{label:'FAIR',color:DARK,getValue:p=>p.fairBet,displayValue:p=>_fcs(p.fairBet,betCurrency),rightLabel:p=>_fcs(p.fairBet,betCurrency)}],p=>p.name);})()}
         <DashedDivider/>
-        <div className="mb-6"><h3 className={CLS_H3}>WEALTH VISUALIZATION</h3>{renderWealthPieChart(betData)}</div>
+        {renderDetailCards('BETTOR DATA',betData,p=>({name:p.name,rows:[{label:'WEALTH',value:_fc(p.wealth,betCurrency)}],summaryRows:[{label:'FAIR BET',value:_fcs(p.fairBet,betCurrency)}]}))}
         <DashedDivider/>
         {renderMathSection(betWeighting,[renderAdjustedWealthStep(1,betData,betWeighting),<div key="b2"><p className={CLS_FB}>2. FAIR BET (ADJUSTED WEALTH ÷ LEAD'S ADJUSTED WEALTH × BET):</p>{renderMathRow(betData,p=>`${_fsn(p.adjustedWealth)} ÷ ${_fsn(betData.find(d=>d.name===anchorName)?.adjustedWealth||1)} × ${_fc(betAmount,betCurrency)} = ${_fcs(p.fairBet,betCurrency)}`)}</div>,<div key="b3"><p className={CLS_FB}>3. TOTAL POT:</p><div className={CLS_JBM}><span>WINNER TAKES:</span><span className="font-mono">{_fcs(pot,betCurrency)}</span></div></div>],<div><p className={CLS_FB}>NO WEIGHTING - EVERYONE BETS EQUALLY:</p>{renderMathRow(betData,p=>`${p.name}: ${_fc(betAmount,betCurrency)}`)}<div className={`flex justify-between mt-2 pt-2 ${CLS_DASHED_T} font-bold`}><span>WINNER TAKES:</span><span className="font-mono">{_fcs(betData.length*(parseFloat(betAmount)||0),betCurrency)}</span></div></div>)}
       </>
