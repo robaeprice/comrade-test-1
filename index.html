@@ -25,6 +25,7 @@
         const { useState, useCallback, useEffect, useMemo, useRef } = React;
 
  
+
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -703,14 +704,7 @@ const HomeAccordion = ({navigateTo}) => {
         {sectionBtn('how','HOW IT WORKS')}
         {openSection==='how'&&(
           <div style={S_PANEL}>
-            <div className="space-y-6">
-              <div className={CLS_FG4}><div className={CLS_NUM} style={S_DARK}>1</div><div><h3 className={CLS_FBU}>ADD YOUR GROUP</h3><p className={CLS_XS}>Enter everyone's names, and salaries or net worth</p></div></div>
-              <PeopleAvatars />
-              <div className={CLS_FG4}><div className={CLS_NUM} style={S_DARK}>2</div><div><h3 className={CLS_FBU}>ENTER YOUR BILLS</h3><p className={CLS_XS}>List what was spent, and who paid</p></div></div>
-              <MockReceipt />
-              <div className={CLS_FG4}><div className={CLS_NUM} style={S_DARK}>3</div><div><h3 className={CLS_FBU}>GET FAIR RESULTS</h3><p className={CLS_XS}>See who owes what, based on ability to pay</p></div></div>
-              <ResultPieChart />
-            </div>
+            <HowItWorksSteps/>
             <div className="mt-6 flex flex-col max-w-xs mx-auto" style={{gap:'12px'}}>
               <button onClick={()=>navigateTo('about')} className="w-full font-bold py-4 px-8 border-2 border-black hover:bg-gray-100 transition-all text-lg" style={{background:BG_GREY,color:DARK}}>LEARN MORE</button>
               <button onClick={()=>navigateTo('bill-entry')} className="w-full bg-black text-white font-bold py-4 px-8 border-2 border-black hover:bg-gray-800 transition-all text-lg">TRY IT NOW</button>
@@ -858,18 +852,58 @@ const ReceiptFooterContent = ({onNavigate, onClearStorage, loadedAt}) => (
   </>
 );
 
+const HowItWorksSteps = () => {
+  const ppl=[{name:'FRANKLIN',salary:'$100,000',shade:'#6B7280'},{name:'WINSTON',salary:'$60,000',shade:'#9CA3AF'},{name:'JOSEPH',salary:'$40,000',shade:'#D1D5DB'}];
+  return (
+  <div className="space-y-6">
+    <div className={CLS_FG4}><div className={CLS_NUM} style={S_DARK}>1</div><div><h3 className={CLS_FBU}>ADD YOUR GROUP</h3><p className={CLS_XS}>Enter everyone's names, and salaries or net worth</p></div></div>
+    <div className="py-2 flex justify-center">
+      <div className="space-y-2">
+      {ppl.map(p=>(
+        <div key={p.name} className="flex items-center gap-3">
+          <svg aria-hidden="true" width="32" height="32" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill={p.shade}/><circle cx="20" cy="16" r="6" fill={BG_GREY}/><path d="M 10 32 Q 10 24 20 24 Q 30 24 30 32" fill={BG_GREY}/></svg>
+          <div><p className="text-xs font-bold" style={{color:'#6B7280'}}>{p.name}</p><p style={{fontSize:'10px',color:'#6B7280'}}>{p.salary}</p></div>
+        </div>
+      ))}
+      </div>
+    </div>
+    <div className={CLS_FG4}><div className={CLS_NUM} style={S_DARK}>2</div><div><h3 className={CLS_FBU}>ENTER YOUR BILLS</h3><p className={CLS_XS}>List what was spent, and who paid</p></div></div>
+    <div className="flex justify-center py-2 px-16">
+      <div className="space-y-2 w-full">
+        {[['#D1D5DB','MEAL','$90'],['#9CA3AF','GAS','$60'],['#6B7280','HOTEL','$150']].map(([color,label,amount])=>(
+          <div key={label} className="flex justify-between items-center text-xs font-bold text-gray-500 border-b-2 border-dashed border-gray-400 pb-1">
+            <div className={CLS_FIG}><div className="w-2 h-2 rounded-full" style={{backgroundColor:color}}></div><span>{label}</span></div>
+            <span>{amount}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+    <div className={CLS_FG4}><div className={CLS_NUM} style={S_DARK}>3</div><div><h3 className={CLS_FBU}>GET FAIR RESULTS</h3><p className={CLS_XS}>See who owes what, based on ability to pay</p></div></div>
+    <div className="py-2 px-4">
+      {[{label:'EVEN',vals:[{name:'FRANKLIN',amt:100,shade:'#6B7280'},{name:'WINSTON',amt:100,shade:'#9CA3AF'},{name:'JOSEPH',amt:100,shade:'#D1D5DB'}]},{label:'FAIR',vals:[{name:'FRANKLIN',amt:150,shade:'#6B7280'},{name:'WINSTON',amt:90,shade:'#9CA3AF'},{name:'JOSEPH',amt:60,shade:'#D1D5DB'}]}].map(({label,vals})=>(
+        <div key={label} className="mb-4">
+          <p className="text-xs font-bold text-black mb-2 text-center">{label}:</p>
+          <div className="space-y-1">
+            {vals.map(v=>(
+              <div key={v.name} className="flex items-center gap-2">
+                <span className="text-xs font-bold" style={{width:'100px',flexShrink:0,color:'#6B7280'}}>{v.name}</span>
+                <div style={{height:'16px',width:`${(v.amt/150)*35}%`,backgroundColor:v.shade,flexShrink:0}}></div>
+                <span className="text-xs font-bold" style={{color:'#6B7280',flexShrink:0}}>${v.amt}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+  );
+};
+
 const HowItWorksPanel = ({navigateTo}) => (
   <div className="pt-3 pb-3">
     <h2 className="text-lg font-black text-black text-center mb-6" style={{letterSpacing:'1px'}}>HOW IT WORKS</h2>
     <div className={`${CLS_DASHED} p-5`}>
-      <div className="space-y-6">
-        <div className={CLS_FG4}><div className={CLS_NUM} style={S_DARK}>1</div><div><h3 className={CLS_FBU}>ADD YOUR GROUP</h3><p className={CLS_XS}>Enter everyone's names, and salaries or net worth</p></div></div>
-        <PeopleAvatars />
-        <div className={CLS_FG4}><div className={CLS_NUM} style={S_DARK}>2</div><div><h3 className={CLS_FBU}>ENTER YOUR BILLS</h3><p className={CLS_XS}>List what was spent, and who paid</p></div></div>
-        <MockReceipt />
-        <div className={CLS_FG4}><div className={CLS_NUM} style={S_DARK}>3</div><div><h3 className={CLS_FBU}>GET FAIR RESULTS</h3><p className={CLS_XS}>See who owes what, based on ability to pay</p></div></div>
-        <ResultPieChart />
-      </div>
+      <HowItWorksSteps/>
     </div>
   </div>
 );
@@ -2184,7 +2218,6 @@ const Comrade = () => {
 
   return null;
 };
-
 
 
 
