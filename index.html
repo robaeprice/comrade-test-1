@@ -25,7 +25,6 @@
         const { useState, useCallback, useEffect, useMemo, useRef } = React;
 
  
-
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -845,9 +844,11 @@ const ReceiptFooterContent = ({onNavigate, onClearStorage, loadedAt}) => (
       <a href="https://instagram.com/comradedotmoney" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="hover:opacity-60 transition-all">
         <svg width="16" height="16" viewBox="0 0 24 24"><rect x="1" y="1" width="22" height="22" rx="5" fill="#6B7280"/><circle cx="12" cy="12" r="5" stroke={BG_GREY} strokeWidth="2" fill="none"/><circle cx="17.5" cy="6.5" r="1.5" fill={BG_GREY}/></svg>
       </a>
+      {/* Stripe support icon - hidden, keep for potential re-use
       <a href="https://buy.stripe.com/5kQdR84SC3HaefS7GU0ZW00" target="_blank" rel="noopener noreferrer" aria-label="Support" className="hover:opacity-60 transition-all">
         <svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7.5" fill="#6B7280"/><text x="8" y="8" fill={BG_GREY} fontSize="11" fontWeight="bold" textAnchor="middle" dominantBaseline="central" className="donate-dollar">$</text></svg>
       </a>
+      */}
     </div>
   </>
 );
@@ -870,7 +871,7 @@ const HowItWorksSteps = () => {
     <div className={CLS_FG4}><div className={CLS_NUM} style={S_DARK}>2</div><div><h3 className={CLS_FBU}>ENTER YOUR BILLS</h3><p className={CLS_XS}>List what was spent, and who paid</p></div></div>
     <div className="flex justify-center py-2 px-16">
       <div className="space-y-2 w-full">
-        {[['#D1D5DB','MEAL','$90'],['#9CA3AF','GAS','$60'],['#6B7280','HOTEL','$150']].map(([color,label,amount])=>(
+        {[['#6B7280','MEAL','$105'],['#9CA3AF','GAS','$38'],['#D1D5DB','HOTEL','$157']].map(([color,label,amount])=>(
           <div key={label} className="flex justify-between items-center text-xs font-bold text-gray-500 border-b-2 border-dashed border-gray-400 pb-1">
             <div className={CLS_FIG}><div className="w-2 h-2 rounded-full" style={{backgroundColor:color}}></div><span>{label}</span></div>
             <span>{amount}</span>
@@ -1607,20 +1608,21 @@ const Comrade = () => {
 
   if(page==='tools') {
     const mainTools=[
-      {route:'bill-entry',icon:<BillIcon size={22}/>,label:'SPLITTING BILLS?'},
-      {route:'rent-entry',icon:<HouseIcon size={22}/>,label:'SPLITTING RENT?'},
-      {route:'bet-entry',icon:<DiceIcon size={22}/>,label:'MAKING A BET?'},
+      {route:'bill-entry',icon:<BillIcon size={22}/>,label:'SPLIT BILLS',desc:"Comrade's flagship tool. Manage group expenses more equitably."},
+      {route:'rent-entry',icon:<HouseIcon size={22}/>,label:'SPLIT RENT',desc:'Divide rent in shared apartments more fairly.'},
+      {route:'bet-entry',icon:<DiceIcon size={22}/>,label:'BET',desc:'A new way to make wagers.'},
     ];
     const expTools=[
-      {route:'vote-entry',icon:<CheckCircleIcon size={22}/>,label:'VOTING ON A DECISION?'},
-      {route:'sale-entry',icon:<TagIcon size={22}/>,label:'SELLING SOMETHING?'},
+      {route:'vote-entry',icon:<CheckCircleIcon size={22}/>,label:'VOTE',desc:'Handle group decisions a better way.'},
+      {route:'sale-entry',icon:<TagIcon size={22}/>,label:'SELL',desc:'Sell products to people who need them most.'},
     ];
     const allTools=[...mainTools,...expTools];
     const renderToolBtn = (t) => (
-      <div key={t.route} style={{marginBottom:12}}>
+      <div key={t.route} style={{marginBottom:20}}>
         <button onClick={()=>navigateTo(t.route)} className="w-full border-2 border-black hover:opacity-80 transition-all" style={{background:t.route==='bill-entry'?DARK:BG_GREY,padding:'16px 20px',flexDirection:'column',gap:2}}>
           <span style={{fontSize:'17px',letterSpacing:'1px',color:t.route==='bill-entry'?BG_GREY:DARK,display:'block',textAlign:'center',fontWeight:900}}>{t.label}</span>
         </button>
+        <p className="text-xs text-center mt-2" style={{color:'#9CA3AF'}}>{t.desc}</p>
       </div>
     );
     return (
@@ -1631,10 +1633,11 @@ const Comrade = () => {
         <p className="text-sm text-black text-center mb-6">COMRADE BUILDS PRODUCTS THAT MAKE LIFE FAIRER.</p>
         <div style={{maxWidth:'448px',margin:'0 auto'}}>
           {mainTools.map(renderToolBtn)}
-          <div className={`${CLS_DASHED} p-4 mt-6`}>
-            <p className="text-xs font-bold text-center mb-4" style={{letterSpacing:'2px',color:'#9CA3AF'}}>EXPERIMENTAL</p>
-            {expTools.map(renderToolBtn)}
-          </div>
+        </div>
+        <div className="border-t-2 border-dashed border-gray-400 mt-6 mb-4"></div>
+        <p className="text-xs font-bold text-center mb-4" style={{letterSpacing:'2px',color:'#6B7280'}}>EXPERIMENTAL</p>
+        <div style={{maxWidth:'448px',margin:'0 auto'}}>
+          {expTools.map(renderToolBtn)}
         </div>
       </Layout>
     );
