@@ -24,7 +24,7 @@
     <script type="text/babel">
         const { useState, useCallback, useEffect, useMemo, useRef } = React;
 
- 
+
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -1608,13 +1608,13 @@ const Comrade = () => {
 
   if(page==='tools') {
     const mainTools=[
-      {route:'bill-entry',icon:<BillIcon size={22}/>,label:'SPLIT BILLS',desc:"Comrade's flagship tool. Manage group expenses more equitably."},
-      {route:'rent-entry',icon:<HouseIcon size={22}/>,label:'SPLIT RENT',desc:'Divide rent in shared apartments more fairly.'},
-      {route:'bet-entry',icon:<DiceIcon size={22}/>,label:'BET',desc:'A new way to make wagers.'},
+      {route:'bill-entry',icon:<BillIcon size={22}/>,label:'SPLIT BILLS',desc:"Comrade's flagship tool. Manage group expenses more equitably by taking people's wealth into account."},
+      {route:'rent-entry',icon:<HouseIcon size={22}/>,label:'SPLIT RENT',desc:'Divide rent in shared apartments more fairly, factoring in both room size and roommate resources.'},
     ];
     const expTools=[
       {route:'vote-entry',icon:<CheckCircleIcon size={22}/>,label:'VOTE',desc:'Handle group decisions a better way.'},
-      {route:'sale-entry',icon:<TagIcon size={22}/>,label:'SELL',desc:'Sell products to people who need them most.'},
+      {route:'bet-entry',icon:<DiceIcon size={22}/>,label:'BET',desc:'A new way to make wagers.'},
+      {route:'sale-entry',icon:<TagIcon size={22}/>,label:'SELL',desc:'Sell products to those who need them most.'},
     ];
     const allTools=[...mainTools,...expTools];
     const renderToolBtn = (t) => (
@@ -1622,7 +1622,7 @@ const Comrade = () => {
         <button onClick={()=>navigateTo(t.route)} className="w-full border-2 border-black hover:opacity-80 transition-all" style={{background:t.route==='bill-entry'?DARK:BG_GREY,padding:'16px 20px',flexDirection:'column',gap:2}}>
           <span style={{fontSize:'17px',letterSpacing:'1px',color:t.route==='bill-entry'?BG_GREY:DARK,display:'block',textAlign:'center',fontWeight:900}}>{t.label}</span>
         </button>
-        <p className="text-xs text-center mt-2" style={{color:'#9CA3AF'}}>{t.desc}</p>
+        <p className="text-xs mt-2" style={{color:'#6B7280'}}>{t.desc}</p>
       </div>
     );
     return (
@@ -1634,10 +1634,25 @@ const Comrade = () => {
         <div style={{maxWidth:'448px',margin:'0 auto'}}>
           {mainTools.map(renderToolBtn)}
         </div>
-        <div className="border-t-2 border-dashed border-gray-400 mt-6 mb-4"></div>
-        <p className="text-xs font-bold text-center mb-4" style={{letterSpacing:'2px',color:'#6B7280'}}>EXPERIMENTAL</p>
-        <div style={{maxWidth:'448px',margin:'0 auto'}}>
-          {expTools.map(renderToolBtn)}
+        <div className="border-t-2 border-dashed border-gray-400 mt-6"></div>
+        <div className={`${CLS_DASHED} p-4 bg-gray-50 mt-6 mb-6`}>
+          <div className="flex gap-3 items-center mb-6">
+            <svg aria-hidden="true" width="24" height="30" viewBox="0 0 24 30" fill="none" style={{flexShrink:0,marginTop:'0px'}}><path d="M9 9v7.4L4.2 25.5A1 1 0 005 27h14a1 1 0 00.8-1.5L14 16.4V9" stroke={DARK} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M9 9h6" stroke={DARK} strokeWidth="2.5" strokeLinecap="round"/><path d="M8.5 20L5.2 25.2A1 1 0 006 26.5h12a1 1 0 00.8-1.3L15.5 20z" fill={DARK}/><circle cx="8" cy="4.5" r="1.5" fill={DARK}/><circle cx="11.5" cy="2" r="1.3" fill={DARK}/><circle cx="14.5" cy="5" r="1" fill={DARK}/></svg>
+            <div>
+              <p className="text-xs font-bold uppercase mb-1 text-black">EXPERIMENTAL</p>
+              <p className="text-xs text-black leading-relaxed">Level the playing field in other areas of your life with Comrade's more exploratory tools.</p>
+            </div>
+          </div>
+          <div style={{maxWidth:'448px',margin:'0 auto'}}>
+            {expTools.map(t=>(
+              <div key={t.route} style={{marginBottom:20}}>
+                <button onClick={()=>navigateTo(t.route)} className="w-full border-2 border-black hover:opacity-80 transition-all bg-gray-50" style={{padding:'16px 20px',flexDirection:'column',gap:2}}>
+                  <span style={{fontSize:'17px',letterSpacing:'1px',color:DARK,display:'block',textAlign:'center',fontWeight:900}}>{t.label}</span>
+                </button>
+                <p className="text-xs mt-2" style={{color:'#6B7280'}}>{t.desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </Layout>
     );
@@ -1661,8 +1676,8 @@ const Comrade = () => {
       </div>
       <SubHed text="More than just bill-splitting"/>
       <div className="space-y-4 text-black mb-2">
-        <p className={CLS_PARA}>Beyond handling group bills, Comrade offers a number of other features.</p>
-        <p className={CLS_PARA}>There is a tool to help decide <span role="link" tabIndex={0} className={CLS_LNK} onClick={()=>navigateTo('rent-entry')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&navigateTo('rent-entry')}>rent splits</span> in apartments more equitably, another to assist when <span role="link" tabIndex={0} className={CLS_LNK} onClick={()=>navigateTo('sale-entry')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&navigateTo('sale-entry')}>selling an item</span> to ensure the buyer is the person who values it most highly, an experimental tool for <span role="link" tabIndex={0} className={CLS_LNK} onClick={()=>navigateTo('vote-entry')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&navigateTo('vote-entry')}>voting on decisions</span>, and one for making <span role="link" tabIndex={0} className={CLS_LNK} onClick={()=>navigateTo('bet-entry')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&navigateTo('bet-entry')}>friendly bets</span> fairer.</p>
+        <p className={CLS_PARA}>Beyond handling group bills, Comrade also offers a tool for deciding <span role="link" tabIndex={0} className={CLS_LNK} onClick={()=>navigateTo('rent-entry')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&navigateTo('rent-entry')}>rent splits</span> in apartments more equitably — and more besides.</p>
+        <p className={CLS_PARA}>There are experimental tools for <span role="link" tabIndex={0} className={CLS_LNK} onClick={()=>navigateTo('vote-entry')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&navigateTo('vote-entry')}>voting on decisions</span>, another for making <span role="link" tabIndex={0} className={CLS_LNK} onClick={()=>navigateTo('bet-entry')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&navigateTo('bet-entry')}>bets</span> fairer, and one to assist when <span role="link" tabIndex={0} className={CLS_LNK} onClick={()=>navigateTo('sale-entry')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&navigateTo('sale-entry')}>selling an item</span> to ensure the buyer is the person who values it most highly.</p>
         <p className={CLS_PARA}>All are built around the same core mechanism — using wealth data to <span role="link" tabIndex={0} className={CLS_LNK} onClick={()=>navigateTo('faq',{faqIndex:2})} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&navigateTo('faq',{faqIndex:2})}>weight</span> people's input fairly.</p>
       </div>
       <SubHed text="More about Comrade"/>
@@ -2166,6 +2181,17 @@ const Comrade = () => {
   if(page==='bet-entry') return EntryPage({
     steps: BET_STEPS,
     locked: !toolActivated,
+    banner: (
+      <div className={`${CLS_DASHED} p-4 bg-gray-50`}>
+        <div className="flex gap-3 items-center">
+          <svg aria-hidden="true" width="24" height="30" viewBox="0 0 24 30" fill="none" style={{flexShrink:0,marginTop:'0px'}}><path d="M9 9v7.4L4.2 25.5A1 1 0 005 27h14a1 1 0 00.8-1.5L14 16.4V9" stroke={DARK} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M9 9h6" stroke={DARK} strokeWidth="2.5" strokeLinecap="round"/><path d="M8.5 20L5.2 25.2A1 1 0 006 26.5h12a1 1 0 00.8-1.3L15.5 20z" fill={DARK}/><circle cx="8" cy="4.5" r="1.5" fill={DARK}/><circle cx="11.5" cy="2" r="1.3" fill={DARK}/><circle cx="14.5" cy="5" r="1" fill={DARK}/></svg>
+          <div>
+            <p className="text-xs font-bold uppercase mb-1 text-black">EXPERIMENTAL</p>
+            <p className="text-xs text-black leading-relaxed">Handle wagers a little differently. Winner-takes-all — but not everyone pays the same.</p>
+          </div>
+        </div>
+      </div>
+    ),
     intro: {desc:"Betting on an outcome? Running a sweepstake? Playing a game of skill? Comrade calculates how much each player should wager — so the stakes are fair for everyone.",hasSaved:hasBetSavedData,activated:toolActivated,resumeLabel:"RESUME BET",newLabel:"NEW BET",onJump:()=>jump(1),onClear:()=>{setToolActivated(true);jump(1);},onStartOver:()=>handleClearAll('bet'),onExample:()=>{setToolActivated(true);loadExample('bet');}},
     calc: {onCalculate:()=>navigateTo('bet-results'),weighting:betWeighting,onWeighting:setBetWeighting,navigateToFaq,hasAdvanced:true,validate:()=>_errs([
       [betPeople.length<2,'Need at least two people'],
