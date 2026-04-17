@@ -24,7 +24,6 @@
     <script type="text/babel">
         const { useState, useCallback, useEffect, useMemo, useRef } = React;
 
- 
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -703,14 +702,7 @@ const HomeAccordion = ({navigateTo}) => {
         {sectionBtn('how','HOW IT WORKS')}
         {openSection==='how'&&(
           <div style={S_PANEL}>
-            <div className="space-y-6">
-              <div className={CLS_FG4}><div className={CLS_NUM} style={S_DARK}>1</div><div><h3 className={CLS_FBU}>ADD YOUR GROUP</h3><p className={CLS_XS}>Enter everyone's names, and salaries or net worth</p></div></div>
-              <PeopleAvatars />
-              <div className={CLS_FG4}><div className={CLS_NUM} style={S_DARK}>2</div><div><h3 className={CLS_FBU}>ENTER YOUR BILLS</h3><p className={CLS_XS}>List what was spent, and who paid</p></div></div>
-              <MockReceipt />
-              <div className={CLS_FG4}><div className={CLS_NUM} style={S_DARK}>3</div><div><h3 className={CLS_FBU}>GET FAIR RESULTS</h3><p className={CLS_XS}>See who owes what, based on ability to pay</p></div></div>
-              <ResultPieChart />
-            </div>
+            <HowItWorksSteps/>
             <div className="mt-6 flex flex-col max-w-xs mx-auto" style={{gap:'12px'}}>
               <button onClick={()=>navigateTo('about')} className="w-full font-bold py-4 px-8 border-2 border-black hover:bg-gray-100 transition-all text-lg" style={{background:BG_GREY,color:DARK}}>LEARN MORE</button>
               <button onClick={()=>navigateTo('bill-entry')} className="w-full bg-black text-white font-bold py-4 px-8 border-2 border-black hover:bg-gray-800 transition-all text-lg">TRY IT NOW</button>
@@ -851,25 +843,67 @@ const ReceiptFooterContent = ({onNavigate, onClearStorage, loadedAt}) => (
       <a href="https://instagram.com/comradedotmoney" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="hover:opacity-60 transition-all">
         <svg width="16" height="16" viewBox="0 0 24 24"><rect x="1" y="1" width="22" height="22" rx="5" fill="#6B7280"/><circle cx="12" cy="12" r="5" stroke={BG_GREY} strokeWidth="2" fill="none"/><circle cx="17.5" cy="6.5" r="1.5" fill={BG_GREY}/></svg>
       </a>
+      {/* Stripe support icon - hidden, keep for potential re-use
       <a href="https://buy.stripe.com/5kQdR84SC3HaefS7GU0ZW00" target="_blank" rel="noopener noreferrer" aria-label="Support" className="hover:opacity-60 transition-all">
         <svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7.5" fill="#6B7280"/><text x="8" y="8" fill={BG_GREY} fontSize="11" fontWeight="bold" textAnchor="middle" dominantBaseline="central" className="donate-dollar">$</text></svg>
       </a>
+      */}
     </div>
   </>
 );
+
+const HowItWorksSteps = () => {
+  const ppl=[{name:'FRANKLIN',salary:'$100,000',shade:'#6B7280'},{name:'WINSTON',salary:'$60,000',shade:'#9CA3AF'},{name:'JOSEPH',salary:'$40,000',shade:'#D1D5DB'}];
+  return (
+  <div className="space-y-6">
+    <div className={CLS_FG4}><div className={CLS_NUM} style={S_DARK}>1</div><div><h3 className={CLS_FBU}>ADD YOUR GROUP</h3><p className={CLS_XS}>Enter everyone's names, and salaries or net worth</p></div></div>
+    <div className="py-2 flex justify-center">
+      <div className="space-y-2">
+      {ppl.map(p=>(
+        <div key={p.name} className="flex items-center gap-3">
+          <svg aria-hidden="true" width="32" height="32" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill={p.shade}/><circle cx="20" cy="16" r="6" fill={BG_GREY}/><path d="M 10 32 Q 10 24 20 24 Q 30 24 30 32" fill={BG_GREY}/></svg>
+          <div><p className="text-xs font-bold" style={{color:'#6B7280'}}>{p.name}</p><p style={{fontSize:'10px',color:'#6B7280'}}>{p.salary}</p></div>
+        </div>
+      ))}
+      </div>
+    </div>
+    <div className={CLS_FG4}><div className={CLS_NUM} style={S_DARK}>2</div><div><h3 className={CLS_FBU}>ENTER YOUR BILLS</h3><p className={CLS_XS}>List what was spent, and who paid</p></div></div>
+    <div className="flex justify-center py-2 px-16">
+      <div className="space-y-2 w-full">
+        {[['#6B7280','MEAL','$105'],['#9CA3AF','GAS','$38'],['#D1D5DB','HOTEL','$157']].map(([color,label,amount])=>(
+          <div key={label} className="flex justify-between items-center text-xs font-bold text-gray-500 border-b-2 border-dashed border-gray-400 pb-1">
+            <div className={CLS_FIG}><div className="w-2 h-2 rounded-full" style={{backgroundColor:color}}></div><span>{label}</span></div>
+            <span>{amount}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+    <div className={CLS_FG4}><div className={CLS_NUM} style={S_DARK}>3</div><div><h3 className={CLS_FBU}>GET FAIR RESULTS</h3><p className={CLS_XS}>See who owes what, based on ability to pay</p></div></div>
+    <div className="py-2 px-4">
+      {[{label:'EVEN',vals:[{name:'FRANKLIN',amt:100,shade:'#6B7280'},{name:'WINSTON',amt:100,shade:'#9CA3AF'},{name:'JOSEPH',amt:100,shade:'#D1D5DB'}]},{label:'FAIR',vals:[{name:'FRANKLIN',amt:150,shade:'#6B7280'},{name:'WINSTON',amt:90,shade:'#9CA3AF'},{name:'JOSEPH',amt:60,shade:'#D1D5DB'}]}].map(({label,vals})=>(
+        <div key={label} className="mb-4">
+          <p className="text-xs font-bold text-black mb-2 text-center">{label}:</p>
+          <div className="space-y-1">
+            {vals.map(v=>(
+              <div key={v.name} className="flex items-center gap-2">
+                <span className="text-xs font-bold" style={{width:'100px',flexShrink:0,color:'#6B7280'}}>{v.name}</span>
+                <div style={{height:'16px',width:`${(v.amt/150)*35}%`,backgroundColor:v.shade,flexShrink:0}}></div>
+                <span className="text-xs font-bold" style={{color:'#6B7280',flexShrink:0}}>${v.amt}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+  );
+};
 
 const HowItWorksPanel = ({navigateTo}) => (
   <div className="pt-3 pb-3">
     <h2 className="text-lg font-black text-black text-center mb-6" style={{letterSpacing:'1px'}}>HOW IT WORKS</h2>
     <div className={`${CLS_DASHED} p-5`}>
-      <div className="space-y-6">
-        <div className={CLS_FG4}><div className={CLS_NUM} style={S_DARK}>1</div><div><h3 className={CLS_FBU}>ADD YOUR GROUP</h3><p className={CLS_XS}>Enter everyone's names, and salaries or net worth</p></div></div>
-        <PeopleAvatars />
-        <div className={CLS_FG4}><div className={CLS_NUM} style={S_DARK}>2</div><div><h3 className={CLS_FBU}>ENTER YOUR BILLS</h3><p className={CLS_XS}>List what was spent, and who paid</p></div></div>
-        <MockReceipt />
-        <div className={CLS_FG4}><div className={CLS_NUM} style={S_DARK}>3</div><div><h3 className={CLS_FBU}>GET FAIR RESULTS</h3><p className={CLS_XS}>See who owes what, based on ability to pay</p></div></div>
-        <ResultPieChart />
-      </div>
+      <HowItWorksSteps/>
     </div>
   </div>
 );
@@ -1331,7 +1365,7 @@ const Comrade = () => {
     <>
       <div className="flex flex-col gap-3 max-w-xs mx-auto">
         <button onClick={()=>{editModeRef.current=true;navigateTo(entryPage);}} className={CLS_BTN_ACT}>EDIT DETAILS</button>
-        <button onClick={()=>copyToClipboard(copyText,'RESULTS COPIED!')} className={CLS_BTN_ACT}>COPY RESULTS</button>
+        <button onClick={()=>copyToClipboard(copyText,'RESULTS COPIED!')} className={CLS_BTN_ACT}>SHARE RESULTS</button>
         <button onClick={()=>navigateTo('home')} className="bg-white text-black px-6 py-2 font-bold border-2 border-black hover:bg-gray-100 transition-all w-full">RETURN HOME</button>
       </div>
       <div className="my-4 text-center py-6"><MotivationalQuote randomQuote={randomQuote}/></div>
@@ -1573,20 +1607,21 @@ const Comrade = () => {
 
   if(page==='tools') {
     const mainTools=[
-      {route:'bill-entry',icon:<BillIcon size={22}/>,label:'SPLITTING BILLS?'},
-      {route:'rent-entry',icon:<HouseIcon size={22}/>,label:'SPLITTING RENT?'},
-      {route:'bet-entry',icon:<DiceIcon size={22}/>,label:'MAKING A BET?'},
+      {route:'bill-entry',icon:<BillIcon size={22}/>,label:'SPLIT BILLS',desc:"Comrade's flagship tool. Manage group expenses more equitably by taking people's wealth into account."},
+      {route:'rent-entry',icon:<HouseIcon size={22}/>,label:'SPLIT RENT',desc:'Divide rent in shared apartments more fairly, factoring in both room size and roommate resources.'},
     ];
     const expTools=[
-      {route:'vote-entry',icon:<CheckCircleIcon size={22}/>,label:'VOTING ON A DECISION?'},
-      {route:'sale-entry',icon:<TagIcon size={22}/>,label:'SELLING SOMETHING?'},
+      {route:'vote-entry',icon:<CheckCircleIcon size={22}/>,label:'VOTE',desc:'Handle group decisions a better way.'},
+      {route:'bet-entry',icon:<DiceIcon size={22}/>,label:'BET',desc:'A new way to make wagers.'},
+      {route:'sale-entry',icon:<TagIcon size={22}/>,label:'SELL',desc:'Sell products to those who need them most.'},
     ];
     const allTools=[...mainTools,...expTools];
     const renderToolBtn = (t) => (
-      <div key={t.route} style={{marginBottom:12}}>
+      <div key={t.route} style={{marginBottom:20}}>
         <button onClick={()=>navigateTo(t.route)} className="w-full border-2 border-black hover:opacity-80 transition-all" style={{background:t.route==='bill-entry'?DARK:BG_GREY,padding:'16px 20px',flexDirection:'column',gap:2}}>
           <span style={{fontSize:'17px',letterSpacing:'1px',color:t.route==='bill-entry'?BG_GREY:DARK,display:'block',textAlign:'center',fontWeight:900}}>{t.label}</span>
         </button>
+        <p className="text-xs mt-2" style={{color:'#6B7280'}}>{t.desc}</p>
       </div>
     );
     return (
@@ -1597,9 +1632,25 @@ const Comrade = () => {
         <p className="text-sm text-black text-center mb-6">COMRADE BUILDS PRODUCTS THAT MAKE LIFE FAIRER.</p>
         <div style={{maxWidth:'448px',margin:'0 auto'}}>
           {mainTools.map(renderToolBtn)}
-          <div className={`${CLS_DASHED} p-4 mt-6`}>
-            <p className="text-xs font-bold text-center mb-4" style={{letterSpacing:'2px',color:'#9CA3AF'}}>EXPERIMENTAL</p>
-            {expTools.map(renderToolBtn)}
+        </div>
+        <div className="border-t-2 border-dashed border-gray-400 mt-6"></div>
+        <div className={`${CLS_DASHED} p-4 bg-gray-50 mt-6 mb-6`}>
+          <div className="flex gap-3 items-center mb-6">
+            <svg aria-hidden="true" width="24" height="30" viewBox="0 0 24 30" fill="none" style={{flexShrink:0,marginTop:'0px'}}><path d="M9 9v7.4L4.2 25.5A1 1 0 005 27h14a1 1 0 00.8-1.5L14 16.4V9" stroke={DARK} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M9 9h6" stroke={DARK} strokeWidth="2.5" strokeLinecap="round"/><path d="M8.5 20L5.2 25.2A1 1 0 006 26.5h12a1 1 0 00.8-1.3L15.5 20z" fill={DARK}/><circle cx="8" cy="4.5" r="1.5" fill={DARK}/><circle cx="11.5" cy="2" r="1.3" fill={DARK}/><circle cx="14.5" cy="5" r="1" fill={DARK}/></svg>
+            <div>
+              <p className="text-xs font-bold uppercase mb-1 text-black">EXPERIMENTAL</p>
+              <p className="text-xs text-black leading-relaxed">Level the playing field in other areas of your life with Comrade's more exploratory tools.</p>
+            </div>
+          </div>
+          <div style={{maxWidth:'448px',margin:'0 auto'}}>
+            {expTools.map(t=>(
+              <div key={t.route} style={{marginBottom:20}}>
+                <button onClick={()=>navigateTo(t.route)} className="w-full border-2 border-black hover:opacity-80 transition-all bg-gray-50" style={{padding:'16px 20px',flexDirection:'column',gap:2}}>
+                  <span style={{fontSize:'17px',letterSpacing:'1px',color:DARK,display:'block',textAlign:'center',fontWeight:900}}>{t.label}</span>
+                </button>
+                <p className="text-xs mt-2" style={{color:'#6B7280'}}>{t.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </Layout>
@@ -1624,8 +1675,8 @@ const Comrade = () => {
       </div>
       <SubHed text="More than just bill-splitting"/>
       <div className="space-y-4 text-black mb-2">
-        <p className={CLS_PARA}>Beyond handling group bills, Comrade offers a number of other features.</p>
-        <p className={CLS_PARA}>There is a tool to help decide <span role="link" tabIndex={0} className={CLS_LNK} onClick={()=>navigateTo('rent-entry')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&navigateTo('rent-entry')}>rent splits</span> in apartments more equitably, another to assist when <span role="link" tabIndex={0} className={CLS_LNK} onClick={()=>navigateTo('sale-entry')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&navigateTo('sale-entry')}>selling an item</span> to ensure the buyer is the person who values it most highly, an experimental tool for <span role="link" tabIndex={0} className={CLS_LNK} onClick={()=>navigateTo('vote-entry')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&navigateTo('vote-entry')}>voting on decisions</span>, and one for making <span role="link" tabIndex={0} className={CLS_LNK} onClick={()=>navigateTo('bet-entry')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&navigateTo('bet-entry')}>friendly bets</span> fairer.</p>
+        <p className={CLS_PARA}>Beyond handling group bills, Comrade also offers a tool for deciding <span role="link" tabIndex={0} className={CLS_LNK} onClick={()=>navigateTo('rent-entry')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&navigateTo('rent-entry')}>rent splits</span> in apartments more equitably — and more besides.</p>
+        <p className={CLS_PARA}>There are experimental tools for <span role="link" tabIndex={0} className={CLS_LNK} onClick={()=>navigateTo('vote-entry')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&navigateTo('vote-entry')}>voting on decisions</span>, another for making <span role="link" tabIndex={0} className={CLS_LNK} onClick={()=>navigateTo('bet-entry')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&navigateTo('bet-entry')}>bets</span> fairer, and one to assist when <span role="link" tabIndex={0} className={CLS_LNK} onClick={()=>navigateTo('sale-entry')} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&navigateTo('sale-entry')}>selling an item</span> to ensure the buyer is the person who values it most highly.</p>
         <p className={CLS_PARA}>All are built around the same core mechanism — using wealth data to <span role="link" tabIndex={0} className={CLS_LNK} onClick={()=>navigateTo('faq',{faqIndex:2})} onKeyDown={e=>(e.key==='Enter'||e.key===' ')&&navigateTo('faq',{faqIndex:2})}>weight</span> people's input fairly.</p>
       </div>
       <SubHed text="More about Comrade"/>
@@ -1741,7 +1792,7 @@ const Comrade = () => {
             <FormInput value={curPersonName} onChange={e=>setCurPersonName(e.target.value)} placeholder="NAME" className="flex-1" style={{minWidth:'140px'}}/>
             <FormInput type="number" value={curPersonWealth} onChange={e=>setCurPersonWealth(e.target.value)} placeholder={`${getCurrencySymbol(billCurrency)} ${getWealthMetricLabel(billWealthMetric)}`} {...NP} className="flex-1" style={{minWidth:'180px'}}/>
           </div>
-          <button onClick={()=>{if(curPersonName.trim()){setBillPeople([...billPeople,{id:Date.now(),name:curPersonName,wealth:curPersonWealth}]);setCurPersonName('');setCurPersonWealth('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD PERSON</button>
+          <button onClick={()=>{const n=curPersonName.trim();if(n&&!billPeople.some(p=>p.name.toLowerCase()===n.toLowerCase())){setBillPeople([...billPeople,{id:Date.now(),name:n,wealth:curPersonWealth}]);setCurPersonName('');setCurPersonWealth('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD PERSON</button>
           {billPeople.length>0
             ?<ItemList items={billPeople} onDelete={id=>setBillPeople(billPeople.filter(p=>p.id!==id))} renderItem={p=><><p className={CLS_NAME}>{p.name}</p><p className={CLS_XS}>{getWealthMetricLabel(billWealthMetric)}: {_fc(p.wealth,billCurrency)}</p></>}/>
             :<EmptyState msg="No people added yet"/>
@@ -1936,7 +1987,7 @@ const Comrade = () => {
             <FormInput type="number" value={curBuyerOffer} onChange={e=>setCurBuyerOffer(e.target.value)} placeholder={`${getCurrencySymbol(saleCurrency)} OFFER`} {...NP} className="flex-1" style={{minWidth:'120px'}}/>
           </div>
           <FormInput type="number" value={curBuyerWealth} onChange={e=>setCurBuyerWealth(e.target.value)} placeholder={`${getCurrencySymbol(saleCurrency)} ${getWealthMetricLabel(saleWealthMetric)}`} {...NP} className="mb-3"/>
-          <button onClick={()=>{if(curBuyerName.trim()){setSaleBuyers([...saleBuyers,{id:Date.now(),name:curBuyerName,wealth:curBuyerWealth,offer:curBuyerOffer}]);setCurBuyerName('');setCurBuyerWealth('');setCurBuyerOffer('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD BUYER</button>
+          <button onClick={()=>{const n=curBuyerName.trim();if(n&&!saleBuyers.some(b=>b.name.toLowerCase()===n.toLowerCase())){setSaleBuyers([...saleBuyers,{id:Date.now(),name:n,wealth:curBuyerWealth,offer:curBuyerOffer}]);setCurBuyerName('');setCurBuyerWealth('');setCurBuyerOffer('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD BUYER</button>
           {saleBuyers.length>0?<ItemList items={saleBuyers} onDelete={id=>setSaleBuyers(saleBuyers.filter(b=>b.id!==id))} renderItem={b=><><p className={CLS_NAME}>{b.name}</p><p className={CLS_XS}>{getWealthMetricLabel(saleWealthMetric)}: {_fc(b.wealth,saleCurrency)}</p><p className={CLS_XS}>Offer: {_fc(b.offer,saleCurrency)}</p></>}/>:<EmptyState msg="No buyers added yet"/>}
           {contBtn(3)}
         </div>
@@ -2000,7 +2051,7 @@ const Comrade = () => {
         <div>
           <p className={CLS_STEP_P}>Add all the possible choices people can vote for.</p>
           <FormInput value={curOptionText} onChange={e=>setCurOptionText(e.target.value)} placeholder="OPTION TEXT" className="mb-3"/>
-          <button onClick={()=>{if(curOptionText.trim()){setVoteOptions([...voteOptions,{id:Date.now(),text:curOptionText}]);setCurOptionText('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD OPTION</button>
+          <button onClick={()=>{const t=curOptionText.trim();if(t&&!voteOptions.some(o=>o.text.toLowerCase()===t.toLowerCase())){setVoteOptions([...voteOptions,{id:Date.now(),text:t}]);setCurOptionText('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD OPTION</button>
           {voteOptions.length>0?<div className="space-y-0">{voteOptions.map(opt=><div key={opt.id} className="flex justify-between items-center text-xs text-black border-b border-dashed border-gray-400 pb-2 pt-2"><p className="font-bold text-black uppercase flex-1">{opt.text}</p><button onClick={()=>setVoteOptions(voteOptions.filter(o=>o.id!==opt.id))} className={CLS_DEL}>×</button></div>)}</div>:<EmptyState msg="No options added yet"/>}
           {contBtn(3)}
         </div>
@@ -2017,7 +2068,7 @@ const Comrade = () => {
             </select>
           </div>
           <FormInput type="number" value={curParticipantWealth} onChange={e=>setCurParticipantWealth(e.target.value)} placeholder={`${getCurrencySymbol(voteCurrency)} ${getWealthMetricLabel(voteWealthMetric)}`} {...NP} className="mb-3"/>
-          <button onClick={()=>{if(curParticipantName.trim()){setVoteParticipants([...voteParticipants,{id:Date.now(),name:curParticipantName,wealth:curParticipantWealth,vote:curParticipantVote}]);setCurParticipantName('');setCurParticipantWealth('');setCurParticipantVote('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD PERSON</button>
+          <button onClick={()=>{const n=curParticipantName.trim();if(n&&!voteParticipants.some(p=>p.name.toLowerCase()===n.toLowerCase())){setVoteParticipants([...voteParticipants,{id:Date.now(),name:n,wealth:curParticipantWealth,vote:curParticipantVote}]);setCurParticipantName('');setCurParticipantWealth('');setCurParticipantVote('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD PERSON</button>
           {voteParticipants.length>0?<ItemList items={voteParticipants} onDelete={id=>setVoteParticipants(voteParticipants.filter(p=>p.id!==id))} renderItem={p=><><p className={CLS_NAME}>{p.name}</p><p className={CLS_XS}>{getWealthMetricLabel(voteWealthMetric)}: {_fc(p.wealth,voteCurrency)}</p><p className={CLS_XS}>Vote: {p.vote||'Not selected'}</p></>}/>:<EmptyState msg="No people added yet"/>}
           {contBtn(4)}
         </div>
@@ -2084,7 +2135,7 @@ const Comrade = () => {
             <FormInput type="number" value={curRoommateRoomSize} onChange={e=>setCurRoommateRoomSize(e.target.value)} placeholder={`ROOM SIZE (${getMeasurementLabel(rentMeasurement)})`} {...NP} className="flex-1" style={{minWidth:'150px'}}/>
           </div>
           <FormInput type="number" value={curRoommateWealth} onChange={e=>setCurRoommateWealth(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} ${getWealthMetricLabel(rentWealthMetric)}`} {...NP} className="mb-3"/>
-          <button onClick={()=>{if(curRoommateName.trim()){setRentPeople([...rentPeople,{id:Date.now(),name:curRoommateName,roomSize:curRoommateRoomSize,wealth:curRoommateWealth}]);setCurRoommateName('');setCurRoommateRoomSize('');setCurRoommateWealth('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD TENANT</button>
+          <button onClick={()=>{const n=curRoommateName.trim();if(n&&!rentPeople.some(p=>p.name.toLowerCase()===n.toLowerCase())){setRentPeople([...rentPeople,{id:Date.now(),name:n,roomSize:curRoommateRoomSize,wealth:curRoommateWealth}]);setCurRoommateName('');setCurRoommateRoomSize('');setCurRoommateWealth('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD TENANT</button>
           {rentPeople.length>0?<ItemList items={rentPeople} onDelete={id=>setRentPeople(rentPeople.filter(p=>p.id!==id))} renderItem={p=><><p className={CLS_NAME}>{p.name}</p><p className={CLS_XS}>Room: {formatNumber((parseFloat(p.roomSize)||0).toFixed(0))} {getMeasurementLabel(rentMeasurement).toLowerCase()}</p><p className={CLS_XS}>{getWealthMetricLabel(rentWealthMetric)}: {_fc(p.wealth,rentCurrency)}</p></>}/>:<EmptyState msg="No tenants added yet"/>}
           {contBtn(3)}
         </div>
@@ -2129,6 +2180,17 @@ const Comrade = () => {
   if(page==='bet-entry') return EntryPage({
     steps: BET_STEPS,
     locked: !toolActivated,
+    banner: (
+      <div className={`${CLS_DASHED} p-4 bg-gray-50`}>
+        <div className="flex gap-3 items-center">
+          <svg aria-hidden="true" width="24" height="30" viewBox="0 0 24 30" fill="none" style={{flexShrink:0,marginTop:'0px'}}><path d="M9 9v7.4L4.2 25.5A1 1 0 005 27h14a1 1 0 00.8-1.5L14 16.4V9" stroke={DARK} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M9 9h6" stroke={DARK} strokeWidth="2.5" strokeLinecap="round"/><path d="M8.5 20L5.2 25.2A1 1 0 006 26.5h12a1 1 0 00.8-1.3L15.5 20z" fill={DARK}/><circle cx="8" cy="4.5" r="1.5" fill={DARK}/><circle cx="11.5" cy="2" r="1.3" fill={DARK}/><circle cx="14.5" cy="5" r="1" fill={DARK}/></svg>
+          <div>
+            <p className="text-xs font-bold uppercase mb-1 text-black">EXPERIMENTAL</p>
+            <p className="text-xs text-black leading-relaxed">Handle wagers a little differently. Winner-takes-all — but not everyone pays the same.</p>
+          </div>
+        </div>
+      </div>
+    ),
     intro: {desc:"Betting on an outcome? Running a sweepstake? Playing a game of skill? Comrade calculates how much each player should wager — so the stakes are fair for everyone.",hasSaved:hasBetSavedData,activated:toolActivated,resumeLabel:"RESUME BET",newLabel:"NEW BET",onJump:()=>jump(1),onClear:()=>{setToolActivated(true);jump(1);},onStartOver:()=>handleClearAll('bet'),onExample:()=>{setToolActivated(true);loadExample('bet');}},
     calc: {onCalculate:()=>navigateTo('bet-results'),weighting:betWeighting,onWeighting:setBetWeighting,navigateToFaq,hasAdvanced:true,validate:()=>_errs([
       [betPeople.length<2,'Need at least two people'],
@@ -2142,7 +2204,7 @@ const Comrade = () => {
           <CurrencyWealthSettings currency={betCurrency} onCurrency={setBetCurrency} wealth={betWealthMetric} onWealth={setBetWealthMetric}/>
           <FormInput value={curBetterName} onChange={e=>setCurBetterName(e.target.value)} placeholder="NAME" className="mb-2"/>
           <FormInput type="number" value={curBetterWealth} onChange={e=>setCurBetterWealth(e.target.value)} placeholder={`${getCurrencySymbol(betCurrency)} ${getWealthMetricLabel(betWealthMetric)}`} {...NP} className="mb-3"/>
-          <button onClick={()=>{if(curBetterName.trim()){setBetPeople([...betPeople,{id:Date.now(),name:curBetterName,wealth:curBetterWealth}]);setCurBetterName('');setCurBetterWealth('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD PERSON</button>
+          <button onClick={()=>{const n=curBetterName.trim();if(n&&!betPeople.some(p=>p.name.toLowerCase()===n.toLowerCase())){setBetPeople([...betPeople,{id:Date.now(),name:n,wealth:curBetterWealth}]);setCurBetterName('');setCurBetterWealth('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD PERSON</button>
           {betPeople.length>0?<ItemList items={betPeople} onDelete={id=>{const idx=betPeople.findIndex(p=>p.id===id);setBetPeople(betPeople.filter(p=>p.id!==id));if(parseInt(betAnchorIdx)===idx)setBetAnchorIdx('');else if(parseInt(betAnchorIdx)>idx)setBetAnchorIdx(String(parseInt(betAnchorIdx)-1));}} renderItem={b=><><p className={CLS_NAME}>{b.name}</p><p className={CLS_XS}>{getWealthMetricLabel(betWealthMetric)}: {_fc(b.wealth,betCurrency)}</p></>}/>:<EmptyState msg="No people added yet"/>}
           {contBtn(2)}
         </div>
@@ -2184,8 +2246,6 @@ const Comrade = () => {
 
   return null;
 };
-
-
 
 
 // Render the app
