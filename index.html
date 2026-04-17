@@ -24,7 +24,6 @@
     <script type="text/babel">
         const { useState, useCallback, useEffect, useMemo, useRef } = React;
 
-
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
 const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
@@ -1366,7 +1365,7 @@ const Comrade = () => {
     <>
       <div className="flex flex-col gap-3 max-w-xs mx-auto">
         <button onClick={()=>{editModeRef.current=true;navigateTo(entryPage);}} className={CLS_BTN_ACT}>EDIT DETAILS</button>
-        <button onClick={()=>copyToClipboard(copyText,'RESULTS COPIED!')} className={CLS_BTN_ACT}>COPY RESULTS</button>
+        <button onClick={()=>copyToClipboard(copyText,'RESULTS COPIED!')} className={CLS_BTN_ACT}>SHARE RESULTS</button>
         <button onClick={()=>navigateTo('home')} className="bg-white text-black px-6 py-2 font-bold border-2 border-black hover:bg-gray-100 transition-all w-full">RETURN HOME</button>
       </div>
       <div className="my-4 text-center py-6"><MotivationalQuote randomQuote={randomQuote}/></div>
@@ -1793,7 +1792,7 @@ const Comrade = () => {
             <FormInput value={curPersonName} onChange={e=>setCurPersonName(e.target.value)} placeholder="NAME" className="flex-1" style={{minWidth:'140px'}}/>
             <FormInput type="number" value={curPersonWealth} onChange={e=>setCurPersonWealth(e.target.value)} placeholder={`${getCurrencySymbol(billCurrency)} ${getWealthMetricLabel(billWealthMetric)}`} {...NP} className="flex-1" style={{minWidth:'180px'}}/>
           </div>
-          <button onClick={()=>{if(curPersonName.trim()){setBillPeople([...billPeople,{id:Date.now(),name:curPersonName,wealth:curPersonWealth}]);setCurPersonName('');setCurPersonWealth('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD PERSON</button>
+          <button onClick={()=>{const n=curPersonName.trim();if(n&&!billPeople.some(p=>p.name.toLowerCase()===n.toLowerCase())){setBillPeople([...billPeople,{id:Date.now(),name:n,wealth:curPersonWealth}]);setCurPersonName('');setCurPersonWealth('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD PERSON</button>
           {billPeople.length>0
             ?<ItemList items={billPeople} onDelete={id=>setBillPeople(billPeople.filter(p=>p.id!==id))} renderItem={p=><><p className={CLS_NAME}>{p.name}</p><p className={CLS_XS}>{getWealthMetricLabel(billWealthMetric)}: {_fc(p.wealth,billCurrency)}</p></>}/>
             :<EmptyState msg="No people added yet"/>
@@ -1988,7 +1987,7 @@ const Comrade = () => {
             <FormInput type="number" value={curBuyerOffer} onChange={e=>setCurBuyerOffer(e.target.value)} placeholder={`${getCurrencySymbol(saleCurrency)} OFFER`} {...NP} className="flex-1" style={{minWidth:'120px'}}/>
           </div>
           <FormInput type="number" value={curBuyerWealth} onChange={e=>setCurBuyerWealth(e.target.value)} placeholder={`${getCurrencySymbol(saleCurrency)} ${getWealthMetricLabel(saleWealthMetric)}`} {...NP} className="mb-3"/>
-          <button onClick={()=>{if(curBuyerName.trim()){setSaleBuyers([...saleBuyers,{id:Date.now(),name:curBuyerName,wealth:curBuyerWealth,offer:curBuyerOffer}]);setCurBuyerName('');setCurBuyerWealth('');setCurBuyerOffer('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD BUYER</button>
+          <button onClick={()=>{const n=curBuyerName.trim();if(n&&!saleBuyers.some(b=>b.name.toLowerCase()===n.toLowerCase())){setSaleBuyers([...saleBuyers,{id:Date.now(),name:n,wealth:curBuyerWealth,offer:curBuyerOffer}]);setCurBuyerName('');setCurBuyerWealth('');setCurBuyerOffer('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD BUYER</button>
           {saleBuyers.length>0?<ItemList items={saleBuyers} onDelete={id=>setSaleBuyers(saleBuyers.filter(b=>b.id!==id))} renderItem={b=><><p className={CLS_NAME}>{b.name}</p><p className={CLS_XS}>{getWealthMetricLabel(saleWealthMetric)}: {_fc(b.wealth,saleCurrency)}</p><p className={CLS_XS}>Offer: {_fc(b.offer,saleCurrency)}</p></>}/>:<EmptyState msg="No buyers added yet"/>}
           {contBtn(3)}
         </div>
@@ -2052,7 +2051,7 @@ const Comrade = () => {
         <div>
           <p className={CLS_STEP_P}>Add all the possible choices people can vote for.</p>
           <FormInput value={curOptionText} onChange={e=>setCurOptionText(e.target.value)} placeholder="OPTION TEXT" className="mb-3"/>
-          <button onClick={()=>{if(curOptionText.trim()){setVoteOptions([...voteOptions,{id:Date.now(),text:curOptionText}]);setCurOptionText('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD OPTION</button>
+          <button onClick={()=>{const t=curOptionText.trim();if(t&&!voteOptions.some(o=>o.text.toLowerCase()===t.toLowerCase())){setVoteOptions([...voteOptions,{id:Date.now(),text:t}]);setCurOptionText('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD OPTION</button>
           {voteOptions.length>0?<div className="space-y-0">{voteOptions.map(opt=><div key={opt.id} className="flex justify-between items-center text-xs text-black border-b border-dashed border-gray-400 pb-2 pt-2"><p className="font-bold text-black uppercase flex-1">{opt.text}</p><button onClick={()=>setVoteOptions(voteOptions.filter(o=>o.id!==opt.id))} className={CLS_DEL}>×</button></div>)}</div>:<EmptyState msg="No options added yet"/>}
           {contBtn(3)}
         </div>
@@ -2069,7 +2068,7 @@ const Comrade = () => {
             </select>
           </div>
           <FormInput type="number" value={curParticipantWealth} onChange={e=>setCurParticipantWealth(e.target.value)} placeholder={`${getCurrencySymbol(voteCurrency)} ${getWealthMetricLabel(voteWealthMetric)}`} {...NP} className="mb-3"/>
-          <button onClick={()=>{if(curParticipantName.trim()){setVoteParticipants([...voteParticipants,{id:Date.now(),name:curParticipantName,wealth:curParticipantWealth,vote:curParticipantVote}]);setCurParticipantName('');setCurParticipantWealth('');setCurParticipantVote('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD PERSON</button>
+          <button onClick={()=>{const n=curParticipantName.trim();if(n&&!voteParticipants.some(p=>p.name.toLowerCase()===n.toLowerCase())){setVoteParticipants([...voteParticipants,{id:Date.now(),name:n,wealth:curParticipantWealth,vote:curParticipantVote}]);setCurParticipantName('');setCurParticipantWealth('');setCurParticipantVote('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD PERSON</button>
           {voteParticipants.length>0?<ItemList items={voteParticipants} onDelete={id=>setVoteParticipants(voteParticipants.filter(p=>p.id!==id))} renderItem={p=><><p className={CLS_NAME}>{p.name}</p><p className={CLS_XS}>{getWealthMetricLabel(voteWealthMetric)}: {_fc(p.wealth,voteCurrency)}</p><p className={CLS_XS}>Vote: {p.vote||'Not selected'}</p></>}/>:<EmptyState msg="No people added yet"/>}
           {contBtn(4)}
         </div>
@@ -2136,7 +2135,7 @@ const Comrade = () => {
             <FormInput type="number" value={curRoommateRoomSize} onChange={e=>setCurRoommateRoomSize(e.target.value)} placeholder={`ROOM SIZE (${getMeasurementLabel(rentMeasurement)})`} {...NP} className="flex-1" style={{minWidth:'150px'}}/>
           </div>
           <FormInput type="number" value={curRoommateWealth} onChange={e=>setCurRoommateWealth(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} ${getWealthMetricLabel(rentWealthMetric)}`} {...NP} className="mb-3"/>
-          <button onClick={()=>{if(curRoommateName.trim()){setRentPeople([...rentPeople,{id:Date.now(),name:curRoommateName,roomSize:curRoommateRoomSize,wealth:curRoommateWealth}]);setCurRoommateName('');setCurRoommateRoomSize('');setCurRoommateWealth('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD TENANT</button>
+          <button onClick={()=>{const n=curRoommateName.trim();if(n&&!rentPeople.some(p=>p.name.toLowerCase()===n.toLowerCase())){setRentPeople([...rentPeople,{id:Date.now(),name:n,roomSize:curRoommateRoomSize,wealth:curRoommateWealth}]);setCurRoommateName('');setCurRoommateRoomSize('');setCurRoommateWealth('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD TENANT</button>
           {rentPeople.length>0?<ItemList items={rentPeople} onDelete={id=>setRentPeople(rentPeople.filter(p=>p.id!==id))} renderItem={p=><><p className={CLS_NAME}>{p.name}</p><p className={CLS_XS}>Room: {formatNumber((parseFloat(p.roomSize)||0).toFixed(0))} {getMeasurementLabel(rentMeasurement).toLowerCase()}</p><p className={CLS_XS}>{getWealthMetricLabel(rentWealthMetric)}: {_fc(p.wealth,rentCurrency)}</p></>}/>:<EmptyState msg="No tenants added yet"/>}
           {contBtn(3)}
         </div>
@@ -2205,7 +2204,7 @@ const Comrade = () => {
           <CurrencyWealthSettings currency={betCurrency} onCurrency={setBetCurrency} wealth={betWealthMetric} onWealth={setBetWealthMetric}/>
           <FormInput value={curBetterName} onChange={e=>setCurBetterName(e.target.value)} placeholder="NAME" className="mb-2"/>
           <FormInput type="number" value={curBetterWealth} onChange={e=>setCurBetterWealth(e.target.value)} placeholder={`${getCurrencySymbol(betCurrency)} ${getWealthMetricLabel(betWealthMetric)}`} {...NP} className="mb-3"/>
-          <button onClick={()=>{if(curBetterName.trim()){setBetPeople([...betPeople,{id:Date.now(),name:curBetterName,wealth:curBetterWealth}]);setCurBetterName('');setCurBetterWealth('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD PERSON</button>
+          <button onClick={()=>{const n=curBetterName.trim();if(n&&!betPeople.some(p=>p.name.toLowerCase()===n.toLowerCase())){setBetPeople([...betPeople,{id:Date.now(),name:n,wealth:curBetterWealth}]);setCurBetterName('');setCurBetterWealth('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD PERSON</button>
           {betPeople.length>0?<ItemList items={betPeople} onDelete={id=>{const idx=betPeople.findIndex(p=>p.id===id);setBetPeople(betPeople.filter(p=>p.id!==id));if(parseInt(betAnchorIdx)===idx)setBetAnchorIdx('');else if(parseInt(betAnchorIdx)>idx)setBetAnchorIdx(String(parseInt(betAnchorIdx)-1));}} renderItem={b=><><p className={CLS_NAME}>{b.name}</p><p className={CLS_XS}>{getWealthMetricLabel(betWealthMetric)}: {_fc(b.wealth,betCurrency)}</p></>}/>:<EmptyState msg="No people added yet"/>}
           {contBtn(2)}
         </div>
@@ -2247,7 +2246,6 @@ const Comrade = () => {
 
   return null;
 };
-
 
 
 // Render the app
