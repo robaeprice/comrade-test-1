@@ -804,7 +804,7 @@ const CSS_BLOCK = `
   .hp-desktop { display: none; }
   .rp-mobile { display: block; }
   .rp-desktop { display: none; }
-  @media (min-width: 1060px) { .hp-mobile { display: none; } .hp-desktop { display: flex; gap: 28px; justify-content: center; align-items: flex-start; padding: 20px 24px; } .hp-ribbon-main { max-width: 540px; flex: 1.2; } .hp-ribbon-how { max-width: 420px; flex: 1; margin-top: 50px; } .hp-ribbon-how .receipt-wrapper { filter: drop-shadow(6px 8px 18px rgba(0,0,0,0.45)); } .hp-inner { padding-left: 32px; padding-right: 32px; } .hp-ribbon-main .hp-tagline { font-size: 16px; } .rp-mobile { display: none; } .rp-desktop { display: flex; gap: 28px; justify-content: center; align-items: flex-start; padding: 20px 24px; } .rp-ribbon-main { max-width: 540px; flex: 1.2; } .rp-ribbon-details { max-width: 480px; flex: 1; margin-top: 30px; } .rp-ribbon-details .receipt-wrapper { filter: drop-shadow(6px 8px 18px rgba(0,0,0,0.45)); } .rp-inner { padding-left: 32px; padding-right: 32px; } }
+  @media (min-width: 1060px) { .hp-mobile { display: none; } .hp-desktop { display: flex; gap: 28px; justify-content: center; align-items: flex-start; padding: 20px 24px; } .hp-ribbon-main { max-width: 540px; flex: 1.2; } .hp-ribbon-how { max-width: 420px; flex: 1; margin-top: 50px; } .hp-ribbon-how .receipt-wrapper { filter: drop-shadow(6px 8px 18px rgba(0,0,0,0.45)); } .hp-inner { padding-left: 32px; padding-right: 32px; } .hp-ribbon-main .hp-tagline { font-size: 16px; } .rp-mobile { display: none; } .rp-desktop { display: block; } .rp-ribbon-main { max-width: 540px; flex: 1.2; } .rp-ribbon-details { max-width: 480px; flex: 1; margin-top: 30px; } .rp-ribbon-details .receipt-wrapper { filter: drop-shadow(6px 8px 18px rgba(0,0,0,0.45)); } .rp-inner { padding-left: 32px; padding-right: 32px; } }
 `;
 
 const FullLogoHeader = ({onNavigate}) => (
@@ -1413,11 +1413,12 @@ const Comrade = () => {
             {footer}
           </Layout>
         </div>
+        <div className="rp-desktop">
         <div style={BG_STYLE}>
           <BgSymbols/>
           <div style={{position:'relative',zIndex:1}}>
           <style>{CSS_BLOCK}</style>
-          <div className="rp-desktop">
+          <div style={{display:'flex',gap:'28px',justifyContent:'center',alignItems:'flex-start',padding:'20px 24px'}}>
             {rpShell('rp-ribbon-main', <>
               {compactHeader}
               {blackBox}
@@ -1433,6 +1434,7 @@ const Comrade = () => {
           </div>
           {showCopyToast&&<div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 px-6 py-3 font-bold z-50 border-2 sf" style={S_DARK}>{copyToastMsg}</div>}
           </div>
+        </div>
         </div>
       </>
     );
@@ -2246,6 +2248,7 @@ const Comrade = () => {
 
   return null;
 };
+
 
 
 // Render the app
