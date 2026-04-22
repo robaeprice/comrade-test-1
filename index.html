@@ -26,7 +26,7 @@
 
 const formatNumber = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const getCurrencySymbol = c => ({USD:'$',EUR:'€',GBP:'£'})[c]||'$';
-const formatSmartNumber = n => { if (n !== 0 && Math.abs(n) < 0.01) return n.toExponential(4); return formatNumber(n.toFixed(2)); };
+const formatSmartNumber = n => { return formatNumber((parseFloat(n)||0).toFixed(2)); };
 const formatCurrency = (v, d=2, c='USD') => `${getCurrencySymbol(c)}${formatNumber((parseFloat(v)||0).toFixed(d))}`;
 const formatCurrencySmart = (v, c='USD') => `${getCurrencySymbol(c)}${formatSmartNumber(v)}`;
 const getWeightingLabel = w => ({none:'OFF',gentle:'LOW',standard:'MID',strong:'HIGH'})[w]||'MID';
@@ -56,6 +56,11 @@ const applyWeighting = (wealth, weighting) => {
   if (weighting === 'strong') return wealth * wealth;
   return wealth;
 };
+const calcWealthShift = (people, metric) => {
+  if (metric !== 'networth') return 0;
+  const min = Math.min(...people.map(p => parseFloat(p.wealth) || 0));
+  return min < 0 ? Math.abs(min) + 1 : 0;
+};
 
 const BG_GREY = '#F3F4F6';
 const DARK    = '#333333';
@@ -75,6 +80,7 @@ const S_DARK   = {backgroundColor:DARK,color:BG_GREY,borderColor:DARK};
 const CLS_FB   = 'font-bold mb-2';
 const S_PANEL  = {border:'2px dashed #9CA3AF',borderTop:'none',padding:'20px'};
 const NP = {min:'0',step:'0.01',inputMode:'decimal'};
+const NP_NW = {step:'0.01',inputMode:'decimal'};
 const CLS_JBH    = 'flex justify-between items-start mb-3 border-b border-dashed border-gray-400 pb-2';
 const CLS_DEL    = 'text-black font-bold text-xl ml-3 hover:text-gray-600 leading-none';
 const CLS_CP     = 'currency-pattern text-xs text-black uppercase tracking-wider sf';
@@ -370,14 +376,14 @@ const BlackBoxStats = ({stats}) => (
 const WeightingButtons = ({value,onChange}) => (
   <ToggleGroup options={[{value:'none',label:'OFF'},{value:'gentle',label:'LOW'},{value:'standard',label:'MID'},{value:'strong',label:'HIGH'}]} value={value} onChange={onChange} minWidth="80px"/>
 );
-const numericChange = (onChange) => (e) => {
+const numericChange = (onChange, allowNeg) => (e) => {
   const val = e.target.value;
-  if (val === '' || /^\d*\.?\d*$/.test(val)) onChange(e);
+  if (val === '' || (allowNeg ? /^-?\d*\.?\d*$/ : /^\d*\.?\d*$/).test(val)) onChange(e);
 };
 const FormInput = ({type='text',value,onChange,placeholder,className='',style,...props}) => {
   const base="w-full p-2 border-2 border-gray-400 bg-white uppercase";
   if(type==='textarea') return <textarea value={value} onChange={onChange} placeholder={placeholder} aria-label={props['aria-label']||placeholder} className={`${base} ${className}`} style={{fontSize:'16px',...style}} {...props}/>;
-  return <input type={type} value={value} onChange={type==='number'?numericChange(onChange):onChange} placeholder={placeholder} aria-label={props['aria-label']||placeholder} className={`${base} ${className}`} style={{fontSize:'16px',...style}} {...props}/>;
+  return <input type={type} value={value} onChange={type==='number'?numericChange(onChange,!props.min):onChange} placeholder={placeholder} aria-label={props['aria-label']||placeholder} className={`${base} ${className}`} style={{fontSize:'16px',...style}} {...props}/>;
 };
 const ItemList = ({items,onDelete,renderItem,receiptStyle,formatTotal,getAmount}) => {
   if(!items.length) return null;
@@ -549,13 +555,15 @@ const CalcStep = ({onCalculate, weighting, onWeighting, navigateToFaq, hasFloor=
 
 const renderWealthPieChart = data => {
   const sorted=sortByW(data);
-  const total=sorted.reduce((s,p)=>s+p.wealth,0);
+  const posData=sorted.filter(p=>p.wealth>0);
+  const hasNeg=sorted.some(p=>p.wealth<=0);
+  const total=posData.reduce((s,p)=>s+p.wealth,0);
   const colors=['#333333','#555555','#777777','#999999','#AAAAAA','#BBBBBB','#CCCCCC','#DDDDDD'];
   return(
     <>
       <svg aria-hidden="true" viewBox="0 0 200 200" className="w-full max-w-xs mx-auto">
-        {(()=>{let cur=0;return sorted.map((p,idx)=>{
-          const pct=total>0?(p.wealth/total):(1/sorted.length),angle=pct*360,cx=100,cy=100,r=70,ir=30;
+        {(()=>{let cur=0;return posData.map((p,idx)=>{
+          const pct=total>0?(p.wealth/total):(1/posData.length),angle=pct*360,cx=100,cy=100,r=70,ir=30;
           const s1=((cur-90)*Math.PI/180),e1=((cur+angle-90)*Math.PI/180);
           const x1=cx+r*Math.cos(s1),y1=cy+r*Math.sin(s1),x2=cx+r*Math.cos(e1),y2=cy+r*Math.sin(e1);
           const x3=cx+ir*Math.cos(e1),y3=cy+ir*Math.sin(e1),x4=cx+ir*Math.cos(s1),y4=cy+ir*Math.sin(s1);
@@ -567,16 +575,18 @@ const renderWealthPieChart = data => {
       </svg>
       <div className="mt-6 space-y-2">
         {sorted.map((p,idx)=>{
-          const pct=total>0?(p.wealth/total)*100:100/sorted.length;
+          const pct=total>0&&p.wealth>0?(p.wealth/total)*100:0;
+          const ci=p.wealth>0?posData.indexOf(p):null;
           return(
             <div key={idx} className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-black">
-              <div className="w-4 h-4 border border-gray-400 flex-shrink-0" style={{backgroundColor:colors[idx%colors.length]}}></div>
+              <div className="w-4 h-4 border border-gray-400 flex-shrink-0" style={{backgroundColor:ci!==null?colors[ci%colors.length]:'transparent'}}></div>
               <span className="font-bold text-black">{p.name}</span>
               <span className="text-black">${formatNumber(p.wealth.toFixed(2))}</span>
-              <span className="font-bold text-black">({pct.toFixed(1)}%)</span>
+              {p.wealth>0&&<span className="font-bold text-black">({pct.toFixed(1)}%)</span>}
             </div>
           );
         })}
+        {hasNeg&&<p className="text-xs mt-3" style={{color:'#6B7280'}}>Note: People with negative net worth not visualized.</p>}
       </div>
     </>
   );
@@ -1453,6 +1463,7 @@ const Comrade = () => {
     {q:'HOW DOES THIS WORK?',a:`Comrade uses wealth data to decide how much each person should pay. It combines all the bills and the amounts already paid, then looks at each person's wealth in relation to others in the group to establish what proportion of the total amount each person should actually be responsible for.`},
     {q:'WHAT DO YOU DO WITH MY FINANCIAL INFORMATION?',render:<><p className={CLS_PARA3}>Your financial information is never sold, never used for advertising, and never associated with your identity.</p><p className={CLS_PARA3}>In Private Splits, these calculations are performed by your device, and your data is only stored locally. It is never sent to Comrade, and is automatically wiped after 30 days of inactivity.</p><p className={CLS_PARA3}>In Group Splits, your data is securely synced to Comrade's servers, and is accessible only to your friends who you share the group link with. Comrade may use anonymized, aggregated data from Group Splits to study trends in how people share expenses. Individual splits are never singled out or made identifiable. Group Splits can be deleted at any time.</p><p className={CLS_PARA}>If a user signs up for email updates, their email is shared with Comrade only, and is not associated with any financial data.</p></>},
     {q:'WHAT IS "WEIGHTING"?',a:`Weighting is the level of emphasis placed on each user's relative wealth (salary/net worth). By default, each person's responsibility is directly proportional to their wealth.\n\nFor example, let's say Fred and George each paid $100 on shared bills. Fred earns $50,000 a year, while George brings in $100,000. With regular ("Mid") weighting, because George makes twice as much money as Fred, he should pay twice as much. So far, he only paid 50% — $100 — meaning he owes Fred another $33.33.\n\nIn settings, you can also select "High" weighting, which emphasizes wealth differences even more by using squared wealth values for calculations; or "Low" weighting, which uses square-root values for more gentle adjustments. There is also an option to forego weighting entirely.`},
+    {q:'HOW DOES NET WORTH WORK?',a:`Add up all your assets (possessions, property, investments, cash, etc.), subtract all your liabilities (any outstanding debts for student loans, mortgages, etc.), and you've got your net worth.\n\nWhen selected, it is used to weight users' fair share just like salary is, and can be a useful approach in groups where people aren't employed (e.g. students), or when one person is currently out of work but is still financially comfortable.\n\nComrade can also take into account when someone has negative net worth — that is, when their debts are larger than their total assets.`},
     {q:'WHAT IS A "CONTRIBUTION CAP"?',a:`A contribution cap sets a maximum amount that any group member must pay, regardless of their wealth. It's expressed as a multiple of what they'd owe in an even split.\n\nFor example, if three people are splitting $300 and the cap is set to 2x, no one pays more than $200 — that's twice the equal $100 share.\n\nBy default, the contribution cap is deactivated.`},
     {q:'HOW DO GROUP SPLITS WORK?',render:<><p className={CLS_PARA3}>When you start a Group Split, Comrade generates a shareable link you can send to your group. Anyone with the link can view the split, add or remove people and expenses, and calculate results — with no account required.</p><p className={CLS_PARA3}>Group Splits are stored securely and can be deleted at any time.</p><p className={CLS_PARA}>Anyone with the link to a Group Split can access all the data in it.</p></>},
     {q:'IS COMRADE AVAILABLE ON THE APP STORE?',render:<p className={CLS_PARA}>Not yet! For now, Comrade is fully functional on mobile and desktop via our website, <a href="https://www.comrade.money" target="_blank" rel="noopener noreferrer" className={CLS_A}>www.comrade.money</a>. If you'd like to use a standalone app, or have other feedback or feature requests, please get in touch.</p>},
@@ -1463,8 +1474,9 @@ const Comrade = () => {
     if(!billPeople.length) return{total:0,peopleData:[],transactions:[],hasPartialBills:false,billDetails:[],capWasApplied:false};
     const total=billBills.reduce((s,b)=>s+(parseFloat(b.amount)||0),0);
     const hasPartialBills=billBills.some(b=>b.participants?.length>0);
+    const wShift=calcWealthShift(billPeople,billWealthMetric);
     let shares=billPeople.map(p=>{
-      const w=parseFloat(p.wealth)||0,paid=billBills.filter(b=>b.paidBy===p.name).reduce((s,b)=>s+(parseFloat(b.amount)||0),0),aw=applyWeighting(w,billWeighting);
+      const w=parseFloat(p.wealth)||0,paid=billBills.filter(b=>b.paidBy===p.name).reduce((s,b)=>s+(parseFloat(b.amount)||0),0),aw=applyWeighting(Math.max(w+wShift,1),billWeighting);
       return{...p,wealth:w,paid,fairShare:0,adjustedWealth:aw};
     });
     const billDetails=[];
@@ -1499,23 +1511,25 @@ const Comrade = () => {
       if(Math.abs(pc[pi].balance)<0.01)pi++;if(Math.abs(rc[ri].balance)<0.01)ri++;
     }
     return{total,peopleData,transactions,hasPartialBills,billDetails,capWasApplied};
-  },[billPeople,billBills,billWeighting,billFloor]);
+  },[billPeople,billBills,billWeighting,billFloor,billWealthMetric]);
 
   const saleCalculations = useMemo(()=>{
     if(!saleBuyers.length) return{rankedBuyers:[],avgOffer:0};
+    const wShift=calcWealthShift(saleBuyers,saleWealthMetric);
     const rankedBuyers=saleBuyers.map(b=>{
-      const w=parseFloat(b.wealth)||1,o=parseFloat(b.offer)||0,aw=applyWeighting(w,saleWeighting);
+      const w=parseFloat(b.wealth)||0,o=parseFloat(b.offer)||0,aw=applyWeighting(Math.max(w+wShift,1),saleWeighting);
       return{...b,wealth:w,offer:o,needScore:(o/aw)*100,adjustedWealth:aw};
     }).sort((a,b)=>b.needScore-a.needScore);
     const totalOffers=rankedBuyers.reduce((s,b)=>s+b.offer,0);
     return{rankedBuyers,avgOffer:rankedBuyers.length?totalOffers/rankedBuyers.length:0};
-  },[saleBuyers,saleWeighting]);
+  },[saleBuyers,saleWeighting,saleWealthMetric]);
 
   const voteCalculations = useMemo(()=>{
     if(!voteParticipants.length) return{participantsData:[],totalVotingPower:0,voteBreakdown:[]};
+    const wShift=calcWealthShift(voteParticipants,voteWealthMetric);
     const totalW=voteParticipants.reduce((s,p)=>s+(parseFloat(p.wealth)||0),0),avgW=totalW/voteParticipants.length;
     const participantsData=voteParticipants.map(p=>{
-      const w=parseFloat(p.wealth)||0,aw=applyWeighting(w,voteWeighting),vp=aw>0?avgW/aw:1;
+      const w=parseFloat(p.wealth)||0,aw=applyWeighting(Math.max(w+wShift,1),voteWeighting),vp=aw>0?avgW/aw:1;
       return{...p,wealth:w,votingPower:vp,adjustedWealth:aw};
     });
     const totalVP=participantsData.reduce((s,p)=>s+p.votingPower,0);
@@ -1524,14 +1538,15 @@ const Comrade = () => {
       return{option:opt.text,percentage:totalVP>0?(pwr/totalVP)*100:0,voters};
     }).sort((a,b)=>b.percentage-a.percentage);
     return{participantsData,totalVotingPower:totalVP,voteBreakdown};
-  },[voteParticipants,voteOptions,voteWeighting]);
+  },[voteParticipants,voteOptions,voteWeighting,voteWealthMetric]);
 
   const rentCalculations = useMemo(()=>{
     if(!rentPeople.length) return{rentAmount:0,utilitiesAmount:0,total:0,totalRoomSize:0,rentData:[],totalRoomValue:0,rentCapApplied:false};
     const rentAmount=parseFloat(totalRent)||0,utilitiesAmount=parseFloat(totalUtilities)||0,total=rentAmount+utilitiesAmount;
     const trs=rentPeople.reduce((s,p)=>s+(parseFloat(p.roomSize)||0),0);
+    const wShift=calcWealthShift(rentPeople,rentWealthMetric);
     const pd=rentPeople.map(p=>{
-      const rs=parseFloat(p.roomSize)||0,w=parseFloat(p.wealth)||0,rp=trs>0?(rs/trs)*100:0,aw=applyWeighting(w,rentWeighting);
+      const rs=parseFloat(p.roomSize)||0,w=parseFloat(p.wealth)||0,rp=trs>0?(rs/trs)*100:0,aw=applyWeighting(Math.max(w+wShift,1),rentWeighting);
       return{...p,roomSize:rs,wealth:w,roomPct:rp,adjustedWealth:aw,roomValue:rp*aw};
     });
     const trv=pd.reduce((s,p)=>s+p.roomValue,0);
@@ -1541,23 +1556,24 @@ const Comrade = () => {
     const rentCapApplied=rentFloor!=='off'&&shares.some((p,i)=>Math.abs(p.fairRent-preCapRents[i].fairRent)>0.01);
     const rentData=shares.map((p,i)=>({...p,preCapRent:preCapRents[i].fairRent,rentPct:total>0?(p.fairRent/total)*100:100/rentPeople.length})).sort((a,b)=>b.fairRent-a.fairRent);
     return{rentAmount,utilitiesAmount,total,totalRoomSize:trs,rentData,totalRoomValue:trv,rentCapApplied};
-  },[rentPeople,totalRent,totalUtilities,rentWeighting,rentFloor]);
+  },[rentPeople,totalRent,totalUtilities,rentWeighting,rentFloor,rentWealthMetric]);
 
   const betCalculations = useMemo(()=>{
     if(betPeople.length<2||!betAmount) return{betData:[],pot:0,anchorName:''};
     const amt=parseFloat(betAmount)||0,anchorIdx=parseInt(betAnchorIdx)||0;
     const anchor=betPeople[anchorIdx];
     if(!anchor) return{betData:[],pot:0,anchorName:''};
-    const anchorW=parseFloat(anchor.wealth)||1;
-    const anchorAW=applyWeighting(anchorW,betWeighting);
+    const wShift=calcWealthShift(betPeople,betWealthMetric);
+    const anchorW=parseFloat(anchor.wealth)||0;
+    const anchorAW=applyWeighting(Math.max(anchorW+wShift,1),betWeighting);
     const betData=betPeople.map(p=>{
-      const w=parseFloat(p.wealth)||1,aw=applyWeighting(w,betWeighting);
+      const w=parseFloat(p.wealth)||0,aw=applyWeighting(Math.max(w+wShift,1),betWeighting);
       const fairBet=betWeighting==='off'?amt:(aw/anchorAW)*amt;
       return{...p,wealth:w,adjustedWealth:aw,fairBet};
     }).sort((a,b)=>b.fairBet-a.fairBet);
     const pot=betData.reduce((s,p)=>s+p.fairBet,0);
     return{betData,pot,anchorName:anchor.name};
-  },[betPeople,betAmount,betAnchorIdx,betWeighting]);
+  },[betPeople,betAmount,betAnchorIdx,betWeighting,betWealthMetric]);
 
   if(page==='home') {
     const thanksEl = showThanks&&<div className="border-2 border-dashed border-gray-400 p-4 mb-4 bg-gray-50 animate-fadeIn"><p className="text-xs text-black leading-relaxed text-center">Thank you for supporting Comrade! Your assistance helps keep our products free to use and free from ads.</p></div>;
@@ -1792,7 +1808,7 @@ const Comrade = () => {
           <CurrencyWealthSettings currency={billCurrency} onCurrency={setBillCurrency} wealth={billWealthMetric} onWealth={setBillWealthMetric} pad="p-4"/>
           <div className={CLS_ROW3}>
             <FormInput value={curPersonName} onChange={e=>setCurPersonName(e.target.value)} placeholder="NAME" className="flex-1" style={{minWidth:'140px'}}/>
-            <FormInput type="number" value={curPersonWealth} onChange={e=>setCurPersonWealth(e.target.value)} placeholder={`${getCurrencySymbol(billCurrency)} ${getWealthMetricLabel(billWealthMetric)}`} {...NP} className="flex-1" style={{minWidth:'180px'}}/>
+            <FormInput type="number" value={curPersonWealth} onChange={e=>setCurPersonWealth(e.target.value)} placeholder={`${getCurrencySymbol(billCurrency)} ${getWealthMetricLabel(billWealthMetric)}`} {...(billWealthMetric==='networth'?NP_NW:NP)} className="flex-1" style={{minWidth:'180px'}}/>
           </div>
           <button onClick={()=>{const n=curPersonName.trim();if(n&&!billPeople.some(p=>p.name.toLowerCase()===n.toLowerCase())){setBillPeople([...billPeople,{id:Date.now(),name:n,wealth:curPersonWealth}]);setCurPersonName('');setCurPersonWealth('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD PERSON</button>
           {billPeople.length>0
@@ -1988,7 +2004,7 @@ const Comrade = () => {
             <FormInput value={curBuyerName} onChange={e=>setCurBuyerName(e.target.value)} placeholder="NAME" className="flex-1" style={{minWidth:'120px'}}/>
             <FormInput type="number" value={curBuyerOffer} onChange={e=>setCurBuyerOffer(e.target.value)} placeholder={`${getCurrencySymbol(saleCurrency)} OFFER`} {...NP} className="flex-1" style={{minWidth:'120px'}}/>
           </div>
-          <FormInput type="number" value={curBuyerWealth} onChange={e=>setCurBuyerWealth(e.target.value)} placeholder={`${getCurrencySymbol(saleCurrency)} ${getWealthMetricLabel(saleWealthMetric)}`} {...NP} className="mb-3"/>
+          <FormInput type="number" value={curBuyerWealth} onChange={e=>setCurBuyerWealth(e.target.value)} placeholder={`${getCurrencySymbol(saleCurrency)} ${getWealthMetricLabel(saleWealthMetric)}`} {...(saleWealthMetric==='networth'?NP_NW:NP)} className="mb-3"/>
           <button onClick={()=>{const n=curBuyerName.trim();if(n&&!saleBuyers.some(b=>b.name.toLowerCase()===n.toLowerCase())){setSaleBuyers([...saleBuyers,{id:Date.now(),name:n,wealth:curBuyerWealth,offer:curBuyerOffer}]);setCurBuyerName('');setCurBuyerWealth('');setCurBuyerOffer('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD BUYER</button>
           {saleBuyers.length>0?<ItemList items={saleBuyers} onDelete={id=>setSaleBuyers(saleBuyers.filter(b=>b.id!==id))} renderItem={b=><><p className={CLS_NAME}>{b.name}</p><p className={CLS_XS}>{getWealthMetricLabel(saleWealthMetric)}: {_fc(b.wealth,saleCurrency)}</p><p className={CLS_XS}>Offer: {_fc(b.offer,saleCurrency)}</p></>}/>:<EmptyState msg="No buyers added yet"/>}
           {contBtn(3)}
@@ -2007,15 +2023,15 @@ const Comrade = () => {
       boxExtra:<BoxBranding tagline="THE FAIRER WAY TO HANDLE SELLING THINGS"/>,
       summary:isTie
         ?<p className="text-lg font-bold">PERFECT TIE. EVERYONE HAS EQUAL CLAIM.</p>
-        :<>{winners.map((w,i)=><div key={w.id} className="mb-3 pb-3" style={{borderBottom:`1px dashed ${BG_GREY}`}}><p className="text-3xl font-black mb-2">{w.name.toUpperCase()}</p><p className="text-xl font-semibold">OFFER: {_fc(w.offer,saleCurrency)}</p><p className="text-xs" style={{color:BG_GREY}}>NEED SCORE: {w.needScore<0.01?w.needScore.toExponential(4):w.needScore.toFixed(2)}%</p></div>)}</>,
+        :<>{winners.map((w,i)=><div key={w.id} className="mb-3 pb-3" style={{borderBottom:`1px dashed ${BG_GREY}`}}><p className="text-3xl font-black mb-2">{w.name.toUpperCase()}</p><p className="text-xl font-semibold">OFFER: {_fc(w.offer,saleCurrency)}</p><p className="text-xs" style={{color:BG_GREY}}>NEED SCORE: {w.needScore.toFixed(2)}%</p></div>)}</>,
       stats:[{label:'PRODUCT',value:productName.toUpperCase()||'N/A'},{label:'AVAILABLE',value:numAvail},{label:'AVG OFFER',value:_fc(avgOffer,saleCurrency)}],
       copyText,
       details:<>
-        {renderBarVisualization('NEED SCORE VISUALIZATION',rankedBuyers,[{getValue:b=>b.needScore,displayValue:b=>`${b.needScore<0.01?b.needScore.toExponential(2):b.needScore.toFixed(1)}%`,rightLabel:(_,i)=>`#${i+1}`}],b=>b.name)}
+        {renderBarVisualization('NEED SCORE VISUALIZATION',rankedBuyers,[{getValue:b=>b.needScore,displayValue:b=>`${b.needScore.toFixed(2)}%`,rightLabel:(_,i)=>`#${i+1}`}],b=>b.name)}
         <DashedDivider/>
-        {renderDetailCards('BUYER DATA',rankedBuyers,(b,i)=>({name:`#${i+1} ${b.name}`,cardClassName:`p-4 border-2 ${i<numAvail?'border-black bg-gray-100':'border-gray-400 bg-white'}`,titleExtra:<span className={`px-2 py-1 text-xs font-bold border sf ${i<numAvail?'bg-black text-white border-black':'bg-white text-black border-black'}`}>{i<numAvail?'SELECTED':'NOT SELECTED'}</span>,rows:[{label:'WEALTH',value:_fc(b.wealth,saleCurrency)},{label:'OFFER',value:_fc(b.offer,saleCurrency)}],summaryRows:[{label:'NEED SCORE',value:`${b.needScore<0.01?b.needScore.toExponential(4):b.needScore.toFixed(2)}%`}]}))}
+        {renderDetailCards('BUYER DATA',rankedBuyers,(b,i)=>({name:`#${i+1} ${b.name}`,cardClassName:`p-4 border-2 ${i<numAvail?'border-black bg-gray-100':'border-gray-400 bg-white'}`,titleExtra:<span className={`px-2 py-1 text-xs font-bold border sf ${i<numAvail?'bg-black text-white border-black':'bg-white text-black border-black'}`}>{i<numAvail?'SELECTED':'NOT SELECTED'}</span>,rows:[{label:'WEALTH',value:_fc(b.wealth,saleCurrency)},{label:'OFFER',value:_fc(b.offer,saleCurrency)}],summaryRows:[{label:'NEED SCORE',value:`${b.needScore.toFixed(2)}%`}]}))}
         <DashedDivider/>
-        {renderMathSection(saleWeighting,[renderAdjustedWealthStep(1,rankedBuyers,saleWeighting),<div key="s2"><p className={CLS_FB}>2. NEED SCORE (OFFER ÷ ADJUSTED WEALTH × 100):</p>{renderMathRow(rankedBuyers,b=>`${_fc(b.offer,saleCurrency)} ÷ ${_fsn(b.adjustedWealth)} × 100 = ${b.needScore<0.01?b.needScore.toExponential(2):b.needScore.toFixed(2)}%`)}</div>],<div><p className={CLS_FB}>NO WEIGHTING - RANKED BY OFFER AMOUNT:</p>{rankedBuyers.map((b,i)=><div key={b.id} className={CLS_JBM}><span>#{i+1} {b.name}:</span><span className="font-mono">{_fc(b.offer,saleCurrency)}</span></div>)}</div>)}
+        {renderMathSection(saleWeighting,[renderAdjustedWealthStep(1,rankedBuyers,saleWeighting),<div key="s2"><p className={CLS_FB}>2. NEED SCORE (OFFER ÷ ADJUSTED WEALTH × 100):</p>{renderMathRow(rankedBuyers,b=>`${_fc(b.offer,saleCurrency)} ÷ ${_fsn(b.adjustedWealth)} × 100 = ${b.needScore.toFixed(2)}%`)}</div>],<div><p className={CLS_FB}>NO WEIGHTING - RANKED BY OFFER AMOUNT:</p>{rankedBuyers.map((b,i)=><div key={b.id} className={CLS_JBM}><span>#{i+1} {b.name}:</span><span className="font-mono">{_fc(b.offer,saleCurrency)}</span></div>)}</div>)}
       </>
     });
   }
@@ -2069,7 +2085,7 @@ const Comrade = () => {
               {voteOptions.map((opt,j)=><option key={opt.id||j} value={opt.text}>{opt.text}</option>)}
             </select>
           </div>
-          <FormInput type="number" value={curParticipantWealth} onChange={e=>setCurParticipantWealth(e.target.value)} placeholder={`${getCurrencySymbol(voteCurrency)} ${getWealthMetricLabel(voteWealthMetric)}`} {...NP} className="mb-3"/>
+          <FormInput type="number" value={curParticipantWealth} onChange={e=>setCurParticipantWealth(e.target.value)} placeholder={`${getCurrencySymbol(voteCurrency)} ${getWealthMetricLabel(voteWealthMetric)}`} {...(voteWealthMetric==='networth'?NP_NW:NP)} className="mb-3"/>
           <button onClick={()=>{const n=curParticipantName.trim();if(n&&!voteParticipants.some(p=>p.name.toLowerCase()===n.toLowerCase())){setVoteParticipants([...voteParticipants,{id:Date.now(),name:n,wealth:curParticipantWealth,vote:curParticipantVote}]);setCurParticipantName('');setCurParticipantWealth('');setCurParticipantVote('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD PERSON</button>
           {voteParticipants.length>0?<ItemList items={voteParticipants} onDelete={id=>setVoteParticipants(voteParticipants.filter(p=>p.id!==id))} renderItem={p=><><p className={CLS_NAME}>{p.name}</p><p className={CLS_XS}>{getWealthMetricLabel(voteWealthMetric)}: {_fc(p.wealth,voteCurrency)}</p><p className={CLS_XS}>Vote: {p.vote||'Not selected'}</p></>}/>:<EmptyState msg="No people added yet"/>}
           {contBtn(4)}
@@ -2136,7 +2152,7 @@ const Comrade = () => {
             <FormInput value={curRoommateName} onChange={e=>setCurRoommateName(e.target.value)} placeholder="NAME" className="flex-1" style={{minWidth:'120px'}}/>
             <FormInput type="number" value={curRoommateRoomSize} onChange={e=>setCurRoommateRoomSize(e.target.value)} placeholder={`ROOM SIZE (${getMeasurementLabel(rentMeasurement)})`} {...NP} className="flex-1" style={{minWidth:'150px'}}/>
           </div>
-          <FormInput type="number" value={curRoommateWealth} onChange={e=>setCurRoommateWealth(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} ${getWealthMetricLabel(rentWealthMetric)}`} {...NP} className="mb-3"/>
+          <FormInput type="number" value={curRoommateWealth} onChange={e=>setCurRoommateWealth(e.target.value)} placeholder={`${getCurrencySymbol(rentCurrency)} ${getWealthMetricLabel(rentWealthMetric)}`} {...(rentWealthMetric==='networth'?NP_NW:NP)} className="mb-3"/>
           <button onClick={()=>{const n=curRoommateName.trim();if(n&&!rentPeople.some(p=>p.name.toLowerCase()===n.toLowerCase())){setRentPeople([...rentPeople,{id:Date.now(),name:n,roomSize:curRoommateRoomSize,wealth:curRoommateWealth}]);setCurRoommateName('');setCurRoommateRoomSize('');setCurRoommateWealth('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD TENANT</button>
           {rentPeople.length>0?<ItemList items={rentPeople} onDelete={id=>setRentPeople(rentPeople.filter(p=>p.id!==id))} renderItem={p=><><p className={CLS_NAME}>{p.name}</p><p className={CLS_XS}>Room: {formatNumber((parseFloat(p.roomSize)||0).toFixed(0))} {getMeasurementLabel(rentMeasurement).toLowerCase()}</p><p className={CLS_XS}>{getWealthMetricLabel(rentWealthMetric)}: {_fc(p.wealth,rentCurrency)}</p></>}/>:<EmptyState msg="No tenants added yet"/>}
           {contBtn(3)}
@@ -2205,7 +2221,7 @@ const Comrade = () => {
           <p className={CLS_STEP_P}>Add everyone who's in on the bet, along with their financial information.</p>
           <CurrencyWealthSettings currency={betCurrency} onCurrency={setBetCurrency} wealth={betWealthMetric} onWealth={setBetWealthMetric}/>
           <FormInput value={curBetterName} onChange={e=>setCurBetterName(e.target.value)} placeholder="NAME" className="mb-2"/>
-          <FormInput type="number" value={curBetterWealth} onChange={e=>setCurBetterWealth(e.target.value)} placeholder={`${getCurrencySymbol(betCurrency)} ${getWealthMetricLabel(betWealthMetric)}`} {...NP} className="mb-3"/>
+          <FormInput type="number" value={curBetterWealth} onChange={e=>setCurBetterWealth(e.target.value)} placeholder={`${getCurrencySymbol(betCurrency)} ${getWealthMetricLabel(betWealthMetric)}`} {...(betWealthMetric==='networth'?NP_NW:NP)} className="mb-3"/>
           <button onClick={()=>{const n=curBetterName.trim();if(n&&!betPeople.some(p=>p.name.toLowerCase()===n.toLowerCase())){setBetPeople([...betPeople,{id:Date.now(),name:n,wealth:curBetterWealth}]);setCurBetterName('');setCurBetterWealth('');}}} className={`${CLS_BTN_BLK} mb-4`}>+ ADD PERSON</button>
           {betPeople.length>0?<ItemList items={betPeople} onDelete={id=>{const idx=betPeople.findIndex(p=>p.id===id);setBetPeople(betPeople.filter(p=>p.id!==id));if(parseInt(betAnchorIdx)===idx)setBetAnchorIdx('');else if(parseInt(betAnchorIdx)>idx)setBetAnchorIdx(String(parseInt(betAnchorIdx)-1));}} renderItem={b=><><p className={CLS_NAME}>{b.name}</p><p className={CLS_XS}>{getWealthMetricLabel(betWealthMetric)}: {_fc(b.wealth,betCurrency)}</p></>}/>:<EmptyState msg="No people added yet"/>}
           {contBtn(2)}
@@ -2248,6 +2264,7 @@ const Comrade = () => {
 
   return null;
 };
+
 
 
 
